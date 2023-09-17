@@ -1,6 +1,6 @@
 use glfw::{Action, Context};
 use crate::events::dispatcher::get_event_dispatcher;
-use crate::events::event::{KeyPressedEvent, KeyReleasedEvent, WindowCloseEvent, WindowResizeEvent};
+use crate::events::event::{KeyPressedEvent, KeyReleasedEvent, MouseButtonPressedEvent, MouseButtonReleasedEvent, MouseMovedEvent, MouseScrolledEvent, WindowCloseEvent, WindowResizeEvent};
 use crate::logging::engine_error;
 
 pub(crate) trait Window {
@@ -70,10 +70,23 @@ impl WindowsWindow {
         });
         window.set_key_callback(|key, _scancode, action, _modifiers| {
             match action {
-                Action::Press => event_dispatcher.dispatch(&KeyPressedEvent { key: key as u32, repeat_count: 0, handled: false }),
-                Action::Release => event_dispatcher.dispatch(&KeyReleasedEvent { key: key as u32, handled: false }),
-                Action::Repeat => event_dispatcher.dispatch(&KeyPressedEvent { key: key as u32, repeat_count: 1, handled: false }),
+                Action::Press => event_dispatcher.dispatch(&KeyPressedEvent { key: key as u8, repeat_count: 0, handled: false }),
+                Action::Repeat => event_dispatcher.dispatch(&KeyPressedEvent { key: key as u8, repeat_count: 1, handled: false }),
+                Action::Release => event_dispatcher.dispatch(&KeyReleasedEvent { key: key as u8, handled: false }),
             }
+        });
+        window.set_mouse_button_callback(|button, action, _modifiers| {
+            match action {
+                Action::Press => event_dispatcher.dispatch(&MouseButtonPressedEvent { button: button as u8, handled: false }),
+                Action::Release => event_dispatcher.dispatch(&MouseButtonReleasedEvent { button: button as u8, handled: false }),
+                _ => {}
+            }
+        });
+        window.set_scroll_callback(|offset_x, offset_y| {
+            event_dispatcher.dispatch(&MouseScrolledEvent { offset_x, offset_y, handled: false });
+        });
+        window.set_cursor_pos_callback(|x, y| {
+            event_dispatcher.dispatch(&MouseMovedEvent { x, y, handled: false });
         });
 
         Self { glfw, window, vsync: false }
