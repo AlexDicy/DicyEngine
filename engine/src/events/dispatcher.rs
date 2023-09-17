@@ -1,27 +1,23 @@
-use std::collections::HashMap;
-use crate::events::event::EventType;
 use crate::events::event::Event;
 
-pub struct EventDispatcher {
-    handlers: HashMap<EventType, Vec<fn(&dyn Event)>>,
+pub struct EventDispatcher<T: Event> {
+    handlers: Vec<fn(&T)>,
 }
 
-impl EventDispatcher {
-    pub fn new() -> EventDispatcher {
+impl<T: Event> EventDispatcher<T> {
+    pub fn new() -> EventDispatcher<T> {
         EventDispatcher {
-            handlers: HashMap::new(),
+            handlers: Vec::new(),
         }
     }
 
-    pub fn register_handler(&mut self, event_type: EventType, handler: fn(&dyn Event)) {
-        self.handlers.entry(event_type).or_insert(Vec::new()).push(handler);
+    pub fn register_handler(&mut self, handler: fn(&T)) {
+        self.handlers.push(handler);
     }
 
-    pub fn dispatch(&self, event: &dyn Event) {
-        if let Some(handlers) = self.handlers.get(&event.get_type()) {
-            for handler in handlers {
-                handler(event);
-            }
+    pub fn dispatch(&self, event: &T) {
+        for handler in &self.handlers {
+            handler(event);
         }
     }
 }
