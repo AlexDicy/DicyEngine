@@ -7,3 +7,4 @@ edition = "2021"
 
 [dependencies]
 time = { version = "0.3", features = ["local-offset"] }
+lazy_static = "1.4.0"
