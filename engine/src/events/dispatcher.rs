@@ -1,7 +1,5 @@
 use std::any::{Any, TypeId};
 use std::collections::HashMap;
-use std::sync::{Mutex, MutexGuard};
-use lazy_static::lazy_static;
 use crate::events::event::Event;
 
 pub struct EventDispatcher {
@@ -10,7 +8,7 @@ pub struct EventDispatcher {
 
 
 impl EventDispatcher {
-    fn new() -> EventDispatcher {
+    pub(crate) fn new() -> EventDispatcher {
         EventDispatcher {
             handlers: HashMap::new(),
         }
@@ -30,10 +28,13 @@ impl EventDispatcher {
     }
 }
 
-lazy_static! {
-    pub static ref DISPATCHER: Mutex<EventDispatcher> = Mutex::new(EventDispatcher::new());
+pub fn get_event_dispatcher() -> &'static mut EventDispatcher {
+    static mut EVENT_DISPATCHER: *mut EventDispatcher = std::ptr::null_mut();
+    unsafe {
+        if EVENT_DISPATCHER.is_null() {
+            EVENT_DISPATCHER = Box::into_raw(Box::new(EventDispatcher::new()));
+        }
+        &mut *EVENT_DISPATCHER
+    }
 }
 
-pub fn get_event_dispatcher() -> MutexGuard<'static, EventDispatcher> {
-    DISPATCHER.lock().unwrap()
-}

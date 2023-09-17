@@ -32,3 +32,34 @@ impl Event for WindowCloseEvent {
         self.handled = handled;
     }
 }
+
+pub struct KeyPressedEvent {
+    pub key: u32,
+    pub repeat_count: u32,
+    pub handled: bool,
+}
+
+impl Event for KeyPressedEvent {
+    fn is_handled(&self) -> bool {
+        self.handled
+    }
+
+    fn set_handled(&mut self, handled: bool) {
+        self.handled = handled;
+    }
+}
+
+pub struct KeyReleasedEvent {
+    pub key: u32,
+    pub handled: bool,
+}
+
+impl Event for KeyReleasedEvent {
+    fn is_handled(&self) -> bool {
+        self.handled
+    }
+
+    fn set_handled(&mut self, handled: bool) {
+        self.handled = handled;
+    }
+}

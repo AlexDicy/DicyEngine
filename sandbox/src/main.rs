@@ -1,29 +1,15 @@
-use engine::events::dispatcher::EventDispatcher;
-use engine::events::event::{WindowCloseEvent, WindowResizeEvent};
-use engine::log;
+use engine::application::Application;
+use engine::events::dispatcher::get_event_dispatcher;
+use engine::events::event::{KeyPressedEvent, WindowResizeEvent};
 
 fn main() {
-    let app = engine::application::Application::new();
-    //app.run();
-    let mut event_dispatcher1 = EventDispatcher::new();
-    event_dispatcher1.register_handler(|event: &WindowResizeEvent| {
-        log!("WindowResizeEvent::register_handler() called, width: {}, height: {}", event.width, event.height);
+    let mut app = Application::new();
+    let event_dispatcher = get_event_dispatcher();
+    event_dispatcher.register_handler(|event: &WindowResizeEvent| {
+        println!("HANDLED: {} {}", event.width, event.height);
     });
-    let mut event_dispatcher2 = EventDispatcher::new();
-    event_dispatcher2.register_handler(|_event: &WindowCloseEvent| {
-        log!("WindowCloseEvent::register_handler() called");
+    event_dispatcher.register_handler(|event: &KeyPressedEvent| {
+        println!("Key: {} {}", event.key, event.repeat_count);
     });
-    event_dispatcher1.dispatch(&WindowResizeEvent {
-        width: 0,
-        height: 0,
-        handled: false,
-    });
-    event_dispatcher1.dispatch(&WindowResizeEvent {
-        width: 9999,
-        height: 9999,
-        handled: false,
-    });
-    event_dispatcher2.dispatch(&WindowCloseEvent {
-        handled: false,
-    });
+    app.run();
 }
