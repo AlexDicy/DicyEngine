@@ -3,63 +3,75 @@ pub trait Event {
     fn set_handled(&mut self, handled: bool);
 }
 
-pub struct WindowResizeEvent {
-    pub width: u32,
-    pub height: u32,
-    pub handled: bool,
+macro_rules! event {
+    (
+        $(#[$attr:meta])*
+        $name:ident {
+            $(
+            $(#[$field_attr:meta])*
+            $field:ident: $type:ty
+            ),* $(,)?
+        }
+    ) => {
+        $(#[$attr])*
+        pub struct $name {
+            $(
+            $(#[$field_attr])*
+            pub $field: $type,
+            )*
+        }
+
+        impl Event for $name {
+            fn is_handled(&self) -> bool {
+                self.handled
+            }
+
+            fn set_handled(&mut self, handled: bool) {
+                self.handled = handled;
+            }
+        }
+    };
 }
 
-impl Event for WindowResizeEvent {
-    fn is_handled(&self) -> bool {
-        self.handled
-    }
+event!(WindowResizeEvent {
+    width: u32,
+    height: u32,
+    handled: bool,
+});
 
-    fn set_handled(&mut self, handled: bool) {
-        self.handled = handled;
-    }
-}
+event!(WindowCloseEvent {
+    handled: bool,
+});
 
-pub struct WindowCloseEvent {
-    pub handled: bool,
-}
+event!(KeyPressedEvent {
+    key: u8,
+    repeat_count: u32,
+    handled: bool,
+});
 
-impl Event for WindowCloseEvent {
-    fn is_handled(&self) -> bool {
-        self.handled
-    }
+event!(KeyReleasedEvent {
+    key: u8,
+    handled: bool,
+});
 
-    fn set_handled(&mut self, handled: bool) {
-        self.handled = handled;
-    }
-}
+event!(MouseButtonPressedEvent {
+    button: u8,
+    handled: bool,
+});
 
-pub struct KeyPressedEvent {
-    pub key: u32,
-    pub repeat_count: u32,
-    pub handled: bool,
-}
+event!(MouseButtonReleasedEvent {
+    button: u8,
+    handled: bool,
+});
 
-impl Event for KeyPressedEvent {
-    fn is_handled(&self) -> bool {
-        self.handled
-    }
+event!(MouseScrolledEvent {
+    offset_x: f64,
+    offset_y: f64,
+    handled: bool,
+});
 
-    fn set_handled(&mut self, handled: bool) {
-        self.handled = handled;
-    }
-}
-
-pub struct KeyReleasedEvent {
-    pub key: u32,
-    pub handled: bool,
-}
-
-impl Event for KeyReleasedEvent {
-    fn is_handled(&self) -> bool {
-        self.handled
-    }
-
-    fn set_handled(&mut self, handled: bool) {
-        self.handled = handled;
-    }
-}
+event!(MouseMovedEvent {
+    x: f64,
+    y: f64,
+    handled: bool,
+});
