@@ -10,3 +10,5 @@
 #ifdef DE_PLATFORM_WINDOWS
     #include <Windows.h>
 #endif
+
+#include "common.h"

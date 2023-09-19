@@ -28,6 +28,7 @@ BraceWrapping:
   SplitEmptyNamespace: false
 BreakBeforeBraces: Custom
 BreakConstructorInitializers: AfterColon
+SortIncludes: false
 ColumnLimit: 180
 FixNamespaceComments: false
 IncludeCategories: 
@@ -39,6 +40,7 @@ IncludeCategories:
     Priority: 3
 IncludeIsMainRegex: '([-_](test|unittest))?$'
 IndentCaseBlocks: true
+IndentCaseLabels: true
 IndentPPDirectives: BeforeHash
 IndentWidth: 4
 MacroBlockBegin: ''

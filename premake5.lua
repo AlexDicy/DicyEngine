@@ -47,6 +47,9 @@ project "Engine"
         }
 
         postbuildcommands {
+            -- create directory if it doesn't exist
+            ("{MKDIR} ../bin/" .. outputdir .. "/Sandbox"),
+            -- copy
             ("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/Sandbox")
         }
 

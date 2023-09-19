@@ -1,5 +1,8 @@
 #include "pch/enginepch.h"
 #include "common.h"
+#include "window.h"
+#include "events/dispatcher.h"
+#include "events/event.h"
 
 #include <GLFW/glfw3.h>
 
@@ -11,11 +14,11 @@ public:
     }
 
     void run() {
-        glfwInit();
-        const auto window = glfwCreateWindow(1280, 720, "DicyEngine", nullptr, nullptr);
-        glfwMakeContextCurrent(window);
+        const auto window = Window::create("DicyEngine", 1280, 720);
+        const auto event_dispatcher = EventDispatcher::get();
+        event_dispatcher->register_handler<WindowCloseEvent>([this](const WindowCloseEvent &) { this->running = false; });
         while (this->running) {
-            DE_TRACE("Running");
+            window->update();
         }
     }
 private:
