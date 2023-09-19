@@ -27,12 +27,18 @@ project "Engine"
 
     includedirs {
         "%{prj.name}/src",
-        "%{prj.name}/libs/spdlog/include"
+        "%{prj.name}/libs/spdlog/include",
+        "%{prj.name}/libs/GLFW/include"
+    }
+
+    links {
+        "GLFW",
+        "opengl32.lib"
     }
 
     filter "system:windows"
         cppdialect "C++20"
-        staticruntime "On"
+        staticruntime "on"
         systemversion "latest"
 
         defines {
@@ -46,15 +52,15 @@ project "Engine"
 
     filter "configurations:Debug"
         defines "DE_DEBUG"
-        symbols "On"
+        symbols "on"
 
     filter "configurations:Release"
         defines "DE_RELEASE"
-        optimize "On"
+        optimize "on"
 
     filter "configurations:Dist"
         defines "DE_DIST"
-        optimize "On"
+        optimize "on"
 
 
 project "Sandbox"
@@ -81,7 +87,7 @@ project "Sandbox"
 
     filter "system:windows"
         cppdialect "C++20"
-        staticruntime "On"
+        staticruntime "on"
         systemversion "latest"
 
         defines {
@@ -90,22 +96,22 @@ project "Sandbox"
 
     filter "configurations:Debug"
         defines "DE_DEBUG"
-        symbols "On"
+        symbols "on"
 
     filter "configurations:Release"
         defines "DE_RELEASE"
-        optimize "On"
+        optimize "on"
 
     filter "configurations:Dist"
         defines "DE_DIST"
-        optimize "On"
+        optimize "on"
 
 
-externalproject "GLFW"
+project "GLFW"
     location "Engine/libs/GLFW"
     kind "StaticLib"
     language "C"
-    staticruntime "off"
+    staticruntime "on"
     warnings "off"
 
     targetdir ("Engine/libs/GLFW/bin/" .. outputdir .. "/%{prj.name}")
@@ -150,7 +156,7 @@ externalproject "GLFW"
         }
 
     filter "system:linux"
-        pic "On"
+        pic "on"
    
         systemversion "latest"
 
@@ -174,7 +180,7 @@ externalproject "GLFW"
         }
 
     filter "system:macosx"
-        pic "On"
+        pic "on"
     
         files {
             "Engine/libs/GLFW/src/cocoa_init.m",
