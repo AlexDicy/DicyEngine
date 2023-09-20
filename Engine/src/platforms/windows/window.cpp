@@ -18,6 +18,9 @@ WindowsWindow::WindowsWindow(const char *title, const unsigned int width, const 
         if (!glfwInit()) {
             DE_ERROR("Failed to initialize GLFW");
         }
+        glfwSetErrorCallback([](int error, const char *description) {
+            DE_ERROR("GLFW error [{0}] {1}", error, description);
+        });
         is_glfw_initialized = true;
     }
 

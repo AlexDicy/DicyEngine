@@ -17,6 +17,10 @@ namespace logger {
         #define DE_INFO(...) logger::get_application_logger()->info(__VA_ARGS__)
         #define DE_WARN(...) logger::get_application_logger()->warn(__VA_ARGS__)
     #endif
+#else
+    #define DE_TRACE(...)
+    #define DE_INFO(...)
+    #define DE_WARN(...)
 #endif
 
 #ifdef DE_IS_ENGINE
