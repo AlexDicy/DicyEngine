@@ -30,13 +30,15 @@ project "Engine"
         "%{prj.name}/src",
         "%{prj.name}/libs/spdlog/include",
         "%{prj.name}/libs/GLFW/include",
-        "%{prj.name}/libs/glad/include"
+        "%{prj.name}/libs/glad/include",
+        "%{prj.name}/libs/ImGui",
     }
 
     links {
         "GLFW",
         "glad",
-        "opengl32.lib"
+        "opengl32.lib",
+        "ImGui"
     }
 
     filter "system:windows"
@@ -231,8 +233,8 @@ project "glad"
     language "C"
     warnings "off"
 
-    targetdir ("Engine/libs/GLFW/bin/" .. outputdir .. "/%{prj.name}")
-    objdir ("Engine/libs/GLFW/bin/int/" .. outputdir .. "/%{prj.name}")
+    targetdir ("Engine/libs/glad/bin/" .. outputdir .. "/%{prj.name}")
+    objdir ("Engine/libs/glad/bin/int/" .. outputdir .. "/%{prj.name}")
 
     files {
         "Engine/libs/glad/include/glad/gl.h",
@@ -247,3 +249,49 @@ project "glad"
     filter "system:windows"
         staticruntime "on"
         systemversion "latest"
+
+
+project "ImGui"
+    location "Engine/libs/ImGui"
+    kind "StaticLib"
+    language "C++"
+    warnings "off"
+
+    targetdir ("Engine/libs/ImGui/bin/" .. outputdir .. "/%{prj.name}")
+    objdir ("Engine/libs/ImGui/bin/int/" .. outputdir .. "/%{prj.name}")
+
+    files {
+        "Engine/libs/ImGui/imconfig.h",
+        "Engine/libs/ImGui/imgui.h",
+        "Engine/libs/ImGui/imgui.cpp",
+        "Engine/libs/ImGui/imgui_draw.cpp",
+        "Engine/libs/ImGui/imgui_internal.h",
+        "Engine/libs/ImGui/imgui_tables.cpp",
+        "Engine/libs/ImGui/imgui_widgets.cpp",
+        "Engine/libs/ImGui/imstb_rectpack.h",
+        "Engine/libs/ImGui/imstb_textedit.h",
+        "Engine/libs/ImGui/imstb_truetype.h",
+        "Engine/libs/ImGui/imgui_demo.cpp"
+    }
+
+    filter "system:windows"
+        systemversion "latest"
+        cppdialect "C++17"
+
+    filter "system:linux"
+        pic "On"
+        systemversion "latest"
+        cppdialect "C++17"
+
+    filter "configurations:Debug"
+        runtime "Debug"
+        symbols "on"
+
+    filter "configurations:Release"
+        runtime "Release"
+        optimize "on"
+
+    filter "configurations:Dist"
+        runtime "Release"
+        optimize "on"
+        symbols "off"
