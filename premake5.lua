@@ -9,6 +9,7 @@ workspace "DicyEngine"
 
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
+
 project "Engine"
     location "Engine"
     kind "SharedLib"
@@ -28,11 +29,13 @@ project "Engine"
     includedirs {
         "%{prj.name}/src",
         "%{prj.name}/libs/spdlog/include",
-        "%{prj.name}/libs/GLFW/include"
+        "%{prj.name}/libs/GLFW/include",
+        "%{prj.name}/libs/glad/include"
     }
 
     links {
         "GLFW",
+        "glad",
         "opengl32.lib"
     }
 
@@ -220,3 +223,27 @@ project "GLFW"
         runtime "Release"
         optimize "speed"
         symbols "off"
+
+
+project "glad"
+    location "Engine/libs/glad"
+    kind "StaticLib"
+    language "C"
+    warnings "off"
+
+    targetdir ("Engine/libs/GLFW/bin/" .. outputdir .. "/%{prj.name}")
+    objdir ("Engine/libs/GLFW/bin/int/" .. outputdir .. "/%{prj.name}")
+
+    files {
+        "Engine/libs/glad/include/glad/gl.h",
+        "Engine/libs/glad/include/KHR/khrplatform.h",
+        "Engine/libs/glad/src/gl.c"
+    }
+
+    includedirs {
+        "Engine/libs/glad/include"
+    }
+
+    filter "system:windows"
+        staticruntime "on"
+        systemversion "latest"
