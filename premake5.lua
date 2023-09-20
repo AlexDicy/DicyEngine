@@ -38,7 +38,7 @@ project "Engine"
 
     filter "system:windows"
         cppdialect "C++20"
-        staticruntime "on"
+        staticruntime "off"
         systemversion "latest"
 
         defines {
