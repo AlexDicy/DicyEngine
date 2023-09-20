@@ -1,6 +1,7 @@
 #pragma once
 #include <window.h>
-#include "GLFW/glfw3.h"
+
+struct GLFWwindow; // do not include 'GLFW' here, it would interfere with 'glad'
 
 class WindowsWindow : public Window {
     GLFWwindow *window;
@@ -15,4 +16,7 @@ public:
     unsigned get_height() const override;
     bool is_vsync() const override;
     void set_vsync(bool vsync) override;
+
+private:
+    void register_events() const;
 };
