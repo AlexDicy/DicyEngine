@@ -1,46 +1,35 @@
 #include "pch/enginepch.h"
-#include "common.h"
-#include "layer.h"
-#include "window.h"
-#include "events/dispatcher.h"
-#include "events/event.h"
-#include "layers\imgui_layer.h"
+#include "application.h"
 
-#include <GLFW/glfw3.h>
+#include "layers/imgui_layer.h"
 
-class DE_API Application {
-    std::shared_ptr<Window> window = nullptr;
-public:
-    Application() {
-        logger::init();
-        this->running = true;
-    }
 
-    void run() {
-        this->window = Window::create("DicyEngine", 1280, 720);
+Application::Application() {
+    this->running = true;
+}
 
-        const auto event_dispatcher = EventDispatcher::get();
-        std::vector<Layer *> layers = {};
-        register_layers(layers, event_dispatcher);
+void Application::run() {
+    this->window = Window::create("DicyEngine", 1280, 720);
 
-        event_dispatcher->register_global_handler<WindowCloseEvent>([this](const WindowCloseEvent &) {
-            this->running = false;
-        });
+    const auto event_dispatcher = EventDispatcher::get();
+    std::vector<Layer *> layers = {};
+    register_layers(layers, event_dispatcher, window);
 
-        while (this->running) {
-            for (const auto &layer : layers) {
-                layer->update();
-            }
+    event_dispatcher->register_global_handler<WindowCloseEvent>([this](const WindowCloseEvent &) {
+        this->running = false;
+    });
 
-            this->window->update();
+    while (this->running) {
+        for (const auto &layer : layers) {
+            layer->update();
         }
-    }
 
-private:
-    bool running;
-
-    void register_layers(std::vector<Layer *> &vector, EventDispatcher *event_dispatcher) const {
-        int layer_index = 0;
-        vector.push_back(new ImGuiLayer(layer_index++, event_dispatcher, this->window));
+        window->update();
     }
-};
+}
+
+
+void register_layers(std::vector<Layer *> &vector, EventDispatcher *event_dispatcher, std::shared_ptr<Window> window) {
+    int layer_index = 0;
+    vector.push_back(new ImGuiLayer(layer_index++, event_dispatcher, window));
+}

@@ -1,10 +1,16 @@
 #pragma once
+#include "layer.h"
+#include "window.h"
+#include "events/dispatcher.h"
 
-#include "common.h"
+class Application {
+    std::shared_ptr<Window> window;
+    bool running;
 
-class DE_API Application {
 public:
-    Application();
+    DE_API Application();
 
-    void run();
+    DE_API void run();
 };
+
+void register_layers(std::vector<Layer *> &vector, EventDispatcher *event_dispatcher, std::shared_ptr<Window> window);

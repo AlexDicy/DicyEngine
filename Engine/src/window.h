@@ -1,6 +1,7 @@
 #pragma once
+#include "common.h"
 
-DE_API class Window {
+class DE_API Window {
 public:
     virtual ~Window() = default;
     virtual void destroy() = 0;

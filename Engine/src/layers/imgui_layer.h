@@ -11,7 +11,7 @@ class ImGuiLayer : public Layer {
     float time = 0.0f;
     std::shared_ptr<Window> window;
 public:
-    ImGuiLayer(const unsigned int index, EventDispatcher *event_dispatcher, const std::shared_ptr<Window> window) : Layer(index, event_dispatcher) {
+    ImGuiLayer(const unsigned int index, EventDispatcher *event_dispatcher, std::shared_ptr<Window> window) : Layer(index, event_dispatcher) {
         this->window = window;
         ImGui::CreateContext();
         ImGui::StyleColorsDark();
