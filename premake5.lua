@@ -41,14 +41,18 @@ project "Engine"
         "ImGui"
     }
 
+    defines {
+        "DE_IS_ENGINE",
+        "IMGUI_IMPL_OPENGL_LOADER_CUSTOM"
+    }
+
     filter "system:windows"
         cppdialect "C++20"
         staticruntime "off"
         systemversion "latest"
 
         defines {
-            "DE_PLATFORM_WINDOWS",
-            "DE_IS_ENGINE"
+            "DE_PLATFORM_WINDOWS"
         }
 
         postbuildcommands {
@@ -119,7 +123,6 @@ project "GLFW"
     location "Engine/libs/GLFW"
     kind "StaticLib"
     language "C"
-    staticruntime "on"
     warnings "off"
 
     targetdir ("Engine/libs/GLFW/bin/" .. outputdir .. "/%{prj.name}")
@@ -145,6 +148,8 @@ project "GLFW"
     }
 
     filter "system:windows"
+        staticruntime "off"
+
         files { 
             "Engine/libs/GLFW/src/win32_init.c",
             "Engine/libs/GLFW/src/win32_joystick.c",
@@ -247,8 +252,21 @@ project "glad"
     }
 
     filter "system:windows"
-        staticruntime "on"
+        staticruntime "off"
         systemversion "latest"
+
+    filter "configurations:Debug"
+        runtime "Debug"
+        symbols "on"
+    
+    filter "configurations:Release"
+        runtime "Release"
+        optimize "speed"
+    
+    filter "configurations:Dist"
+        runtime "Release"
+        optimize "speed"
+        symbols "off"
 
 
 project "ImGui"
@@ -275,6 +293,7 @@ project "ImGui"
     }
 
     filter "system:windows"
+        staticruntime "off"
         systemversion "latest"
         cppdialect "C++17"
 
