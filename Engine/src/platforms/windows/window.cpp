@@ -9,8 +9,8 @@ namespace {
     bool is_glfw_initialized = false;
 }
 
-std::unique_ptr<Window> Window::create(const char *title, const unsigned int width, const unsigned int height) {
-    return std::make_unique<WindowsWindow>(title, width, height);
+std::shared_ptr<Window> Window::create(const char *title, const unsigned int width, const unsigned int height) {
+    return std::make_shared<WindowsWindow>(title, width, height);
 }
 
 WindowsWindow::WindowsWindow(const char *title, const unsigned int width, const unsigned int height) {

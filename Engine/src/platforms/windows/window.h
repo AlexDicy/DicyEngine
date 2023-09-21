@@ -3,7 +3,7 @@
 
 struct GLFWwindow; // do not include 'GLFW' here, it would interfere with 'glad'
 
-class WindowsWindow : public Window {
+DE_API class WindowsWindow : public Window {
     GLFWwindow *window;
     bool vsync = false;
 

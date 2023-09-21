@@ -79,7 +79,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch/enginepch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>DE_PLATFORM_WINDOWS;DE_IS_ENGINE;DE_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>DE_IS_ENGINE;IMGUI_IMPL_OPENGL_LOADER_CUSTOM;DE_PLATFORM_WINDOWS;DE_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>src;libs\spdlog\include;libs\GLFW\include;libs\glad\include;libs\ImGui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
@@ -103,7 +103,7 @@ IF EXIST ..\bin\Debug-windows-x86_64\Engine\Engine.dll\ (xcopy /Q /E /Y /I ..\bi
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch/enginepch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>DE_PLATFORM_WINDOWS;DE_IS_ENGINE;DE_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>DE_IS_ENGINE;IMGUI_IMPL_OPENGL_LOADER_CUSTOM;DE_PLATFORM_WINDOWS;DE_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>src;libs\spdlog\include;libs\GLFW\include;libs\glad\include;libs\ImGui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -131,7 +131,7 @@ IF EXIST ..\bin\Release-windows-x86_64\Engine\Engine.dll\ (xcopy /Q /E /Y /I ..\
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch/enginepch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>DE_PLATFORM_WINDOWS;DE_IS_ENGINE;DE_DIST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>DE_IS_ENGINE;IMGUI_IMPL_OPENGL_LOADER_CUSTOM;DE_PLATFORM_WINDOWS;DE_DIST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>src;libs\spdlog\include;libs\GLFW\include;libs\glad\include;libs\ImGui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -160,18 +160,23 @@ IF EXIST ..\bin\Dist-windows-x86_64\Engine\Engine.dll\ (xcopy /Q /E /Y /I ..\bin
     <ClInclude Include="src\events\dispatcher.h" />
     <ClInclude Include="src\events\event.h" />
     <ClInclude Include="src\layer.h" />
+    <ClInclude Include="src\layers\imgui_layer.h" />
     <ClInclude Include="src\logging.h" />
     <ClInclude Include="src\pch\enginepch.h" />
+    <ClInclude Include="src\platforms\opengl\imgui_impl_opengl3.h" />
+    <ClInclude Include="src\platforms\opengl\imgui_impl_opengl3_loader.h" />
     <ClInclude Include="src\platforms\windows\window.h" />
     <ClInclude Include="src\window.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\application.cpp" />
     <ClCompile Include="src\events\dispatcher.cpp" />
+    <ClCompile Include="src\layers\imgui_layer.cpp" />
     <ClCompile Include="src\logging.cpp" />
     <ClCompile Include="src\pch\enginepch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="src\platforms\opengl\imgui_impl_opengl3.cpp" />
     <ClCompile Include="src\platforms\windows\window.cpp" />
   </ItemGroup>
   <ItemGroup>

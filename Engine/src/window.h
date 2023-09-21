@@ -1,6 +1,6 @@
 #pragma once
 
-class Window {
+DE_API class Window {
 public:
     virtual ~Window() = default;
     virtual void destroy() = 0;
@@ -10,5 +10,5 @@ public:
     virtual bool is_vsync() const = 0;
     virtual void set_vsync(bool vsync) = 0;
 
-    static std::unique_ptr<Window> create(const char *title, unsigned int width, unsigned int height);
+    static std::shared_ptr<Window> create(const char *title, unsigned int width, unsigned int height);
 };
