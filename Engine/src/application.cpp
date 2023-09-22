@@ -1,10 +1,12 @@
 #include "pch/enginepch.h"
 #include "application.h"
 
+#include "glad/gl.h"
 #include "layers/imgui_layer.h"
 
 
 Application::Application() {
+    logger::init();
     this->running = true;
 }
 
@@ -20,6 +22,8 @@ void Application::run() {
     });
 
     while (this->running) {
+        glClearColor(0.1f, 0.5f, 0.5f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
         for (const auto &layer : layers) {
             layer->update();
         }

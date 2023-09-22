@@ -78,20 +78,23 @@ void WindowsWindow::register_events() const {
     glfwSetWindowCloseCallback(this->window, [](GLFWwindow *) {
         event_dispatcher->dispatch(WindowCloseEvent());
     });
-    glfwSetKeyCallback(this->window, [](GLFWwindow *, int key, int, int action, int) {
+    glfwSetKeyCallback(this->window, [](GLFWwindow *, int key, int scancode, int action, int) {
         switch (action) {
             case GLFW_PRESS:
-                event_dispatcher->dispatch(KeyPressedEvent(static_cast<unsigned int>(key), 0));
+                event_dispatcher->dispatch(KeyPressedEvent(static_cast<unsigned int>(key), static_cast<unsigned int>(scancode), 0));
                 break;
             case GLFW_REPEAT:
-                event_dispatcher->dispatch(KeyPressedEvent(static_cast<unsigned int>(key), 1));
+                event_dispatcher->dispatch(KeyPressedEvent(static_cast<unsigned int>(key), static_cast<unsigned int>(scancode), 1));
                 break;
             case GLFW_RELEASE:
-                event_dispatcher->dispatch(KeyReleasedEvent(static_cast<unsigned int>(key)));
+                event_dispatcher->dispatch(KeyReleasedEvent(static_cast<unsigned int>(key), static_cast<unsigned int>(scancode)));
                 break;
             default:
                 break;
         }
+    });
+    glfwSetCharCallback(this->window, [](GLFWwindow *, unsigned int c) {
+        event_dispatcher->dispatch(CharTypedEvent(c));
     });
     glfwSetMouseButtonCallback(this->window, [](GLFWwindow *, int button, int action, int) {
         switch (action) {

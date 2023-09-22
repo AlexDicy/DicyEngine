@@ -2,27 +2,28 @@
 #include "imgui.h"
 #include "layer.h"
 #include "window.h"
-#include "platforms/opengl/imgui_impl_opengl3.h"
 
-
-#include <GLFW/glfw3.h>
 
 class ImGuiLayer : public Layer {
     float time = 0.0f;
     std::shared_ptr<Window> window;
+    ImGuiIO *io;
+
 public:
-    ImGuiLayer(const unsigned int index, EventDispatcher *event_dispatcher, std::shared_ptr<Window> window) : Layer(index, event_dispatcher) {
-        this->window = window;
-        ImGui::CreateContext();
-        ImGui::StyleColorsDark();
-
-        ImGuiIO &io = ImGui::GetIO();
-        io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;
-        io.BackendFlags |= ImGuiBackendFlags_HasSetMousePos;
-
-        ImGui_ImplOpenGL3_Init("#version 460");
-        this->time = static_cast<float>(glfwGetTime());
-    }
+    ImGuiLayer(unsigned int index, EventDispatcher *event_dispatcher, std::shared_ptr<Window> window);
 
     void update() override;
+
+private:
+    bool on_mouse_button_pressed(const MouseButtonPressedEvent &event) const;
+    bool on_mouse_button_released(const MouseButtonReleasedEvent &event) const;
+    bool on_mouse_moved(const MouseMovedEvent &event) const;
+    bool on_mouse_scrolled(const MouseScrolledEvent &event) const;
+    bool on_key_pressed(const KeyPressedEvent &event) const;
+    bool on_key_released(const KeyReleasedEvent &event) const;
+    bool on_char_typed(const CharTypedEvent &event) const;
+    bool on_window_resized(const WindowResizeEvent &event) const;
 };
+
+
+static ImGuiKey translate_key(unsigned int key, int scancode);

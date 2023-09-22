@@ -34,14 +34,19 @@ class WindowCloseEvent : public Event {};
 
 class KeyPressedEvent : public Event {
     unsigned int key;
+    int scancode;
     unsigned int repeat_count;
 
 public:
-    KeyPressedEvent(const unsigned int key, const unsigned int repeat_count) : key(key), repeat_count(repeat_count) {
+    KeyPressedEvent(const unsigned int key, const int scancode, const unsigned int repeat_count) : key(key), scancode(scancode), repeat_count(repeat_count) {
     }
 
     unsigned int get_key() const {
         return this->key;
+    }
+
+    int get_scancode() const {
+        return this->scancode;
     }
 
     unsigned int get_repeat_count() const {
@@ -51,13 +56,30 @@ public:
 
 class KeyReleasedEvent : public Event {
     unsigned int key;
+    int scancode;
 
 public:
-    explicit KeyReleasedEvent(const unsigned int key) : key(key) {
+    explicit KeyReleasedEvent(const unsigned int key, const int scancode) : key(key), scancode(scancode) {
     }
 
     unsigned int get_key() const {
         return this->key;
+    }
+
+    int get_scancode() const {
+        return this->scancode;
+    }
+};
+
+class CharTypedEvent : public Event {
+    unsigned int c;
+
+public:
+    explicit CharTypedEvent(const unsigned int c) : c(c) {
+    }
+
+    unsigned int get_char() const {
+        return this->c;
     }
 };
 
