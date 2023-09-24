@@ -5,7 +5,7 @@
 #include "platforms/opengl/imgui_impl_opengl3.h"
 
 
-ImGuiLayer::ImGuiLayer(const unsigned index, EventDispatcher *event_dispatcher, std::shared_ptr<Window> window) : Layer(index, event_dispatcher) {
+ImGuiLayer::ImGuiLayer(const unsigned index, EventDispatcher *event_dispatcher, const std::shared_ptr<Window> &window) : Layer(index, event_dispatcher) {
     this->window = window;
     ImGui::CreateContext();
     ImGui::StyleColorsDark();

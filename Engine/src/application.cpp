@@ -28,12 +28,12 @@ void Application::run() {
             layer->update();
         }
 
-        window->update();
+        this->window->update();
     }
 }
 
 
-void register_layers(std::vector<Layer *> &vector, EventDispatcher *event_dispatcher, std::shared_ptr<Window> window) {
+void register_layers(std::vector<Layer *> &vector, EventDispatcher *event_dispatcher, const std::shared_ptr<Window> &window) {
     int layer_index = 0;
     vector.push_back(new ImGuiLayer(layer_index++, event_dispatcher, window));
 }

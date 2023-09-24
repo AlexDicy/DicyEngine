@@ -17,7 +17,7 @@ namespace logger {
         std::shared_ptr<spdlog::logger> application_logger;
     };
 
-    Logger* logger = nullptr;
+    Logger *logger = nullptr;
 
     void init() {
         if (logger == nullptr) {
@@ -25,11 +25,11 @@ namespace logger {
         }
     }
 
-    DE_API inline std::shared_ptr<spdlog::logger> get_engine_logger() {
+    DE_API inline std::shared_ptr<spdlog::logger> &get_engine_logger() {
         return logger->engine_logger;
     }
 
-    DE_API inline std::shared_ptr<spdlog::logger> get_application_logger() {
+    DE_API inline std::shared_ptr<spdlog::logger> &get_application_logger() {
         return logger->application_logger;
     }
 }

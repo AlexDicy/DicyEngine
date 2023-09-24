@@ -13,4 +13,4 @@ public:
     DE_API void run();
 };
 
-void register_layers(std::vector<Layer *> &vector, EventDispatcher *event_dispatcher, std::shared_ptr<Window> window);
+void register_layers(std::vector<Layer *> &vector, EventDispatcher *event_dispatcher, const std::shared_ptr<Window> &window);

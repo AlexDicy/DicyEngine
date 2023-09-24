@@ -10,7 +10,7 @@ class ImGuiLayer : public Layer {
     ImGuiIO *io;
 
 public:
-    ImGuiLayer(unsigned int index, EventDispatcher *event_dispatcher, std::shared_ptr<Window> window);
+    ImGuiLayer(unsigned int index, EventDispatcher *event_dispatcher, const std::shared_ptr<Window> &window);
 
     void update() override;
 

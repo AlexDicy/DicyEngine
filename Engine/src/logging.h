@@ -3,8 +3,8 @@
 
 namespace logger {
     void init();
-    DE_API inline std::shared_ptr<spdlog::logger> get_engine_logger();
-    DE_API inline std::shared_ptr<spdlog::logger> get_application_logger();
+    DE_API inline std::shared_ptr<spdlog::logger>& get_engine_logger();
+    DE_API inline std::shared_ptr<spdlog::logger>& get_application_logger();
 }
 
 #if defined(DE_DEBUG) || defined(DE_RELEASE)
