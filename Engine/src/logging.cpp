@@ -1,12 +1,11 @@
 #include "pch/enginepch.h"
-#include "common.h"
 #include "spdlog/sinks/stdout_color_sinks.h"
 #include "spdlog/spdlog.h"
 
 namespace logger {
-    class Logger {
+    class LoggerWrapper {
     public:
-        Logger() {
+        LoggerWrapper() {
             this->engine_logger = spdlog::stdout_color_mt("engine");
             this->engine_logger->set_level(spdlog::level::trace);
             this->application_logger = spdlog::stdout_color_mt("app");
@@ -17,19 +16,19 @@ namespace logger {
         std::shared_ptr<spdlog::logger> application_logger;
     };
 
-    Logger *logger = nullptr;
-
-    void init() {
-        if (logger == nullptr) {
-            logger = new Logger();
-        }
-    }
+    LoggerWrapper *logger_wrapper = nullptr;
 
     DE_API inline std::shared_ptr<spdlog::logger> &get_engine_logger() {
-        return logger->engine_logger;
+        return logger_wrapper->engine_logger;
     }
 
     DE_API inline std::shared_ptr<spdlog::logger> &get_application_logger() {
-        return logger->application_logger;
+        return logger_wrapper->application_logger;
+    }
+}
+
+void Logger::init() {
+    if (logger::logger_wrapper == nullptr) {
+        logger::logger_wrapper = new logger::LoggerWrapper();
     }
 }

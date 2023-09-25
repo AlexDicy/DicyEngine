@@ -1,12 +1,14 @@
 #include "pch/enginepch.h"
-#include "application.h"
-
 #include "glad/gl.h"
+
+#include "application.h"
+#include "input.h"
 #include "layers/imgui_layer.h"
 
 
 Application::Application() {
-    logger::init();
+    Logger::init();
+    Input::init(EventDispatcher::get());
     this->running = true;
 }
 

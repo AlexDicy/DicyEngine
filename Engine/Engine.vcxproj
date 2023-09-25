@@ -159,6 +159,7 @@ IF EXIST ..\bin\Dist-windows-x86_64\Engine\Engine.dll\ (xcopy /Q /E /Y /I ..\bin
     <ClInclude Include="src\common.h" />
     <ClInclude Include="src\events\dispatcher.h" />
     <ClInclude Include="src\events\event.h" />
+    <ClInclude Include="src\input.h" />
     <ClInclude Include="src\layer.h" />
     <ClInclude Include="src\layers\imgui_layer.h" />
     <ClInclude Include="src\logging.h" />
@@ -171,6 +172,7 @@ IF EXIST ..\bin\Dist-windows-x86_64\Engine\Engine.dll\ (xcopy /Q /E /Y /I ..\bin
   <ItemGroup>
     <ClCompile Include="src\application.cpp" />
     <ClCompile Include="src\events\dispatcher.cpp" />
+    <ClCompile Include="src\input.cpp" />
     <ClCompile Include="src\layers\imgui_layer.cpp" />
     <ClCompile Include="src\logging.cpp" />
     <ClCompile Include="src\pch\enginepch.cpp">
