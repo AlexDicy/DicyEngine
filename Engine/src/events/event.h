@@ -63,7 +63,7 @@ public:
     }
 
     unsigned int get_key() const {
-        return this->key;
+        return this->key; // TODO: should return InputID or similar
     }
 
     int get_scancode() const {
