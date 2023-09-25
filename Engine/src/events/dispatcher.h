@@ -17,16 +17,16 @@ public:
     template <typename E = Event>
     void register_global_handler(Handler<E> handler) {
         auto handler_ptr = new Handler<E>(handler);
-        global_handlers[typeid(E)].push_back(static_cast<void *>(handler_ptr));
+        global_handlers[typeid(E)].push_back(handler_ptr);
     }
 
     template <typename E = Event>
     void register_layer_handler(const unsigned int layer_index, Handler<E> handler) {
-        auto handler_ptr = new Handler<E>(handler);
         if (layer_index >= this->layer_handlers.size()) {
             this->layer_handlers.resize(layer_index + 1);
         }
-        layer_handlers[layer_index][typeid(E)].push_back(static_cast<void *>(handler_ptr));
+        auto handler_ptr = new Handler<E>(handler);
+        layer_handlers[layer_index][typeid(E)].push_back(handler_ptr);
     }
 
     template <typename E = Event>
