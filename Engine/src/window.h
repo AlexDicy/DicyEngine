@@ -12,4 +12,12 @@ public:
     virtual void set_vsync(bool vsync) = 0;
 
     static std::shared_ptr<Window> create(const char *title, unsigned int width, unsigned int height);
+
+
+#ifdef DE_PLATFORM_WINDOWS
+    typedef struct GLFWwindow GLFWwindow; // do not include 'GLFW' here, it would interfere with 'glad'
+    virtual GLFWwindow *get_native_window() const = 0;
+#else
+    #error "Unsupported platform"
+#endif
 };

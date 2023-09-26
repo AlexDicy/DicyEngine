@@ -8,7 +8,6 @@
 
 Application::Application() {
     Logger::init();
-    Input::init(EventDispatcher::get());
     this->running = true;
 }
 
@@ -22,6 +21,8 @@ void Application::run() {
     event_dispatcher->register_global_handler<WindowCloseEvent>([this](const WindowCloseEvent &) {
         this->running = false;
     });
+
+    Input::init(event_dispatcher, window);
 
     while (this->running) {
         glClearColor(0.1f, 0.5f, 0.5f, 1.0f);

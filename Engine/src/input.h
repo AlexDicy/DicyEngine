@@ -1,8 +1,7 @@
 #pragma once
+#include "window.h"
 #include "events/dispatcher.h"
 
-
-#include <ranges>
 
 class Input {
     // actions to keycode mapping
@@ -13,8 +12,10 @@ class Input {
     static std::unordered_map<std::string, std::unordered_map<unsigned int, float>> axis_mapping;
     static std::unordered_map<unsigned int, std::vector<std::pair<std::function<void(float)>, float>>> axis_bindings;
 
+    static std::shared_ptr<Window> window;
+
 public:
-    static void init(EventDispatcher *event_dispatcher);
+    static void init(EventDispatcher *event_dispatcher, const std::shared_ptr<Window> &window);
 
     static void bind_action_pressed(const std::string &action, const std::function<void()> &callback) {
         bindings_pressed[actions_mapping[action]].push_back(callback);
@@ -29,4 +30,6 @@ public:
             axis_bindings[keycode].emplace_back(callback, scale);
         }
     }
+
+    static bool is_action_pressed(const std::string &action);
 };

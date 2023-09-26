@@ -16,6 +16,9 @@ public:
     unsigned get_height() const override;
     bool is_vsync() const override;
     void set_vsync(bool vsync) override;
+    GLFWwindow *get_native_window() const override {
+        return this->window;
+    }
 
 private:
     void register_events() const;
