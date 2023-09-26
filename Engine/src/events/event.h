@@ -1,4 +1,5 @@
 #pragma once
+#include "input/inputcodes.h"
 
 class Event {
 public:
@@ -33,15 +34,15 @@ public:
 class WindowCloseEvent : public Event {};
 
 class KeyPressedEvent : public Event {
-    unsigned int key;
+    InputCode key;
     int scancode;
     unsigned int repeat_count;
 
 public:
-    KeyPressedEvent(const unsigned int key, const int scancode, const unsigned int repeat_count) : key(key), scancode(scancode), repeat_count(repeat_count) {
+    KeyPressedEvent(const InputCode key, const int scancode, const unsigned int repeat_count) : key(key), scancode(scancode), repeat_count(repeat_count) {
     }
 
-    unsigned int get_key() const {
+    InputCode get_key() const {
         return this->key;
     }
 
@@ -55,14 +56,14 @@ public:
 };
 
 class KeyReleasedEvent : public Event {
-    unsigned int key;
+    InputCode key;
     int scancode;
 
 public:
-    explicit KeyReleasedEvent(const unsigned int key, const int scancode) : key(key), scancode(scancode) {
+    explicit KeyReleasedEvent(const InputCode key, const int scancode) : key(key), scancode(scancode) {
     }
 
-    unsigned int get_key() const {
+    InputCode get_key() const {
         return this->key; // TODO: should return InputID or similar
     }
 
@@ -84,25 +85,25 @@ public:
 };
 
 class MouseButtonPressedEvent : public Event {
-    unsigned int button;
+    InputCode button;
 
 public:
-    explicit MouseButtonPressedEvent(const unsigned int button) : button(button) {
+    explicit MouseButtonPressedEvent(const InputCode button) : button(button) {
     }
 
-    unsigned int get_button() const {
+    InputCode get_button() const {
         return this->button;
     }
 };
 
 class MouseButtonReleasedEvent : public Event {
-    unsigned int button;
+    InputCode button;
 
 public:
-    explicit MouseButtonReleasedEvent(const unsigned int button) : button(button) {
+    explicit MouseButtonReleasedEvent(const InputCode button) : button(button) {
     }
 
-    unsigned int get_button() const {
+    InputCode get_button() const {
         return this->button;
     }
 };

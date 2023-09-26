@@ -2,7 +2,7 @@
 #include "glad/gl.h"
 
 #include "application.h"
-#include "input.h"
+#include "input/input.h"
 #include "layers/imgui_layer.h"
 
 

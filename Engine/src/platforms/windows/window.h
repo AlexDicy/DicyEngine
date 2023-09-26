@@ -1,5 +1,6 @@
 #pragma once
 #include <window.h>
+#include "input/inputcodes.h"
 
 struct GLFWwindow; // do not include 'GLFW' here, it would interfere with 'glad'
 
@@ -23,3 +24,6 @@ public:
 private:
     void register_events() const;
 };
+
+InputCode convert_key_to_input_code(int key);
+InputCode convert_mouse_button_to_input_code(int button);

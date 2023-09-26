@@ -26,4 +26,5 @@ private:
 };
 
 
-static ImGuiKey translate_key(unsigned int key, int scancode);
+static ImGuiKey translate_key(InputCode key, int scancode);
+static ImGuiMouseButton translate_mouse_button(InputCode button);

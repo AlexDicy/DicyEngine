@@ -1,16 +1,17 @@
 #pragma once
 #include "window.h"
 #include "events/dispatcher.h"
+#include "inputcodes.h"
 
 
 class Input {
     // actions to keycode mapping
-    static std::unordered_map<std::string, unsigned int> actions_mapping;
-    static std::unordered_map<unsigned int, std::vector<std::function<void()>>> bindings_pressed;
-    static std::unordered_map<unsigned int, std::vector<std::function<void()>>> bindings_released;
+    static std::unordered_map<std::string, InputCode> actions_mapping;
+    static std::unordered_map<InputCode, std::vector<std::function<void()>>> bindings_pressed;
+    static std::unordered_map<InputCode, std::vector<std::function<void()>>> bindings_released;
     // axis mapping (axis name, [(keycode, value)])
-    static std::unordered_map<std::string, std::unordered_map<unsigned int, float>> axis_mapping;
-    static std::unordered_map<unsigned int, std::vector<std::pair<std::function<void(float)>, float>>> axis_bindings;
+    static std::unordered_map<std::string, std::unordered_map<InputCode, float>> axis_mapping;
+    static std::unordered_map<InputCode, std::vector<std::pair<std::function<void(float)>, float>>> axis_bindings;
 
     static std::shared_ptr<Window> window;
 

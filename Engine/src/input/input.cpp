@@ -1,16 +1,17 @@
 #include "pch/enginepch.h"
 #include "input.h"
 
-#include <ranges>
+
 #include "GLFW/glfw3.h"
+#include <ranges>
 
 // actions
-std::unordered_map<std::string, unsigned int> Input::actions_mapping;
-std::unordered_map<unsigned int, std::vector<std::function<void()>>> Input::bindings_pressed;
-std::unordered_map<unsigned int, std::vector<std::function<void()>>> Input::bindings_released;
+std::unordered_map<std::string, InputCode> Input::actions_mapping;
+std::unordered_map<InputCode, std::vector<std::function<void()>>> Input::bindings_pressed;
+std::unordered_map<InputCode, std::vector<std::function<void()>>> Input::bindings_released;
 // axes
-std::unordered_map<std::string, std::unordered_map<unsigned int, float>> Input::axis_mapping;
-std::unordered_map<unsigned int, std::vector<std::pair<std::function<void(float)>, float>>> Input::axis_bindings;
+std::unordered_map<std::string, std::unordered_map<InputCode, float>> Input::axis_mapping;
+std::unordered_map<InputCode, std::vector<std::pair<std::function<void(float)>, float>>> Input::axis_bindings;
 
 std::shared_ptr<Window> Input::window;
 
@@ -18,11 +19,11 @@ std::shared_ptr<Window> Input::window;
 void Input::init(EventDispatcher *event_dispatcher, const std::shared_ptr<Window> &window) {
     Input::window = window;
     // TODO: do not hardcode and use InputIDs or something
-    actions_mapping["move_forward"] = GLFW_KEY_W;
-    actions_mapping["move_left"] = GLFW_KEY_A;
-    actions_mapping["move_backward"] = GLFW_KEY_S;
-    actions_mapping["move_right"] = GLFW_KEY_D;
-    actions_mapping["jump"] = GLFW_KEY_SPACE;
+    actions_mapping["move_forward"] = KEY_W;
+    actions_mapping["move_left"] = KEY_A;
+    actions_mapping["move_backward"] = KEY_S;
+    actions_mapping["move_right"] = KEY_D;
+    actions_mapping["jump"] = KEY_SPACE;
 
     event_dispatcher->register_global_handler<KeyPressedEvent>([](const KeyPressedEvent &event) {
         if (event.get_repeat_count() > 0) {
@@ -55,7 +56,7 @@ void Input::init(EventDispatcher *event_dispatcher, const std::shared_ptr<Window
 
 #ifdef DE_PLATFORM_WINDOWS
 bool Input::is_action_pressed(const std::string &action) {
-    const auto status = glfwGetKey(window->get_native_window(), actions_mapping[action]); // NOLINT(bugprone-narrowing-conversions, cppcoreguidelines-narrowing-conversions)
+    const auto status = glfwGetKey(window->get_native_window(), actions_mapping[action]);  // NOLINT(bugprone-narrowing-conversions, cppcoreguidelines-narrowing-conversions)
     return status == GLFW_PRESS || status == GLFW_REPEAT;
 }
 #else
