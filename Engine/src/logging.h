@@ -1,5 +1,7 @@
 #pragma once
+#pragma warning(push, 0)
 #include "spdlog/spdlog.h"
+#pragma warning(pop)
 
 
 class Logger {
