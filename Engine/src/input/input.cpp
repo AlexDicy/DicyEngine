@@ -10,20 +10,24 @@ std::unordered_map<std::string, InputCode> Input::actions_mapping;
 std::unordered_map<InputCode, std::vector<std::function<void()>>> Input::bindings_pressed;
 std::unordered_map<InputCode, std::vector<std::function<void()>>> Input::bindings_released;
 // axes
-std::unordered_map<std::string, std::unordered_map<InputCode, float>> Input::axis_mapping;
-std::unordered_map<InputCode, std::vector<std::pair<std::function<void(float)>, float>>> Input::axis_bindings;
+std::unordered_map<std::string, std::unordered_map<InputCode, double>> Input::axis_mapping;
+std::unordered_map<InputCode, std::vector<std::pair<std::function<void(double)>, double>>> Input::axis_bindings;
 
 std::shared_ptr<Window> Input::window;
 
 
 void Input::init(EventDispatcher *event_dispatcher, const std::shared_ptr<Window> &window) {
     Input::window = window;
-    // TODO: do not hardcode and use InputIDs or something
+    // TODO: do not hardcode
     actions_mapping["move_forward"] = KEY_W;
     actions_mapping["move_left"] = KEY_A;
     actions_mapping["move_backward"] = KEY_S;
     actions_mapping["move_right"] = KEY_D;
     actions_mapping["jump"] = KEY_SPACE;
+    axis_mapping["look_x"] = {{MOUSE_X, 1.0}};
+    axis_mapping["look_y"] = {{MOUSE_Y, 1.0}};
+    axis_mapping["move_x"] = {{KEY_D, 1.0}, {KEY_A, -1.0}};
+    axis_mapping["move_y"] = {{KEY_W, 1.0}, {KEY_S, -1.0}};
 
     event_dispatcher->register_global_handler<KeyPressedEvent>([](const KeyPressedEvent &event) {
         if (event.get_repeat_count() > 0) {
@@ -49,14 +53,31 @@ void Input::init(EventDispatcher *event_dispatcher, const std::shared_ptr<Window
         }
     });
 
+    static double last_x = 0.0;
+    static double last_y = 0.0;
     event_dispatcher->register_global_handler<MouseMovedEvent>([](const MouseMovedEvent &event) {
-        // should use an input id for the mouse
+        const double &x = event.get_x();
+        const double &y = event.get_y();
+
+        const double offset_x = x - last_x;
+        const double offset_y = last_y - y; // reversed since y-coordinates go from bottom to top
+
+        for (const auto &[callback, scale] : axis_bindings[MOUSE_X]) {
+            callback(offset_x * scale);
+        }
+
+        for (const auto &[callback, scale] : axis_bindings[MOUSE_Y]) {
+            callback(offset_y * scale);
+        }
+
+        last_x = x;
+        last_y = y;
     });
 }
 
 #ifdef DE_PLATFORM_WINDOWS
 bool Input::is_action_pressed(const std::string &action) {
-    const auto status = glfwGetKey(window->get_native_window(), actions_mapping[action]);  // NOLINT(bugprone-narrowing-conversions, cppcoreguidelines-narrowing-conversions)
+    const auto status = glfwGetKey(window->get_native_window(), actions_mapping[action]); // NOLINT(bugprone-narrowing-conversions, cppcoreguidelines-narrowing-conversions)
     return status == GLFW_PRESS || status == GLFW_REPEAT;
 }
 #else

@@ -134,6 +134,8 @@ enum InputCode : unsigned int {
     MOUSE_BUTTON_LEFT = 1000,
     MOUSE_BUTTON_RIGHT = 1001,
     MOUSE_BUTTON_MIDDLE = 1002,
+    MOUSE_X = 1100,
+    MOUSE_Y = 1101,
     // joystick (from 2000)
     JOYSTICK_1 = 2000,
     JOYSTICK_2 = 2001,

@@ -10,8 +10,8 @@ class Input {
     static std::unordered_map<InputCode, std::vector<std::function<void()>>> bindings_pressed;
     static std::unordered_map<InputCode, std::vector<std::function<void()>>> bindings_released;
     // axis mapping (axis name, [(keycode, value)])
-    static std::unordered_map<std::string, std::unordered_map<InputCode, float>> axis_mapping;
-    static std::unordered_map<InputCode, std::vector<std::pair<std::function<void(float)>, float>>> axis_bindings;
+    static std::unordered_map<std::string, std::unordered_map<InputCode, double>> axis_mapping;
+    static std::unordered_map<InputCode, std::vector<std::pair<std::function<void(double)>, double>>> axis_bindings;
 
     static std::shared_ptr<Window> window;
 
@@ -26,7 +26,7 @@ public:
         bindings_released[actions_mapping[action]].push_back(callback);
     }
 
-    static void bind_axis(const std::string &axis, const std::function<void(float)> &callback) {
+    static void bind_axis(const std::string &axis, const std::function<void(double)> &callback) {
         for (const auto &[keycode, scale] : axis_mapping[axis]) {
             axis_bindings[keycode].emplace_back(callback, scale);
         }
