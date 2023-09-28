@@ -10,3 +10,6 @@
 [submodule "Engine/libs/glad"]
 	path = Engine/libs/glad
 	url = https://github.com/Dicy/engine-glad
+[submodule "Engine/libs/glm"]
+	path = Engine/libs/glm
+	url = https://github.com/g-truc/glm

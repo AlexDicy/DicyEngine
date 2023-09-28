@@ -34,6 +34,7 @@ project "Engine"
         "%{prj.name}/libs/GLFW/include",
         "%{prj.name}/libs/glad/include",
         "%{prj.name}/libs/ImGui",
+        "%{prj.name}/libs/glm",
     }
 
     links {
