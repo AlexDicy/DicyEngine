@@ -12,7 +12,7 @@ Application::Application() {
 }
 
 void Application::run() {
-    this->window = Window::create("DicyEngine", 1280, 720);
+    this->window = Window::create("DicyEngine", 1920, 1080);
 
     const auto event_dispatcher = EventDispatcher::get();
     std::vector<Layer *> layers = {};

@@ -33,6 +33,7 @@ WindowsWindow::WindowsWindow(const char *title, const unsigned int width, const 
         return;
     }
 
+    this->WindowsWindow::set_vsync(false);
     this->register_events();
 }
 
