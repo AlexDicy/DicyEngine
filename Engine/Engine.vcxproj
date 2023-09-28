@@ -165,8 +165,8 @@ IF EXIST ..\bin\Dist-windows-x86_64\Engine\Engine.dll\ (xcopy /Q /E /Y /I ..\bin
     <ClInclude Include="src\layers\imgui_layer.h" />
     <ClInclude Include="src\logging.h" />
     <ClInclude Include="src\pch\enginepch.h" />
+    <ClInclude Include="src\platforms\opengl\imgui_impl_glfw.h" />
     <ClInclude Include="src\platforms\opengl\imgui_impl_opengl3.h" />
-    <ClInclude Include="src\platforms\opengl\imgui_impl_opengl3_loader.h" />
     <ClInclude Include="src\platforms\windows\window.h" />
     <ClInclude Include="src\window.h" />
   </ItemGroup>
@@ -179,6 +179,7 @@ IF EXIST ..\bin\Dist-windows-x86_64\Engine\Engine.dll\ (xcopy /Q /E /Y /I ..\bin
     <ClCompile Include="src\pch\enginepch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="src\platforms\opengl\imgui_impl_glfw.cpp" />
     <ClCompile Include="src\platforms\opengl\imgui_impl_opengl3.cpp" />
     <ClCompile Include="src\platforms\windows\window.cpp" />
   </ItemGroup>
