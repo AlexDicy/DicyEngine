@@ -7,6 +7,8 @@ struct GLFWwindow; // do not include 'GLFW' here, it would interfere with 'glad'
 class DE_API WindowsWindow : public Window {
     GLFWwindow *window;
     bool vsync = false;
+    double last_time = 0.0;
+    double last_frame_time = 0.0;
 
 public:
     WindowsWindow(const char *title, unsigned int width, unsigned int height);
@@ -17,6 +19,8 @@ public:
     unsigned get_height() const override;
     bool is_vsync() const override;
     void set_vsync(bool vsync) override;
+    double get_last_frame_time() const override;
+
     GLFWwindow *get_native_window() const override {
         return this->window;
     }

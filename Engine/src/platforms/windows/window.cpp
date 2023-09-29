@@ -33,7 +33,7 @@ WindowsWindow::WindowsWindow(const char *title, const unsigned int width, const 
         return;
     }
 
-    this->WindowsWindow::set_vsync(false);
+    this->WindowsWindow::set_vsync(true);
     this->register_events();
 }
 
@@ -44,6 +44,11 @@ WindowsWindow::~WindowsWindow() {
 void WindowsWindow::update() {
     glfwPollEvents();
     glfwSwapBuffers(this->window);
+
+    double current_time = glfwGetTime();
+    double delta_time = current_time - this->last_time;
+    this->last_time = current_time;
+    this->last_frame_time = delta_time;
 }
 
 void WindowsWindow::destroy() {
@@ -69,6 +74,10 @@ bool WindowsWindow::is_vsync() const {
 void WindowsWindow::set_vsync(const bool vsync) {
     this->vsync = vsync;
     glfwSwapInterval(this->vsync ? 1 : 0);
+}
+
+double WindowsWindow::get_last_frame_time() const {
+    return this->last_frame_time;
 }
 
 void WindowsWindow::register_events() const {
