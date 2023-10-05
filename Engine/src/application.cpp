@@ -2,8 +2,9 @@
 #include "glad/gl.h"
 
 #include "application.h"
+
+#include "gui/imgui_gui.h"
 #include "input/input.h"
-#include "layers/imgui_layer.h"
 
 
 Application::Application() {
@@ -13,6 +14,7 @@ Application::Application() {
 
 void Application::run() {
     this->window = Window::create("DicyEngine", 1920, 1080);
+    this->gui = std::make_shared<ImGuiGUI>(window);
 
     const auto event_dispatcher = EventDispatcher::get();
     std::vector<Layer *> layers = {};
@@ -31,6 +33,7 @@ void Application::run() {
             layer->update();
         }
 
+        this->gui->update();
         this->window->update();
     }
 }
@@ -38,5 +41,5 @@ void Application::run() {
 
 void register_layers(std::vector<Layer *> &vector, EventDispatcher *event_dispatcher, const std::shared_ptr<Window> &window) {
     int layer_index = 0;
-    vector.push_back(new ImGuiLayer(layer_index++, event_dispatcher, window));
+    // vector.push_back(new ImGuiLayer(layer_index++, event_dispatcher, window));
 }

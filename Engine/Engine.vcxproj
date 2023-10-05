@@ -159,10 +159,11 @@ IF EXIST ..\bin\Dist-windows-x86_64\Engine\Engine.dll\ (xcopy /Q /E /Y /I ..\bin
     <ClInclude Include="src\common.h" />
     <ClInclude Include="src\events\dispatcher.h" />
     <ClInclude Include="src\events\event.h" />
+    <ClInclude Include="src\gui\gui.h" />
+    <ClInclude Include="src\gui\imgui_gui.h" />
     <ClInclude Include="src\input\input.h" />
     <ClInclude Include="src\input\inputcodes.h" />
     <ClInclude Include="src\layer.h" />
-    <ClInclude Include="src\layers\imgui_layer.h" />
     <ClInclude Include="src\logging.h" />
     <ClInclude Include="src\pch\enginepch.h" />
     <ClInclude Include="src\platforms\opengl\imgui_impl_glfw.h" />
@@ -173,8 +174,8 @@ IF EXIST ..\bin\Dist-windows-x86_64\Engine\Engine.dll\ (xcopy /Q /E /Y /I ..\bin
   <ItemGroup>
     <ClCompile Include="src\application.cpp" />
     <ClCompile Include="src\events\dispatcher.cpp" />
+    <ClCompile Include="src\gui\imgui_gui.cpp" />
     <ClCompile Include="src\input\input.cpp" />
-    <ClCompile Include="src\layers\imgui_layer.cpp" />
     <ClCompile Include="src\logging.cpp" />
     <ClCompile Include="src\pch\enginepch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
@@ -193,6 +194,9 @@ IF EXIST ..\bin\Dist-windows-x86_64\Engine\Engine.dll\ (xcopy /Q /E /Y /I ..\bin
     <ProjectReference Include="libs\ImGui\ImGui.vcxproj">
       <Project>{C0FF640D-2C14-8DBE-F595-301E616989EF}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="src\layers\" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
