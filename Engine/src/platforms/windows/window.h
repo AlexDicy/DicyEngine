@@ -12,7 +12,6 @@ class DE_API WindowsWindow : public Window {
 
 public:
     WindowsWindow(const char *title, unsigned int width, unsigned int height);
-    ~WindowsWindow() override;
     void destroy() override;
     void update() override;
     unsigned get_width() const override;

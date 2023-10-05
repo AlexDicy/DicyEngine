@@ -37,10 +37,6 @@ WindowsWindow::WindowsWindow(const char *title, const unsigned int width, const 
     this->register_events();
 }
 
-WindowsWindow::~WindowsWindow() {
-    glfwDestroyWindow(this->window);
-}
-
 void WindowsWindow::update() {
     glfwPollEvents();
     glfwSwapBuffers(this->window);
