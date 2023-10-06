@@ -1,10 +1,12 @@
 #pragma once
 #include <window.h>
 #include "input/inputcodes.h"
+#include "rendering/graphic_context.h"
 
 struct GLFWwindow; // do not include 'GLFW' here, it would interfere with 'glad'
 
 class DE_API WindowsWindow : public Window {
+    GraphicContext *context;
     GLFWwindow *window;
     bool vsync = false;
     double last_time = 0.0;

@@ -2,18 +2,15 @@
 #include "window.h"
 #include "events/dispatcher.h"
 
-#include "glad/gl.h"
 #include "GLFW/glfw3.h"
-
-namespace {
-    bool is_glfw_initialized = false;
-}
+#include "platforms/opengl/opengl_context.h"
 
 std::shared_ptr<Window> Window::create(const char *title, const unsigned int width, const unsigned int height) {
     return std::make_shared<WindowsWindow>(title, width, height);
 }
 
 WindowsWindow::WindowsWindow(const char *title, const unsigned int width, const unsigned int height) {
+    static bool is_glfw_initialized = false;
     if (!is_glfw_initialized) {
         if (!glfwInit()) {
             DE_ERROR("Failed to initialize GLFW");
@@ -26,12 +23,8 @@ WindowsWindow::WindowsWindow(const char *title, const unsigned int width, const 
     }
 
     this->window = glfwCreateWindow(static_cast<int>(width), static_cast<int>(height), title, nullptr, nullptr);
-    glfwMakeContextCurrent(this->window);
-
-    if (!gladLoadGL(glfwGetProcAddress)) {
-        DE_ERROR("Failed to initialize GLAD with OpenGL context");
-        return;
-    }
+    context = new OpenGLContext(this->window);
+    context->init();
 
     this->WindowsWindow::set_vsync(true);
     this->register_events();
@@ -39,10 +32,10 @@ WindowsWindow::WindowsWindow(const char *title, const unsigned int width, const 
 
 void WindowsWindow::update() {
     glfwPollEvents();
-    glfwSwapBuffers(this->window);
+    this->context->swap_buffers();
 
-    double current_time = glfwGetTime();
-    double delta_time = current_time - this->last_time;
+    const double current_time = glfwGetTime();
+    const double delta_time = current_time - this->last_time;
     this->last_time = current_time;
     this->last_frame_time = delta_time;
 }
