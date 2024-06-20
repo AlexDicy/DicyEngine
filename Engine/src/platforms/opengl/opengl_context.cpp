@@ -3,11 +3,6 @@
 #include "glad/gl.h"
 #include "GLFW/glfw3.h"
 
-
-namespace {
-    bool is_glfw_initialized = false;
-}
-
 void OpenGLContext::init() {
     glfwMakeContextCurrent(this->window);
 

@@ -10,7 +10,6 @@ std::shared_ptr<Window> Window::create(const char *title, const unsigned int wid
 }
 
 WindowsWindow::WindowsWindow(const char *title, const unsigned int width, const unsigned int height) {
-    static bool is_glfw_initialized = false;
     if (!is_glfw_initialized) {
         if (!glfwInit()) {
             DE_ERROR("Failed to initialize GLFW");

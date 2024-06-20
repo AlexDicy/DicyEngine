@@ -3,6 +3,8 @@
 
 struct GLFWwindow;
 
+static bool is_glfw_initialized = false;
+
 class OpenGLContext : public GraphicContext {
     GLFWwindow *window;
 
