@@ -1,7 +1,7 @@
 #include "pch/enginepch.h"
 #include "spdlog/sinks/stdout_color_sinks.h"
 
-namespace logger {
+namespace DE::Logger {
     class LoggerWrapper {
     public:
         LoggerWrapper() {
@@ -27,7 +27,7 @@ namespace logger {
 }
 
 void Logger::init() {
-    if (logger::logger_wrapper == nullptr) {
-        logger::logger_wrapper = new logger::LoggerWrapper();
+    if (DE::Logger::logger_wrapper == nullptr) {
+        DE::Logger::logger_wrapper = new DE::Logger::LoggerWrapper();
     }
 }
