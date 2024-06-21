@@ -50,4 +50,5 @@ MaxEmptyLinesToKeep: 2
 NamespaceIndentation: All
 SpacesInAngles: false
 TabWidth: 4
+PointerAlignment: Left
 ...
