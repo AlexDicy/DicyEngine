@@ -8,7 +8,7 @@ Renderer::Renderer() {
 }
 
 
-Buffer* Renderer::create_vertex_buffer(const float* vertices, const uint32_t size) const {
+VertexBuffer* Renderer::create_vertex_buffer(const float* vertices, const uint32_t size) const {
     switch (this->api) {
         case RenderAPI::OPENGL:
             return new OpenGLVertexBuffer(vertices, size);
@@ -18,7 +18,7 @@ Buffer* Renderer::create_vertex_buffer(const float* vertices, const uint32_t siz
     return nullptr;
 }
 
-Buffer* Renderer::create_index_buffer(const uint32_t* indexes, const uint32_t count) const {
+IndexBuffer* Renderer::create_index_buffer(const uint32_t* indexes, const uint32_t count) const {
     switch (api) {
         case RenderAPI::OPENGL:
             return new OpenGLIndexBuffer(indexes, count);

@@ -5,6 +5,7 @@
 
 #include "gui/imgui_gui.h"
 #include "input/input.h"
+#include "platforms/opengl/opengl_datatype.h"
 
 #include "platforms/opengl/opengl_shader.h"
 #include "rendering/renderer.h"
@@ -34,8 +35,18 @@ void Application::run() {
     Renderer* renderer = new Renderer();
     float vertices[3 * 3] = {-0.5f, -0.5f, 0.0f, 0.5f, -0.5f, 0.0f, 0.0f, 0.5f, 0.0f};
     this->vertex_buffer.reset(renderer->create_vertex_buffer(vertices, sizeof(vertices)));
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
+
+    BufferLayout layout = {
+        {DataType::FLOAT3, "position"},
+    };
+
+    int layout_index = 0;
+    for (auto& attribute : layout.get_attributes()) {
+        glEnableVertexAttribArray(layout_index);
+        glVertexAttribPointer(layout_index, attribute.get_datatype_count(), get_opengl_type_from_datatype(attribute.type), attribute.is_normalized ? GL_TRUE : GL_FALSE,
+                              attribute.size, reinterpret_cast<const void*>(attribute.offset)); // NOLINT(bugprone-narrowing-conversions, performance-no-int-to-ptr, cppcoreguidelines-narrowing-conversions)
+        layout_index++;
+    }
 
     unsigned int indexes[3] = {0, 1, 2};
     this->index_buffer.reset(renderer->create_index_buffer(indexes, 3));
