@@ -1,6 +1,6 @@
 #pragma once
 
-enum InputCode : unsigned int {
+enum class InputCode : unsigned int {
     INPUT_UNKNOWN = 0,
     KEY_SPACE = 32,
     KEY_APOSTROPHE = 39,

@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "buffer.h"
 
-enum RenderAPI { NONE, OPENGL };
+enum class RenderAPI { NONE, OPENGL };
 
 class Renderer {
 public:

@@ -19,15 +19,15 @@ std::shared_ptr<Window> Input::window;
 void Input::init(EventDispatcher *event_dispatcher, const std::shared_ptr<Window> &window) {
     Input::window = window;
     // TODO: do not hardcode
-    actions_mapping["move_forward"] = KEY_W;
-    actions_mapping["move_left"] = KEY_A;
-    actions_mapping["move_backward"] = KEY_S;
-    actions_mapping["move_right"] = KEY_D;
-    actions_mapping["jump"] = KEY_SPACE;
-    axis_mapping["look_x"] = {{MOUSE_X, 1.0}};
-    axis_mapping["look_y"] = {{MOUSE_Y, 1.0}};
-    axis_mapping["move_x"] = {{KEY_D, 1.0}, {KEY_A, -1.0}};
-    axis_mapping["move_y"] = {{KEY_W, 1.0}, {KEY_S, -1.0}};
+    actions_mapping["move_forward"] = InputCode::KEY_W;
+    actions_mapping["move_left"] = InputCode::KEY_A;
+    actions_mapping["move_backward"] = InputCode::KEY_S;
+    actions_mapping["move_right"] = InputCode::KEY_D;
+    actions_mapping["jump"] = InputCode::KEY_SPACE;
+    axis_mapping["look_x"] = {{InputCode::MOUSE_X, 1.0}};
+    axis_mapping["look_y"] = {{InputCode::MOUSE_Y, 1.0}};
+    axis_mapping["move_x"] = {{InputCode::KEY_D, 1.0}, {InputCode::KEY_A, -1.0}};
+    axis_mapping["move_y"] = {{InputCode::KEY_W, 1.0}, {InputCode::KEY_S, -1.0}};
 
     event_dispatcher->register_global_handler<KeyPressedEvent>([](const KeyPressedEvent &event) {
         if (event.get_repeat_count() > 0) {
@@ -62,11 +62,11 @@ void Input::init(EventDispatcher *event_dispatcher, const std::shared_ptr<Window
         const double offset_x = x - last_x;
         const double offset_y = last_y - y; // reversed since y-coordinates go from bottom to top
 
-        for (const auto &[callback, scale] : axis_bindings[MOUSE_X]) {
+        for (const auto &[callback, scale] : axis_bindings[InputCode::MOUSE_X]) {
             callback(offset_x * scale);
         }
 
-        for (const auto &[callback, scale] : axis_bindings[MOUSE_Y]) {
+        for (const auto &[callback, scale] : axis_bindings[InputCode::MOUSE_Y]) {
             callback(offset_y * scale);
         }
 
@@ -77,7 +77,7 @@ void Input::init(EventDispatcher *event_dispatcher, const std::shared_ptr<Window
 
 #ifdef DE_PLATFORM_WINDOWS
 bool Input::is_action_pressed(const std::string &action) {
-    const auto status = glfwGetKey(window->get_native_window(), actions_mapping[action]); // NOLINT(bugprone-narrowing-conversions, cppcoreguidelines-narrowing-conversions)
+    const auto status = glfwGetKey(window->get_native_window(), static_cast<int>(actions_mapping[action]));
     return status == GLFW_PRESS || status == GLFW_REPEAT;
 }
 #else
