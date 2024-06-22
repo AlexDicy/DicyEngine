@@ -32,23 +32,29 @@ void Application::run() {
     Input::init(event_dispatcher, window);
 
     Renderer* renderer = new Renderer();
-    float vertices[3 * 7] = {
-        -0.5f, -0.5f, 0.0f, 0.8f, 0.1f, 0.1f, 1.0f, //
-        0.5f,  -0.5f, 0.0f, 0.8f, 0.1f, 0.1f, 1.0f, //
-        0.0f,  0.5f,  0.0f, 0.1f, 0.9f, 0.1f, 1.0f, //
-    };
-    this->vertex_buffer.reset(renderer->create_vertex_buffer(vertices, sizeof(vertices)));
 
-    BufferLayout layout = {
-        {DataType::FLOAT3, "position"},
-        {DataType::FLOAT4, "color"},
-    };
-    this->vertex_buffer->set_layout(layout);
+    const VertexArray* vertex_array;
+    {
+        float vertices[3 * 7] = {
+            -0.5f, -0.5f, 0.0f, 0.8f, 0.1f, 0.1f, 1.0f, //
+            0.5f,  -0.5f, 0.0f, 0.8f, 0.1f, 0.1f, 1.0f, //
+            0.0f,  0.5f,  0.0f, 0.1f, 0.9f, 0.1f, 1.0f, //
+        };
+        std::shared_ptr<VertexBuffer> vertex_buffer;
+        vertex_buffer.reset(renderer->create_vertex_buffer(vertices, sizeof(vertices)));
 
-    unsigned int indexes[3] = {0, 1, 2};
-    this->index_buffer.reset(renderer->create_index_buffer(indexes, 3));
+        BufferLayout layout = {
+            {DataType::FLOAT3, "position"},
+            {DataType::FLOAT4, "color"},
+        };
+        vertex_buffer->set_layout(layout);
 
-    const VertexArray* vertex_array = renderer->create_vertex_array(vertex_buffer, index_buffer);
+        unsigned int indexes[3] = {0, 1, 2};
+        std::shared_ptr<IndexBuffer> index_buffer;
+        index_buffer.reset(renderer->create_index_buffer(indexes, 3));
+
+        vertex_array = renderer->create_vertex_array(vertex_buffer, index_buffer);
+    }
 
     const std::string vertex_source = R"(
         #version 330 core
@@ -83,7 +89,8 @@ void Application::run() {
 
         shader->bind();
         vertex_array->bind();
-        glDrawElements(GL_TRIANGLES, index_buffer->get_count(), GL_UNSIGNED_INT, nullptr);  // NOLINT(bugprone-narrowing-conversions)
+        glDrawElements(GL_TRIANGLES, vertex_array->get_index_buffer()->get_count(), GL_UNSIGNED_INT,
+                       nullptr); // NOLINT(bugprone-narrowing-conversions, cppcoreguidelines-narrowing-conversions)
 
         for (const auto& layer : layers) {
             layer->update();
