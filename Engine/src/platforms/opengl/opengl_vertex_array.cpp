@@ -30,7 +30,7 @@ void OpenGLVertexArray::set_vertex_buffer(const std::shared_ptr<VertexBuffer>& b
     buffer->bind();
 
     BufferLayout layout = buffer->get_layout();
-    if (layout.get_size() == 0) {
+    if (layout.get_attributes().size() == 0) {
         DE_WARN("Trying to set VertexBuffer in a VertexArray with an empty layout");
     }
 
