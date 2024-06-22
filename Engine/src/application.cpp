@@ -48,9 +48,7 @@ void Application::run() {
     unsigned int indexes[3] = {0, 1, 2};
     this->index_buffer.reset(renderer->create_index_buffer(indexes, 3));
 
-    VertexArray* vertex_array = new OpenGLVertexArray();
-    vertex_array->set_vertex_buffer(vertex_buffer);
-    vertex_array->set_index_buffer(index_buffer);
+    const VertexArray* vertex_array = renderer->create_vertex_array(vertex_buffer, index_buffer);
 
     const std::string vertex_source = R"(
         #version 330 core

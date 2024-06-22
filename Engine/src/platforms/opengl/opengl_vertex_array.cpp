@@ -5,32 +5,17 @@
 
 #include "glad/gl.h"
 
-OpenGLVertexArray::OpenGLVertexArray() {
+
+OpenGLVertexArray::OpenGLVertexArray(const std::shared_ptr<VertexBuffer>& vertex_buffer, const std::shared_ptr<IndexBuffer>& index_buffer) :
+    vertex_buffer(vertex_buffer), index_buffer(index_buffer) {
     glCreateVertexArrays(1, &this->id);
-}
 
-OpenGLVertexArray::~OpenGLVertexArray() {
-    glDeleteVertexArrays(1, &this->id);
-}
-
-void OpenGLVertexArray::bind() const {
+    // vertex buffer
     glBindVertexArray(this->id);
-}
+    vertex_buffer->bind();
 
-const std::shared_ptr<VertexBuffer>& OpenGLVertexArray::get_vertex_buffer() const {
-    return this->vertex_buffer;
-}
-
-const std::shared_ptr<IndexBuffer>& OpenGLVertexArray::get_index_buffer() const {
-    return this->index_buffer;
-}
-
-void OpenGLVertexArray::set_vertex_buffer(const std::shared_ptr<VertexBuffer>& buffer) {
-    glBindVertexArray(this->id);
-    buffer->bind();
-
-    BufferLayout layout = buffer->get_layout();
-    if (layout.get_attributes().size() == 0) {
+    BufferLayout layout = vertex_buffer->get_layout();
+    if (layout.get_attributes().empty()) {
         DE_WARN("Trying to set VertexBuffer in a VertexArray with an empty layout");
     }
 
@@ -50,11 +35,24 @@ void OpenGLVertexArray::set_vertex_buffer(const std::shared_ptr<VertexBuffer>& b
         // clang-format on
         layout_index++;
     }
-    this->vertex_buffer = buffer;
+
+    // index buffer
+    glBindVertexArray(this->id);
+    index_buffer->bind();
 }
 
-void OpenGLVertexArray::set_index_buffer(const std::shared_ptr<IndexBuffer>& buffer) {
+OpenGLVertexArray::~OpenGLVertexArray() {
+    glDeleteVertexArrays(1, &this->id);
+}
+
+void OpenGLVertexArray::bind() const {
     glBindVertexArray(this->id);
-    buffer->bind();
-    this->index_buffer = buffer;
+}
+
+const std::shared_ptr<VertexBuffer>& OpenGLVertexArray::get_vertex_buffer() const {
+    return this->vertex_buffer;
+}
+
+const std::shared_ptr<IndexBuffer>& OpenGLVertexArray::get_index_buffer() const {
+    return this->index_buffer;
 }

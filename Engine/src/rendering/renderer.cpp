@@ -9,10 +9,10 @@ Renderer::Renderer() {
 }
 
 
-VertexArray* Renderer::create_vertex_array() const {
+VertexArray* Renderer::create_vertex_array(const std::shared_ptr<VertexBuffer>& vertex_buffer, const std::shared_ptr<IndexBuffer>& index_buffer) const {
     switch (this->api) {
         case RenderAPI::OPENGL:
-            return new OpenGLVertexArray();
+            return new OpenGLVertexArray(vertex_buffer, index_buffer);
         case RenderAPI::NONE:
             break;
     }
