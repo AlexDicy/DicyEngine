@@ -10,8 +10,8 @@ class Application {
     std::shared_ptr<GUI> gui;
     bool running;
 
-    std::unique_ptr<VertexBuffer> vertex_buffer;
-    std::unique_ptr<IndexBuffer> index_buffer;
+    std::shared_ptr<VertexBuffer> vertex_buffer;
+    std::shared_ptr<IndexBuffer> index_buffer;
 
 public:
     DE_API Application();

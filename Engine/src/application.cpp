@@ -1,15 +1,14 @@
 #include "pch/enginepch.h"
-#include "glad/gl.h"
-
 #include "application.h"
 
 #include "gui/imgui_gui.h"
 #include "input/input.h"
-#include "platforms/opengl/opengl_datatype.h"
 
 #include "platforms/opengl/opengl_shader.h"
 #include "rendering/renderer.h"
 
+#include "glad/gl.h"
+#include "platforms/opengl/opengl_vertex_array.h"
 
 Application::Application() {
     Logger::init();
@@ -44,29 +43,20 @@ void Application::run() {
         {DataType::FLOAT3, "position"},
         {DataType::FLOAT4, "color"},
     };
-
-    int layout_index = 0;
-    for (auto& attribute : layout.get_attributes()) {
-        glEnableVertexAttribArray(layout_index);
-        glVertexAttribPointer(
-            layout_index, //
-            attribute.get_datatype_count(), // 
-            get_opengl_type_from_datatype(attribute.type), //
-            attribute.is_normalized ? GL_TRUE : GL_FALSE, //
-            layout.get_size(),  // NOLINT(bugprone-narrowing-conversions, cppcoreguidelines-narrowing-conversions)
-            reinterpret_cast<const void*>(attribute.offset)  // NOLINT(performance-no-int-to-ptr)
-            );
-        layout_index++;
-    }
+    this->vertex_buffer->set_layout(layout);
 
     unsigned int indexes[3] = {0, 1, 2};
     this->index_buffer.reset(renderer->create_index_buffer(indexes, 3));
+
+    VertexArray* vertex_array = new OpenGLVertexArray();
+    vertex_array->set_vertex_buffer(vertex_buffer);
+    vertex_array->set_index_buffer(index_buffer);
 
     const std::string vertex_source = R"(
         #version 330 core
 
         layout(location = 0) in vec3 position;
-        layout(location = 0) in vec4 color;
+        layout(location = 1) in vec4 color;
 
         out vec4 v_color;
 
@@ -88,13 +78,14 @@ void Application::run() {
         }
     )";
     Shader* shader = new OpenGLShader(vertex_source, fragment_source);
-    shader->bind();
 
     while (this->running) {
         glClearColor(0.1f, 0.5f, 0.5f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        shader->bind();
+        vertex_array->bind();
+        glDrawElements(GL_TRIANGLES, index_buffer->get_count(), GL_UNSIGNED_INT, nullptr);  // NOLINT(bugprone-narrowing-conversions)
 
         for (const auto& layer : layers) {
             layer->update();
