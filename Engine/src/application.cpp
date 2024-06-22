@@ -33,18 +33,29 @@ void Application::run() {
     Input::init(event_dispatcher, window);
 
     Renderer* renderer = new Renderer();
-    float vertices[3 * 3] = {-0.5f, -0.5f, 0.0f, 0.5f, -0.5f, 0.0f, 0.0f, 0.5f, 0.0f};
+    float vertices[3 * 7] = {
+        -0.5f, -0.5f, 0.0f, 0.8f, 0.1f, 0.1f, 1.0f, //
+        0.5f,  -0.5f, 0.0f, 0.8f, 0.1f, 0.1f, 1.0f, //
+        0.0f,  0.5f,  0.0f, 0.1f, 0.9f, 0.1f, 1.0f, //
+    };
     this->vertex_buffer.reset(renderer->create_vertex_buffer(vertices, sizeof(vertices)));
 
     BufferLayout layout = {
         {DataType::FLOAT3, "position"},
+        {DataType::FLOAT4, "color"},
     };
 
     int layout_index = 0;
     for (auto& attribute : layout.get_attributes()) {
         glEnableVertexAttribArray(layout_index);
-        glVertexAttribPointer(layout_index, attribute.get_datatype_count(), get_opengl_type_from_datatype(attribute.type), attribute.is_normalized ? GL_TRUE : GL_FALSE,
-                              attribute.size, reinterpret_cast<const void*>(attribute.offset)); // NOLINT(bugprone-narrowing-conversions, performance-no-int-to-ptr, cppcoreguidelines-narrowing-conversions)
+        glVertexAttribPointer(
+            layout_index, //
+            attribute.get_datatype_count(), // 
+            get_opengl_type_from_datatype(attribute.type), //
+            attribute.is_normalized ? GL_TRUE : GL_FALSE, //
+            layout.get_size(),  // NOLINT(bugprone-narrowing-conversions, cppcoreguidelines-narrowing-conversions)
+            reinterpret_cast<const void*>(attribute.offset)  // NOLINT(performance-no-int-to-ptr)
+            );
         layout_index++;
     }
 
@@ -55,12 +66,13 @@ void Application::run() {
         #version 330 core
 
         layout(location = 0) in vec3 position;
+        layout(location = 0) in vec4 color;
 
-        out vec3 v_position;
+        out vec4 v_color;
 
         void main() {
             gl_Position = vec4(position, 1.0);
-            v_position = position;
+            v_color = color;
         }
     )";
 
@@ -69,10 +81,10 @@ void Application::run() {
 
         layout(location = 0) out vec4 color;
 
-        in vec3 v_position;
+        in vec4 v_color;
 
         void main() {
-            color = vec4((v_position + 0.5) / 2, 1.0);
+            color = v_color;
         }
     )";
     Shader* shader = new OpenGLShader(vertex_source, fragment_source);

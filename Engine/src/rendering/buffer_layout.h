@@ -56,8 +56,11 @@ struct BufferAttribute {
 };
 
 class BufferLayout {
+    std::vector<BufferAttribute> attributes;
+    uint32_t size;
+
 public:
-    BufferLayout() {}
+    BufferLayout() = default;
 
     BufferLayout(const std::initializer_list<BufferAttribute>& attributes) : attributes(attributes) {
         uint32_t last_offset = 0;
@@ -65,12 +68,14 @@ public:
             attribute.offset = last_offset;
             last_offset += attribute.size;
         }
+        size = last_offset;
     }
 
     const std::vector<BufferAttribute>& get_attributes() const {
         return this->attributes;
     }
 
-private:
-    std::vector<BufferAttribute> attributes;
+    uint32_t get_size() const {
+        return this->size;
+    }
 };

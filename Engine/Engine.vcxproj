@@ -173,8 +173,8 @@ IF EXIST ..\bin\Dist-windows-x86_64\Engine\Engine.dll\ (xcopy /Q /E /Y /I ..\bin
     <ClInclude Include="src\platforms\opengl\opengl_datatype.h" />
     <ClInclude Include="src\platforms\opengl\opengl_shader.h" />
     <ClInclude Include="src\platforms\windows\window.h" />
-    <ClInclude Include="src\rendering\buffer_layout.h" />
     <ClInclude Include="src\rendering\buffer.h" />
+    <ClInclude Include="src\rendering\buffer_layout.h" />
     <ClInclude Include="src\rendering\graphic_context.h" />
     <ClInclude Include="src\rendering\renderer.h" />
     <ClInclude Include="src\rendering\shader.h" />
