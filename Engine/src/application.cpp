@@ -7,7 +7,7 @@
 #include "platforms/opengl/opengl_shader.h"
 #include "rendering/renderer.h"
 
-#include "glad/gl.h"
+#include "platforms/opengl/opengl_renderer.h"
 #include "platforms/opengl/opengl_vertex_array.h"
 
 Application::Application() {
@@ -31,11 +31,11 @@ void Application::run() {
 
     Input::init(event_dispatcher, window);
 
-    const auto renderer = new Renderer();
+    const auto renderer = new OpenGLRenderer();
 
-    const VertexArray* vertex_array;
+    std::shared_ptr<VertexArray> vertex_array;
     {
-        const float vertices[3 * 7] = {
+        constexpr float vertices[3 * 7] = {
             -0.5f, -0.5f, 0.0f, 0.8f, 0.1f, 0.1f, 1.0f, //
             0.5f,  -0.5f, 0.0f, 0.8f, 0.1f, 0.1f, 1.0f, //
             0.0f,  0.5f,  0.0f, 0.1f, 0.9f, 0.1f, 1.0f, //
@@ -48,15 +48,15 @@ void Application::run() {
             {DataType::FLOAT4, "color"},
         });
 
-        unsigned int indexes[3] = {0, 1, 2};
+        constexpr unsigned int indexes[3] = {0, 1, 2};
         std::shared_ptr<IndexBuffer> index_buffer;
         index_buffer.reset(renderer->create_index_buffer(indexes, 3));
 
-        vertex_array = renderer->create_vertex_array(vertex_buffer, index_buffer);
+        vertex_array.reset(renderer->create_vertex_array(vertex_buffer, index_buffer));
     }
-    const VertexArray* square_vertex_array;
+    std::shared_ptr<VertexArray> square_vertex_array;
     {
-        float vertices[4 * 7] = {
+        constexpr float vertices[4 * 7] = {
             -0.5f, -0.5f, 0.0f, 0.1f, 0.1f, 0.7f, 1.0f, //
             0.5f,  -0.5f, 0.0f, 0.1f, 0.1f, 0.7f, 1.0f, //
             0.5f,  0.5f,  0.0f, 0.1f, 0.1f, 0.7f, 1.0f, //
@@ -71,11 +71,11 @@ void Application::run() {
             {DataType::FLOAT4, "color"},
         });
 
-        unsigned int indexes[6] = {0, 1, 2, 2, 3, 0};
+        constexpr unsigned int indexes[6] = {0, 1, 2, 2, 3, 0};
         std::shared_ptr<IndexBuffer> index_buffer;
         index_buffer.reset(renderer->create_index_buffer(indexes, 6));
 
-        square_vertex_array = renderer->create_vertex_array(vertex_buffer, index_buffer);
+        square_vertex_array.reset(renderer->create_vertex_array(vertex_buffer, index_buffer));
     }
 
     const std::string vertex_source = R"(
@@ -103,20 +103,15 @@ void Application::run() {
             color = v_color;
         }
     )";
-    Shader* shader = new OpenGLShader(vertex_source, fragment_source);
+    const Shader* shader = new OpenGLShader(vertex_source, fragment_source);
 
     while (this->running) {
-        glClearColor(0.1f, 0.5f, 0.5f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        renderer->clean();
 
         shader->bind();
-        vertex_array->bind();
-        glDrawElements(GL_TRIANGLES, vertex_array->get_index_buffer()->get_count(), // NOLINT(bugprone-narrowing-conversions, cppcoreguidelines-narrowing-conversions)
-                       GL_UNSIGNED_INT, nullptr);
 
-        square_vertex_array->bind();
-        glDrawElements(GL_TRIANGLES, square_vertex_array->get_index_buffer()->get_count(), // NOLINT(bugprone-narrowing-conversions, cppcoreguidelines-narrowing-conversions)
-                       GL_UNSIGNED_INT, nullptr);
+        renderer->draw(square_vertex_array);
+        renderer->draw(vertex_array);
 
         for (const auto& layer : layers) {
             layer->update();

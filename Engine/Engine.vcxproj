@@ -171,6 +171,7 @@ IF EXIST ..\bin\Dist-windows-x86_64\Engine\Engine.dll\ (xcopy /Q /E /Y /I ..\bin
     <ClInclude Include="src\platforms\opengl\opengl_buffer.h" />
     <ClInclude Include="src\platforms\opengl\opengl_context.h" />
     <ClInclude Include="src\platforms\opengl\opengl_datatype.h" />
+    <ClInclude Include="src\platforms\opengl\opengl_renderer.h" />
     <ClInclude Include="src\platforms\opengl\opengl_shader.h" />
     <ClInclude Include="src\platforms\opengl\opengl_vertex_array.h" />
     <ClInclude Include="src\platforms\windows\window.h" />
@@ -195,10 +196,10 @@ IF EXIST ..\bin\Dist-windows-x86_64\Engine\Engine.dll\ (xcopy /Q /E /Y /I ..\bin
     <ClCompile Include="src\platforms\opengl\imgui_impl_opengl3.cpp" />
     <ClCompile Include="src\platforms\opengl\opengl_buffer.cpp" />
     <ClCompile Include="src\platforms\opengl\opengl_context.cpp" />
+    <ClCompile Include="src\platforms\opengl\opengl_renderer.cpp" />
     <ClCompile Include="src\platforms\opengl\opengl_shader.cpp" />
     <ClCompile Include="src\platforms\opengl\opengl_vertex_array.cpp" />
     <ClCompile Include="src\platforms\windows\window.cpp" />
-    <ClCompile Include="src\rendering\renderer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="libs\GLFW\GLFW.vcxproj">
