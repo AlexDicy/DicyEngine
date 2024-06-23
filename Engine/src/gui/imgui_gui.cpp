@@ -5,7 +5,7 @@
 #include "platforms/opengl/imgui_impl_glfw.h"
 #include "platforms/opengl/imgui_impl_opengl3.h"
 
-ImGuiGUI::ImGuiGUI(const std::shared_ptr<Window> &window) : GUI(window) {
+ImGuiGUI::ImGuiGUI(const std::shared_ptr<Window>& window) : GUI(window) {
     this->window = window;
     ImGui::CreateContext();
     ImGui::StyleColorsDark();
@@ -16,7 +16,7 @@ ImGuiGUI::ImGuiGUI(const std::shared_ptr<Window> &window) : GUI(window) {
     io->ConfigFlags |= ImGuiConfigFlags_DockingEnable;
     io->ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
-    ImGuiStyle &style = ImGui::GetStyle();
+    ImGuiStyle& style = ImGui::GetStyle();
     style.WindowRounding = 0.0f;
     style.Colors[ImGuiCol_WindowBg].w = 1.0f;
 
@@ -46,8 +46,10 @@ void ImGuiGUI::update() const {
 
     ImGui::SliderFloat("float", &f, 0.0f, 1.0f); // Edit 1 float using a slider from 0.0f to 1.0f
 
-    if (ImGui::Button("Button")) // Buttons return true when clicked (most widgets return true when edited/activated)
-        counter++;
+    if (ImGui::Button("Toggle VSync")) { // Buttons return true when clicked (most widgets return true when edited/activated)
+        this->window->set_vsync(!this->window->is_vsync());
+    }
+
     ImGui::SameLine();
     ImGui::Text("counter = %d", counter);
 
@@ -57,7 +59,7 @@ void ImGuiGUI::update() const {
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-    GLFWwindow *backup_current_context = glfwGetCurrentContext();
+    GLFWwindow* backup_current_context = glfwGetCurrentContext();
     ImGui::UpdatePlatformWindows();
     ImGui::RenderPlatformWindowsDefault();
     glfwMakeContextCurrent(backup_current_context);
