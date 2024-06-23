@@ -2,6 +2,7 @@
 #include "scene_layer.h"
 
 #include "events/event.h"
+#include "input/input.h"
 #include "platforms/opengl/opengl_shader.h"
 
 SceneLayer::SceneLayer(const Application* application) {
@@ -103,7 +104,27 @@ SceneLayer::SceneLayer(const Application* application) {
     shader.reset(new OpenGLShader(vertex_source, fragment_source));
 }
 
+constexpr float camera_speed = 0.02f;
+
 void SceneLayer::update(const std::shared_ptr<Renderer>& renderer) {
+    auto position = this->camera->get_position();
+    if (Input::is_action_pressed("move_left")) {
+        position.x -= camera_speed;
+        this->camera->set_position(position);
+    }
+    if (Input::is_action_pressed("move_right")) {
+        position.x += camera_speed;
+        this->camera->set_position(position);
+    }
+    if (Input::is_action_pressed("move_forward")) {
+        position.y += camera_speed;
+        this->camera->set_position(position);
+    }
+    if (Input::is_action_pressed("move_backward")) {
+        position.y -= camera_speed;
+        this->camera->set_position(position);
+    }
+
     renderer->begin_frame(*this->camera);
 
     for (const auto& vertex_array : vertex_arrays) {
