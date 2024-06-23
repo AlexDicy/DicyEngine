@@ -18,8 +18,8 @@ VertexBuffer* OpenGLRenderer::create_vertex_buffer(const float* vertices, const 
 IndexBuffer* OpenGLRenderer::create_index_buffer(const uint32_t* indexes, const uint32_t count) const {
     return new OpenGLIndexBuffer(indexes, count);
 }
-void OpenGLRenderer::begin_frame(std::shared_ptr<Camera>& camera) const {
-    glm::vec3 camera_position = camera->get_position();
+void OpenGLRenderer::begin_frame(const Camera& camera) {
+    this->view_projection_matrix = camera.get_view_projection_matrix();
 }
 
 void OpenGLRenderer::end_frame() const {}
@@ -29,7 +29,9 @@ void OpenGLRenderer::clean() const {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void OpenGLRenderer::draw(const std::shared_ptr<VertexArray>& vertex_array) const {
+void OpenGLRenderer::draw(const std::shared_ptr<VertexArray>& vertex_array, const std::shared_ptr<Shader>& shader) const {
+    shader->bind();
+    shader->upload_uniform_mat4("u_view_projection", this->view_projection_matrix);
     vertex_array->bind();
     glDrawElements(GL_TRIANGLES, vertex_array->get_index_buffer()->get_count(), // NOLINT(bugprone-narrowing-conversions, cppcoreguidelines-narrowing-conversions)
                    GL_UNSIGNED_INT, nullptr);

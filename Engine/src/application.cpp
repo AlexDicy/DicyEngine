@@ -78,7 +78,7 @@ void Application::run() {
         square_vertex_array.reset(renderer->create_vertex_array(vertex_buffer, index_buffer));
     }
 
-    auto camera = Camera(-1.0f, 1.0f, -1.0f, 1.0f);
+    auto camera = Camera(-1.6f, 1.6f, -0.9f, 0.9f);
 
     const std::string vertex_source = R"(
         #version 330 core
@@ -107,17 +107,34 @@ void Application::run() {
             color = v_color;
         }
     )";
-    const Shader* shader = new OpenGLShader(vertex_source, fragment_source);
+    std::shared_ptr<Shader> shader;
+    shader.reset(new OpenGLShader(vertex_source, fragment_source));
 
+    event_dispatcher->register_global_handler<KeyPressedEvent>([&camera](const KeyPressedEvent& event) {
+        const auto current_position = camera.get_position();
+        if (event.get_key() == InputCode::KEY_LEFT) {
+            camera.set_position({current_position.x - 0.02f, current_position.y, current_position.z});
+        } else if (event.get_key() == InputCode::KEY_RIGHT) {
+            camera.set_position({current_position.x + 0.02f, current_position.y, current_position.z});
+        } else if (event.get_key() == InputCode::KEY_UP) {
+            camera.set_position({current_position.x, current_position.y + 0.02f, current_position.z});
+        } else if (event.get_key() == InputCode::KEY_DOWN) {
+            camera.set_position({current_position.x, current_position.y - 0.02f, current_position.z});
+        }
+    });
 
     while (this->running) {
         renderer->clean();
 
-        shader->bind();
-        shader->upload_uniform_mat4("u_view_projection", camera.get_view_projection_matrix());
+        // camera.set_position(camera.get_position() + 0.001f);
+        // camera.set_rotation(camera.get_rotation() + 0.1f);
 
-        renderer->draw(square_vertex_array);
-        renderer->draw(vertex_array);
+        renderer->begin_frame(camera);
+
+        renderer->draw(square_vertex_array, shader);
+        renderer->draw(vertex_array, shader);
+
+        renderer->end_frame();
 
         for (const auto& layer : layers) {
             layer->update();
