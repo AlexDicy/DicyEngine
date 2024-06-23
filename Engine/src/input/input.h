@@ -16,7 +16,7 @@ class Input {
     static std::shared_ptr<Window> window;
 
 public:
-    static void init(EventDispatcher *event_dispatcher, const std::shared_ptr<Window> &window);
+    static void init(const std::shared_ptr<EventDispatcher>& event_dispatcher, const std::shared_ptr<Window>& window);
 
     static void bind_action_pressed(const std::string &action, const std::function<void()> &callback) {
         bindings_pressed[actions_mapping[action]].push_back(callback);

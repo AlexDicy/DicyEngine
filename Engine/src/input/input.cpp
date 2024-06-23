@@ -16,7 +16,7 @@ std::unordered_map<InputCode, std::vector<std::pair<std::function<void(double)>,
 std::shared_ptr<Window> Input::window;
 
 
-void Input::init(EventDispatcher *event_dispatcher, const std::shared_ptr<Window> &window) {
+void Input::init(const std::shared_ptr<EventDispatcher>& event_dispatcher, const std::shared_ptr<Window>& window) {
     Input::window = window;
     // TODO: do not hardcode
     actions_mapping["move_forward"] = InputCode::KEY_W;

@@ -10,8 +10,8 @@ OpenGLVertexArray::OpenGLVertexArray(const std::shared_ptr<VertexBuffer>& vertex
     vertex_buffer(vertex_buffer), index_buffer(index_buffer) {
     glCreateVertexArrays(1, &this->id);
 
-    // vertex buffer
     glBindVertexArray(this->id);
+    // vertex buffer
     vertex_buffer->bind();
 
     BufferLayout layout = vertex_buffer->get_layout();
@@ -37,8 +37,8 @@ OpenGLVertexArray::OpenGLVertexArray(const std::shared_ptr<VertexBuffer>& vertex
     }
 
     // index buffer
-    glBindVertexArray(this->id);
     index_buffer->bind();
+    glBindVertexArray(0);
 }
 
 OpenGLVertexArray::~OpenGLVertexArray() {

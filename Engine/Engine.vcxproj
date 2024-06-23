@@ -182,6 +182,7 @@ IF EXIST ..\bin\Dist-windows-x86_64\Engine\Engine.dll\ (xcopy /Q /E /Y /I ..\bin
     <ClInclude Include="src\rendering\renderer.h" />
     <ClInclude Include="src\rendering\shader.h" />
     <ClInclude Include="src\rendering\vertex_array.h" />
+    <ClInclude Include="src\layers\scene_layer.h" />
     <ClInclude Include="src\window.h" />
   </ItemGroup>
   <ItemGroup>
@@ -202,6 +203,7 @@ IF EXIST ..\bin\Dist-windows-x86_64\Engine\Engine.dll\ (xcopy /Q /E /Y /I ..\bin
     <ClCompile Include="src\platforms\opengl\opengl_vertex_array.cpp" />
     <ClCompile Include="src\platforms\windows\window.cpp" />
     <ClCompile Include="src\rendering\camera.cpp" />
+    <ClCompile Include="src\layers\scene_layer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="libs\GLFW\GLFW.vcxproj">
