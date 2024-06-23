@@ -17,6 +17,8 @@ public:
     virtual VertexBuffer* create_vertex_buffer(const float* vertices, uint32_t size) const = 0;
     virtual IndexBuffer* create_index_buffer(const uint32_t* indexes, uint32_t count) const = 0;
 
+    virtual void begin_frame() const = 0;
+    virtual void end_frame() const = 0;
     virtual void clean() const = 0;
     virtual void draw(const std::shared_ptr<VertexArray>& vertex_array) const = 0;
 

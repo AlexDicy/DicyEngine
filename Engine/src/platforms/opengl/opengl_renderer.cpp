@@ -17,10 +17,13 @@ VertexBuffer* OpenGLRenderer::create_vertex_buffer(const float* vertices, const 
 IndexBuffer* OpenGLRenderer::create_index_buffer(const uint32_t* indexes, const uint32_t count) const {
     return new OpenGLIndexBuffer(indexes, count);
 }
+void OpenGLRenderer::begin_frame() const {}
+
+void OpenGLRenderer::end_frame() const {}
 
 void OpenGLRenderer::clean() const {
     glClearColor(0.1f, 0.5f, 0.5f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void OpenGLRenderer::draw(const std::shared_ptr<VertexArray>& vertex_array) const {
