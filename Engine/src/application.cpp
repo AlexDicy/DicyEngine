@@ -31,11 +31,11 @@ void Application::run() {
 
     Input::init(event_dispatcher, window);
 
-    Renderer* renderer = new Renderer();
+    const auto renderer = new Renderer();
 
     const VertexArray* vertex_array;
     {
-        float vertices[3 * 7] = {
+        const float vertices[3 * 7] = {
             -0.5f, -0.5f, 0.0f, 0.8f, 0.1f, 0.1f, 1.0f, //
             0.5f,  -0.5f, 0.0f, 0.8f, 0.1f, 0.1f, 1.0f, //
             0.0f,  0.5f,  0.0f, 0.1f, 0.9f, 0.1f, 1.0f, //
@@ -43,11 +43,10 @@ void Application::run() {
         std::shared_ptr<VertexBuffer> vertex_buffer;
         vertex_buffer.reset(renderer->create_vertex_buffer(vertices, sizeof(vertices)));
 
-        BufferLayout layout = {
+        vertex_buffer->set_layout({
             {DataType::FLOAT3, "position"},
             {DataType::FLOAT4, "color"},
-        };
-        vertex_buffer->set_layout(layout);
+        });
 
         unsigned int indexes[3] = {0, 1, 2};
         std::shared_ptr<IndexBuffer> index_buffer;
@@ -67,15 +66,14 @@ void Application::run() {
         std::shared_ptr<VertexBuffer> vertex_buffer;
         vertex_buffer.reset(renderer->create_vertex_buffer(vertices, sizeof(vertices)));
 
-        BufferLayout layout = {
+        vertex_buffer->set_layout({
             {DataType::FLOAT3, "position"},
             {DataType::FLOAT4, "color"},
-        };
-        vertex_buffer->set_layout(layout);
+        });
 
-        unsigned int indexes[4] = {0, 1, 2, 3};
+        unsigned int indexes[6] = {0, 1, 2, 2, 3, 0};
         std::shared_ptr<IndexBuffer> index_buffer;
-        index_buffer.reset(renderer->create_index_buffer(indexes, 4));
+        index_buffer.reset(renderer->create_index_buffer(indexes, 6));
 
         square_vertex_array = renderer->create_vertex_array(vertex_buffer, index_buffer);
     }
@@ -117,7 +115,7 @@ void Application::run() {
                        GL_UNSIGNED_INT, nullptr);
 
         square_vertex_array->bind();
-        glDrawElements(GL_QUADS, square_vertex_array->get_index_buffer()->get_count(), // NOLINT(bugprone-narrowing-conversions, cppcoreguidelines-narrowing-conversions)
+        glDrawElements(GL_TRIANGLES, square_vertex_array->get_index_buffer()->get_count(), // NOLINT(bugprone-narrowing-conversions, cppcoreguidelines-narrowing-conversions)
                        GL_UNSIGNED_INT, nullptr);
 
         for (const auto& layer : layers) {
