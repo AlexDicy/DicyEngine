@@ -1,19 +1,16 @@
 #pragma once
-#include "common.h"
+#include "layer.h"
 #include "window.h"
-#include "events/dispatcher.h"
 #include "gui/gui.h"
+#include "rendering/renderer.h"
 
-
-class Layer;
-class Renderer;
 
 class Application {
 public:
-    DE_API Application();
-    DE_API ~Application();
+    Application();
+    ~Application();
 
-    DE_API void run();
+    void run();
     void register_layers();
 
     std::shared_ptr<Window> get_window() const {

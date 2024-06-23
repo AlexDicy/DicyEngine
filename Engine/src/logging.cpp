@@ -17,11 +17,11 @@ namespace DE::Logger {
 
     LoggerWrapper *logger_wrapper = nullptr;
 
-    DE_API inline std::shared_ptr<spdlog::logger> &get_engine_logger() {
+    inline std::shared_ptr<spdlog::logger> &get_engine_logger() {
         return logger_wrapper->engine_logger;
     }
 
-    DE_API inline std::shared_ptr<spdlog::logger> &get_application_logger() {
+    inline std::shared_ptr<spdlog::logger> &get_application_logger() {
         return logger_wrapper->application_logger;
     }
 }

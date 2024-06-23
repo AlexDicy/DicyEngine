@@ -5,7 +5,7 @@
 
 struct GLFWwindow; // do not include 'GLFW' here, it would interfere with 'glad'
 
-class DE_API WindowsWindow : public Window {
+class WindowsWindow : public Window {
     GraphicContext *context;
     GLFWwindow *window;
     bool vsync = false;

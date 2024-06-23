@@ -10,8 +10,8 @@ public:
 };
 
 namespace DE::Logger {
-    DE_API inline std::shared_ptr<spdlog::logger> &get_engine_logger();
-    DE_API inline std::shared_ptr<spdlog::logger> &get_application_logger();
+    inline std::shared_ptr<spdlog::logger> &get_engine_logger();
+    inline std::shared_ptr<spdlog::logger> &get_application_logger();
 }
 
 #if defined(DE_DEBUG) || defined(DE_RELEASE)

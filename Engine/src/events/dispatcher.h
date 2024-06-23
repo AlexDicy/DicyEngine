@@ -26,11 +26,11 @@ public:
         handle_event(typeid(E), event);
     }
 
-    DE_API static EventDispatcher *get();
+    static EventDispatcher *get();
 
 private:
     // hide the implementation details, solves a bunch of memory issues when vectors need to be resized
-    DE_API static void add_global_handler(const std::type_index &type_index, void *handler_ptr);
-    DE_API static void add_layer_handler(unsigned int layer_index, const std::type_index &type_index, void *handler_ptr);
-    DE_API static void handle_event(const std::type_index &type_index, const Event &event);
+    static void add_global_handler(const std::type_index &type_index, void *handler_ptr);
+    static void add_layer_handler(unsigned int layer_index, const std::type_index &type_index, void *handler_ptr);
+    static void handle_event(const std::type_index &type_index, const Event &event);
 };

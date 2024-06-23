@@ -14,8 +14,10 @@ outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 project "Engine"
     location "Engine"
-    kind "SharedLib"
+    kind "StaticLib"
     language "C++"
+    cppdialect "C++20"
+    staticruntime "on"
 
     targetdir ("bin/" .. outputdir .. "/%{prj.name}")
     objdir ("bin/int/" .. outputdir .. "/%{prj.name}")
@@ -50,19 +52,10 @@ project "Engine"
     }
 
     filter "system:windows"
-        cppdialect "C++20"
-        staticruntime "off"
         systemversion "latest"
 
         defines {
             "DE_PLATFORM_WINDOWS"
-        }
-
-        postbuildcommands {
-            -- create directory if it doesn't exist
-            ("{MKDIR} ../bin/" .. outputdir .. "/Sandbox"),
-            -- copy
-            ("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/Sandbox")
         }
 
     filter "configurations:Debug"
@@ -82,6 +75,8 @@ project "Sandbox"
     location "Sandbox"
     kind "ConsoleApp"
     language "C++"
+    cppdialect "C++20"
+    staticruntime "on"
 
     targetdir ("bin/" .. outputdir .. "/%{prj.name}")
     objdir ("bin/int/" .. outputdir .. "/%{prj.name}")
@@ -101,8 +96,6 @@ project "Sandbox"
     }
 
     filter "system:windows"
-        cppdialect "C++20"
-        staticruntime "on"
         systemversion "latest"
 
         defines {
@@ -128,6 +121,7 @@ group "Dependencies"
         kind "StaticLib"
         language "C"
         warnings "off"
+        staticruntime "on"
 
         targetdir ("Engine/libs/GLFW/bin/" .. outputdir .. "/%{prj.name}")
         objdir ("Engine/libs/GLFW/bin/int/" .. outputdir .. "/%{prj.name}")
@@ -152,7 +146,7 @@ group "Dependencies"
         }
 
         filter "system:windows"
-            staticruntime "off"
+            systemversion "latest"
 
             files { 
                 "Engine/libs/GLFW/src/win32_init.c",
@@ -229,7 +223,7 @@ group "Dependencies"
         filter "configurations:Release"
             runtime "Release"
             optimize "speed"
-        
+
         filter "configurations:Dist"
             runtime "Release"
             optimize "speed"
@@ -241,6 +235,7 @@ group "Dependencies"
         kind "StaticLib"
         language "C"
         warnings "off"
+        staticruntime "on"
 
         targetdir ("Engine/libs/glad/bin/" .. outputdir .. "/%{prj.name}")
         objdir ("Engine/libs/glad/bin/int/" .. outputdir .. "/%{prj.name}")
@@ -256,7 +251,6 @@ group "Dependencies"
         }
 
         filter "system:windows"
-            staticruntime "off"
             systemversion "latest"
 
         filter "configurations:Debug"
@@ -277,7 +271,9 @@ group "Dependencies"
         location "Engine/libs/ImGui"
         kind "StaticLib"
         language "C++"
+        cppdialect "C++17"
         warnings "off"
+        staticruntime "on"
 
         targetdir ("Engine/libs/ImGui/bin/" .. outputdir .. "/%{prj.name}")
         objdir ("Engine/libs/ImGui/bin/int/" .. outputdir .. "/%{prj.name}")
@@ -297,14 +293,11 @@ group "Dependencies"
         }
 
         filter "system:windows"
-            staticruntime "off"
             systemversion "latest"
-            cppdialect "C++17"
 
         filter "system:linux"
             pic "On"
             systemversion "latest"
-            cppdialect "C++17"
 
         filter "configurations:Debug"
             runtime "Debug"
