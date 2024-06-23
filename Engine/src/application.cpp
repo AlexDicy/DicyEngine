@@ -55,6 +55,30 @@ void Application::run() {
 
         vertex_array = renderer->create_vertex_array(vertex_buffer, index_buffer);
     }
+    const VertexArray* square_vertex_array;
+    {
+        float vertices[4 * 7] = {
+            -0.5f, -0.5f, 0.0f, 0.1f, 0.1f, 0.7f, 1.0f, //
+            0.5f,  -0.5f, 0.0f, 0.1f, 0.1f, 0.7f, 1.0f, //
+            0.5f,  0.5f,  0.0f, 0.1f, 0.1f, 0.7f, 1.0f, //
+            -0.5f, 0.5f,  0.0f, 0.1f, 0.1f, 0.7f, 1.0f, //
+        };
+
+        std::shared_ptr<VertexBuffer> vertex_buffer;
+        vertex_buffer.reset(renderer->create_vertex_buffer(vertices, sizeof(vertices)));
+
+        BufferLayout layout = {
+            {DataType::FLOAT3, "position"},
+            {DataType::FLOAT4, "color"},
+        };
+        vertex_buffer->set_layout(layout);
+
+        unsigned int indexes[4] = {0, 1, 2, 3};
+        std::shared_ptr<IndexBuffer> index_buffer;
+        index_buffer.reset(renderer->create_index_buffer(indexes, 4));
+
+        square_vertex_array = renderer->create_vertex_array(vertex_buffer, index_buffer);
+    }
 
     const std::string vertex_source = R"(
         #version 330 core
@@ -89,8 +113,12 @@ void Application::run() {
 
         shader->bind();
         vertex_array->bind();
-        glDrawElements(GL_TRIANGLES, vertex_array->get_index_buffer()->get_count(), GL_UNSIGNED_INT,
-                       nullptr); // NOLINT(bugprone-narrowing-conversions, cppcoreguidelines-narrowing-conversions)
+        glDrawElements(GL_TRIANGLES, vertex_array->get_index_buffer()->get_count(), // NOLINT(bugprone-narrowing-conversions, cppcoreguidelines-narrowing-conversions)
+                       GL_UNSIGNED_INT, nullptr);
+
+        square_vertex_array->bind();
+        glDrawElements(GL_QUADS, square_vertex_array->get_index_buffer()->get_count(), // NOLINT(bugprone-narrowing-conversions, cppcoreguidelines-narrowing-conversions)
+                       GL_UNSIGNED_INT, nullptr);
 
         for (const auto& layer : layers) {
             layer->update();
