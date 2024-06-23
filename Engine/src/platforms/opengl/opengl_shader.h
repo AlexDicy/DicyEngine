@@ -9,4 +9,6 @@ public:
     ~OpenGLShader() override;
 
     void bind() const override;
+
+    void upload_uniform_mat4(const std::string& name, const glm::mat4& matrix) const override;
 };

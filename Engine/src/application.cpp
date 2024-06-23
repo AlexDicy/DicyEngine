@@ -78,16 +78,20 @@ void Application::run() {
         square_vertex_array.reset(renderer->create_vertex_array(vertex_buffer, index_buffer));
     }
 
+    auto camera = Camera(-1.0f, 1.0f, -1.0f, 1.0f);
+
     const std::string vertex_source = R"(
         #version 330 core
 
         layout(location = 0) in vec3 position;
         layout(location = 1) in vec4 color;
 
+        uniform mat4 u_view_projection;
+
         out vec4 v_color;
 
         void main() {
-            gl_Position = vec4(position, 1.0);
+            gl_Position = u_view_projection * vec4(position, 1.0);
             v_color = color;
         }
     )";
@@ -105,10 +109,12 @@ void Application::run() {
     )";
     const Shader* shader = new OpenGLShader(vertex_source, fragment_source);
 
+
     while (this->running) {
         renderer->clean();
 
         shader->bind();
+        shader->upload_uniform_mat4("u_view_projection", camera.get_view_projection_matrix());
 
         renderer->draw(square_vertex_array);
         renderer->draw(vertex_array);

@@ -5,6 +5,7 @@
 #include "opengl_vertex_array.h"
 
 #include <glad/gl.h>
+#include <glm/glm.hpp>
 
 VertexArray* OpenGLRenderer::create_vertex_array(const std::shared_ptr<VertexBuffer>& vertex_buffer, const std::shared_ptr<IndexBuffer>& index_buffer) const {
     return new OpenGLVertexArray(vertex_buffer, index_buffer);
@@ -17,7 +18,9 @@ VertexBuffer* OpenGLRenderer::create_vertex_buffer(const float* vertices, const 
 IndexBuffer* OpenGLRenderer::create_index_buffer(const uint32_t* indexes, const uint32_t count) const {
     return new OpenGLIndexBuffer(indexes, count);
 }
-void OpenGLRenderer::begin_frame() const {}
+void OpenGLRenderer::begin_frame(std::shared_ptr<Camera>& camera) const {
+    glm::vec3 camera_position = camera->get_position();
+}
 
 void OpenGLRenderer::end_frame() const {}
 

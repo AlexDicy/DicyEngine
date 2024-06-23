@@ -1,7 +1,9 @@
 ﻿#include "pch/enginepch.h"
 #include "opengl_shader.h"
 
-#include "glad/gl.h"
+#include <glad/gl.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 OpenGLShader::OpenGLShader(const std::string& vertex_source, const std::string& fragment_source) {
     // Create an empty vertex shader handle
@@ -104,4 +106,9 @@ OpenGLShader::~OpenGLShader() {
 }
 void OpenGLShader::bind() const {
     glUseProgram(this->id);
+}
+
+void OpenGLShader::upload_uniform_mat4(const std::string& name, const glm::mat4& matrix) const {
+    const GLint location = glGetUniformLocation(this->id, name.c_str());
+    glProgramUniformMatrix4fv(this->id, location, 1, GL_FALSE, value_ptr(matrix));
 }
