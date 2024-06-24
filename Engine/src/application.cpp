@@ -21,7 +21,7 @@ void Application::run() {
     this->event_dispatcher.reset(EventDispatcher::get());
     this->renderer.reset(new OpenGLRenderer());
     this->window = Window::create("DicyEngine", 1920, 1080);
-    this->gui = std::make_shared<ImGuiGUI>(window);
+    this->gui = std::make_unique<ImGuiGUI>(window);
 
     this->event_dispatcher->register_global_handler<WindowCloseEvent>([this](const WindowCloseEvent&) {
         this->running = false;
