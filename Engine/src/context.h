@@ -7,15 +7,15 @@ class Context {
 
 public:
     const std::unique_ptr<Renderer>& renderer;
-    const double& delta_time = _delta_time;
+    const float& delta_time = _delta_time;
 
     explicit Context(const std::unique_ptr<Renderer>& renderer) : renderer(renderer) {}
 
 protected:
-    void set_delta_time(const double& delta_time) {
+    void set_delta_time(const float& delta_time) {
         _delta_time = delta_time;
     }
 
 private:
-    double _delta_time = 0;
+    float _delta_time = 0;
 };

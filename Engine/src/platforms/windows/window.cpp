@@ -33,8 +33,8 @@ void WindowsWindow::update() {
     glfwPollEvents();
     this->graphic_ctx->swap_buffers();
 
-    const double current_time = glfwGetTime();
-    const double delta_time = current_time - this->last_time;
+    const float current_time = static_cast<float>(glfwGetTime());
+    const float delta_time = current_time - this->last_time;
     this->last_time = current_time;
     this->last_frame_time = delta_time;
 }
@@ -64,7 +64,7 @@ void WindowsWindow::set_vsync(const bool vsync) {
     glfwSwapInterval(this->vsync ? 1 : 0);
 }
 
-double WindowsWindow::get_last_frame_time() const {
+float WindowsWindow::get_last_frame_time() const {
     return this->last_frame_time;
 }
 

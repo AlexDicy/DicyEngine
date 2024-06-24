@@ -9,7 +9,7 @@ public:
     virtual unsigned int get_height() const = 0;
     virtual bool is_vsync() const = 0;
     virtual void set_vsync(bool vsync) = 0;
-    virtual double get_last_frame_time() const = 0;
+    virtual float get_last_frame_time() const = 0;
 
     static std::shared_ptr<Window> create(const char* title, unsigned int width, unsigned int height);
 
