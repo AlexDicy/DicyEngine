@@ -67,11 +67,12 @@ SceneLayer::SceneLayer(const Application* application) {
         layout(location = 1) in vec4 color;
 
         uniform mat4 u_view_projection;
+        uniform mat4 u_transform;
 
         out vec4 v_color;
 
         void main() {
-            gl_Position = u_view_projection * vec4(position, 1.0);
+            gl_Position = u_view_projection * u_transform * vec4(position, 1.0);
             v_color = color;
         }
     )";
@@ -115,7 +116,7 @@ void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
     ctx->renderer->begin_frame(*this->camera);
 
     for (const auto& vertex_array : vertex_arrays) {
-        ctx->renderer->draw(vertex_array, this->shader);
+        ctx->renderer->draw(vertex_array, this->shader, glm::mat4(1.0f));
     }
 
     ctx->renderer->end_frame();

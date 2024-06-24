@@ -29,9 +29,11 @@ void OpenGLRenderer::clean() const {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void OpenGLRenderer::draw(const std::shared_ptr<VertexArray>& vertex_array, const std::shared_ptr<Shader>& shader) const {
+void OpenGLRenderer::draw(const std::shared_ptr<VertexArray>& vertex_array, const std::shared_ptr<Shader>& shader, const glm::mat4& transform) const {
     shader->bind();
     shader->upload_uniform_mat4("u_view_projection", this->view_projection_matrix);
+    shader->upload_uniform_mat4("u_transform", transform);
+
     vertex_array->bind();
     glDrawElements(GL_TRIANGLES, vertex_array->get_index_buffer()->get_count(), // NOLINT(bugprone-narrowing-conversions, cppcoreguidelines-narrowing-conversions)
                    GL_UNSIGNED_INT, nullptr);

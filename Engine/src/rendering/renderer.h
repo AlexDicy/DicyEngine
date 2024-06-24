@@ -21,7 +21,7 @@ public:
     virtual void begin_frame(const Camera& camera) = 0;
     virtual void end_frame() const = 0;
     virtual void clean() const = 0;
-    virtual void draw(const std::shared_ptr<VertexArray>& vertex_array, const std::shared_ptr<Shader>& shader) const = 0;
+    virtual void draw(const std::shared_ptr<VertexArray>& vertex_array, const std::shared_ptr<Shader>& shader, const glm::mat4& transform) const = 0;
 
 protected:
     glm::mat4 view_projection_matrix;

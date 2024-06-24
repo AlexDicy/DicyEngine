@@ -13,5 +13,5 @@ public:
     void begin_frame(const Camera& camera) override;
     void end_frame() const override;
     void clean() const override;
-    void draw(const std::shared_ptr<VertexArray>& vertex_array, const std::shared_ptr<Shader>& shader) const override;
+    void draw(const std::shared_ptr<VertexArray>& vertex_array, const std::shared_ptr<Shader>& shader, const glm::mat4& transform) const override;
 };
