@@ -122,7 +122,8 @@ void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
     static_x += 0.2f * ctx->delta_time;
     static_y += 0.1f * ctx->delta_time;
     const glm::vec3 position = {static_x, static_y, 0.0f};
-    const glm::mat4 transform = translate(glm::mat4(1.0f), position);
+    const glm::mat4 transform = scale(translate(glm::mat4(1.0f), position), glm::vec3(0.5f));
+
     for (const auto& vertex_array : vertex_arrays) {
         ctx->renderer->draw(vertex_array, this->shader, transform);
     }
