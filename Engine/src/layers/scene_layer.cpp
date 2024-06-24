@@ -4,6 +4,8 @@
 #include "input/input.h"
 #include "platforms/opengl/opengl_shader.h"
 
+#include <glm/ext/matrix_transform.hpp>
+
 SceneLayer::SceneLayer(const Application* application) {
     const std::unique_ptr<Renderer>& renderer = application->get_renderer();
 
@@ -95,28 +97,34 @@ constexpr float camera_speed = 2.0f;
 
 void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
     const float camera_speed_delta = camera_speed * ctx->delta_time;
-    auto position = this->camera->get_position();
+    auto camera_position = this->camera->get_position();
     if (Input::is_action_pressed("move_left")) {
-        position.x -= camera_speed_delta;
-        this->camera->set_position(position);
+        camera_position.x -= camera_speed_delta;
+        this->camera->set_position(camera_position);
     }
     if (Input::is_action_pressed("move_right")) {
-        position.x += camera_speed_delta;
-        this->camera->set_position(position);
+        camera_position.x += camera_speed_delta;
+        this->camera->set_position(camera_position);
     }
     if (Input::is_action_pressed("move_forward")) {
-        position.y += camera_speed_delta;
-        this->camera->set_position(position);
+        camera_position.y += camera_speed_delta;
+        this->camera->set_position(camera_position);
     }
     if (Input::is_action_pressed("move_backward")) {
-        position.y -= camera_speed_delta;
-        this->camera->set_position(position);
+        camera_position.y -= camera_speed_delta;
+        this->camera->set_position(camera_position);
     }
 
     ctx->renderer->begin_frame(*this->camera);
 
+    static float static_x = 0.0f;
+    static float static_y = 0.0f;
+    static_x += 0.2f * ctx->delta_time;
+    static_y += 0.1f * ctx->delta_time;
+    const glm::vec3 position = {static_x, static_y, 0.0f};
+    const glm::mat4 transform = translate(glm::mat4(1.0f), position);
     for (const auto& vertex_array : vertex_arrays) {
-        ctx->renderer->draw(vertex_array, this->shader, glm::mat4(1.0f));
+        ctx->renderer->draw(vertex_array, this->shader, transform);
     }
 
     ctx->renderer->end_frame();
