@@ -5,6 +5,6 @@ class Layer {
 public:
     virtual ~Layer() = default;
 
-    virtual void update(const std::shared_ptr<Renderer>& renderer) {
+    virtual void update(const std::unique_ptr<Renderer>& renderer) {
     }
 };

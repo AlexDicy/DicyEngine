@@ -6,7 +6,7 @@
 #include "platforms/opengl/opengl_shader.h"
 
 SceneLayer::SceneLayer(const Application* application) {
-    const std::shared_ptr<Renderer>& renderer = application->get_renderer();
+    const std::unique_ptr<Renderer>& renderer = application->get_renderer();
 
     // square
     {
@@ -106,7 +106,7 @@ SceneLayer::SceneLayer(const Application* application) {
 
 constexpr float camera_speed = 0.02f;
 
-void SceneLayer::update(const std::shared_ptr<Renderer>& renderer) {
+void SceneLayer::update(const std::unique_ptr<Renderer>& renderer) {
     auto position = this->camera->get_position();
     if (Input::is_action_pressed("move_left")) {
         position.x -= camera_speed;

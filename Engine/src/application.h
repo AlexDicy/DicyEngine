@@ -25,7 +25,7 @@ public:
         return this->event_dispatcher;
     }
 
-    std::shared_ptr<Renderer> get_renderer() const {
+    const std::unique_ptr<Renderer>& get_renderer() const {
         return this->renderer;
     }
 
@@ -33,7 +33,7 @@ private:
     std::shared_ptr<Window> window;
     std::shared_ptr<GUI> gui;
     std::shared_ptr<EventDispatcher> event_dispatcher;
-    std::shared_ptr<Renderer> renderer;
+    std::unique_ptr<Renderer> renderer;
     std::vector<Layer*> layers = {};
     bool running;
 };

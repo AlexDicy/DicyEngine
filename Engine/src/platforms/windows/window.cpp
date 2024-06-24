@@ -5,25 +5,25 @@
 #include "GLFW/glfw3.h"
 #include "platforms/opengl/opengl_context.h"
 
-std::shared_ptr<Window> Window::create(const char *title, const unsigned int width, const unsigned int height) {
+std::shared_ptr<Window> Window::create(const char* title, const unsigned int width, const unsigned int height) {
     return std::make_shared<WindowsWindow>(title, width, height);
 }
 
-WindowsWindow::WindowsWindow(const char *title, const unsigned int width, const unsigned int height) {
+WindowsWindow::WindowsWindow(const char* title, const unsigned int width, const unsigned int height) {
     if (!is_glfw_initialized) {
         if (!glfwInit()) {
             DE_ERROR("Failed to initialize GLFW");
             return;
         }
-        glfwSetErrorCallback([](int error, const char *description) {
+        glfwSetErrorCallback([](int error, const char* description) {
             DE_ERROR("GLFW error [{0}] {1}", error, description);
         });
         is_glfw_initialized = true;
     }
 
     this->window = glfwCreateWindow(static_cast<int>(width), static_cast<int>(height), title, nullptr, nullptr);
-    context = new OpenGLContext(this->window);
-    context->init();
+    graphic_ctx = new OpenGLContext(this->window);
+    graphic_ctx->init();
 
     this->WindowsWindow::set_vsync(true);
     this->register_events();
@@ -31,7 +31,7 @@ WindowsWindow::WindowsWindow(const char *title, const unsigned int width, const 
 
 void WindowsWindow::update() {
     glfwPollEvents();
-    this->context->swap_buffers();
+    this->graphic_ctx->swap_buffers();
 
     const double current_time = glfwGetTime();
     const double delta_time = current_time - this->last_time;
@@ -70,13 +70,13 @@ double WindowsWindow::get_last_frame_time() const {
 
 void WindowsWindow::register_events() const {
     static auto event_dispatcher = EventDispatcher::get();
-    glfwSetWindowSizeCallback(this->window, [](GLFWwindow *, int new_width, int new_height) {
+    glfwSetWindowSizeCallback(this->window, [](GLFWwindow*, int new_width, int new_height) {
         event_dispatcher->dispatch(WindowResizeEvent(static_cast<unsigned int>(new_width), static_cast<unsigned int>(new_height)));
     });
-    glfwSetWindowCloseCallback(this->window, [](GLFWwindow *) {
+    glfwSetWindowCloseCallback(this->window, [](GLFWwindow*) {
         event_dispatcher->dispatch(WindowCloseEvent());
     });
-    glfwSetKeyCallback(this->window, [](GLFWwindow *, int key, int scancode, int action, int) {
+    glfwSetKeyCallback(this->window, [](GLFWwindow*, int key, int scancode, int action, int) {
         switch (action) {
             case GLFW_PRESS:
                 event_dispatcher->dispatch(KeyPressedEvent(convert_key_to_input_code(key), scancode, 0));
@@ -91,10 +91,10 @@ void WindowsWindow::register_events() const {
                 break;
         }
     });
-    glfwSetCharCallback(this->window, [](GLFWwindow *, unsigned int c) {
+    glfwSetCharCallback(this->window, [](GLFWwindow*, unsigned int c) {
         event_dispatcher->dispatch(CharTypedEvent(c));
     });
-    glfwSetMouseButtonCallback(this->window, [](GLFWwindow *, int button, int action, int) {
+    glfwSetMouseButtonCallback(this->window, [](GLFWwindow*, int button, int action, int) {
         switch (action) {
             case GLFW_PRESS:
                 event_dispatcher->dispatch(MouseButtonPressedEvent(convert_mouse_button_to_input_code(button)));
@@ -106,10 +106,10 @@ void WindowsWindow::register_events() const {
                 break;
         }
     });
-    glfwSetScrollCallback(this->window, [](GLFWwindow *, double offset_x, double offset_y) {
+    glfwSetScrollCallback(this->window, [](GLFWwindow*, double offset_x, double offset_y) {
         event_dispatcher->dispatch(MouseScrolledEvent(offset_x, offset_y));
     });
-    glfwSetCursorPosCallback(this->window, [](GLFWwindow *, double x, double y) {
+    glfwSetCursorPosCallback(this->window, [](GLFWwindow*, double x, double y) {
         event_dispatcher->dispatch(MouseMovedEvent(x, y));
     });
 }

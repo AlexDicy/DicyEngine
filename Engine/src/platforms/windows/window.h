@@ -6,7 +6,7 @@
 struct GLFWwindow; // do not include 'GLFW' here, it would interfere with 'glad'
 
 class WindowsWindow : public Window {
-    GraphicContext *context;
+    GraphicContext *graphic_ctx;
     GLFWwindow *window;
     bool vsync = false;
     double last_time = 0.0;
