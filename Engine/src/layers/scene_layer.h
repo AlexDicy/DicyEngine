@@ -6,7 +6,7 @@ class SceneLayer : public Layer {
 public:
     explicit SceneLayer(const Application* application);
 
-    void update(const std::unique_ptr<Renderer>& renderer) override;
+    void update(const std::unique_ptr<Context>& ctx) override;
 
 private:
     std::vector<std::shared_ptr<VertexArray>> vertex_arrays;

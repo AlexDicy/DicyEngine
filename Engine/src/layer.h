@@ -1,10 +1,10 @@
 #pragma once
-#include "rendering/renderer.h"
+#include "context.h"
 
 class Layer {
 public:
     virtual ~Layer() = default;
 
-    virtual void update(const std::unique_ptr<Renderer>& renderer) {
+    virtual void update(const std::unique_ptr<Context> &ctx) {
     }
 };

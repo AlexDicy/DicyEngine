@@ -1,7 +1,6 @@
 ﻿#include "pch/enginepch.h"
 #include "scene_layer.h"
 
-#include "events/event.h"
 #include "input/input.h"
 #include "platforms/opengl/opengl_shader.h"
 
@@ -61,19 +60,6 @@ SceneLayer::SceneLayer(const Application* application) {
     // camera
     this->camera = std::make_shared<Camera>(-1.6f, 1.6f, -0.9f, 0.9f);
 
-    application->get_event_dispatcher()->register_global_handler<KeyPressedEvent>([this](const KeyPressedEvent& event) {
-        const auto current_position = this->camera->get_position();
-        if (event.get_key() == InputCode::KEY_LEFT) {
-            this->camera->set_position({current_position.x - 0.02f, current_position.y, current_position.z});
-        } else if (event.get_key() == InputCode::KEY_RIGHT) {
-            this->camera->set_position({current_position.x + 0.02f, current_position.y, current_position.z});
-        } else if (event.get_key() == InputCode::KEY_UP) {
-            this->camera->set_position({current_position.x, current_position.y + 0.02f, current_position.z});
-        } else if (event.get_key() == InputCode::KEY_DOWN) {
-            this->camera->set_position({current_position.x, current_position.y - 0.02f, current_position.z});
-        }
-    });
-
     const std::string vertex_source = R"(
         #version 330 core
 
@@ -104,32 +90,33 @@ SceneLayer::SceneLayer(const Application* application) {
     shader.reset(new OpenGLShader(vertex_source, fragment_source));
 }
 
-constexpr float camera_speed = 0.02f;
+constexpr float camera_speed = 2.0f;
 
-void SceneLayer::update(const std::unique_ptr<Renderer>& renderer) {
+void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
+    const float camera_speed_delta = camera_speed * ctx->delta_time;
     auto position = this->camera->get_position();
     if (Input::is_action_pressed("move_left")) {
-        position.x -= camera_speed;
+        position.x -= camera_speed_delta;
         this->camera->set_position(position);
     }
     if (Input::is_action_pressed("move_right")) {
-        position.x += camera_speed;
+        position.x += camera_speed_delta;
         this->camera->set_position(position);
     }
     if (Input::is_action_pressed("move_forward")) {
-        position.y += camera_speed;
+        position.y += camera_speed_delta;
         this->camera->set_position(position);
     }
     if (Input::is_action_pressed("move_backward")) {
-        position.y -= camera_speed;
+        position.y -= camera_speed_delta;
         this->camera->set_position(position);
     }
 
-    renderer->begin_frame(*this->camera);
+    ctx->renderer->begin_frame(*this->camera);
 
     for (const auto& vertex_array : vertex_arrays) {
-        renderer->draw(vertex_array, this->shader);
+        ctx->renderer->draw(vertex_array, this->shader);
     }
 
-    renderer->end_frame();
+    ctx->renderer->end_frame();
 }
