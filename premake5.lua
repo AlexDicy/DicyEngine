@@ -7,14 +7,14 @@ workspace "DicyEngine"
         "Dist"
     }
 
-    startproject "Sandbox"
+    startproject "Engine"
 
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 
 project "Engine"
     location "Engine"
-    kind "StaticLib"
+    kind "ConsoleApp"
     language "C++"
     cppdialect "C++20"
     staticruntime "on"
@@ -49,50 +49,6 @@ project "Engine"
     defines {
         "DE_IS_ENGINE",
         "IMGUI_IMPL_OPENGL_LOADER_CUSTOM"
-    }
-
-    filter "system:windows"
-        systemversion "latest"
-
-        defines {
-            "DE_PLATFORM_WINDOWS"
-        }
-
-    filter "configurations:Debug"
-        defines "DE_DEBUG"
-        symbols "on"
-
-    filter "configurations:Release"
-        defines "DE_RELEASE"
-        optimize "on"
-
-    filter "configurations:Dist"
-        defines "DE_DIST"
-        optimize "on"
-
-
-project "Sandbox"
-    location "Sandbox"
-    kind "ConsoleApp"
-    language "C++"
-    cppdialect "C++20"
-    staticruntime "on"
-
-    targetdir ("bin/" .. outputdir .. "/%{prj.name}")
-    objdir ("bin/int/" .. outputdir .. "/%{prj.name}")
-
-    files {
-        "%{prj.name}/src/**.h",
-        "%{prj.name}/src/**.cpp"
-    }
-
-    includedirs {
-        "Engine/src",
-        "Engine/libs/spdlog/include"
-    }
-
-    links {
-        "Engine"
     }
 
     filter "system:windows"

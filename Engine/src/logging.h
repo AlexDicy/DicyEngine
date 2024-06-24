@@ -9,9 +9,22 @@ public:
     static void init();
 };
 
+class LoggerWrapper {
+public:
+    LoggerWrapper();
+    std::shared_ptr<spdlog::logger> engine_logger;
+    std::shared_ptr<spdlog::logger> application_logger;
+};
+
 namespace DE::Logger {
-    inline std::shared_ptr<spdlog::logger> &get_engine_logger();
-    inline std::shared_ptr<spdlog::logger> &get_application_logger();
+    extern LoggerWrapper* logger_wrapper;
+
+    inline std::shared_ptr<spdlog::logger>& get_engine_logger() {
+        return logger_wrapper->engine_logger;
+    }
+    inline std::shared_ptr<spdlog::logger>& get_application_logger() {
+        return logger_wrapper->application_logger;
+    }
 }
 
 #if defined(DE_DEBUG) || defined(DE_RELEASE)
