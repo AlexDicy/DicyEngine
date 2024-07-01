@@ -6,3 +6,5 @@ riderModule.iml
 .idea/
 *.user
 *.filters
+
+imgui.ini
