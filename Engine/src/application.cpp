@@ -6,7 +6,6 @@
 #include "input/input.h"
 #include "layers/scene_layer.h"
 
-#include "platforms/opengl/opengl_shader.h"
 #include "rendering/renderer.h"
 
 #include "platforms/opengl/opengl_renderer.h"
