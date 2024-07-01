@@ -31,6 +31,8 @@ void ImGuiGUI::update() const {
 
     this->io->DisplaySize = ImVec2(static_cast<float>(this->window->get_width()), static_cast<float>(this->window->get_height()));
 
+    ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode);
+
     static bool show_demo_window = true;
     if (show_demo_window) {
         ImGui::ShowDemoWindow(&show_demo_window);
