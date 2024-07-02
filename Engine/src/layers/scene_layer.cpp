@@ -14,10 +14,10 @@ SceneLayer::SceneLayer(const Application* application) {
         std::shared_ptr<VertexBuffer> vertex_buffer;
         std::shared_ptr<IndexBuffer> index_buffer;
         constexpr float vertices[4 * 7] = {
-            -0.5f, -0.5f, 0.0f, 0.1f, 0.1f, 0.7f, 1.0f, //
-            0.5f,  -0.5f, 0.0f, 0.1f, 0.1f, 0.7f, 1.0f, //
-            0.5f,  0.5f,  0.0f, 0.1f, 0.1f, 0.7f, 1.0f, //
-            -0.5f, 0.5f,  0.0f, 0.1f, 0.1f, 0.7f, 1.0f, //
+            -0.5f, -0.5f, 2.5f, 0.1f, 0.1f, 0.7f, 1.0f, //
+            0.5f,  -0.5f, 2.5f, 0.1f, 0.1f, 0.7f, 1.0f, //
+            0.5f,  0.5f,  2.5f, 0.1f, 0.1f, 0.7f, 1.0f, //
+            -0.5f, 0.5f,  2.5f, 0.1f, 0.1f, 0.7f, 1.0f, //
         };
 
         vertex_buffer.reset(renderer->create_vertex_buffer(vertices, sizeof(vertices)));
@@ -40,9 +40,9 @@ SceneLayer::SceneLayer(const Application* application) {
         std::shared_ptr<VertexBuffer> vertex_buffer;
         std::shared_ptr<IndexBuffer> index_buffer;
         constexpr float vertices[3 * 7] = {
-            -0.5f, -0.5f, 0.0f, 0.8f, 0.1f, 0.1f, 1.0f, //
-            0.5f,  -0.5f, 0.0f, 0.8f, 0.1f, 0.1f, 1.0f, //
-            0.0f,  0.5f,  0.0f, 0.1f, 0.9f, 0.1f, 1.0f, //
+            -0.5f, -0.5f, 2.0f, 0.8f, 0.1f, 0.1f, 1.0f, //
+            0.5f,  -0.5f, 2.0f, 0.8f, 0.1f, 0.1f, 1.0f, //
+            0.0f,  0.5f,  2.0f, 0.1f, 0.9f, 0.1f, 1.0f, //
         };
         vertex_buffer.reset(renderer->create_vertex_buffer(vertices, sizeof(vertices)));
 
@@ -60,7 +60,8 @@ SceneLayer::SceneLayer(const Application* application) {
     }
 
     // camera
-    this->camera = std::make_shared<Camera>(-1.6f, 1.6f, -0.9f, 0.9f);
+    this->camera = std::make_shared<Camera>(90.0f, 16.0f / 9.0f);
+    // this->camera = std::make_shared<Camera>(-1.6f, 1.6f, -0.9f, 0.9f);
 
     const std::string vertex_source = R"(
         #version 330 core
@@ -91,6 +92,17 @@ SceneLayer::SceneLayer(const Application* application) {
         }
     )";
     shader.reset(new OpenGLShader(vertex_source, fragment_source));
+
+    float mouse_x = 0.0f;
+    float mouse_y = 0.0f;
+    application->get_event_dispatcher()->register_global_handler<MouseMovedEvent>([this, mouse_x, mouse_y] (const MouseMovedEvent e) mutable {
+        constexpr float sensitivity = 0.01f;
+        const float delta_x = (e.get_x() - mouse_x) * sensitivity;
+        const float delta_y = (e.get_y() - mouse_y) * sensitivity;
+        this->camera->set_orientation(this->camera->get_pitch() - delta_y, this->camera->get_yaw() + delta_x);
+        mouse_x = e.get_x();
+        mouse_y = e.get_y();
+    });
 }
 
 constexpr float camera_speed = 2.0f;
@@ -117,15 +129,8 @@ void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
 
     ctx->renderer->begin_frame(*this->camera);
 
-    static float static_x = 0.0f;
-    static float static_y = 0.0f;
-    static_x += 0.2f * ctx->delta_time;
-    static_y += 0.1f * ctx->delta_time;
-    const glm::vec3 position = {static_x, static_y, 0.0f};
-    const glm::mat4 transform = scale(translate(glm::mat4(1.0f), position), glm::vec3(0.5f));
-
     for (const auto& vertex_array : vertex_arrays) {
-        ctx->renderer->draw(vertex_array, this->shader, transform);
+        ctx->renderer->draw(vertex_array, this->shader, glm::mat4(1.0f));
     }
 
     ctx->renderer->end_frame();

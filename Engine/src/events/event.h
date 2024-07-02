@@ -126,18 +126,18 @@ public:
 };
 
 class MouseMovedEvent : public Event {
-    double x;
-    double y;
+    float x;
+    float y;
 
 public:
-    MouseMovedEvent(const double x, const double y) : x(x), y(y) {
+    MouseMovedEvent(const float x, const float y) : x(x), y(y) {
     }
 
-    double get_x() const {
+    float get_x() const {
         return this->x;
     }
 
-    double get_y() const {
+    float get_y() const {
         return this->y;
     }
 };

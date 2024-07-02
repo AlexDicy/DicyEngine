@@ -109,8 +109,8 @@ void WindowsWindow::register_events() const {
     glfwSetScrollCallback(this->window, [](GLFWwindow*, double offset_x, double offset_y) {
         event_dispatcher->dispatch(MouseScrolledEvent(offset_x, offset_y));
     });
-    glfwSetCursorPosCallback(this->window, [](GLFWwindow*, double x, double y) {
-        event_dispatcher->dispatch(MouseMovedEvent(x, y));
+    glfwSetCursorPosCallback(this->window, [](GLFWwindow*, const double x, const double y) {
+        event_dispatcher->dispatch(MouseMovedEvent(static_cast<float>(x), static_cast<float>(y)));
     });
 }
 
