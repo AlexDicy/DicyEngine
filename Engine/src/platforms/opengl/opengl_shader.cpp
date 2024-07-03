@@ -108,6 +108,11 @@ void OpenGLShader::bind() const {
     glUseProgram(this->id);
 }
 
+void OpenGLShader::upload_uniform_vec4(const std::string& name, const glm::vec4& vector) const {
+    const GLint location = glGetUniformLocation(this->id, name.c_str());
+    glProgramUniform4fv(this->id, location, 1, value_ptr(vector));
+}
+
 void OpenGLShader::upload_uniform_mat4(const std::string& name, const glm::mat4& matrix) const {
     const GLint location = glGetUniformLocation(this->id, name.c_str());
     glProgramUniformMatrix4fv(this->id, location, 1, GL_FALSE, value_ptr(matrix));

@@ -40,7 +40,7 @@ public:
 private:
     glm::vec3 position = glm::vec3(0.0f);
     float pitch = 0.0f;
-    float yaw = 180.0f;
+    float yaw = 0.0f;
     float rotation_z = 0.0f;
 
     glm::mat4 view_matrix;

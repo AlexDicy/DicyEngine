@@ -4,7 +4,11 @@
 #include "input/input.h"
 #include "platforms/opengl/opengl_shader.h"
 
+#include <glm/detail/type_quat.hpp>
 #include <glm/ext/matrix_transform.hpp>
+
+std::shared_ptr<Camera> get_perspective_camera();
+std::shared_ptr<Camera> get_orthographic_camera();
 
 SceneLayer::SceneLayer(const Application* application) {
     const std::unique_ptr<Renderer>& renderer = application->get_renderer();
@@ -60,23 +64,23 @@ SceneLayer::SceneLayer(const Application* application) {
     }
 
     // camera
-    this->camera = std::make_shared<Camera>(90.0f, 16.0f / 9.0f);
-    // this->camera = std::make_shared<Camera>(-1.6f, 1.6f, -0.9f, 0.9f);
+    this->camera = get_perspective_camera();
 
     const std::string vertex_source = R"(
         #version 330 core
 
         layout(location = 0) in vec3 position;
-        layout(location = 1) in vec4 color;
+        //layout(location = 1) in vec4 color;
 
         uniform mat4 u_view_projection;
         uniform mat4 u_transform;
+        uniform vec4 u_color;
 
         out vec4 v_color;
 
         void main() {
             gl_Position = u_view_projection * u_transform * vec4(position, 1.0);
-            v_color = color;
+            v_color = u_color;
         }
     )";
 
@@ -93,6 +97,10 @@ SceneLayer::SceneLayer(const Application* application) {
     )";
     shader.reset(new OpenGLShader(vertex_source, fragment_source));
 
+    Input::set_action("change_camera", InputCode::KEY_O);
+    Input::set_action("move_camera_up", InputCode::KEY_E);
+    Input::set_action("move_camera_down", InputCode::KEY_Q);
+
     constexpr float sensitivity = 0.16f;
     Input::bind_axis("look_x", [this](const float delta_x) {
         if (Input::is_action_pressed("right_click")) {
@@ -105,6 +113,23 @@ SceneLayer::SceneLayer(const Application* application) {
             this->camera->set_pitch(pitch);
         }
     });
+    Input::bind_action_pressed("change_camera", [this] {
+        const glm::vec3 position = this->camera->get_position();
+        const float rotation = this->camera->get_rotation();
+        const float pitch = this->camera->get_pitch();
+        const float yaw = this->camera->get_yaw();
+        static bool camera_bool = false;
+        if (camera_bool) {
+            this->camera = get_perspective_camera();
+        } else {
+            this->camera = get_orthographic_camera();
+        }
+        camera_bool = !camera_bool;
+        this->camera->set_position(position);
+        this->camera->set_rotation(rotation);
+        this->camera->set_pitch(pitch);
+        this->camera->set_yaw(yaw);
+    });
 }
 
 constexpr float camera_speed = 2.0f;
@@ -113,6 +138,10 @@ void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
     const float camera_speed_delta = camera_speed * ctx->delta_time;
     auto camera_position = this->camera->get_position();
     if (Input::is_action_pressed("move_left")) {
+        // const float yaw = glm::radians(this->camera->get_yaw());
+        // const auto forward = glm::vec3(sinf(yaw), 0, cosf(yaw));
+        // const auto right = glm::vec3(forward.z, 0, forward.x);
+        // this->camera->set_position(camera_position - right * camera_speed_delta);
         camera_position.x -= camera_speed_delta;
         this->camera->set_position(camera_position);
     }
@@ -121,10 +150,18 @@ void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
         this->camera->set_position(camera_position);
     }
     if (Input::is_action_pressed("move_forward")) {
-        camera_position.y += camera_speed_delta;
+        camera_position.z += camera_speed_delta;
         this->camera->set_position(camera_position);
     }
     if (Input::is_action_pressed("move_backward")) {
+        camera_position.z -= camera_speed_delta;
+        this->camera->set_position(camera_position);
+    }
+    if (Input::is_action_pressed("move_camera_up")) {
+        camera_position.y += camera_speed_delta;
+        this->camera->set_position(camera_position);
+    }
+    if (Input::is_action_pressed("move_camera_down")) {
         camera_position.y -= camera_speed_delta;
         this->camera->set_position(camera_position);
     }
@@ -133,14 +170,25 @@ void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
 
     for (int x = -5; x <= 5; x++) {
         for (int y = -5; y <= 5; y++) {
-            const glm::vec3 position = {x * 5.0f, y * 2.0f, abs(x) * -4.0f};
+            const glm::vec3 position = {x * 5.0f, y * 2.0f, abs(x) * 4.0f};
             const glm::mat4 transform = translate(glm::mat4(1.0f), position);
+            shader->upload_uniform_vec4("u_color", glm::vec4((y + 5) / 10.0f, (x + 5) / 10.0f, 0.0f, 1.0f));
 
             for (const auto& vertex_array : vertex_arrays) {
                 ctx->renderer->draw(vertex_array, this->shader, transform);
             }
         }
     }
+    const auto pos = this->camera->get_position();
+    DE_INFO("x: {0}, y: {1}, z: {2}", pos.x, pos.y, pos.z);
 
     ctx->renderer->end_frame();
+}
+
+std::shared_ptr<Camera> get_perspective_camera() {
+    return std::make_shared<Camera>(90.0f, 16.0f / 9.0f);
+}
+
+std::shared_ptr<Camera> get_orthographic_camera() {
+    return std::make_shared<Camera>(-1.6f, 1.6f, -0.9f, 0.9f);
 }
