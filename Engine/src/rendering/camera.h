@@ -24,27 +24,23 @@ public:
         return this->rotation_z;
     }
 
-    const glm::mat4& get_view_matrix() const {
-        return this->view_matrix;
-    }
-
-    const glm::mat4& get_projection_matrix() const {
-        return this->projection_matrix;
-    }
-
-    const glm::mat4& get_view_projection_matrix() const {
+    const glm::mat4& get_view_projection_matrix(const bool recalculate) {
+        if (recalculate) {
+            this->update_view_matrix();
+        }
         return this->view_projection_matrix;
     }
 
     void set_position(const glm::vec3& position);
-    void set_orientation(float pitch, float yaw);
+    void set_pitch(float pitch);
+    void set_yaw(float yaw);
     void set_rotation(float rotation);
     void update_view_matrix();
 
 private:
     glm::vec3 position = glm::vec3(0.0f);
     float pitch = 0.0f;
-    float yaw = 0.0f;
+    float yaw = 180.0f;
     float rotation_z = 0.0f;
 
     glm::mat4 view_matrix;

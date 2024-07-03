@@ -93,15 +93,17 @@ SceneLayer::SceneLayer(const Application* application) {
     )";
     shader.reset(new OpenGLShader(vertex_source, fragment_source));
 
-    float mouse_x = 0.0f;
-    float mouse_y = 0.0f;
-    application->get_event_dispatcher()->register_global_handler<MouseMovedEvent>([this, mouse_x, mouse_y] (const MouseMovedEvent e) mutable {
-        constexpr float sensitivity = 0.01f;
-        const float delta_x = (e.get_x() - mouse_x) * sensitivity;
-        const float delta_y = (e.get_y() - mouse_y) * sensitivity;
-        this->camera->set_orientation(this->camera->get_pitch() - delta_y, this->camera->get_yaw() + delta_x);
-        mouse_x = e.get_x();
-        mouse_y = e.get_y();
+    constexpr float sensitivity = 0.16f;
+    Input::bind_axis("look_x", [this](const float delta_x) {
+        if (Input::is_action_pressed("right_click")) {
+            this->camera->set_yaw(this->camera->get_yaw() + delta_x * sensitivity);
+        }
+    });
+    Input::bind_axis("look_y", [this](const float delta_y) {
+        if (Input::is_action_pressed("right_click")) {
+            const float pitch = glm::clamp(this->camera->get_pitch() + delta_y * sensitivity, -90.0f, 90.0f);
+            this->camera->set_pitch(pitch);
+        }
     });
 }
 
@@ -129,8 +131,15 @@ void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
 
     ctx->renderer->begin_frame(*this->camera);
 
-    for (const auto& vertex_array : vertex_arrays) {
-        ctx->renderer->draw(vertex_array, this->shader, glm::mat4(1.0f));
+    for (int x = -5; x <= 5; x++) {
+        for (int y = -5; y <= 5; y++) {
+            const glm::vec3 position = {x * 5.0f, y * 2.0f, abs(x) * -4.0f};
+            const glm::mat4 transform = translate(glm::mat4(1.0f), position);
+
+            for (const auto& vertex_array : vertex_arrays) {
+                ctx->renderer->draw(vertex_array, this->shader, transform);
+            }
+        }
     }
 
     ctx->renderer->end_frame();

@@ -18,8 +18,8 @@ VertexBuffer* OpenGLRenderer::create_vertex_buffer(const float* vertices, const 
 IndexBuffer* OpenGLRenderer::create_index_buffer(const uint32_t* indexes, const uint32_t count) const {
     return new OpenGLIndexBuffer(indexes, count);
 }
-void OpenGLRenderer::begin_frame(const Camera& camera) {
-    this->view_projection_matrix = camera.get_view_projection_matrix();
+void OpenGLRenderer::begin_frame(Camera& camera) {
+    this->view_projection_matrix = camera.get_view_projection_matrix(true);
 }
 
 void OpenGLRenderer::end_frame() const {}

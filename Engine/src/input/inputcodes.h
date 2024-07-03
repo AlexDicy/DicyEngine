@@ -123,6 +123,7 @@ enum class InputCode : unsigned int {
     KEY_RIGHT_SUPER = 347,
     KEY_MENU = 348,
     // mouse (from 1000)
+    MOUSE_BUTTON_RANGE_START = 1000,
     MOUSE_BUTTON_1 = 1000,
     MOUSE_BUTTON_2 = 1001,
     MOUSE_BUTTON_3 = 1002,
@@ -134,6 +135,7 @@ enum class InputCode : unsigned int {
     MOUSE_BUTTON_LEFT = 1000,
     MOUSE_BUTTON_RIGHT = 1001,
     MOUSE_BUTTON_MIDDLE = 1002,
+    MOUSE_BUTTON_RANGE_END = 1099,
     MOUSE_X = 1100,
     MOUSE_Y = 1101,
     // joystick (from 2000)
