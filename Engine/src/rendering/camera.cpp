@@ -4,7 +4,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/quaternion.hpp>
 
-Camera::Camera(const float left, const float right, const float bottom, const float top) : projection_matrix(glm::ortho(left, right, bottom, top, -1.0f, 1.0f)) {
+Camera::Camera(const float left, const float right, const float bottom, const float top) : projection_matrix(glm::ortho(left, right, bottom, top, 0.1f, 1000.0f)) {
     update_view_matrix();
 }
 
