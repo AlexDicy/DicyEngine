@@ -10,6 +10,7 @@ public:
 
 private:
     std::vector<std::shared_ptr<VertexArray>> vertex_arrays;
+    std::vector<std::shared_ptr<VertexArray>> vertex_arrays_xyz;
     std::shared_ptr<Camera> camera;
     std::shared_ptr<Shader> shader;
 };

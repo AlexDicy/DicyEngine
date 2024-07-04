@@ -18,10 +18,10 @@ SceneLayer::SceneLayer(const Application* application) {
         std::shared_ptr<VertexBuffer> vertex_buffer;
         std::shared_ptr<IndexBuffer> index_buffer;
         constexpr float vertices[4 * 7] = {
-            -0.5f, -0.5f, 2.5f, 0.1f, 0.1f, 0.7f, 1.0f, //
-            0.5f,  -0.5f, 2.5f, 0.1f, 0.1f, 0.7f, 1.0f, //
-            0.5f,  0.5f,  2.5f, 0.1f, 0.1f, 0.7f, 1.0f, //
-            -0.5f, 0.5f,  2.5f, 0.1f, 0.1f, 0.7f, 1.0f, //
+            -0.5f, -0.5f, 2.1f, 0.1f, 0.1f, 0.7f, 1.0f, //
+            0.5f,  -0.5f, 2.1f, 0.1f, 0.1f, 0.7f, 1.0f, //
+            0.5f,  0.5f,  2.1f, 0.1f, 0.1f, 0.7f, 1.0f, //
+            -0.5f, 0.5f,  2.1f, 0.1f, 0.1f, 0.7f, 1.0f, //
         };
 
         vertex_buffer.reset(renderer->create_vertex_buffer(vertices, sizeof(vertices)));
@@ -63,6 +63,58 @@ SceneLayer::SceneLayer(const Application* application) {
         vertex_arrays.push_back(vertex_array);
     }
 
+    // x,y,z indicator
+    {
+        std::shared_ptr<VertexBuffer> vertex_buffer_x;
+        std::shared_ptr<VertexBuffer> vertex_buffer_y;
+        std::shared_ptr<VertexBuffer> vertex_buffer_z;
+        std::shared_ptr<IndexBuffer> index_buffer;
+        constexpr float vertices_x[3 * 7] = {
+            0.0f, 0.0f, -0.1f, 0.8f, 0.1f, 0.1f, 0.8f, //
+            0.0f, 0.0f, 0.1f,  0.8f, 0.1f, 0.1f, 0.8f, //
+            1.0f, 0.0f, 0.0f,  0.8f, 0.1f, 0.1f, 0.8f, //
+        };
+        vertex_buffer_x.reset(renderer->create_vertex_buffer(vertices_x, sizeof(vertices_x)));
+        constexpr float vertices_y[3 * 7] = {
+            -0.1f, 0.0f, 0.0f, 0.1f, 0.1f, 0.8f, 0.8f, //
+            0.1f,  0.0f, 0.0f, 0.1f, 0.1f, 0.8f, 0.8f, //
+            0.0f,  1.0f, 0.0f, 0.1f, 0.1f, 0.8f, 0.8f, //
+        };
+        vertex_buffer_y.reset(renderer->create_vertex_buffer(vertices_y, sizeof(vertices_y)));
+        constexpr float vertices_z[3 * 7] = {
+            -0.1f, 0.0f, 0.0f, 0.1f, 0.8f, 0.1f, 0.8f, //
+            0.1f,  0.0f, 0.0f, 0.1f, 0.8f, 0.1f, 0.8f, //
+            0.0f,  0.0f, 1.0f, 0.1f, 0.8f, 0.1f, 0.8f, //
+        };
+        vertex_buffer_z.reset(renderer->create_vertex_buffer(vertices_z, sizeof(vertices_z)));
+
+        vertex_buffer_x->set_layout({
+            {DataType::FLOAT3, "position"},
+            {DataType::FLOAT4, "color"},
+        });
+        vertex_buffer_y->set_layout({
+            {DataType::FLOAT3, "position"},
+            {DataType::FLOAT4, "color"},
+        });
+        vertex_buffer_z->set_layout({
+            {DataType::FLOAT3, "position"},
+            {DataType::FLOAT4, "color"},
+        });
+
+        constexpr unsigned int indexes[3] = {0, 1, 2};
+        index_buffer.reset(renderer->create_index_buffer(indexes, 3));
+
+        std::shared_ptr<VertexArray> vertex_array_x;
+        std::shared_ptr<VertexArray> vertex_array_y;
+        std::shared_ptr<VertexArray> vertex_array_z;
+        vertex_array_x.reset(renderer->create_vertex_array(vertex_buffer_x, index_buffer));
+        vertex_array_y.reset(renderer->create_vertex_array(vertex_buffer_y, index_buffer));
+        vertex_array_z.reset(renderer->create_vertex_array(vertex_buffer_z, index_buffer));
+        vertex_arrays_xyz.push_back(vertex_array_x);
+        vertex_arrays_xyz.push_back(vertex_array_y);
+        vertex_arrays_xyz.push_back(vertex_array_z);
+    }
+
     // camera
     this->camera = get_perspective_camera();
 
@@ -70,17 +122,17 @@ SceneLayer::SceneLayer(const Application* application) {
         #version 330 core
 
         layout(location = 0) in vec3 position;
-        //layout(location = 1) in vec4 color;
+        layout(location = 1) in vec4 color;
 
         uniform mat4 u_view_projection;
         uniform mat4 u_transform;
-        uniform vec4 u_color;
+        uniform vec4 u_additional_color;
 
         out vec4 v_color;
 
         void main() {
             gl_Position = u_view_projection * u_transform * vec4(position, 1.0);
-            v_color = u_color;
+            v_color = color + u_additional_color;
         }
     )";
 
@@ -137,50 +189,52 @@ constexpr float camera_speed = 2.0f;
 void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
     const float camera_speed_delta = camera_speed * ctx->delta_time;
     auto camera_position = this->camera->get_position();
+    const float yaw = glm::radians(this->camera->get_yaw());
+    const auto forward = glm::vec3(sinf(yaw), 0, cosf(yaw));
+    const auto right = glm::vec3(forward.z, 0, -forward.x);
     if (Input::is_action_pressed("move_left")) {
-        // const float yaw = glm::radians(this->camera->get_yaw());
-        // const auto forward = glm::vec3(sinf(yaw), 0, cosf(yaw));
-        // const auto right = glm::vec3(forward.z, 0, forward.x);
-        // this->camera->set_position(camera_position - right * camera_speed_delta);
-        camera_position.x -= camera_speed_delta;
-        this->camera->set_position(camera_position);
+        camera_position -= right * camera_speed_delta;
     }
     if (Input::is_action_pressed("move_right")) {
-        camera_position.x += camera_speed_delta;
-        this->camera->set_position(camera_position);
+        camera_position += right * camera_speed_delta;
     }
     if (Input::is_action_pressed("move_forward")) {
-        camera_position.z += camera_speed_delta;
-        this->camera->set_position(camera_position);
+        camera_position += forward * camera_speed_delta;
     }
     if (Input::is_action_pressed("move_backward")) {
-        camera_position.z -= camera_speed_delta;
-        this->camera->set_position(camera_position);
+        camera_position -= forward * camera_speed_delta;
     }
     if (Input::is_action_pressed("move_camera_up")) {
         camera_position.y += camera_speed_delta;
-        this->camera->set_position(camera_position);
     }
     if (Input::is_action_pressed("move_camera_down")) {
         camera_position.y -= camera_speed_delta;
-        this->camera->set_position(camera_position);
     }
+    this->camera->set_position(camera_position);
 
     ctx->renderer->begin_frame(*this->camera);
 
     for (int x = -5; x <= 5; x++) {
         for (int y = -5; y <= 5; y++) {
             const glm::vec3 position = {x * 5.0f, y * 2.0f, abs(x) * 4.0f};
-            const glm::mat4 transform = translate(glm::mat4(1.0f), position);
-            shader->upload_uniform_vec4("u_color", glm::vec4((y + 5) / 10.0f, (x + 5) / 10.0f, 0.0f, 1.0f));
+            const glm::mat4 rotation = rotate(glm::mat4(1.0f), glm::radians(x * 10.0f), glm::vec3(1, 0, 0));
+            const glm::mat4 transform = translate(glm::mat4(1.0f), position) * rotation;
+            shader->upload_uniform_vec4("u_additional_color", glm::vec4((y + 5) / 10.0f, (x + 5) / 10.0f, 0.0f, 1.0f));
 
             for (const auto& vertex_array : vertex_arrays) {
                 ctx->renderer->draw(vertex_array, this->shader, transform);
             }
         }
     }
-    const auto pos = this->camera->get_position();
-    DE_INFO("x: {0}, y: {1}, z: {2}", pos.x, pos.y, pos.z);
+
+    shader->upload_uniform_vec4("u_additional_color", glm::vec4(0.0f));
+    constexpr glm::vec3 position = {0.0f, -1.0f, 1.2f};
+    const glm::mat4 transform = translate(glm::mat4(1.0f), position);
+    for (const auto& vertex_array : vertex_arrays_xyz) {
+        ctx->renderer->draw(vertex_array, this->shader, transform);
+    }
+
+    DE_INFO("pitch: {0}, yaw: {1}", this->camera->get_pitch(), this->camera->get_yaw());
 
     ctx->renderer->end_frame();
 }
