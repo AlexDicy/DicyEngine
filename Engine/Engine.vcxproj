@@ -141,7 +141,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="src\application.h" />
-    <ClInclude Include="src\common.h" />
     <ClInclude Include="src\context.h" />
     <ClInclude Include="src\events\dispatcher.h" />
     <ClInclude Include="src\events\event.h" />
