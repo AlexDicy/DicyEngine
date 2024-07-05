@@ -3,12 +3,15 @@
 
 #include "input/input.h"
 #include "platforms/opengl/opengl_shader.h"
+#include "rendering/camera/camera.h"
+#include "rendering/camera/orthographic_camera.h"
+#include "rendering/camera/perspective_camera.h"
 
 #include <glm/detail/type_quat.hpp>
 #include <glm/ext/matrix_transform.hpp>
 
-std::shared_ptr<Camera> get_perspective_camera();
-std::shared_ptr<Camera> get_orthographic_camera();
+std::shared_ptr<PerspectiveCamera> get_perspective_camera();
+std::shared_ptr<OrthographicCamera> get_orthographic_camera();
 
 SceneLayer::SceneLayer(const Application* application) {
     const std::unique_ptr<Renderer>& renderer = application->get_renderer();
@@ -165,7 +168,7 @@ SceneLayer::SceneLayer(const Application* application) {
             this->camera->set_pitch(pitch);
         }
     });
-    Input::bind_action_pressed("change_camera", [this] {
+    Input::bind_action_pressed("change_camera", [this, &renderer] {
         const glm::vec3 position = this->camera->get_position();
         const Rotation& rotation = this->camera->get_rotation();
         static bool camera_bool = false;
@@ -174,10 +177,13 @@ SceneLayer::SceneLayer(const Application* application) {
         } else {
             this->camera = get_orthographic_camera();
         }
+        renderer->set_camera(camera);
         camera_bool = !camera_bool;
         this->camera->set_position(position);
         this->camera->set_rotation(rotation);
     });
+
+    renderer->set_camera(camera);
 }
 
 constexpr float camera_speed = 2.0f;
@@ -210,7 +216,7 @@ void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
     Rotation rot = this->camera->get_rotation();
     this->camera->set_rotation(rot);
 
-    ctx->renderer->begin_frame(*this->camera);
+    ctx->renderer->begin_frame();
 
     for (int x = -5; x <= 5; x++) {
         for (int y = -5; y <= 5; y++) {
@@ -235,10 +241,10 @@ void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
     ctx->renderer->end_frame();
 }
 
-std::shared_ptr<Camera> get_perspective_camera() {
-    return std::make_shared<Camera>(90.0f, 16.0f / 9.0f);
+std::shared_ptr<PerspectiveCamera> get_perspective_camera() {
+    return std::make_shared<PerspectiveCamera>(90.0f, 16.0f / 9.0f);
 }
 
-std::shared_ptr<Camera> get_orthographic_camera() {
-    return std::make_shared<Camera>(-1.6f, 1.6f, -0.9f, 0.9f);
+std::shared_ptr<OrthographicCamera> get_orthographic_camera() {
+    return std::make_shared<OrthographicCamera>(-1.6f, 1.6f, -0.9f, 0.9f);
 }

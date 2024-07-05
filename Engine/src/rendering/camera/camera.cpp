@@ -4,16 +4,16 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/quaternion.hpp>
 
-Camera::Camera(const float left, const float right, const float bottom, const float top) : projection_matrix(glm::ortho(left, right, bottom, top, 0.1f, 1000.0f)) {
-    update_view_matrix();
-}
-
-Camera::Camera(const float fov_y, const float aspect_ratio) : projection_matrix(glm::perspective(glm::radians(fov_y), aspect_ratio, 0.1f, 1000.0f)) {
+Camera::Camera(const glm::mat4& projection_matrix) : projection_matrix(projection_matrix) {
     update_view_matrix();
 }
 
 void Camera::set_position(const glm::vec3& position) {
     this->position = position;
+}
+
+void Camera::set_rotation(const Rotation& rotation) {
+    this->rotation = rotation;
 }
 
 void Camera::set_pitch(const float pitch) {
@@ -22,10 +22,6 @@ void Camera::set_pitch(const float pitch) {
 
 void Camera::set_yaw(const float yaw) {
     this->rotation.yaw = yaw;
-}
-
-void Camera::set_rotation(const Rotation& rotation) {
-    this->rotation = rotation;
 }
 
 void Camera::update_view_matrix() {

@@ -8,7 +8,8 @@
 #include <glm/glm.hpp>
 
 void OpenGLRenderer::set_viewport(const int x, const int y, const uint32_t width, const uint32_t height) {
-    glViewport(x, y, width, height);  // NOLINT(bugprone-narrowing-conversions, cppcoreguidelines-narrowing-conversions)
+    glViewport(x, y, width, height); // NOLINT(bugprone-narrowing-conversions, cppcoreguidelines-narrowing-conversions)
+    this->camera->set_aspect_ratio(static_cast<float>(width) / static_cast<float>(height));
 }
 
 VertexArray* OpenGLRenderer::create_vertex_array(const std::shared_ptr<VertexBuffer>& vertex_buffer, const std::shared_ptr<IndexBuffer>& index_buffer) const {
@@ -22,8 +23,8 @@ VertexBuffer* OpenGLRenderer::create_vertex_buffer(const float* vertices, const 
 IndexBuffer* OpenGLRenderer::create_index_buffer(const uint32_t* indexes, const uint32_t count) const {
     return new OpenGLIndexBuffer(indexes, count);
 }
-void OpenGLRenderer::begin_frame(Camera& camera) {
-    this->view_projection_matrix = camera.get_view_projection_matrix(true);
+void OpenGLRenderer::begin_frame() {
+    this->view_projection_matrix = this->camera->get_view_projection_matrix(true);
 }
 
 void OpenGLRenderer::end_frame() const {}
