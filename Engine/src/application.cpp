@@ -26,6 +26,10 @@ void Application::run() {
     this->event_dispatcher->register_global_handler<WindowCloseEvent>([this](const WindowCloseEvent&) {
         this->running = false;
     });
+    this->event_dispatcher->register_global_handler<WindowResizeEvent>([this](const WindowResizeEvent& event) {
+        this->renderer->set_viewport(0, 0, event.get_width(), event.get_height());
+    });
+
     Input::init(this->event_dispatcher, window);
 
     register_layers();

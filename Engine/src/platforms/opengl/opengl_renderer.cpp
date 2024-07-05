@@ -7,6 +7,10 @@
 #include <glad/gl.h>
 #include <glm/glm.hpp>
 
+void OpenGLRenderer::set_viewport(const int x, const int y, const uint32_t width, const uint32_t height) {
+    glViewport(x, y, width, height);  // NOLINT(bugprone-narrowing-conversions, cppcoreguidelines-narrowing-conversions)
+}
+
 VertexArray* OpenGLRenderer::create_vertex_array(const std::shared_ptr<VertexBuffer>& vertex_buffer, const std::shared_ptr<IndexBuffer>& index_buffer) const {
     return new OpenGLVertexArray(vertex_buffer, index_buffer);
 }

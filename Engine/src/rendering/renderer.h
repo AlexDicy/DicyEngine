@@ -14,6 +14,8 @@ public:
         return this->api;
     }
 
+    virtual void set_viewport(int x, int y, uint32_t width, uint32_t height) = 0;
+
     virtual VertexArray* create_vertex_array(const std::shared_ptr<VertexBuffer>& vertex_buffer, const std::shared_ptr<IndexBuffer>& index_buffer) const = 0;
     virtual VertexBuffer* create_vertex_buffer(const float* vertices, uint32_t size) const = 0;
     virtual IndexBuffer* create_index_buffer(const uint32_t* indexes, uint32_t count) const = 0;
