@@ -13,11 +13,11 @@ public:
     void run();
     void register_layers();
 
-    std::shared_ptr<Window> get_window() const {
+    const std::shared_ptr<Window>& get_window() const {
         return this->window;
     }
 
-    std::shared_ptr<EventDispatcher> get_event_dispatcher() const {
+    const std::shared_ptr<EventDispatcher>& get_event_dispatcher() const {
         return this->event_dispatcher;
     }
 

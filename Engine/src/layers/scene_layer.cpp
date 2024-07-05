@@ -10,11 +10,12 @@
 #include <glm/detail/type_quat.hpp>
 #include <glm/ext/matrix_transform.hpp>
 
-std::shared_ptr<PerspectiveCamera> get_perspective_camera();
+std::shared_ptr<PerspectiveCamera> get_perspective_camera(const std::shared_ptr<Window>&);
 std::shared_ptr<OrthographicCamera> get_orthographic_camera();
 
 SceneLayer::SceneLayer(const Application* application) {
     const std::unique_ptr<Renderer>& renderer = application->get_renderer();
+    const std::shared_ptr<Window>& window = application->get_window();
 
     // square
     {
@@ -119,7 +120,7 @@ SceneLayer::SceneLayer(const Application* application) {
     }
 
     // camera
-    this->camera = get_perspective_camera();
+    this->camera = get_perspective_camera(window);
 
     const std::string vertex_source = R"(
         #version 330 core
@@ -168,12 +169,12 @@ SceneLayer::SceneLayer(const Application* application) {
             this->camera->set_pitch(pitch);
         }
     });
-    Input::bind_action_pressed("change_camera", [this, &renderer] {
+    Input::bind_action_pressed("change_camera", [this, &renderer, &window] {
         const glm::vec3 position = this->camera->get_position();
         const Rotation& rotation = this->camera->get_rotation();
         static bool camera_bool = false;
         if (camera_bool) {
-            this->camera = get_perspective_camera();
+            this->camera = get_perspective_camera(window);
         } else {
             this->camera = get_orthographic_camera();
         }
@@ -241,8 +242,8 @@ void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
     ctx->renderer->end_frame();
 }
 
-std::shared_ptr<PerspectiveCamera> get_perspective_camera() {
-    return std::make_shared<PerspectiveCamera>(90.0f, 16.0f / 9.0f);
+std::shared_ptr<PerspectiveCamera> get_perspective_camera(const std::shared_ptr<Window>& window) {
+    return std::make_shared<PerspectiveCamera>(90.0f, static_cast<float>(window->get_width()) / static_cast<float>(window->get_height()));
 }
 
 std::shared_ptr<OrthographicCamera> get_orthographic_camera() {
