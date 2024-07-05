@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include "math/rotation.h"
 #include <glm/glm.hpp>
 
 
@@ -13,15 +14,15 @@ public:
     }
 
     float get_pitch() const {
-        return this->pitch;
+        return this->rotation.pitch;
     }
 
     float get_yaw() const {
-        return this->yaw;
+        return this->rotation.yaw;
     }
 
-    float get_rotation() const {
-        return this->rotation_z;
+    const Rotation& get_rotation() const {
+        return this->rotation;
     }
 
     const glm::mat4& get_view_projection_matrix(const bool recalculate) {
@@ -34,14 +35,12 @@ public:
     void set_position(const glm::vec3& position);
     void set_pitch(float pitch);
     void set_yaw(float yaw);
-    void set_rotation(float rotation);
+    void set_rotation(const Rotation& rotation);
     void update_view_matrix();
 
 private:
     glm::vec3 position = glm::vec3(0.0f);
-    float pitch = 0.0f;
-    float yaw = 0.0f;
-    float rotation_z = 0.0f;
+    Rotation rotation;
 
     glm::mat4 view_matrix;
     glm::mat4 projection_matrix;

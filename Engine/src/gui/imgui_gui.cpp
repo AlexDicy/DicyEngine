@@ -33,7 +33,7 @@ void ImGuiGUI::update() const {
 
     ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode);
 
-    static bool show_demo_window = true;
+    static bool show_demo_window = false;
     if (show_demo_window) {
         ImGui::ShowDemoWindow(&show_demo_window);
     }

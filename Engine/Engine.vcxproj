@@ -151,6 +151,7 @@
     <ClInclude Include="src\layer.h" />
     <ClInclude Include="src\layers\scene_layer.h" />
     <ClInclude Include="src\logging.h" />
+    <ClInclude Include="src\math\rotation.h" />
     <ClInclude Include="src\pch\enginepch.h" />
     <ClInclude Include="src\platforms\opengl\imgui_impl_glfw.h" />
     <ClInclude Include="src\platforms\opengl\imgui_impl_opengl3.h" />

@@ -167,9 +167,7 @@ SceneLayer::SceneLayer(const Application* application) {
     });
     Input::bind_action_pressed("change_camera", [this] {
         const glm::vec3 position = this->camera->get_position();
-        const float rotation = this->camera->get_rotation();
-        const float pitch = this->camera->get_pitch();
-        const float yaw = this->camera->get_yaw();
+        const Rotation& rotation = this->camera->get_rotation();
         static bool camera_bool = false;
         if (camera_bool) {
             this->camera = get_perspective_camera();
@@ -179,8 +177,6 @@ SceneLayer::SceneLayer(const Application* application) {
         camera_bool = !camera_bool;
         this->camera->set_position(position);
         this->camera->set_rotation(rotation);
-        this->camera->set_pitch(pitch);
-        this->camera->set_yaw(yaw);
     });
 }
 
@@ -211,14 +207,16 @@ void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
         camera_position.y -= camera_speed_delta;
     }
     this->camera->set_position(camera_position);
+    Rotation rot = this->camera->get_rotation();
+    this->camera->set_rotation(rot);
 
     ctx->renderer->begin_frame(*this->camera);
 
     for (int x = -5; x <= 5; x++) {
         for (int y = -5; y <= 5; y++) {
             const glm::vec3 position = {x * 5.0f, y * 2.0f, abs(x) * 4.0f};
-            const glm::mat4 rotation = rotate(glm::mat4(1.0f), glm::radians(x * 10.0f), glm::vec3(1, 0, 0));
-            const glm::mat4 transform = translate(glm::mat4(1.0f), position) * rotation;
+            const Rotation rotation = {x * 10.0f, 0.0f, 0.0f};
+            const glm::mat4 transform = translate(glm::mat4(1.0f), position) * toMat4(rotation.to_quaternion());
             shader->upload_uniform_vec4("u_additional_color", glm::vec4((y + 5) / 10.0f, (x + 5) / 10.0f, 0.0f, 1.0f));
 
             for (const auto& vertex_array : vertex_arrays) {
@@ -233,8 +231,6 @@ void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
     for (const auto& vertex_array : vertex_arrays_xyz) {
         ctx->renderer->draw(vertex_array, this->shader, transform);
     }
-
-    DE_INFO("pitch: {0}, yaw: {1}", this->camera->get_pitch(), this->camera->get_yaw());
 
     ctx->renderer->end_frame();
 }
