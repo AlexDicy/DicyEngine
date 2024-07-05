@@ -214,8 +214,6 @@ void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
         camera_position.y -= camera_speed_delta;
     }
     this->camera->set_position(camera_position);
-    Rotation rot = this->camera->get_rotation();
-    this->camera->set_rotation(rot);
 
     ctx->renderer->begin_frame();
 
