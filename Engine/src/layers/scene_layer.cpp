@@ -171,7 +171,7 @@ SceneLayer::SceneLayer(const Application* application) {
     });
     Input::bind_action_pressed("change_camera", [this, &renderer, &window] {
         const glm::vec3 position = this->camera->get_position();
-        const Rotation& rotation = this->camera->get_rotation();
+        const Rotation rotation = this->camera->get_rotation();
         static bool camera_bool = false;
         if (camera_bool) {
             this->camera = get_perspective_camera(window);
