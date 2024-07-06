@@ -5,7 +5,7 @@
 #include "platforms/opengl/imgui_impl_glfw.h"
 #include "platforms/opengl/imgui_impl_opengl3.h"
 
-ImGuiGUI::ImGuiGUI(const std::shared_ptr<Window>& window) : GUI(window) {
+ImGuiGUI::ImGuiGUI(const Ref<Window>& window) : GUI(window) {
     this->window = window;
     ImGui::CreateContext();
     ImGui::StyleColorsDark();

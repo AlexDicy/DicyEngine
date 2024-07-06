@@ -6,7 +6,7 @@
 
 class Input {
 public:
-    static void init(const std::shared_ptr<EventDispatcher>& event_dispatcher, const std::shared_ptr<Window>& window);
+    static void init(const Ref<EventDispatcher>& event_dispatcher, const Ref<Window>& window);
 
     static void bind_action_pressed(const std::string& action, const std::function<void()>& callback) {
         bindings_pressed[actions_mapping[action]].push_back(callback);
@@ -37,5 +37,5 @@ private:
     static std::unordered_map<std::string, std::unordered_map<InputCode, float>> axis_mapping;
     static std::unordered_map<InputCode, std::vector<std::pair<std::function<void(float)>, float>>> axis_bindings;
 
-    static std::shared_ptr<Window> window;
+    static Ref<Window> window;
 };

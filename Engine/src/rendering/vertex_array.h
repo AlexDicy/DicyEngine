@@ -7,6 +7,6 @@ public:
 
     virtual void bind() const = 0;
 
-    virtual const std::shared_ptr<VertexBuffer>& get_vertex_buffer() const = 0;
-    virtual const std::shared_ptr<IndexBuffer>& get_index_buffer() const = 0;
+    virtual const Ref<VertexBuffer>& get_vertex_buffer() const = 0;
+    virtual const Ref<IndexBuffer>& get_index_buffer() const = 0;
 };

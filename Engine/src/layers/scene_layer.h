@@ -9,8 +9,8 @@ public:
     void update(const std::unique_ptr<Context>& ctx) override;
 
 private:
-    std::vector<std::shared_ptr<VertexArray>> vertex_arrays;
-    std::vector<std::shared_ptr<VertexArray>> vertex_arrays_xyz;
-    std::shared_ptr<Camera> camera;
-    std::shared_ptr<Shader> shader;
+    std::vector<Ref<VertexArray>> vertex_arrays;
+    std::vector<Ref<VertexArray>> vertex_arrays_xyz;
+    Ref<Camera> camera;
+    Ref<Shader> shader;
 };

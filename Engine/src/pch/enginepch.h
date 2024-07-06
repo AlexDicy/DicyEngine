@@ -14,7 +14,11 @@
     #include <Windows.h>
 #endif
 
+// compile GLM with a left-handed coordinate system
 #define GLM_FORCE_LEFT_HANDED
+
+template<typename T>
+using Ref = std::shared_ptr<T>;
 
 #include "logging.h"
 #include "events/event.h"

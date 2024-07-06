@@ -14,11 +14,11 @@ public:
     void update_frame(const std::unique_ptr<Context>& ctx) const;
     void register_layers();
 
-    const std::shared_ptr<Window>& get_window() const {
+    const Ref<Window>& get_window() const {
         return this->window;
     }
 
-    const std::shared_ptr<EventDispatcher>& get_event_dispatcher() const {
+    const Ref<EventDispatcher>& get_event_dispatcher() const {
         return this->event_dispatcher;
     }
 
@@ -27,8 +27,8 @@ public:
     }
 
 private:
-    std::shared_ptr<Window> window;
-    std::shared_ptr<EventDispatcher> event_dispatcher;
+    Ref<Window> window;
+    Ref<EventDispatcher> event_dispatcher;
     std::unique_ptr<GUI> gui;
     std::unique_ptr<Renderer> renderer;
     std::vector<Layer*> layers = {};

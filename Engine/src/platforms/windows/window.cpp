@@ -5,7 +5,7 @@
 #include "GLFW/glfw3.h"
 #include "platforms/opengl/opengl_context.h"
 
-std::shared_ptr<Window> Window::create(const char* title, const unsigned int width, const unsigned int height) {
+Ref<Window> Window::create(const char* title, const unsigned int width, const unsigned int height) {
     return std::make_shared<WindowsWindow>(title, width, height);
 }
 

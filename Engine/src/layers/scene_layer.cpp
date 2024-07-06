@@ -10,17 +10,17 @@
 #include <glm/detail/type_quat.hpp>
 #include <glm/ext/matrix_transform.hpp>
 
-std::shared_ptr<PerspectiveCamera> get_perspective_camera(const std::shared_ptr<Window>&);
-std::shared_ptr<OrthographicCamera> get_orthographic_camera();
+Ref<PerspectiveCamera> get_perspective_camera(const Ref<Window>&);
+Ref<OrthographicCamera> get_orthographic_camera();
 
 SceneLayer::SceneLayer(const Application* application) {
     const std::unique_ptr<Renderer>& renderer = application->get_renderer();
-    const std::shared_ptr<Window>& window = application->get_window();
+    const Ref<Window>& window = application->get_window();
 
     // square
     {
-        std::shared_ptr<VertexBuffer> vertex_buffer;
-        std::shared_ptr<IndexBuffer> index_buffer;
+        Ref<VertexBuffer> vertex_buffer;
+        Ref<IndexBuffer> index_buffer;
         constexpr float vertices[4 * 7] = {
             -0.5f, -0.5f, 2.1f, 0.1f, 0.1f, 0.7f, 1.0f, //
             0.5f,  -0.5f, 2.1f, 0.1f, 0.1f, 0.7f, 1.0f, //
@@ -38,15 +38,15 @@ SceneLayer::SceneLayer(const Application* application) {
         constexpr unsigned int indexes[6] = {0, 1, 2, 2, 3, 0};
         index_buffer.reset(renderer->create_index_buffer(indexes, 6));
 
-        std::shared_ptr<VertexArray> vertex_array;
+        Ref<VertexArray> vertex_array;
         vertex_array.reset(renderer->create_vertex_array(vertex_buffer, index_buffer));
         vertex_arrays.push_back(vertex_array);
     }
 
     // triangle
     {
-        std::shared_ptr<VertexBuffer> vertex_buffer;
-        std::shared_ptr<IndexBuffer> index_buffer;
+        Ref<VertexBuffer> vertex_buffer;
+        Ref<IndexBuffer> index_buffer;
         constexpr float vertices[3 * 7] = {
             -0.5f, -0.5f, 2.0f, 0.8f, 0.1f, 0.1f, 1.0f, //
             0.5f,  -0.5f, 2.0f, 0.8f, 0.1f, 0.1f, 1.0f, //
@@ -62,17 +62,17 @@ SceneLayer::SceneLayer(const Application* application) {
         constexpr unsigned int indexes[3] = {0, 1, 2};
         index_buffer.reset(renderer->create_index_buffer(indexes, 3));
 
-        std::shared_ptr<VertexArray> vertex_array;
+        Ref<VertexArray> vertex_array;
         vertex_array.reset(renderer->create_vertex_array(vertex_buffer, index_buffer));
         vertex_arrays.push_back(vertex_array);
     }
 
     // x,y,z indicator
     {
-        std::shared_ptr<VertexBuffer> vertex_buffer_x;
-        std::shared_ptr<VertexBuffer> vertex_buffer_y;
-        std::shared_ptr<VertexBuffer> vertex_buffer_z;
-        std::shared_ptr<IndexBuffer> index_buffer;
+        Ref<VertexBuffer> vertex_buffer_x;
+        Ref<VertexBuffer> vertex_buffer_y;
+        Ref<VertexBuffer> vertex_buffer_z;
+        Ref<IndexBuffer> index_buffer;
         constexpr float vertices_x[3 * 7] = {
             0.0f, 0.0f, -0.1f, 0.8f, 0.1f, 0.1f, 0.8f, //
             0.0f, 0.0f, 0.1f,  0.8f, 0.1f, 0.1f, 0.8f, //
@@ -108,9 +108,9 @@ SceneLayer::SceneLayer(const Application* application) {
         constexpr unsigned int indexes[3] = {0, 1, 2};
         index_buffer.reset(renderer->create_index_buffer(indexes, 3));
 
-        std::shared_ptr<VertexArray> vertex_array_x;
-        std::shared_ptr<VertexArray> vertex_array_y;
-        std::shared_ptr<VertexArray> vertex_array_z;
+        Ref<VertexArray> vertex_array_x;
+        Ref<VertexArray> vertex_array_y;
+        Ref<VertexArray> vertex_array_z;
         vertex_array_x.reset(renderer->create_vertex_array(vertex_buffer_x, index_buffer));
         vertex_array_y.reset(renderer->create_vertex_array(vertex_buffer_y, index_buffer));
         vertex_array_z.reset(renderer->create_vertex_array(vertex_buffer_z, index_buffer));
@@ -240,10 +240,10 @@ void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
     ctx->renderer->end_frame();
 }
 
-std::shared_ptr<PerspectiveCamera> get_perspective_camera(const std::shared_ptr<Window>& window) {
+Ref<PerspectiveCamera> get_perspective_camera(const Ref<Window>& window) {
     return std::make_shared<PerspectiveCamera>(90.0f, static_cast<float>(window->get_width()) / static_cast<float>(window->get_height()));
 }
 
-std::shared_ptr<OrthographicCamera> get_orthographic_camera() {
+Ref<OrthographicCamera> get_orthographic_camera() {
     return std::make_shared<OrthographicCamera>(-1.6f, 1.6f, -0.9f, 0.9f);
 }

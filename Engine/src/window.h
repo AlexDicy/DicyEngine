@@ -11,7 +11,7 @@ public:
     virtual void set_vsync(bool vsync) = 0;
     virtual float get_last_frame_time() const = 0;
 
-    static std::shared_ptr<Window> create(const char* title, unsigned int width, unsigned int height);
+    static Ref<Window> create(const char* title, unsigned int width, unsigned int height);
 
 
 #ifdef DE_PLATFORM_WINDOWS

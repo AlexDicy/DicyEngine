@@ -13,10 +13,10 @@ std::unordered_map<InputCode, std::vector<std::function<void()>>> Input::binding
 std::unordered_map<std::string, std::unordered_map<InputCode, float>> Input::axis_mapping;
 std::unordered_map<InputCode, std::vector<std::pair<std::function<void(float)>, float>>> Input::axis_bindings;
 
-std::shared_ptr<Window> Input::window;
+Ref<Window> Input::window;
 
 
-void Input::init(const std::shared_ptr<EventDispatcher>& event_dispatcher, const std::shared_ptr<Window>& window) {
+void Input::init(const Ref<EventDispatcher>& event_dispatcher, const Ref<Window>& window) {
     Input::window = window;
     // TODO: do not hardcode
     actions_mapping["left_click"] = InputCode::MOUSE_BUTTON_LEFT;

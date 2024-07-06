@@ -12,7 +12,7 @@ void OpenGLRenderer::set_viewport(const int x, const int y, const uint32_t width
     this->camera->set_aspect_ratio(static_cast<float>(width) / static_cast<float>(height));
 }
 
-VertexArray* OpenGLRenderer::create_vertex_array(const std::shared_ptr<VertexBuffer>& vertex_buffer, const std::shared_ptr<IndexBuffer>& index_buffer) const {
+VertexArray* OpenGLRenderer::create_vertex_array(const Ref<VertexBuffer>& vertex_buffer, const Ref<IndexBuffer>& index_buffer) const {
     return new OpenGLVertexArray(vertex_buffer, index_buffer);
 }
 
@@ -34,7 +34,7 @@ void OpenGLRenderer::clean() const {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void OpenGLRenderer::draw(const std::shared_ptr<VertexArray>& vertex_array, const std::shared_ptr<Shader>& shader, const glm::mat4& transform) const {
+void OpenGLRenderer::draw(const Ref<VertexArray>& vertex_array, const Ref<Shader>& shader, const glm::mat4& transform) const {
     shader->bind();
     shader->upload_uniform_mat4("u_view_projection", this->view_projection_matrix);
     shader->upload_uniform_mat4("u_transform", transform);

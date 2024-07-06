@@ -4,10 +4,10 @@
 
 class GUI {
 protected:
-    std::shared_ptr<Window> window;
+    Ref<Window> window;
 
 public:
-    GUI(const std::shared_ptr<Window> &window) : window(window) {
+    GUI(const Ref<Window> &window) : window(window) {
     }
     virtual ~GUI() = default;
 

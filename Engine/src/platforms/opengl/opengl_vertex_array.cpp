@@ -6,7 +6,7 @@
 #include "glad/gl.h"
 
 
-OpenGLVertexArray::OpenGLVertexArray(const std::shared_ptr<VertexBuffer>& vertex_buffer, const std::shared_ptr<IndexBuffer>& index_buffer) :
+OpenGLVertexArray::OpenGLVertexArray(const Ref<VertexBuffer>& vertex_buffer, const Ref<IndexBuffer>& index_buffer) :
     vertex_buffer(vertex_buffer), index_buffer(index_buffer) {
     glCreateVertexArrays(1, &this->id);
 
@@ -49,10 +49,10 @@ void OpenGLVertexArray::bind() const {
     glBindVertexArray(this->id);
 }
 
-const std::shared_ptr<VertexBuffer>& OpenGLVertexArray::get_vertex_buffer() const {
+const Ref<VertexBuffer>& OpenGLVertexArray::get_vertex_buffer() const {
     return this->vertex_buffer;
 }
 
-const std::shared_ptr<IndexBuffer>& OpenGLVertexArray::get_index_buffer() const {
+const Ref<IndexBuffer>& OpenGLVertexArray::get_index_buffer() const {
     return this->index_buffer;
 }

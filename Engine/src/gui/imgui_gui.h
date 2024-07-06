@@ -8,7 +8,7 @@ class ImGuiGUI : public GUI {
     ImGuiIO *io;
 
 public:
-    ImGuiGUI(const std::shared_ptr<Window> &window);
+    ImGuiGUI(const Ref<Window> &window);
 
     void update() const override;
 };
