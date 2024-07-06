@@ -28,6 +28,9 @@ void Application::run() {
         this->running = false;
     });
     this->event_dispatcher->register_global_handler<WindowResizeEvent>([this, &ctx](const WindowResizeEvent& event) {
+        if (event.get_width() == 0 || event.get_height() == 0) {
+            return;
+        }
         this->renderer->set_viewport(0, 0, event.get_width(), event.get_height());
         this->update_frame(ctx); // keep drawing when user holds to resizes the window
     });
