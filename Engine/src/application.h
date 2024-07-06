@@ -11,6 +11,7 @@ public:
     ~Application();
 
     void run();
+    void update_frame(const std::unique_ptr<Context>& ctx) const;
     void register_layers();
 
     const std::shared_ptr<Window>& get_window() const {
