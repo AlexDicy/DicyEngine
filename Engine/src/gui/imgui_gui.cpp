@@ -17,8 +17,12 @@ ImGuiGUI::ImGuiGUI(const Ref<Window>& window) : GUI(window) {
     io->ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
     ImGuiStyle& style = ImGui::GetStyle();
-    style.WindowRounding = 0.0f;
-    style.Colors[ImGuiCol_WindowBg].w = 1.0f;
+    style.WindowRounding = 4.0f;
+    style.FrameRounding = 2.0f;
+    style.GrabRounding = 2.0f;
+    style.Colors[ImGuiCol_WindowBg] = ImVec4(0.11f, 0.15f, 0.17f, 0.8f);
+    style.Colors[ImGuiCol_TitleBgActive].w = 0.75f;
+    
 
     ImGui_ImplGlfw_InitForOpenGL(this->window->get_native_window(), true);
     ImGui_ImplOpenGL3_Init("#version 460");
