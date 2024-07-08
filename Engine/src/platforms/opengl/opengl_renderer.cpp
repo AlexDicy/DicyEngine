@@ -25,6 +25,8 @@ IndexBuffer* OpenGLRenderer::create_index_buffer(const uint32_t* indexes, const 
 }
 void OpenGLRenderer::begin_frame() {
     this->view_projection_matrix = this->camera->get_view_projection_matrix(true);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_BLEND);
 }
 
 void OpenGLRenderer::end_frame() const {}
