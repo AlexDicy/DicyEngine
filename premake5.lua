@@ -37,13 +37,15 @@ project "Engine"
         "%{prj.name}/libs/glad/include",
         "%{prj.name}/libs/ImGui",
         "%{prj.name}/libs/glm",
+        "%{prj.name}/libs/stb",
     }
 
     links {
         "GLFW",
         "glad",
         "opengl32.lib",
-        "ImGui"
+        "ImGui",
+        "stb"
     }
 
     defines {
@@ -246,6 +248,43 @@ group "Dependencies"
             "Engine/libs/ImGui/imstb_textedit.h",
             "Engine/libs/ImGui/imstb_truetype.h",
             "Engine/libs/ImGui/imgui_demo.cpp"
+        }
+
+        filter "system:windows"
+            systemversion "latest"
+
+        filter "system:linux"
+            pic "On"
+            systemversion "latest"
+
+        filter "configurations:Debug"
+            runtime "Debug"
+            symbols "on"
+
+        filter "configurations:Release"
+            runtime "Release"
+            optimize "on"
+
+        filter "configurations:Dist"
+            runtime "Release"
+            optimize "on"
+            symbols "off"
+
+
+    project "stb"
+        location "Engine/libs/stb"
+        kind "StaticLib"
+        language "C++"
+        cppdialect "C++17"
+        warnings "off"
+        staticruntime "on"
+
+        targetdir ("Engine/libs/stb/bin/" .. outputdir .. "/%{prj.name}")
+        objdir ("Engine/libs/stb/bin/int/" .. outputdir .. "/%{prj.name}")
+
+        files {
+            "Engine/libs/stb/**.h",
+            "Engine/libs/stb/**.cpp"
         }
 
         filter "system:windows"

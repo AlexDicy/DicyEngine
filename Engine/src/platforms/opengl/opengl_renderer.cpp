@@ -2,6 +2,7 @@
 #include "opengl_renderer.h"
 
 #include "opengl_buffer.h"
+#include "opengl_texture.h"
 #include "opengl_vertex_array.h"
 
 #include <glad/gl.h>
@@ -12,17 +13,24 @@ void OpenGLRenderer::set_viewport(const int x, const int y, const uint32_t width
     this->camera->set_aspect_ratio(static_cast<float>(width) / static_cast<float>(height));
 }
 
-VertexArray* OpenGLRenderer::create_vertex_array(const Ref<VertexBuffer>& vertex_buffer, const Ref<IndexBuffer>& index_buffer) const {
-    return new OpenGLVertexArray(vertex_buffer, index_buffer);
+
+Ref<VertexArray> OpenGLRenderer::create_vertex_array(const Ref<VertexBuffer>& vertex_buffer, const Ref<IndexBuffer>& index_buffer) const {
+    return std::make_shared<OpenGLVertexArray>(vertex_buffer, index_buffer);
 }
 
-VertexBuffer* OpenGLRenderer::create_vertex_buffer(const float* vertices, const uint32_t size) const {
-    return new OpenGLVertexBuffer(vertices, size);
+Ref<VertexBuffer> OpenGLRenderer::create_vertex_buffer(const float* vertices, const uint32_t size) const {
+    return std::make_shared<OpenGLVertexBuffer>(vertices, size);
 }
 
-IndexBuffer* OpenGLRenderer::create_index_buffer(const uint32_t* indexes, const uint32_t count) const {
-    return new OpenGLIndexBuffer(indexes, count);
+Ref<IndexBuffer> OpenGLRenderer::create_index_buffer(const uint32_t* indexes, const uint32_t count) const {
+    return std::make_shared<OpenGLIndexBuffer>(indexes, count);
 }
+
+Ref<Texture2D> OpenGLRenderer::create_texture2d(const std::string& path) const {
+    return std::make_shared<OpenGLTexture2D>(path);
+}
+
+
 void OpenGLRenderer::begin_frame() {
     this->view_projection_matrix = this->camera->get_view_projection_matrix(true);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

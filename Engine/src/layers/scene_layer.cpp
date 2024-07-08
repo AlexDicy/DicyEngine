@@ -7,6 +7,7 @@
 #include "rendering/camera/orthographic_camera.h"
 #include "rendering/camera/perspective_camera.h"
 
+#include <filesystem>
 #include <glm/detail/type_quat.hpp>
 #include <glm/ext/matrix_transform.hpp>
 
@@ -28,7 +29,7 @@ SceneLayer::SceneLayer(const Application* application) {
             -0.5f, 0.5f,  2.1f, 0.1f, 0.1f, 0.7f, 1.0f, //
         };
 
-        vertex_buffer.reset(renderer->create_vertex_buffer(vertices, sizeof(vertices)));
+        vertex_buffer = renderer->create_vertex_buffer(vertices, sizeof(vertices));
 
         vertex_buffer->set_layout({
             {DataType::FLOAT3, "position"},
@@ -36,10 +37,10 @@ SceneLayer::SceneLayer(const Application* application) {
         });
 
         constexpr unsigned int indexes[6] = {0, 1, 2, 2, 3, 0};
-        index_buffer.reset(renderer->create_index_buffer(indexes, 6));
+        index_buffer = renderer->create_index_buffer(indexes, 6);
 
         Ref<VertexArray> vertex_array;
-        vertex_array.reset(renderer->create_vertex_array(vertex_buffer, index_buffer));
+        vertex_array = renderer->create_vertex_array(vertex_buffer, index_buffer);
         vertex_arrays.push_back(vertex_array);
     }
 
@@ -52,7 +53,7 @@ SceneLayer::SceneLayer(const Application* application) {
             0.5f,  -0.5f, 2.0f, 0.8f, 0.1f, 0.1f, 1.0f, //
             0.0f,  0.5f,  2.0f, 0.1f, 0.9f, 0.1f, 1.0f, //
         };
-        vertex_buffer.reset(renderer->create_vertex_buffer(vertices, sizeof(vertices)));
+        vertex_buffer = renderer->create_vertex_buffer(vertices, sizeof(vertices));
 
         vertex_buffer->set_layout({
             {DataType::FLOAT3, "position"},
@@ -60,10 +61,10 @@ SceneLayer::SceneLayer(const Application* application) {
         });
 
         constexpr unsigned int indexes[3] = {0, 1, 2};
-        index_buffer.reset(renderer->create_index_buffer(indexes, 3));
+        index_buffer = renderer->create_index_buffer(indexes, 3);
 
         Ref<VertexArray> vertex_array;
-        vertex_array.reset(renderer->create_vertex_array(vertex_buffer, index_buffer));
+        vertex_array = renderer->create_vertex_array(vertex_buffer, index_buffer);
         vertex_arrays.push_back(vertex_array);
     }
 
@@ -78,19 +79,19 @@ SceneLayer::SceneLayer(const Application* application) {
             0.0f, 0.0f, 0.1f,  0.8f, 0.1f, 0.1f, 0.8f, //
             1.0f, 0.0f, 0.0f,  0.8f, 0.1f, 0.1f, 0.8f, //
         };
-        vertex_buffer_x.reset(renderer->create_vertex_buffer(vertices_x, sizeof(vertices_x)));
+        vertex_buffer_x = renderer->create_vertex_buffer(vertices_x, sizeof(vertices_x));
         constexpr float vertices_y[3 * 7] = {
             -0.1f, 0.0f, 0.0f, 0.1f, 0.1f, 0.8f, 0.8f, //
             0.1f,  0.0f, 0.0f, 0.1f, 0.1f, 0.8f, 0.8f, //
             0.0f,  1.0f, 0.0f, 0.1f, 0.1f, 0.8f, 0.8f, //
         };
-        vertex_buffer_y.reset(renderer->create_vertex_buffer(vertices_y, sizeof(vertices_y)));
+        vertex_buffer_y = renderer->create_vertex_buffer(vertices_y, sizeof(vertices_y));
         constexpr float vertices_z[3 * 7] = {
             -0.1f, 0.0f, 0.0f, 0.1f, 0.8f, 0.1f, 0.8f, //
             0.1f,  0.0f, 0.0f, 0.1f, 0.8f, 0.1f, 0.8f, //
             0.0f,  0.0f, 1.0f, 0.1f, 0.8f, 0.1f, 0.8f, //
         };
-        vertex_buffer_z.reset(renderer->create_vertex_buffer(vertices_z, sizeof(vertices_z)));
+        vertex_buffer_z = renderer->create_vertex_buffer(vertices_z, sizeof(vertices_z));
 
         vertex_buffer_x->set_layout({
             {DataType::FLOAT3, "position"},
@@ -106,17 +107,41 @@ SceneLayer::SceneLayer(const Application* application) {
         });
 
         constexpr unsigned int indexes[3] = {0, 1, 2};
-        index_buffer.reset(renderer->create_index_buffer(indexes, 3));
+        index_buffer = renderer->create_index_buffer(indexes, 3);
 
         Ref<VertexArray> vertex_array_x;
         Ref<VertexArray> vertex_array_y;
         Ref<VertexArray> vertex_array_z;
-        vertex_array_x.reset(renderer->create_vertex_array(vertex_buffer_x, index_buffer));
-        vertex_array_y.reset(renderer->create_vertex_array(vertex_buffer_y, index_buffer));
-        vertex_array_z.reset(renderer->create_vertex_array(vertex_buffer_z, index_buffer));
+        vertex_array_x = renderer->create_vertex_array(vertex_buffer_x, index_buffer);
+        vertex_array_y = renderer->create_vertex_array(vertex_buffer_y, index_buffer);
+        vertex_array_z = renderer->create_vertex_array(vertex_buffer_z, index_buffer);
         vertex_arrays_xyz.push_back(vertex_array_x);
         vertex_arrays_xyz.push_back(vertex_array_y);
         vertex_arrays_xyz.push_back(vertex_array_z);
+    }
+
+    // textured square
+    {
+        Ref<VertexBuffer> vertex_buffer;
+        Ref<IndexBuffer> index_buffer;
+        constexpr float vertices[4 * 5] = {
+            -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, //
+            0.5f,  -0.5f, 0.0f, 1.0f, 0.0f, //
+            0.5f,  0.5f,  0.0f, 1.0f, 1.0f, //
+            -0.5f, 0.5f,  0.0f, 0.0f, 1.0f, //
+        };
+
+        vertex_buffer = renderer->create_vertex_buffer(vertices, sizeof(vertices));
+
+        vertex_buffer->set_layout({
+            {DataType::FLOAT3, "position"},
+            {DataType::FLOAT2, "texture_coords"},
+        });
+
+        constexpr unsigned int indexes[6] = {0, 1, 2, 2, 3, 0};
+        index_buffer = renderer->create_index_buffer(indexes, 6);
+
+        textured_square_vertex_array = renderer->create_vertex_array(vertex_buffer, index_buffer);
     }
 
     // camera
@@ -130,13 +155,12 @@ SceneLayer::SceneLayer(const Application* application) {
 
         uniform mat4 u_view_projection;
         uniform mat4 u_transform;
-        uniform vec4 u_additional_color;
 
         out vec4 v_color;
 
         void main() {
             gl_Position = u_view_projection * u_transform * vec4(position, 1.0);
-            v_color = color + u_additional_color;
+            v_color = color;
         }
     )";
 
@@ -145,13 +169,48 @@ SceneLayer::SceneLayer(const Application* application) {
 
         layout(location = 0) out vec4 color;
 
+        uniform vec4 u_additional_color;
+
         in vec4 v_color;
 
         void main() {
-            color = v_color;
+            color = v_color + u_additional_color;
         }
     )";
     shader.reset(new OpenGLShader(vertex_source, fragment_source));
+
+    const std::string textured_vertex_source = R"(
+        #version 330 core
+
+        layout(location = 0) in vec3 position;
+        layout(location = 1) in vec2 texture_coords;
+
+        uniform mat4 u_view_projection;
+        uniform mat4 u_transform;
+
+        out vec2 v_texture_coords;
+
+        void main() {
+            gl_Position = u_view_projection * u_transform * vec4(position, 1.0);
+            v_texture_coords = texture_coords;
+        }
+    )";
+
+    const std::string textured_fragment_source = R"(
+        #version 330 core
+
+        layout(location = 0) out vec4 color;
+
+        uniform sampler2D u_texture;
+
+        in vec2 v_texture_coords;
+
+        void main() {
+            color = texture(u_texture, v_texture_coords);
+        }
+    )";
+    textured_shader.reset(new OpenGLShader(textured_vertex_source, textured_fragment_source));
+    texture = renderer->create_texture2d("../assets/dicystudios_logo.png");
 
     Input::set_action("change_camera", InputCode::KEY_O);
     Input::set_action("move_camera_up", InputCode::KEY_E);
@@ -236,6 +295,13 @@ void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
     for (const auto& vertex_array : vertex_arrays_xyz) {
         ctx->renderer->draw(vertex_array, this->shader, transform);
     }
+
+    constexpr glm::vec3 square_position = {-1.0f, 0.0f, 1.0f};
+    const glm::mat4 square_transform = translate(glm::mat4(1.0f), square_position);
+    this->texture->bind(0);
+    this->textured_shader->bind();
+    this->textured_shader->upload_uniform_int("u_texture", 0);
+    ctx->renderer->draw(textured_square_vertex_array, this->textured_shader, square_transform);
 
     ctx->renderer->end_frame();
 }

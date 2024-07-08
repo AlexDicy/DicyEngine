@@ -11,6 +11,9 @@ public:
 private:
     std::vector<Ref<VertexArray>> vertex_arrays;
     std::vector<Ref<VertexArray>> vertex_arrays_xyz;
+    Ref<VertexArray> textured_square_vertex_array;
     Ref<Camera> camera;
     Ref<Shader> shader;
+    Ref<Shader> textured_shader;
+    Ref<Texture> texture;
 };
