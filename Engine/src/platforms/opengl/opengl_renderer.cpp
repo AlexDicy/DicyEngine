@@ -2,6 +2,7 @@
 #include "opengl_renderer.h"
 
 #include "opengl_buffer.h"
+#include "opengl_shader.h"
 #include "opengl_texture.h"
 #include "opengl_vertex_array.h"
 
@@ -29,6 +30,10 @@ Ref<VertexBuffer> OpenGLRenderer::create_vertex_buffer(const float* vertices, co
 
 Ref<IndexBuffer> OpenGLRenderer::create_index_buffer(const uint32_t* indexes, const uint32_t count) const {
     return std::make_shared<OpenGLIndexBuffer>(indexes, count);
+}
+
+Ref<Shader> OpenGLRenderer::create_shader(const std::string& vertex_path, const std::string& fragment_path) const {
+    return std::make_shared<OpenGLShader>(vertex_path, fragment_path);
 }
 
 Ref<Texture2D> OpenGLRenderer::create_texture2d(const std::string& path) const {

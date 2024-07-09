@@ -1,11 +1,32 @@
 ﻿#include "pch/enginepch.h"
 #include "opengl_shader.h"
 
+#include <fstream>
 #include <glad/gl.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-OpenGLShader::OpenGLShader(const std::string& vertex_source, const std::string& fragment_source) {
+OpenGLShader::OpenGLShader(const std::string& vertex_path, const std::string& fragment_path) {
+    auto vertex_in = std::ifstream(vertex_path, std::ios::in, std::ios::binary);
+    auto fragment_in = std::ifstream(fragment_path, std::ios::in, std::ios::binary);
+
+    if (!vertex_in) {
+        DE_ERROR("Cannot open vertex shader file {0}", vertex_path);
+        return;
+    }
+    if (!fragment_in) {
+        DE_ERROR("Cannot open fragment shader file {0}", fragment_path);
+        return;
+    }
+
+    std::stringstream vertex_stream;
+    vertex_stream << vertex_in.rdbuf();
+    const std::string vertex_source = vertex_stream.str();
+
+    std::stringstream fragment_stream;
+    fragment_stream << fragment_in.rdbuf();
+    const std::string fragment_source = fragment_stream.str();
+
     // Create an empty vertex shader handle
     const GLuint vertex_shader = glCreateShader(GL_VERTEX_SHADER);
 

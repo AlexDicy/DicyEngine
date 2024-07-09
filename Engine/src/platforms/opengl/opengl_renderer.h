@@ -12,6 +12,7 @@ public:
     Ref<VertexArray> create_vertex_array(const Ref<VertexBuffer>& vertex_buffer, const Ref<IndexBuffer>& index_buffer) const override;
     Ref<VertexBuffer> create_vertex_buffer(const float* vertices, uint32_t size) const override;
     Ref<IndexBuffer> create_index_buffer(const uint32_t* indexes, uint32_t count) const override;
+    Ref<Shader> create_shader(const std::string& vertex_path, const std::string& fragment_path) const override;
     Ref<Texture2D> create_texture2d(const std::string& path) const override;
 
     void begin_frame() override;

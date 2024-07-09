@@ -147,69 +147,9 @@ SceneLayer::SceneLayer(const Application* application) {
     // camera
     this->camera = get_perspective_camera(window);
 
-    const std::string vertex_source = R"(
-        #version 330 core
+    this->shader = renderer->create_shader("../assets/shaders/flat.dshv", "../assets/shaders/flat.dshf");
 
-        layout(location = 0) in vec3 position;
-        layout(location = 1) in vec4 color;
-
-        uniform mat4 u_view_projection;
-        uniform mat4 u_transform;
-
-        out vec4 v_color;
-
-        void main() {
-            gl_Position = u_view_projection * u_transform * vec4(position, 1.0);
-            v_color = color;
-        }
-    )";
-
-    const std::string fragment_source = R"(
-        #version 330 core
-
-        layout(location = 0) out vec4 color;
-
-        uniform vec4 u_additional_color;
-
-        in vec4 v_color;
-
-        void main() {
-            color = v_color + u_additional_color;
-        }
-    )";
-    shader.reset(new OpenGLShader(vertex_source, fragment_source));
-
-    const std::string textured_vertex_source = R"(
-        #version 330 core
-
-        layout(location = 0) in vec3 position;
-        layout(location = 1) in vec2 texture_coords;
-
-        uniform mat4 u_view_projection;
-        uniform mat4 u_transform;
-
-        out vec2 v_texture_coords;
-
-        void main() {
-            gl_Position = u_view_projection * u_transform * vec4(position, 1.0);
-            v_texture_coords = texture_coords;
-        }
-    )";
-
-    const std::string textured_fragment_source = R"(
-        #version 330 core
-
-        layout(location = 0) out vec4 color;
-
-        uniform sampler2D u_texture;
-
-        in vec2 v_texture_coords;
-
-        void main() {
-            color = texture(u_texture, v_texture_coords);
-        }
-    )";
-    this->textured_shader.reset(new OpenGLShader(textured_vertex_source, textured_fragment_source));
+    this->textured_shader = renderer->create_shader("../assets/shaders/textured.dshv", "../assets/shaders/textured.dshf");
     this->textured_shader->upload_uniform_int("u_texture", 0);
     this->rgb_texture = renderer->create_texture2d("../assets/dicystudios_rgb.png");
     this->rgba_texture = renderer->create_texture2d("../assets/dicystudios_rgba.png");

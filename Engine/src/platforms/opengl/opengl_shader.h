@@ -5,7 +5,7 @@ class OpenGLShader : public Shader {
     uint32_t id;
 
 public:
-    OpenGLShader(const std::string& vertex_source, const std::string& fragment_source);
+    OpenGLShader(const std::string& vertex_path, const std::string& fragment_path);
     ~OpenGLShader() override;
 
     void bind() const override;
