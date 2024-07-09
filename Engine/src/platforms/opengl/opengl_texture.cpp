@@ -26,6 +26,6 @@ OpenGLTexture2D::~OpenGLTexture2D() {
 }
 
 
-void OpenGLTexture2D::bind(uint32_t slot) const {
-    glBindTextureUnit(0, this->id);
+void OpenGLTexture2D::bind(const uint32_t slot) const {
+    glBindTextureUnit(slot, this->id);
 }
