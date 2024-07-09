@@ -36,6 +36,7 @@ void Application::run() {
     });
 
     Input::init(this->event_dispatcher, window);
+    this->renderer->init();
     register_layers();
 
     while (this->running) {

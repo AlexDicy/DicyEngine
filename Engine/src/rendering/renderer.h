@@ -19,6 +19,7 @@ public:
         this->camera = camera;
     }
 
+    virtual void init() const = 0;
     virtual void set_viewport(int x, int y, uint32_t width, uint32_t height) = 0;
 
     virtual Ref<VertexArray> create_vertex_array(const Ref<VertexBuffer>& vertex_buffer, const Ref<IndexBuffer>& index_buffer) const = 0;

@@ -6,6 +6,7 @@ class OpenGLRenderer : public Renderer {
 public:
     OpenGLRenderer() : Renderer(RenderAPI::OPENGL) {}
 
+    void init() const override;
     void set_viewport(int x, int y, uint32_t width, uint32_t height) override;
 
     Ref<VertexArray> create_vertex_array(const Ref<VertexBuffer>& vertex_buffer, const Ref<IndexBuffer>& index_buffer) const override;

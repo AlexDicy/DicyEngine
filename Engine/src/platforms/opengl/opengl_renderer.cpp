@@ -8,6 +8,11 @@
 #include <glad/gl.h>
 #include <glm/glm.hpp>
 
+void OpenGLRenderer::init() const {
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_BLEND);
+}
+
 void OpenGLRenderer::set_viewport(const int x, const int y, const uint32_t width, const uint32_t height) {
     glViewport(x, y, width, height); // NOLINT(bugprone-narrowing-conversions, cppcoreguidelines-narrowing-conversions)
     this->camera->set_aspect_ratio(static_cast<float>(width) / static_cast<float>(height));
@@ -33,8 +38,6 @@ Ref<Texture2D> OpenGLRenderer::create_texture2d(const std::string& path) const {
 
 void OpenGLRenderer::begin_frame() {
     this->view_projection_matrix = this->camera->get_view_projection_matrix(true);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glEnable(GL_BLEND);
 }
 
 void OpenGLRenderer::end_frame() const {}
