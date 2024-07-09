@@ -15,5 +15,6 @@ private:
     Ref<Camera> camera;
     Ref<Shader> shader;
     Ref<Shader> textured_shader;
-    Ref<Texture> texture;
+    Ref<Texture> rgb_texture;
+    Ref<Texture> rgba_texture;
 };

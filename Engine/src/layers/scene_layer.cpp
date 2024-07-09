@@ -209,8 +209,10 @@ SceneLayer::SceneLayer(const Application* application) {
             color = texture(u_texture, v_texture_coords);
         }
     )";
-    textured_shader.reset(new OpenGLShader(textured_vertex_source, textured_fragment_source));
-    texture = renderer->create_texture2d("../assets/dicystudios_logo.png");
+    this->textured_shader.reset(new OpenGLShader(textured_vertex_source, textured_fragment_source));
+    this->textured_shader->upload_uniform_int("u_texture", 0);
+    this->rgb_texture = renderer->create_texture2d("../assets/dicystudios_rgb.png");
+    this->rgba_texture = renderer->create_texture2d("../assets/dicystudios_rgba.png");
 
     Input::set_action("change_camera", InputCode::KEY_O);
     Input::set_action("move_camera_up", InputCode::KEY_E);
@@ -296,12 +298,15 @@ void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
         ctx->renderer->draw(vertex_array, this->shader, transform);
     }
 
-    constexpr glm::vec3 square_position = {-1.0f, 0.0f, 1.0f};
-    const glm::mat4 square_transform = translate(glm::mat4(1.0f), square_position);
-    this->texture->bind(0);
+    const glm::mat4 square_rgb_transform = translate(glm::mat4(1.0f), {-1.0f, 0.6f, 1.2f});
+    const glm::mat4 square_rgba_transform = translate(glm::mat4(1.0f), {-1.0f, -0.6f, 1.2f});
     this->textured_shader->bind();
-    this->textured_shader->upload_uniform_int("u_texture", 0);
-    ctx->renderer->draw(textured_square_vertex_array, this->textured_shader, square_transform);
+    // rgb
+    this->rgb_texture->bind(0);
+    ctx->renderer->draw(textured_square_vertex_array, this->textured_shader, square_rgb_transform);
+    // rgba
+    this->rgba_texture->bind(0);
+    ctx->renderer->draw(textured_square_vertex_array, this->textured_shader, square_rgba_transform);
 
     ctx->renderer->end_frame();
 }
