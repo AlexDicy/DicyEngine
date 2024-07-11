@@ -4,7 +4,7 @@
 
 class SceneLayer : public Layer {
 public:
-    explicit SceneLayer(const Application* application);
+    explicit SceneLayer(const Application* app);
 
     void update(const std::unique_ptr<Context>& ctx) override;
 

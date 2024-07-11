@@ -171,6 +171,7 @@
     <ClInclude Include="src\rendering\graphic_context.h" />
     <ClInclude Include="src\rendering\renderer.h" />
     <ClInclude Include="src\rendering\shader.h" />
+    <ClInclude Include="src\rendering\shader_registry.h" />
     <ClInclude Include="src\rendering\texture.h" />
     <ClInclude Include="src\rendering\vertex_array.h" />
     <ClInclude Include="src\window.h" />

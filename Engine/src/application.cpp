@@ -19,7 +19,8 @@ Application::~Application() = default;
 
 void Application::run() {
     this->event_dispatcher.reset(EventDispatcher::get());
-    this->renderer.reset(new OpenGLRenderer());
+    this->renderer = std::make_shared<OpenGLRenderer>();
+    this->shader_registry = std::make_shared<ShaderRegistry>(this->renderer);
     this->window = Window::create("DicyEngine", 1920, 1080);
     this->gui = std::make_unique<ImGuiGUI>(window);
     const auto ctx = std::make_unique<Context>(renderer);

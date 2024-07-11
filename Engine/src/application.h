@@ -3,6 +3,7 @@
 #include "window.h"
 #include "gui/gui.h"
 #include "rendering/renderer.h"
+#include "rendering/shader_registry.h"
 
 
 class Application {
@@ -22,15 +23,20 @@ public:
         return this->event_dispatcher;
     }
 
-    const std::unique_ptr<Renderer>& get_renderer() const {
+    const Ref<Renderer>& get_renderer() const {
         return this->renderer;
+    }
+
+    const Ref<ShaderRegistry>& get_shader_registry() const {
+        return this->shader_registry;
     }
 
 private:
     Ref<Window> window;
     Ref<EventDispatcher> event_dispatcher;
     std::unique_ptr<GUI> gui;
-    std::unique_ptr<Renderer> renderer;
+    Ref<Renderer> renderer;
+    Ref<ShaderRegistry> shader_registry;
     std::vector<Layer*> layers = {};
     bool running;
 };

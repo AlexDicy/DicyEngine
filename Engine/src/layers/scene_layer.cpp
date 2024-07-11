@@ -3,6 +3,7 @@
 
 #include "input/input.h"
 #include "platforms/opengl/opengl_shader.h"
+#include "rendering/shader_registry.h"
 #include "rendering/camera/camera.h"
 #include "rendering/camera/orthographic_camera.h"
 #include "rendering/camera/perspective_camera.h"
@@ -14,9 +15,9 @@
 Ref<PerspectiveCamera> get_perspective_camera(const Ref<Window>&);
 Ref<OrthographicCamera> get_orthographic_camera();
 
-SceneLayer::SceneLayer(const Application* application) {
-    const std::unique_ptr<Renderer>& renderer = application->get_renderer();
-    const Ref<Window>& window = application->get_window();
+SceneLayer::SceneLayer(const Application* app) {
+    const Ref<Renderer>& renderer = app->get_renderer();
+    const Ref<Window>& window = app->get_window();
 
     // square
     {
@@ -147,9 +148,9 @@ SceneLayer::SceneLayer(const Application* application) {
     // camera
     this->camera = get_perspective_camera(window);
 
-    this->shader = renderer->create_shader("../assets/shaders/flat.dshv", "../assets/shaders/flat.dshf");
+    this->shader = app->get_shader_registry()->load("../assets/shaders/flat");
 
-    this->textured_shader = renderer->create_shader("../assets/shaders/textured.dshv", "../assets/shaders/textured.dshf");
+    this->textured_shader = app->get_shader_registry()->load("../assets/shaders/textured");
     this->textured_shader->upload_uniform_int("u_texture", 0);
     this->rgb_texture = renderer->create_texture2d("../assets/dicystudios_rgb.png");
     this->rgba_texture = renderer->create_texture2d("../assets/dicystudios_rgba.png");
