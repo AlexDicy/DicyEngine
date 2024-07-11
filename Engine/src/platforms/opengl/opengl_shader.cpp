@@ -7,8 +7,8 @@
 #include <glm/gtc/type_ptr.hpp>
 
 OpenGLShader::OpenGLShader(const std::string& vertex_path, const std::string& fragment_path) {
-    auto vertex_in = std::ifstream(vertex_path, std::ios::in, std::ios::binary);
-    auto fragment_in = std::ifstream(fragment_path, std::ios::in, std::ios::binary);
+    auto vertex_in = std::ifstream(vertex_path, std::ios::in | std::ios::binary);
+    auto fragment_in = std::ifstream(fragment_path, std::ios::in | std::ios::binary);
 
     if (!vertex_in) {
         DE_ERROR("Cannot open vertex shader file {0}", vertex_path);
