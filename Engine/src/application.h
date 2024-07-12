@@ -39,4 +39,5 @@ private:
     Ref<ShaderRegistry> shader_registry;
     std::vector<Layer*> layers = {};
     bool running;
+    bool is_minimized;
 };

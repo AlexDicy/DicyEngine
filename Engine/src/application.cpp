@@ -13,6 +13,7 @@
 Application::Application() {
     Logger::init();
     this->running = true;
+    this->is_minimized = false;
 }
 
 Application::~Application() = default;
@@ -30,8 +31,10 @@ void Application::run() {
     });
     this->event_dispatcher->register_global_handler<WindowResizeEvent>([this, &ctx](const WindowResizeEvent& event) {
         if (event.get_width() == 0 || event.get_height() == 0) {
+            this->is_minimized = true;
             return;
         }
+        this->is_minimized = false;
         this->renderer->set_viewport(0, 0, event.get_width(), event.get_height());
         this->update_frame(ctx); // keep drawing when user holds to resizes the window
     });
@@ -49,8 +52,11 @@ void Application::update_frame(const std::unique_ptr<Context>& ctx) const {
     this->renderer->clean();
 
     ctx->set_delta_time(this->window->get_last_frame_time());
-    for (const auto& layer : layers) {
-        layer->update(ctx);
+
+    if (!this->is_minimized) {
+        for (const auto& layer : layers) {
+            layer->update(ctx);
+        }
     }
 
     this->gui->update();
