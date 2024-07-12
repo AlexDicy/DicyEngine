@@ -12,6 +12,7 @@
 void OpenGLRenderer::init() const {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
+    glEnable(GL_DEPTH_TEST);
 }
 
 void OpenGLRenderer::set_viewport(const int x, const int y, const uint32_t width, const uint32_t height) {
