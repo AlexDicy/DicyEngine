@@ -150,7 +150,6 @@
     <ClInclude Include="src\input\inputcodes.h" />
     <ClInclude Include="src\layer.h" />
     <ClInclude Include="src\layers\scene_layer.h" />
-    <ClInclude Include="src\logging.h" />
     <ClInclude Include="src\math\rotation.h" />
     <ClInclude Include="src\pch\enginepch.h" />
     <ClInclude Include="src\platforms\opengl\imgui_impl_glfw.h" />
@@ -174,6 +173,8 @@
     <ClInclude Include="src\rendering\shader_registry.h" />
     <ClInclude Include="src\rendering\texture.h" />
     <ClInclude Include="src\rendering\vertex_array.h" />
+    <ClInclude Include="src\utils\logging.h" />
+    <ClInclude Include="src\utils\profiler.h" />
     <ClInclude Include="src\window.h" />
   </ItemGroup>
   <ItemGroup>
@@ -182,7 +183,6 @@
     <ClCompile Include="src\gui\imgui_gui.cpp" />
     <ClCompile Include="src\input\input.cpp" />
     <ClCompile Include="src\layers\scene_layer.cpp" />
-    <ClCompile Include="src\logging.cpp" />
     <ClCompile Include="src\pch\enginepch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
@@ -198,6 +198,8 @@
     <ClCompile Include="src\rendering\camera\camera.cpp" />
     <ClCompile Include="src\rendering\camera\perspective_camera.cpp" />
     <ClCompile Include="src\sandbox.cpp" />
+    <ClCompile Include="src\utils\logging.cpp" />
+    <ClCompile Include="src\utils\profiler.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="libs\GLFW\GLFW.vcxproj">

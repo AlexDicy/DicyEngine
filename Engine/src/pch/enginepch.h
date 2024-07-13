@@ -20,6 +20,7 @@
 template<typename T>
 using Ref = std::shared_ptr<T>;
 
-#include "logging.h"
+#include "utils/logging.h"
+#include "utils/profiler.h"
 #include "events/event.h"
 #include "events/dispatcher.h"

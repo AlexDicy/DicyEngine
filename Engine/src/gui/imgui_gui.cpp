@@ -4,6 +4,7 @@
 #include "GLFW/glfw3.h"
 #include "platforms/opengl/imgui_impl_glfw.h"
 #include "platforms/opengl/imgui_impl_opengl3.h"
+#include "utils/profiler.h"
 
 ImGuiGUI::ImGuiGUI(const Ref<Window>& window) : GUI(window) {
     this->window = window;
@@ -22,7 +23,7 @@ ImGuiGUI::ImGuiGUI(const Ref<Window>& window) : GUI(window) {
     style.GrabRounding = 2.0f;
     style.Colors[ImGuiCol_WindowBg] = ImVec4(0.11f, 0.15f, 0.17f, 0.8f);
     style.Colors[ImGuiCol_TitleBgActive].w = 0.75f;
-    
+
 
     ImGui_ImplGlfw_InitForOpenGL(this->window->get_native_window(), true);
     ImGui_ImplOpenGL3_Init("#version 460");
@@ -42,24 +43,20 @@ void ImGuiGUI::update() const {
         ImGui::ShowDemoWindow(&show_demo_window);
     }
 
-    static float f = 0.0f;
-    static int counter = 0;
+    ImGui::Begin("Info");
 
-    ImGui::Begin("Hello, world!"); // Create a window called "Hello, world!" and append into it.
-
-    ImGui::Text("This is some useful text."); // Display some text (you can use a format strings too)
-    ImGui::Checkbox("Demo Window", &show_demo_window); // Edit bools storing our window open/close state
-
-    ImGui::SliderFloat("float", &f, 0.0f, 1.0f); // Edit 1 float using a slider from 0.0f to 1.0f
-
-    if (ImGui::Button("Toggle VSync")) { // Buttons return true when clicked (most widgets return true when edited/activated)
+    if (ImGui::Button("Toggle VSync")) { // returns true when clicked
         this->window->set_vsync(!this->window->is_vsync());
     }
-
     ImGui::SameLine();
-    ImGui::Text("counter = %d", counter);
+    ImGui::Checkbox("Demo Window", &show_demo_window);
 
-    ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io->Framerate, io->Framerate);
+    ImGui::Text("%.3f ms/frame (%.1f FPS)", 1000.0f / io->Framerate, io->Framerate);
+    const std::vector<DE::Profiling::ProfilerResult> timings = DE::Profiling::get_profiler().get_timings();
+    for (const auto& [name, duration] : timings) {
+        ImGui::Text("%.3f ms - %s", static_cast<float>(duration) / 1000.0f, name.c_str());
+    }
+
     ImGui::End();
 
     ImGui::Render();

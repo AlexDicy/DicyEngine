@@ -192,6 +192,7 @@ SceneLayer::SceneLayer(const Application* app) {
 constexpr float camera_speed = 2.0f;
 
 void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
+    DE_PROFILE_FUNCTION();
     const float camera_speed_delta = camera_speed * ctx->delta_time;
     auto camera_position = this->camera->get_position();
     const float yaw = glm::radians(this->camera->get_yaw());

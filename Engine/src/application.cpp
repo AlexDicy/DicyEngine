@@ -5,9 +5,7 @@
 #include "gui/imgui_gui.h"
 #include "input/input.h"
 #include "layers/scene_layer.h"
-
 #include "rendering/renderer.h"
-
 #include "platforms/opengl/opengl_renderer.h"
 
 Application::Application() {
@@ -44,6 +42,7 @@ void Application::run() {
     register_layers();
 
     while (this->running) {
+        DE::Profiling::get_profiler().clear_timings();
         this->update_frame(ctx);
     }
 }
