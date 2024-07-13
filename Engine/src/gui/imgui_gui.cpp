@@ -4,7 +4,6 @@
 #include "GLFW/glfw3.h"
 #include "platforms/opengl/imgui_impl_glfw.h"
 #include "platforms/opengl/imgui_impl_opengl3.h"
-#include "utils/profiler.h"
 
 ImGuiGUI::ImGuiGUI(const Ref<Window>& window) : GUI(window) {
     this->window = window;
@@ -52,6 +51,7 @@ void ImGuiGUI::update() const {
     ImGui::Checkbox("Demo Window", &show_demo_window);
 
     ImGui::Text("%.3f ms/frame (%.1f FPS)", 1000.0f / io->Framerate, io->Framerate);
+
     const std::vector<DE::Profiling::ProfilerResult> timings = DE::Profiling::get_profiler().get_timings();
     for (const auto& [name, duration] : timings) {
         ImGui::Text("%.3f ms - %s", static_cast<float>(duration) / 1000.0f, name.c_str());

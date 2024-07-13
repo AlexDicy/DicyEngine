@@ -5,10 +5,10 @@
 
 
 class ImGuiGUI : public GUI {
-    ImGuiIO *io;
+    ImGuiIO* io;
 
 public:
-    ImGuiGUI(const Ref<Window> &window);
+    ImGuiGUI(const Ref<Window>& window);
 
     void update() const override;
 };
