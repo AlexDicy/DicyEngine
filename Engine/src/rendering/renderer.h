@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "framebuffer.h"
 #include "camera/camera.h"
 #include "vertex_array.h"
 #include "shader.h"
@@ -19,8 +20,9 @@ public:
         this->camera = camera;
     }
 
-    virtual void init() const = 0;
+    virtual void init(int x, int y, uint32_t width, uint32_t height) = 0;
     virtual void set_viewport(int x, int y, uint32_t width, uint32_t height) = 0;
+    virtual const Ref<Framebuffer>& get_framebuffer() const = 0;
 
     virtual Ref<VertexArray> create_vertex_array(const Ref<VertexBuffer>& vertex_buffer, const Ref<IndexBuffer>& index_buffer) const = 0;
     virtual Ref<VertexBuffer> create_vertex_buffer(const float* vertices, uint32_t size) const = 0;

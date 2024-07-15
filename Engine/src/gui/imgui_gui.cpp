@@ -28,14 +28,14 @@ ImGuiGUI::ImGuiGUI(const Ref<Window>& window) : GUI(window) {
     ImGui_ImplOpenGL3_Init("#version 460");
 }
 
-void ImGuiGUI::update() const {
+void ImGuiGUI::update(const std::unique_ptr<Context>& ctx) {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
     this->io->DisplaySize = ImVec2(static_cast<float>(this->window->get_width()), static_cast<float>(this->window->get_height()));
 
-    ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode);
+    ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
 
     static bool show_demo_window = false;
     if (show_demo_window) {
@@ -57,6 +57,17 @@ void ImGuiGUI::update() const {
         ImGui::Text("%.3f ms - %s", static_cast<float>(duration) / 1000.0f, name.c_str());
     }
 
+    ImGui::End();
+
+    ImGui::Begin("Viewport");
+    ImVec2 viewport_size = ImGui::GetContentRegionAvail();
+    const Ref<Framebuffer>& framebuffer = ctx->renderer->get_framebuffer();
+    const auto texture_id = reinterpret_cast<void*>(framebuffer->get_color_texture_id()); // NOLINT(performance-no-int-to-ptr)
+    ImGui::Image(texture_id, {viewport_size.x, viewport_size.y}, {0, 1}, {1, 0});
+    if (this->previous_viewport_size.x != viewport_size.x || this->previous_viewport_size.y != viewport_size.y) {  // NOLINT(clang-diagnostic-float-equal)
+        ctx->renderer->set_viewport(0, 0, static_cast<int>(viewport_size.x), static_cast<int>(viewport_size.y));
+        this->previous_viewport_size = viewport_size;
+    }
     ImGui::End();
 
     ImGui::Render();

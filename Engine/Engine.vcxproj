@@ -157,6 +157,7 @@
     <ClInclude Include="src\platforms\opengl\opengl_buffer.h" />
     <ClInclude Include="src\platforms\opengl\opengl_context.h" />
     <ClInclude Include="src\platforms\opengl\opengl_datatype.h" />
+    <ClInclude Include="src\platforms\opengl\opengl_framebuffer.h" />
     <ClInclude Include="src\platforms\opengl\opengl_renderer.h" />
     <ClInclude Include="src\platforms\opengl\opengl_shader.h" />
     <ClInclude Include="src\platforms\opengl\opengl_texture.h" />
@@ -167,6 +168,7 @@
     <ClInclude Include="src\rendering\camera\camera.h" />
     <ClInclude Include="src\rendering\camera\orthographic_camera.h" />
     <ClInclude Include="src\rendering\camera\perspective_camera.h" />
+    <ClInclude Include="src\rendering\framebuffer.h" />
     <ClInclude Include="src\rendering\graphic_context.h" />
     <ClInclude Include="src\rendering\renderer.h" />
     <ClInclude Include="src\rendering\shader.h" />
@@ -190,6 +192,7 @@
     <ClCompile Include="src\platforms\opengl\imgui_impl_opengl3.cpp" />
     <ClCompile Include="src\platforms\opengl\opengl_buffer.cpp" />
     <ClCompile Include="src\platforms\opengl\opengl_context.cpp" />
+    <ClCompile Include="src\platforms\opengl\opengl_framebuffer.cpp" />
     <ClCompile Include="src\platforms\opengl\opengl_renderer.cpp" />
     <ClCompile Include="src\platforms\opengl\opengl_shader.cpp" />
     <ClCompile Include="src\platforms\opengl\opengl_texture.cpp" />

@@ -33,12 +33,11 @@ void Application::run() {
             return;
         }
         this->is_minimized = false;
-        this->renderer->set_viewport(0, 0, event.get_width(), event.get_height());
         this->update_frame(ctx); // keep drawing when user holds to resizes the window
     });
 
-    Input::init(this->event_dispatcher, window);
-    this->renderer->init();
+    Input::init(this->event_dispatcher, this->window);
+    this->renderer->init(0, 0, this->window->get_width(), this->window->get_height());
     register_layers();
 
     while (this->running) {
@@ -58,7 +57,7 @@ void Application::update_frame(const std::unique_ptr<Context>& ctx) const {
         }
     }
 
-    this->gui->update();
+    this->gui->update(ctx);
     this->window->update();
 }
 
