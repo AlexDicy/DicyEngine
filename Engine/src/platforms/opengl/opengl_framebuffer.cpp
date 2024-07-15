@@ -27,6 +27,8 @@ OpenGLFramebuffer::OpenGLFramebuffer(const uint32_t width, const uint32_t height
 
 OpenGLFramebuffer::~OpenGLFramebuffer() {
     glDeleteFramebuffers(1, &this->id);
+    glDeleteTextures(1, &this->color_texture_id);
+    glDeleteTextures(1, &this->depth_texture_id);
 }
 
 void OpenGLFramebuffer::bind() const {
