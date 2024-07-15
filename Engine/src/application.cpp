@@ -42,12 +42,12 @@ void Application::run() {
     register_layers();
 
     while (this->running) {
-        DE::Profiling::get_profiler().clear_timings();
         this->update_frame(ctx);
     }
 }
 
 void Application::update_frame(const std::unique_ptr<Context>& ctx) const {
+    DE::Profiling::get_profiler().clear_timings();
     this->renderer->clean();
 
     ctx->set_delta_time(this->window->get_last_frame_time());
