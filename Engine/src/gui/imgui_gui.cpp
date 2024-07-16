@@ -63,7 +63,7 @@ void ImGuiGUI::update(const std::unique_ptr<Context>& ctx) {
     ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0);
     ImGui::Begin("Viewport");
     ImVec2 viewport_size = ImGui::GetContentRegionAvail();
-    const Ref<Framebuffer>& framebuffer = ctx->renderer->get_framebuffer();
+    const Ref<Framebuffer> framebuffer = ctx->renderer->get_framebuffer();
     const auto texture_id = reinterpret_cast<void*>(framebuffer->get_color_texture_id()); // NOLINT(performance-no-int-to-ptr)
     ImGui::Image(texture_id, {viewport_size.x, viewport_size.y}, {0, 1}, {1, 0});
     if (this->previous_viewport_size.x != viewport_size.x || this->previous_viewport_size.y != viewport_size.y) { // NOLINT(clang-diagnostic-float-equal)
