@@ -37,6 +37,7 @@ project "Engine"
         "%{prj.name}/libs/glad/include",
         "%{prj.name}/libs/ImGui",
         "%{prj.name}/libs/glm",
+        "%{prj.name}/libs/EnTT/single_include",
         "%{prj.name}/libs/stb",
     }
 
