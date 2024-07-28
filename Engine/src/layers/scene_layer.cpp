@@ -7,6 +7,8 @@
 #include "rendering/camera/camera.h"
 #include "rendering/camera/orthographic_camera.h"
 #include "rendering/camera/perspective_camera.h"
+#include "scene/components/mesh.h"
+#include "scene/components/transform.h"
 
 #include <filesystem>
 #include <glm/detail/type_quat.hpp>
@@ -18,107 +20,69 @@ Ref<OrthographicCamera> get_orthographic_camera();
 SceneLayer::SceneLayer(const Application* app) {
     const Ref<Renderer>& renderer = app->get_renderer();
     const Ref<Window>& window = app->get_window();
+    this->scene = std::make_shared<Scene>();
 
-    // square
-    {
-        Ref<VertexBuffer> vertex_buffer;
-        Ref<IndexBuffer> index_buffer;
-        constexpr float vertices[4 * 7] = {
-            -0.5f, -0.5f, 2.1f, 0.1f, 0.1f, 0.7f, 1.0f, //
-            0.5f,  -0.5f, 2.1f, 0.1f, 0.1f, 0.7f, 1.0f, //
-            0.5f,  0.5f,  2.1f, 0.1f, 0.1f, 0.7f, 1.0f, //
-            -0.5f, 0.5f,  2.1f, 0.1f, 0.1f, 0.7f, 1.0f, //
-        };
+    for (int x = -5; x <= 5; x++) {
+        for (int y = -5; y <= 5; y++) {
+            const glm::vec3 position = {x * 5.0f, y * 2.0f, abs(x) * 4.0f};
+            const Rotation rotation = {x * 10.0f, 0.0f, 0.0f};
+            // square
+            {
+                const auto square = this->scene->create_entity();
+                square->add<Transform>(position, rotation);
+                constexpr float vertices[4 * 7] = {
+                    -0.5f, -0.5f, 2.1f, 0.1f, 0.1f, 0.7f, 1.0f, //
+                    0.5f,  -0.5f, 2.1f, 0.1f, 0.1f, 0.7f, 1.0f, //
+                    0.5f,  0.5f,  2.1f, 0.1f, 0.1f, 0.7f, 1.0f, //
+                    -0.5f, 0.5f,  2.1f, 0.1f, 0.1f, 0.7f, 1.0f, //
+                };
+                constexpr unsigned int indexes[6] = {0, 1, 2, 2, 3, 0};
+                square->add<Mesh>(renderer, vertices, sizeof(vertices), indexes, 6);
+            }
 
-        vertex_buffer = renderer->create_vertex_buffer(vertices, sizeof(vertices));
-
-        vertex_buffer->set_layout({
-            {DataType::FLOAT3, "position"},
-            {DataType::FLOAT4, "color"},
-        });
-
-        constexpr unsigned int indexes[6] = {0, 1, 2, 2, 3, 0};
-        index_buffer = renderer->create_index_buffer(indexes, 6);
-
-        Ref<VertexArray> vertex_array;
-        vertex_array = renderer->create_vertex_array(vertex_buffer, index_buffer);
-        vertex_arrays.push_back(vertex_array);
-    }
-
-    // triangle
-    {
-        Ref<VertexBuffer> vertex_buffer;
-        Ref<IndexBuffer> index_buffer;
-        constexpr float vertices[3 * 7] = {
-            -0.5f, -0.5f, 2.0f, 0.8f, 0.1f, 0.1f, 1.0f, //
-            0.5f,  -0.5f, 2.0f, 0.8f, 0.1f, 0.1f, 1.0f, //
-            0.0f,  0.5f,  2.0f, 0.1f, 0.9f, 0.1f, 1.0f, //
-        };
-        vertex_buffer = renderer->create_vertex_buffer(vertices, sizeof(vertices));
-
-        vertex_buffer->set_layout({
-            {DataType::FLOAT3, "position"},
-            {DataType::FLOAT4, "color"},
-        });
-
-        constexpr unsigned int indexes[3] = {0, 1, 2};
-        index_buffer = renderer->create_index_buffer(indexes, 3);
-
-        Ref<VertexArray> vertex_array;
-        vertex_array = renderer->create_vertex_array(vertex_buffer, index_buffer);
-        vertex_arrays.push_back(vertex_array);
+            // triangle
+            {
+                const auto triangle = this->scene->create_entity();
+                triangle->add<Transform>(position, rotation);
+                constexpr float vertices[3 * 7] = {
+                    -0.5f, -0.5f, 2.0f, 0.8f, 0.1f, 0.1f, 1.0f, //
+                    0.5f,  -0.5f, 2.0f, 0.8f, 0.1f, 0.1f, 1.0f, //
+                    0.0f,  0.5f,  2.0f, 0.1f, 0.9f, 0.1f, 1.0f, //
+                };
+                constexpr unsigned int indexes[3] = {0, 1, 2};
+                triangle->add<Mesh>(renderer, vertices, sizeof(vertices), indexes, 3);
+            }
+        }
     }
 
     // x,y,z indicator
     {
-        Ref<VertexBuffer> vertex_buffer_x;
-        Ref<VertexBuffer> vertex_buffer_y;
-        Ref<VertexBuffer> vertex_buffer_z;
-        Ref<IndexBuffer> index_buffer;
+        const auto x = this->scene->create_entity();
+        const auto y = this->scene->create_entity();
+        const auto z = this->scene->create_entity();
+        constexpr glm::vec3 position = {0.0f, -1.0f, 1.2f};
+        x->add<Transform>(position);
+        y->add<Transform>(position);
+        z->add<Transform>(position);
         constexpr float vertices_x[3 * 7] = {
             0.0f, 0.0f, -0.1f, 0.8f, 0.1f, 0.1f, 0.8f, //
             0.0f, 0.0f, 0.1f,  0.8f, 0.1f, 0.1f, 0.8f, //
             1.0f, 0.0f, 0.0f,  0.8f, 0.1f, 0.1f, 0.8f, //
         };
-        vertex_buffer_x = renderer->create_vertex_buffer(vertices_x, sizeof(vertices_x));
         constexpr float vertices_y[3 * 7] = {
             -0.1f, 0.0f, 0.0f, 0.1f, 0.1f, 0.8f, 0.8f, //
             0.1f,  0.0f, 0.0f, 0.1f, 0.1f, 0.8f, 0.8f, //
             0.0f,  1.0f, 0.0f, 0.1f, 0.1f, 0.8f, 0.8f, //
         };
-        vertex_buffer_y = renderer->create_vertex_buffer(vertices_y, sizeof(vertices_y));
         constexpr float vertices_z[3 * 7] = {
             -0.1f, 0.0f, 0.0f, 0.1f, 0.8f, 0.1f, 0.8f, //
             0.1f,  0.0f, 0.0f, 0.1f, 0.8f, 0.1f, 0.8f, //
             0.0f,  0.0f, 1.0f, 0.1f, 0.8f, 0.1f, 0.8f, //
         };
-        vertex_buffer_z = renderer->create_vertex_buffer(vertices_z, sizeof(vertices_z));
-
-        vertex_buffer_x->set_layout({
-            {DataType::FLOAT3, "position"},
-            {DataType::FLOAT4, "color"},
-        });
-        vertex_buffer_y->set_layout({
-            {DataType::FLOAT3, "position"},
-            {DataType::FLOAT4, "color"},
-        });
-        vertex_buffer_z->set_layout({
-            {DataType::FLOAT3, "position"},
-            {DataType::FLOAT4, "color"},
-        });
-
         constexpr unsigned int indexes[3] = {0, 1, 2};
-        index_buffer = renderer->create_index_buffer(indexes, 3);
-
-        Ref<VertexArray> vertex_array_x;
-        Ref<VertexArray> vertex_array_y;
-        Ref<VertexArray> vertex_array_z;
-        vertex_array_x = renderer->create_vertex_array(vertex_buffer_x, index_buffer);
-        vertex_array_y = renderer->create_vertex_array(vertex_buffer_y, index_buffer);
-        vertex_array_z = renderer->create_vertex_array(vertex_buffer_z, index_buffer);
-        vertex_arrays_xyz.push_back(vertex_array_x);
-        vertex_arrays_xyz.push_back(vertex_array_y);
-        vertex_arrays_xyz.push_back(vertex_array_z);
+        x->add<Mesh>(renderer, vertices_x, sizeof(vertices_x), indexes, 3);
+        y->add<Mesh>(renderer, vertices_y, sizeof(vertices_y), indexes, 3);
+        z->add<Mesh>(renderer, vertices_z, sizeof(vertices_z), indexes, 3);
     }
 
     // textured square
@@ -220,24 +184,15 @@ void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
 
     ctx->renderer->begin_frame();
 
-    for (int x = -5; x <= 5; x++) {
-        for (int y = -5; y <= 5; y++) {
-            const glm::vec3 position = {x * 5.0f, y * 2.0f, abs(x) * 4.0f};
-            const Rotation rotation = {x * 10.0f, 0.0f, 0.0f};
-            const glm::mat4 transform = translate(glm::mat4(1.0f), position) * toMat4(rotation.to_quaternion());
-            shader->upload_uniform_vec4("u_additional_color", glm::vec4((y + 5) / 10.0f, (x + 5) / 10.0f, 0.0f, 1.0f));
+    const auto meshes_view = this->scene->get_meshes();
 
-            for (const auto& vertex_array : vertex_arrays) {
-                ctx->renderer->draw(vertex_array, this->shader, transform);
-            }
-        }
-    }
 
-    shader->upload_uniform_vec4("u_additional_color", glm::vec4(0.0f));
-    constexpr glm::vec3 position = {0.0f, -1.0f, 1.2f};
-    const glm::mat4 transform = translate(glm::mat4(1.0f), position);
-    for (const auto& vertex_array : vertex_arrays_xyz) {
-        ctx->renderer->draw(vertex_array, this->shader, transform);
+    for (const auto& entity : meshes_view) {
+        const Transform& transform = meshes_view.get<Transform>(entity);
+        const Mesh& mesh = meshes_view.get<Mesh>(entity);
+
+        const glm::mat4 transform_mat = translate(glm::mat4(1.0f), transform.position) * toMat4(transform.rotation.to_quaternion());
+        ctx->renderer->draw(mesh.vertex_array, this->shader, transform_mat);
     }
 
     const glm::mat4 square_rgb_transform = translate(glm::mat4(1.0f), {-1.0f, 0.6f, 1.2f});
