@@ -21,6 +21,9 @@ WindowsWindow::WindowsWindow(const char* title, const unsigned int width, const 
         is_glfw_initialized = true;
     }
 
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, true);
     this->window = glfwCreateWindow(static_cast<int>(width), static_cast<int>(height), title, nullptr, nullptr);
     graphic_ctx = new OpenGLContext(this->window);
     graphic_ctx->init();

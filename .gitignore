@@ -1,10 +1,12 @@
-bin/
-obj/
-/packages/
-riderModule.iml
-/_ReSharper.Caches/
 .idea/
-*.user
-*.filters
+
+# xmake
+.xmake/
+build/
+cmake-build-debug/
+CMakeLists.txt
+
+# macOS
+.DS_Store
 
 imgui.ini

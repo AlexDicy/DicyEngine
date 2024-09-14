@@ -1,18 +1,3 @@
-[submodule "Engine/libs/spdlog"]
-	path = Engine/libs/spdlog
-	url = https://github.com/gabime/spdlog
-[submodule "Engine/libs/GLFW"]
-	path = Engine/libs/GLFW
-	url = https://github.com/glfw/glfw
-[submodule "Engine/libs/ImGui"]
-	path = Engine/libs/ImGui
-	url = https://github.com/ocornut/imgui
 [submodule "Engine/libs/glad"]
 	path = Engine/libs/glad
 	url = https://github.com/Dicy/engine-glad
-[submodule "Engine/libs/glm"]
-	path = Engine/libs/glm
-	url = https://github.com/g-truc/glm
-[submodule "Engine/libs/EnTT"]
-	path = Engine/libs/EnTT
-	url = https://github.com/skypjack/entt

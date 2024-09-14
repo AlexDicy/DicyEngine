@@ -89,7 +89,7 @@ void Input::init(const Ref<EventDispatcher>& event_dispatcher, const Ref<Window>
     });
 }
 
-#ifdef DE_PLATFORM_WINDOWS
+#if defined(DE_PLATFORM_WINDOWS) || defined(DE_PLATFORM_MACOS)
 int get_glfw_mouse_button_code(const InputCode input_code) {
     switch (input_code) { // NOLINT(clang-diagnostic-switch-enum)
             // @formatter:off

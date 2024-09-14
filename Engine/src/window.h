@@ -14,7 +14,7 @@ public:
     static Ref<Window> create(const char* title, unsigned int width, unsigned int height);
 
 
-#ifdef DE_PLATFORM_WINDOWS
+#if defined(DE_PLATFORM_WINDOWS) || defined(DE_PLATFORM_MACOS)
     typedef struct GLFWwindow GLFWwindow; // do not include 'GLFW' here, it would interfere with 'glad'
     virtual GLFWwindow* get_native_window() const = 0;
 #else

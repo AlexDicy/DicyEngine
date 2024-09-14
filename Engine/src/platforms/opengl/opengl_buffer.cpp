@@ -4,7 +4,11 @@
 #include "glad/gl.h"
 
 OpenGLVertexBuffer::OpenGLVertexBuffer(const float* vertices, const uint32_t size) {
+#ifdef OPENGL_4_6
     glCreateBuffers(1, &this->id);
+#else
+    glGenBuffers(1, &this->id);
+#endif
     glBindBuffer(GL_ARRAY_BUFFER, this->id);
     glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
 }
@@ -19,7 +23,11 @@ void OpenGLVertexBuffer::bind() const {
 
 
 OpenGLIndexBuffer::OpenGLIndexBuffer(const uint32_t* indexes, const uint32_t count) : count(count) {
+#ifdef OPENGL_4_6
     glCreateBuffers(1, &this->id);
+#else
+    glGenBuffers(1, &this->id);
+#endif
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->id);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, static_cast<GLsizei>(sizeof(uint32_t) * count), indexes, GL_STATIC_DRAW);
 }

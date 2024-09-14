@@ -9,6 +9,8 @@ void OpenGLContext::init() {
     if (!gladLoadGL(glfwGetProcAddress)) {
         DE_ERROR("Failed to initialize GLAD with OpenGL context");
     }
+    auto version = reinterpret_cast<const char*>(glGetString(GL_VERSION));
+    DE_INFO("OpenGL Renderer version: {0}", version);
 }
 
 void OpenGLContext::swap_buffers() {

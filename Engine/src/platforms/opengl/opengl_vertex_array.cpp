@@ -8,7 +8,11 @@
 
 OpenGLVertexArray::OpenGLVertexArray(const Ref<VertexBuffer>& vertex_buffer, const Ref<IndexBuffer>& index_buffer) :
     vertex_buffer(vertex_buffer), index_buffer(index_buffer) {
+#ifdef OPENGL_4_6
     glCreateVertexArrays(1, &this->id);
+#else
+    glGenVertexArrays(1, &this->id);
+#endif
 
     glBindVertexArray(this->id);
     // vertex buffer

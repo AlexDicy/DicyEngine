@@ -6,6 +6,20 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+// strips the BOM character which is not supported by macOS OpenGL implementation
+inline std::string stream_to_string(std::ifstream& input) {
+    std::stringstream string_stream;
+    char bom[3];
+    input.read(bom, 3);
+    if (bom[0] == '\xEF' && bom[1] == '\xBB' && bom[2] == '\xBF') {
+        string_stream << input.rdbuf();
+    } else {
+        input.seekg(0, std::ios::beg);
+        string_stream << input.rdbuf();
+    }
+    return string_stream.str();
+}
+
 OpenGLShader::OpenGLShader(const std::string& vertex_path, const std::string& fragment_path) {
     auto vertex_in = std::ifstream(vertex_path, std::ios::in | std::ios::binary);
     auto fragment_in = std::ifstream(fragment_path, std::ios::in | std::ios::binary);
@@ -19,13 +33,8 @@ OpenGLShader::OpenGLShader(const std::string& vertex_path, const std::string& fr
         return;
     }
 
-    std::stringstream vertex_stream;
-    vertex_stream << vertex_in.rdbuf();
-    const std::string vertex_source = vertex_stream.str();
-
-    std::stringstream fragment_stream;
-    fragment_stream << fragment_in.rdbuf();
-    const std::string fragment_source = fragment_stream.str();
+    const std::string vertex_source = stream_to_string(vertex_in);
+    const std::string fragment_source = stream_to_string(fragment_in);
 
     // Create an empty vertex shader handle
     const GLuint vertex_shader = glCreateShader(GL_VERTEX_SHADER);

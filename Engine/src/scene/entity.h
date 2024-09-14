@@ -7,12 +7,12 @@ public:
 
     template <typename... T>
     bool has() const {
-        return this->registry->all_of<T>(this->entity);
+        return this->registry->all_of<T...>(this->entity);
     }
 
     template <typename... T>
     decltype(auto) get() const {
-        return this->registry->get<T>(this->entity);
+        return this->registry->get<T...>(this->entity);
     }
 
     template <typename T, typename... Args>

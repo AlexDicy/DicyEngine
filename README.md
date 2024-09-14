@@ -1,8 +1,10 @@
 ### Setup / Update
+#### Prerequisites
+- [xmake](https://xmake.io/#/guide/installation)
 ```bash
 git submodule init
 git submodule update
-.\generate-projects.bat
+xmake -y
 ```
 
 <img width="643" alt="image" src="https://github.com/AlexDicy/DicyEngine/assets/11839341/36d1367e-a957-4aae-805f-1299eda8dbb1">
