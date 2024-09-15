@@ -5,6 +5,7 @@
 git submodule init
 git submodule update
 xmake -y
+xmake project -k cmakelists
 ```
 
 <img width="643" alt="image" src="https://github.com/AlexDicy/DicyEngine/assets/11839341/36d1367e-a957-4aae-805f-1299eda8dbb1">
