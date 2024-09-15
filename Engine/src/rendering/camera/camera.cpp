@@ -16,14 +16,6 @@ void Camera::set_rotation(const Rotation& rotation) {
     this->rotation = rotation;
 }
 
-void Camera::set_pitch(const float pitch) {
-    this->rotation.pitch = pitch;
-}
-
-void Camera::set_yaw(const float yaw) {
-    this->rotation.yaw = yaw;
-}
-
 void Camera::update_view_matrix() {
     const glm::mat4 translation = translate(glm::mat4(1.0f), this->position);
     const auto orientation = this->rotation.to_quaternion();

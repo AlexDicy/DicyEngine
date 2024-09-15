@@ -34,8 +34,6 @@ public:
 
     void set_position(const glm::vec3& position);
     void set_rotation(const Rotation& rotation);
-    void set_pitch(float pitch);
-    void set_yaw(float yaw);
     void update_view_matrix();
 
     virtual void set_aspect_ratio(float aspect_ratio) = 0;

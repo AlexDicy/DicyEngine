@@ -24,3 +24,8 @@ using Ref = std::shared_ptr<T>;
 #include "utils/profiler.h"
 #include "events/event.h"
 #include "events/dispatcher.h"
+#include "input/input.h"
+#include "rendering/shader_registry.h"
+#include "rendering/camera/camera.h"
+#include "scene/components/mesh.h"
+#include "scene/components/transform.h"

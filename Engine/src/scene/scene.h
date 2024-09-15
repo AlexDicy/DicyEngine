@@ -1,6 +1,7 @@
 ﻿#pragma once
-#include "entity.h"
+#include "entities/entity.h"
 #include "components/mesh.h"
+#include "components/script.h"
 #include "components/transform.h"
 #include "entt/entt.hpp"
 
@@ -12,6 +13,10 @@ public:
 
     auto get_meshes() const {
         return this->registry->view<Mesh, Transform>();
+    }
+
+    auto get_scripts() const {
+        return this->registry->view<Script>();
     }
 
 private:

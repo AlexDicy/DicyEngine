@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "application.h"
 #include "layer.h"
+#include "editor/scripts/camera_script.h"
 #include "scene/scene.h"
 
 class SceneLayer : public Layer {
@@ -14,7 +15,8 @@ private:
     std::vector<Ref<VertexArray>> vertex_arrays_xyz;
     Ref<VertexArray> textured_square_vertex_array;
     Ref<Scene> scene;
-    Ref<Camera> camera;
+    Ref<Entity> camera;
+    Ref<CameraScript> camera_script;
     Ref<Shader> shader;
     Ref<Shader> textured_shader;
     Ref<Texture> rgb_texture;

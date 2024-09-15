@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "shader.h"
+#include "renderer.h"
 
 class ShaderRegistry {
 public:

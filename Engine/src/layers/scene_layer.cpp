@@ -1,25 +1,14 @@
 ﻿#include "pch/enginepch.h"
 #include "scene_layer.h"
 
-#include "input/input.h"
-#include "platforms/opengl/opengl_shader.h"
-#include "rendering/shader_registry.h"
-#include "rendering/camera/camera.h"
-#include "rendering/camera/orthographic_camera.h"
-#include "rendering/camera/perspective_camera.h"
-#include "scene/components/mesh.h"
-#include "scene/components/transform.h"
-
 #include <filesystem>
-#include <glm/detail/type_quat.hpp>
 #include <glm/ext/matrix_transform.hpp>
 
-Ref<PerspectiveCamera> get_perspective_camera(const Ref<Window>&);
-Ref<OrthographicCamera> get_orthographic_camera();
+#include "editor/scripts/camera_script.h"
+#include "platforms/opengl/opengl_shader.h"
 
 SceneLayer::SceneLayer(const Application* app) {
     const Ref<Renderer>& renderer = app->get_renderer();
-    const Ref<Window>& window = app->get_window();
     this->scene = std::make_shared<Scene>();
 
     for (int x = -5; x <= 5; x++) {
@@ -110,7 +99,10 @@ SceneLayer::SceneLayer(const Application* app) {
     }
 
     // camera
-    this->camera = get_perspective_camera(window);
+    this->camera = this->scene->create_entity();
+    this->camera->add<Transform>();
+    this->camera_script = std::make_shared<CameraScript>(app, this->camera);
+    this->camera->add<Script>(camera_script);
 
     this->shader = app->get_shader_registry()->load("../assets/shaders/flat");
 
@@ -119,74 +111,14 @@ SceneLayer::SceneLayer(const Application* app) {
     this->rgb_texture = renderer->create_texture2d("../assets/dicystudios_rgb.png");
     this->rgba_texture = renderer->create_texture2d("../assets/dicystudios_rgba.png");
 
-    Input::set_action("change_camera", InputCode::KEY_O);
-    Input::set_action("move_camera_up", InputCode::KEY_E);
-    Input::set_action("move_camera_down", InputCode::KEY_Q);
-
-    constexpr float sensitivity = 0.16f;
-    Input::bind_axis("look_x", [this](const float delta_x) {
-        if (Input::is_action_pressed("right_click")) {
-            this->camera->set_yaw(this->camera->get_yaw() + delta_x * sensitivity);
-        }
-    });
-    Input::bind_axis("look_y", [this](const float delta_y) {
-        if (Input::is_action_pressed("right_click")) {
-            const float pitch = glm::clamp(this->camera->get_pitch() + delta_y * sensitivity, -90.0f, 90.0f);
-            this->camera->set_pitch(pitch);
-        }
-    });
-    Input::bind_action_pressed("change_camera", [this, &renderer, &window] {
-        const glm::vec3 position = this->camera->get_position();
-        const Rotation rotation = this->camera->get_rotation();
-        static bool camera_bool = false;
-        if (camera_bool) {
-            this->camera = get_perspective_camera(window);
-        } else {
-            this->camera = get_orthographic_camera();
-        }
-        renderer->set_camera(camera);
-        camera_bool = !camera_bool;
-        this->camera->set_position(position);
-        this->camera->set_rotation(rotation);
-    });
-
-    renderer->set_camera(camera);
+    renderer->set_camera(this->camera_script->get_camera());
 }
-
-constexpr float camera_speed = 2.0f;
 
 void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
     DE_PROFILE_FUNCTION();
-    const float camera_speed_delta = camera_speed * ctx->delta_time;
-    auto camera_position = this->camera->get_position();
-    const float yaw = glm::radians(this->camera->get_yaw());
-    const auto forward = glm::vec3(sinf(yaw), 0, cosf(yaw));
-    const auto right = glm::vec3(forward.z, 0, -forward.x);
-    if (Input::is_action_pressed("move_left")) {
-        camera_position -= right * camera_speed_delta;
-    }
-    if (Input::is_action_pressed("move_right")) {
-        camera_position += right * camera_speed_delta;
-    }
-    if (Input::is_action_pressed("move_forward")) {
-        camera_position += forward * camera_speed_delta;
-    }
-    if (Input::is_action_pressed("move_backward")) {
-        camera_position -= forward * camera_speed_delta;
-    }
-    if (Input::is_action_pressed("move_camera_up")) {
-        camera_position.y += camera_speed_delta;
-    }
-    if (Input::is_action_pressed("move_camera_down")) {
-        camera_position.y -= camera_speed_delta;
-    }
-    this->camera->set_position(camera_position);
-
     ctx->renderer->begin_frame();
 
     const auto meshes_view = this->scene->get_meshes();
-
-
     for (const auto& entity : meshes_view) {
         const Transform& transform = meshes_view.get<Transform>(entity);
         const Mesh& mesh = meshes_view.get<Mesh>(entity);
@@ -206,12 +138,10 @@ void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
     ctx->renderer->draw(textured_square_vertex_array, this->textured_shader, square_rgba_transform);
 
     ctx->renderer->end_frame();
-}
 
-Ref<PerspectiveCamera> get_perspective_camera(const Ref<Window>& window) {
-    return std::make_shared<PerspectiveCamera>(90.0f, static_cast<float>(window->get_width()) / static_cast<float>(window->get_height()));
-}
-
-Ref<OrthographicCamera> get_orthographic_camera() {
-    return std::make_shared<OrthographicCamera>(-1.6f, 1.6f, -0.9f, 0.9f);
+    const auto scripts_view = this->scene->get_scripts();
+    for (const auto& entity : scripts_view) {
+        Script& script = scripts_view.get<Script>(entity);
+        script.entity_script->on_update(ctx->delta_time);
+    }
 }
