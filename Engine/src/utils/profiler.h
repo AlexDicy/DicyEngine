@@ -52,8 +52,16 @@ namespace DE::Profiling {
 }
 
 #if defined(DE_DEBUG)
+    #ifdef __GNUC__
+        #define DE_PROFILER_FN_SIG __PRETTY_FUNCTION__
+    #elifdef _MSC_VER
+        #define DE_PROFILER_FN_SIG __FUNCSIG__
+    #else
+        #define DE_PROFILER_FN_SIG __FUNCTION__
+    #endif
+
     // should be the first line in a function, the profiling ends when it goes out of scope
-    #define DE_PROFILE_FUNCTION() DE::Profiling::ProfilerTimer _timer_function(__FUNCTION__)
+    #define DE_PROFILE_FUNCTION() DE::Profiling::ProfilerTimer _timer_function(DE_PROFILER_FN_SIG)
 #else
     #define DE_PROFILE_FUNCTION()
 #endif
