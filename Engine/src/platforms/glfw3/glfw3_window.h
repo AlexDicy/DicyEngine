@@ -5,7 +5,7 @@
 
 struct GLFWwindow; // do not include 'GLFW' here, it would interfere with 'glad'
 
-class WindowsWindow : public Window {
+class GLFW3Window final : public Window {
     GraphicContext *graphic_ctx;
     GLFWwindow *window;
     bool vsync = false;
@@ -13,7 +13,7 @@ class WindowsWindow : public Window {
     float last_frame_time = 0.0;
 
 public:
-    WindowsWindow(const char *title, unsigned int width, unsigned int height);
+    GLFW3Window(const char *title, unsigned int width, unsigned int height);
     void destroy() override;
     void update() override;
     unsigned get_width() const override;

@@ -1,15 +1,15 @@
 #include "pch/enginepch.h"
-#include "window.h"
+#include "glfw3_window.h"
 #include "events/dispatcher.h"
 
 #include "GLFW/glfw3.h"
 #include "platforms/opengl/opengl_context.h"
 
 Ref<Window> Window::create(const char* title, const unsigned int width, const unsigned int height) {
-    return std::make_shared<WindowsWindow>(title, width, height);
+    return std::make_shared<GLFW3Window>(title, width, height);
 }
 
-WindowsWindow::WindowsWindow(const char* title, const unsigned int width, const unsigned int height) {
+GLFW3Window::GLFW3Window(const char* title, const unsigned int width, const unsigned int height) {
     if (!is_glfw_initialized) {
         if (!glfwInit()) {
             DE_ERROR("Failed to initialize GLFW");
@@ -28,11 +28,11 @@ WindowsWindow::WindowsWindow(const char* title, const unsigned int width, const 
     graphic_ctx = new OpenGLContext(this->window);
     graphic_ctx->init();
 
-    this->WindowsWindow::set_vsync(true);
+    this->GLFW3Window::set_vsync(true);
     this->register_events();
 }
 
-void WindowsWindow::update() {
+void GLFW3Window::update() {
     glfwPollEvents();
     this->graphic_ctx->swap_buffers();
 
@@ -42,36 +42,36 @@ void WindowsWindow::update() {
     this->last_frame_time = delta_time;
 }
 
-void WindowsWindow::destroy() {
+void GLFW3Window::destroy() {
     glfwDestroyWindow(this->window);
 }
 
-unsigned int WindowsWindow::get_width() const {
+unsigned int GLFW3Window::get_width() const {
     int width, height;
     glfwGetWindowSize(this->window, &width, &height);
     return static_cast<unsigned int>(width);
 }
 
-unsigned int WindowsWindow::get_height() const {
+unsigned int GLFW3Window::get_height() const {
     int width, height;
     glfwGetWindowSize(this->window, &width, &height);
     return static_cast<unsigned int>(height);
 }
 
-bool WindowsWindow::is_vsync() const {
+bool GLFW3Window::is_vsync() const {
     return this->vsync;
 }
 
-void WindowsWindow::set_vsync(const bool vsync) {
+void GLFW3Window::set_vsync(const bool vsync) {
     this->vsync = vsync;
     glfwSwapInterval(this->vsync ? 1 : 0);
 }
 
-float WindowsWindow::get_last_frame_time() const {
+float GLFW3Window::get_last_frame_time() const {
     return this->last_frame_time;
 }
 
-void WindowsWindow::register_events() const {
+void GLFW3Window::register_events() const {
     static auto event_dispatcher = EventDispatcher::get();
     glfwSetWindowSizeCallback(this->window, [](GLFWwindow*, int new_width, int new_height) {
         event_dispatcher->dispatch(WindowResizeEvent(static_cast<unsigned int>(new_width), static_cast<unsigned int>(new_height)));
