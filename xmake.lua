@@ -14,6 +14,7 @@ target("Engine")
 
     set_pcxxheader("Engine/src/pch/enginepch.h")
     add_files("Engine/src/**.cpp")
+    add_headerfiles("Engine/src/**.h")
     add_includedirs(
         "Engine/src",
         "Engine/libs/glad/include",
