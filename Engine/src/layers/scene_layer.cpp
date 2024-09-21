@@ -98,6 +98,21 @@ SceneLayer::SceneLayer(const Application* app) {
         textured_square_vertex_array = renderer->create_vertex_array(vertex_buffer, index_buffer);
     }
 
+    // moving square
+    {
+        const auto square = this->scene->create_entity();
+        square->add<Transform>(glm::vec3({0.0f, 0.0f, 4.0f}), Rotation(), glm::vec3(2.46f));
+        constexpr float vertices[4 * 7] = {
+            -0.5f, -0.5f, 0.0f, 0.1f, 0.7f, 0.1f, 1.0f, //
+            0.5f, -0.5f, 0.0f, 0.1f, 0.7f, 0.1f, 1.0f, //
+            0.5f, 0.5f, 0.0f, 0.1f, 0.7f, 0.1f, 1.0f, //
+            -0.5f, 0.5f, 0.0f, 0.1f, 0.7f, 0.1f, 1.0f, //
+        };
+        constexpr unsigned int indexes[6] = {0, 1, 2, 2, 3, 0};
+        square->add<Mesh>(renderer, vertices, sizeof(vertices), indexes, 6);
+        square->add<Script>(std::make_shared<MovingSquareScript>(app, square));
+    }
+
     // camera
     this->camera = this->scene->create_entity();
     this->camera->add<Transform>();
@@ -124,7 +139,7 @@ void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
         const Mesh& mesh = meshes_view.get<Mesh>(entity);
 
         const glm::mat4 transform_mat = translate(glm::mat4(1.0f), transform.position) * toMat4(transform.rotation.to_quaternion());
-        ctx->renderer->draw(mesh.vertex_array, this->shader, transform_mat);
+        ctx->renderer->draw(mesh.vertex_array, this->shader, scale(transform_mat, transform.scale));
     }
 
     const glm::mat4 square_rgb_transform = translate(glm::mat4(1.0f), {-1.0f, 0.6f, 1.2f});
@@ -144,4 +159,10 @@ void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
         Script& script = scripts_view.get<Script>(entity);
         script.entity_script->on_update(ctx->delta_time);
     }
+}
+
+void MovingSquareScript::on_update(float delta_time) {
+    this->move_index = this->move_index + 1 * delta_time;
+    const float y = glm::cos(this->move_index) * 5;
+    this->get_component<Transform>().position.y = y;
 }

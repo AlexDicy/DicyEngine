@@ -22,3 +22,14 @@ private:
     Ref<Texture> rgb_texture;
     Ref<Texture> rgba_texture;
 };
+
+
+class MovingSquareScript final : public EntityScript {
+public:
+    MovingSquareScript(const Application* app, const Ref<Entity>& entity): EntityScript(app, entity) {}
+
+    void on_update(float delta_time) override;
+
+private:
+    float move_index = 0;
+};
