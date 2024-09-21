@@ -5,6 +5,14 @@
 git submodule init
 git submodule update
 xmake -y
+```
+#### Windows
+```bash
+xmake project -k vsxmake
+```
+```
+#### macOS
+```bash
 xmake project -k cmakelists
 ```
 

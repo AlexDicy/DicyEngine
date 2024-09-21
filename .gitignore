@@ -5,6 +5,8 @@
 build/
 cmake-build-debug/
 CMakeLists.txt
+Xmake.Custom.*
+vsxmake20*/
 
 # macOS
 .DS_Store
