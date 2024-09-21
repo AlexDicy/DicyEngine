@@ -10,7 +10,6 @@ xmake -y
 ```bash
 xmake project -k vsxmake
 ```
-```
 #### macOS
 ```bash
 xmake project -k cmakelists
