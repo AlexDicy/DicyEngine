@@ -21,11 +21,14 @@ GLFW3Window::GLFW3Window(const char* title, const unsigned int width, const unsi
         is_glfw_initialized = true;
     }
 
+    #ifdef DE_PLATFORM_MACOS
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+    glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, false);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, true);
-    glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, false);
+    #endif
+
     this->window = glfwCreateWindow(static_cast<int>(width), static_cast<int>(height), title, nullptr, nullptr);
     graphic_ctx = new OpenGLContext(this->window);
     graphic_ctx->init();
@@ -246,7 +249,7 @@ InputCode convert_key_to_input_code(int key) {
         case GLFW_KEY_MENU: return InputCode::KEY_MENU;
         default: return InputCode::INPUT_UNKNOWN;
             // clang-format on
-            // @formatter:on
+        // @formatter:on
     }
 }
 
@@ -264,6 +267,6 @@ InputCode convert_mouse_button_to_input_code(int button) {
         case GLFW_MOUSE_BUTTON_8: return InputCode::MOUSE_BUTTON_8;
         default: return InputCode::INPUT_UNKNOWN;
             // clang-format on
-            // @formatter:on
+        // @formatter:on
     }
 }
