@@ -6,6 +6,7 @@
 
 #include "editor/scripts/camera_script.h"
 #include "platforms/opengl/opengl_shader.h"
+#include "scene/models/model_importer.h"
 
 SceneLayer::SceneLayer(const Application* app) {
     const Ref<Renderer>& renderer = app->get_renderer();
@@ -127,6 +128,8 @@ SceneLayer::SceneLayer(const Application* app) {
     this->rgba_texture = renderer->create_texture2d("../assets/dicystudios_rgba.png");
 
     renderer->set_camera(this->camera_script->get_camera());
+
+    ModelImporter::import_from_file("../assets/models/fountain.glb");
 }
 
 void SceneLayer::update(const std::unique_ptr<Context>& ctx) {

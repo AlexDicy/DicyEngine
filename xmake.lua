@@ -5,7 +5,7 @@ add_requires("glfw 3.4")
 add_requires("imgui v1.91.1-docking", {configs = {glfw_opengl3 = true}})
 add_requires("glm 1.0.1")
 add_requires("entt v3.13.2")
-add_requires("nlohmann_json v3.11.3")
+add_requires("assimp v5.4.3")
 
 
 target("Engine")
