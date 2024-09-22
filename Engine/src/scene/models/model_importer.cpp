@@ -42,9 +42,9 @@ Model ModelImporter::import_from_file(const std::string& filename, const Ref<Ent
                 mesh->mVertices[v].x,
                 mesh->mVertices[v].y,
                 mesh->mVertices[v].z,
-                0.3f,
-                0.3f,
-                0.3f,
+                static_cast<float>(glm::cos(v)),
+                1.0f - (static_cast<float>(v) / static_cast<float>(mesh->mNumVertices)),
+                (static_cast<float>(v) / static_cast<float>(mesh->mNumVertices)),
                 1.0f,
             });
         }
