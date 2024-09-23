@@ -5,6 +5,7 @@ add_requires("glfw 3.4")
 add_requires("imgui v1.91.1-docking", {configs = {glfw_opengl3 = true}})
 add_requires("glm 1.0.1")
 add_requires("entt v3.13.2")
+add_requires("assimp v5.4.3")
 
 
 target("Engine")
@@ -21,7 +22,7 @@ target("Engine")
         "Engine/libs/stb"
     )
 
-    add_packages("spdlog", "glfw", "imgui", "glm", "entt")
+    add_packages("spdlog", "glfw", "imgui", "glm", "entt", "assimp")
     add_deps("glad", "stb")
 
     add_defines("DE_IS_ENGINE", "IMGUI_IMPL_OPENGL_LOADER_CUSTOM", "GLM_ENABLE_EXPERIMENTAL")
