@@ -22,7 +22,7 @@ Model ModelImporter::import_from_file(const std::string& filename, const Ref<Ent
     // TODO: aiProcess_MakeLeftHanded is probably needed, others: aiProcess_SplitLargeMeshes, aiProcess_OptimizeMeshes
     const aiScene* scene = importer.ReadFile(filename, aiProcess_CalcTangentSpace | aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_SortByPType);
     if (scene == nullptr) {
-        throw std::exception(importer.GetErrorString());
+        throw std::runtime_error(importer.GetErrorString());
     }
 
     DE_INFO("\tn. of meshes {0}", scene->mNumMeshes);
