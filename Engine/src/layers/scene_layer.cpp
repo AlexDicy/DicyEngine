@@ -105,9 +105,9 @@ SceneLayer::SceneLayer(const Application* app) {
         square->add<Transform>(glm::vec3({0.0f, 0.0f, 4.0f}), Rotation(), glm::vec3(2.46f));
         constexpr float vertices[4 * 7] = {
             -0.5f, -0.5f, 0.0f, 0.1f, 0.7f, 0.1f, 1.0f, //
-             0.5f, -0.5f, 0.0f, 0.1f, 0.7f, 0.1f, 1.0f, //
-             0.5f,  0.5f, 0.0f, 0.1f, 0.7f, 0.1f, 1.0f, //
-            -0.5f,  0.5f, 0.0f, 0.1f, 0.7f, 0.1f, 1.0f, //
+            0.5f,  -0.5f, 0.0f, 0.1f, 0.7f, 0.1f, 1.0f, //
+            0.5f,  0.5f,  0.0f, 0.1f, 0.7f, 0.1f, 1.0f, //
+            -0.5f, 0.5f,  0.0f, 0.1f, 0.7f, 0.1f, 1.0f, //
         };
         constexpr unsigned int indexes[6] = {0, 1, 2, 2, 3, 0};
         square->add<Mesh>(renderer, vertices, sizeof(vertices), indexes, 6);
@@ -129,7 +129,14 @@ SceneLayer::SceneLayer(const Application* app) {
 
     renderer->set_camera(this->camera_script->get_camera());
 
-    ModelImporter::import_from_file("../assets/models/fountain.glb", this->scene->create_entity(), renderer);
+    std::vector<Model> models = ModelImporter::import_from_file("../assets/models/fountain.glb");
+    for (const Model& model : models) {
+        const VertexData* vertex_data = model.vertices.data();
+        auto vertex_data_floats = reinterpret_cast<const float*>(vertex_data);
+        Ref<Entity> entity = this->scene->create_entity();
+        entity->add<Mesh>(renderer, vertex_data_floats, model.vertices.size() * sizeof(VertexData), model.indexes.data(), model.indexes.size());
+        entity->add<Transform>(glm::vec3({0.0f, 0.0f, 4.0f}), Rotation(), glm::vec3(1.2f));
+    }
 }
 
 void SceneLayer::update(const std::unique_ptr<Context>& ctx) {

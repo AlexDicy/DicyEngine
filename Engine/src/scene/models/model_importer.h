@@ -4,5 +4,5 @@
 
 class ModelImporter {
 public:
-    static Model import_from_file(const std::string& filename, const Ref<Entity>& temp_entity, const Ref<Renderer>& renderer);
+    static std::vector<Model> import_from_file(const std::string& filename);
 };
