@@ -3,6 +3,7 @@
 #include "layer.h"
 #include "editor/scripts/camera_script.h"
 #include "scene/scene.h"
+#include "scene/lights/directional_light.h"
 
 class SceneLayer : public Layer {
 public:
@@ -20,6 +21,7 @@ private:
     Ref<Shader> shader;
     Ref<Texture> rgb_texture;
     Ref<Texture> rgba_texture;
+    Ref<DirectionalLight> directional_light;
 };
 
 

@@ -3,6 +3,7 @@
 layout(location = 0) out vec4 color;
 
 in vec4 v_color;
+in vec3 v_normal;
 in vec2 v_texture_coords;
 
 struct Material {
@@ -14,10 +15,23 @@ struct AmbientLight {
     float intensity;
 };
 
+struct DirectionalLight {
+    vec3 color;
+    float intensity;
+    vec3 direction;
+};
+
 uniform Material u_material;
 uniform AmbientLight u_ambient_light;
+uniform DirectionalLight u_directional_light;
 uniform sampler2D u_texture;
 
 void main() {
-    color = texture(u_texture, v_texture_coords) * v_color * vec4(u_material.ambient_color * u_ambient_light.color * u_ambient_light.intensity, 1.0);
+    vec4 ambient_light = vec4(u_material.ambient_color * u_ambient_light.color * u_ambient_light.intensity, 1.0);
+    vec4 diffuse_color = vec4(0, 0, 0, 0);
+    float diffuse_factor = dot(normalize(v_normal), u_directional_light.direction);
+    if (diffuse_factor > 0) {
+        diffuse_color = vec4(u_directional_light.color * diffuse_factor, 1.0);
+    }
+    color = texture(u_texture, v_texture_coords) * v_color * (ambient_light + diffuse_color);
 }

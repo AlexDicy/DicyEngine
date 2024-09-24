@@ -69,11 +69,12 @@ void OpenGLRenderer::clean() const {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void OpenGLRenderer::draw(const Ref<VertexArray>& vertex_array, const Ref<Shader>& shader, const glm::mat4& transform) const {
-    this->draw(vertex_array, shader, transform, this->white_pixel_texture);
+void OpenGLRenderer::draw(const Ref<VertexArray>& vertex_array, const Ref<Shader>& shader, const glm::mat4& transform, const Ref<DirectionalLight>& directional_light) const {
+    this->draw(vertex_array, shader, transform, directional_light, this->white_pixel_texture);
 }
 
-void OpenGLRenderer::draw(const Ref<VertexArray>& vertex_array, const Ref<Shader>& shader, const glm::mat4& transform, const Ref<Texture>& texture) const {
+void OpenGLRenderer::draw(const Ref<VertexArray>& vertex_array, const Ref<Shader>& shader, const glm::mat4& transform, const Ref<DirectionalLight>& directional_light,
+                          const Ref<Texture>& texture) const {
     texture->bind(0);
     shader->bind();
     shader->upload_uniform_mat4("u_view_projection", this->view_projection_matrix);
@@ -84,6 +85,9 @@ void OpenGLRenderer::draw(const Ref<VertexArray>& vertex_array, const Ref<Shader
     shader->upload_uniform_vec3("u_material.ambient_color", {1.0f, 1.0f, 1.0f});
     shader->upload_uniform_vec3("u_ambient_light.color", {1.0f, 1.0f, 1.0f});
     shader->upload_uniform_float("u_ambient_light.intensity", 0.12f);
+    shader->upload_uniform_vec3("u_directional_light.color", {1.0f, 1.0f, 1.0f});
+    shader->upload_uniform_float("u_directional_light.intensity", directional_light->get_intensity());
+    shader->upload_uniform_vec3("u_directional_light.direction", directional_light->get_local_direction(transform));
 
     vertex_array->bind();
     glDrawElements(GL_TRIANGLES, static_cast<int>(vertex_array->get_index_buffer()->get_count()), GL_UNSIGNED_INT, nullptr);

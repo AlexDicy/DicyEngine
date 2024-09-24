@@ -4,6 +4,7 @@
 struct VertexData {
     float x, y, z;
     float r, g, b, a;
+    glm::vec3 normal;
 };
 
 struct Model {

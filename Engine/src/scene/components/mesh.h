@@ -11,6 +11,7 @@ struct Mesh {
         vertex_buffer->set_layout({
             {DataType::FLOAT3, "position"},
             {DataType::FLOAT4, "color"},
+            {DataType::FLOAT3, "normal"},
         });
 
         const Ref<IndexBuffer> index_buffer = renderer->create_index_buffer(indexes, indexes_count);
