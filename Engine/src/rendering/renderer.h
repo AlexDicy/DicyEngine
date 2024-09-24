@@ -34,6 +34,7 @@ public:
     virtual void end_frame() const = 0;
     virtual void clean() const = 0;
     virtual void draw(const Ref<VertexArray>& vertex_array, const Ref<Shader>& shader, const glm::mat4& transform) const = 0;
+    virtual void draw(const Ref<VertexArray>& vertex_array, const Ref<Shader>& shader, const glm::mat4& transform, const Ref<Texture>& texture) const = 0;
 
 protected:
     Ref<Camera> camera;

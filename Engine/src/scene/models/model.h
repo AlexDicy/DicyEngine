@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "scene/materials/material.h"
 
 struct VertexData {
     float x, y, z;
@@ -8,4 +9,5 @@ struct VertexData {
 struct Model {
     std::vector<VertexData> vertices;
     std::vector<unsigned int> indexes;
+    Material material;
 };

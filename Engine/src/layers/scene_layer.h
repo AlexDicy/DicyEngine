@@ -18,7 +18,6 @@ private:
     Ref<Entity> camera;
     Ref<CameraScript> camera_script;
     Ref<Shader> shader;
-    Ref<Shader> textured_shader;
     Ref<Texture> rgb_texture;
     Ref<Texture> rgba_texture;
 };

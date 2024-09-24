@@ -15,6 +15,8 @@ void OpenGLRenderer::init(const int x, const int y, const uint32_t width, const 
     glEnable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);
     this->set_viewport(x, y, width, height);
+    unsigned char white[4] = {255, 255, 255, 255};
+    this->white_pixel_texture = std::make_shared<OpenGLTexture2D>(1, 1, 1, white);
 }
 
 void OpenGLRenderer::set_viewport(const int x, const int y, const uint32_t width, const uint32_t height) {
@@ -63,14 +65,25 @@ void OpenGLRenderer::end_frame() const {
 
 void OpenGLRenderer::clean() const {
     DE_PROFILE_FUNCTION();
-    glClearColor(1.0f, 0.0f, 1.0f, 1.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void OpenGLRenderer::draw(const Ref<VertexArray>& vertex_array, const Ref<Shader>& shader, const glm::mat4& transform) const {
+    this->draw(vertex_array, shader, transform, this->white_pixel_texture);
+}
+
+void OpenGLRenderer::draw(const Ref<VertexArray>& vertex_array, const Ref<Shader>& shader, const glm::mat4& transform, const Ref<Texture>& texture) const {
+    texture->bind(0);
     shader->bind();
     shader->upload_uniform_mat4("u_view_projection", this->view_projection_matrix);
     shader->upload_uniform_mat4("u_transform", transform);
+    // texture
+    shader->upload_uniform_int("u_texture", 0);
+    // lights
+    shader->upload_uniform_vec3("u_material.ambient_color", {1.0f, 1.0f, 1.0f});
+    shader->upload_uniform_vec3("u_ambient_light.color", {1.0f, 1.0f, 1.0f});
+    shader->upload_uniform_float("u_ambient_light.intensity", 0.12f);
 
     vertex_array->bind();
     glDrawElements(GL_TRIANGLES, static_cast<int>(vertex_array->get_index_buffer()->get_count()), GL_UNSIGNED_INT, nullptr);

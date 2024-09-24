@@ -4,6 +4,7 @@
 class OpenGLTexture2D : public Texture2D {
 public:
     explicit OpenGLTexture2D(const std::string& path);
+    explicit OpenGLTexture2D(int channels, int width, int height, const void* data);
     ~OpenGLTexture2D() override;
 
     void bind(uint32_t) const override;
@@ -15,6 +16,8 @@ public:
     uint32_t get_height() const override {
         return this->height;
     }
+
+    void create_texture_with_data(int channels, int width, int height, const void* data);
 
 private:
     std::string path;

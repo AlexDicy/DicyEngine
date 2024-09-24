@@ -144,6 +144,16 @@ void OpenGLShader::upload_uniform_int(const std::string& name, int value) const 
     glProgramUniform1i(this->id, location, value);
 }
 
+void OpenGLShader::upload_uniform_float(const std::string& name, float value) const {
+    const GLint location = glGetUniformLocation(this->id, name.c_str());
+    glProgramUniform1f(this->id, location, value);
+}
+
+void OpenGLShader::upload_uniform_vec3(const std::string& name, const glm::vec3& vector) const {
+    const GLint location = glGetUniformLocation(this->id, name.c_str());
+    glProgramUniform3fv(this->id, location, 1, value_ptr(vector));
+}
+
 void OpenGLShader::upload_uniform_vec4(const std::string& name, const glm::vec4& vector) const {
     const GLint location = glGetUniformLocation(this->id, name.c_str());
     glProgramUniform4fv(this->id, location, 1, value_ptr(vector));

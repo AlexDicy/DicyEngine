@@ -79,17 +79,18 @@ SceneLayer::SceneLayer(const Application* app) {
     {
         Ref<VertexBuffer> vertex_buffer;
         Ref<IndexBuffer> index_buffer;
-        constexpr float vertices[4 * 5] = {
-            -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, //
-            0.5f,  -0.5f, 0.0f, 1.0f, 0.0f, //
-            0.5f,  0.5f,  0.0f, 1.0f, 1.0f, //
-            -0.5f, 0.5f,  0.0f, 0.0f, 1.0f, //
+        constexpr float vertices[4 * 9] = {
+            -0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, //
+            0.5f,  -0.5f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, //
+            0.5f,  0.5f,  0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, //
+            -0.5f, 0.5f,  0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, //
         };
 
         vertex_buffer = renderer->create_vertex_buffer(vertices, sizeof(vertices));
 
         vertex_buffer->set_layout({
             {DataType::FLOAT3, "position"},
+            {DataType::FLOAT4, "color"},
             {DataType::FLOAT2, "texture_coords"},
         });
 
@@ -120,10 +121,8 @@ SceneLayer::SceneLayer(const Application* app) {
     this->camera_script = std::make_shared<CameraScript>(app, this->camera);
     this->camera->add<Script>(camera_script);
 
-    this->shader = app->get_shader_registry()->load("../assets/shaders/flat");
+    this->shader = app->get_shader_registry()->load("../assets/shaders/default-shader");
 
-    this->textured_shader = app->get_shader_registry()->load("../assets/shaders/textured");
-    this->textured_shader->upload_uniform_int("u_texture", 0);
     this->rgb_texture = renderer->create_texture2d("../assets/dicystudios_rgb.png");
     this->rgba_texture = renderer->create_texture2d("../assets/dicystudios_rgba.png");
 
@@ -154,13 +153,8 @@ void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
 
     const glm::mat4 square_rgb_transform = translate(glm::mat4(1.0f), {-1.0f, 0.6f, 1.2f});
     const glm::mat4 square_rgba_transform = translate(glm::mat4(1.0f), {-1.0f, -0.6f, 1.2f});
-    this->textured_shader->bind();
-    // rgb
-    this->rgb_texture->bind(0);
-    ctx->renderer->draw(textured_square_vertex_array, this->textured_shader, square_rgb_transform);
-    // rgba
-    this->rgba_texture->bind(0);
-    ctx->renderer->draw(textured_square_vertex_array, this->textured_shader, square_rgba_transform);
+    ctx->renderer->draw(textured_square_vertex_array, this->shader, square_rgb_transform, this->rgb_texture);
+    ctx->renderer->draw(textured_square_vertex_array, this->shader, square_rgba_transform, this->rgba_texture);
 
     ctx->renderer->end_frame();
 

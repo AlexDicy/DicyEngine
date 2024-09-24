@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "opengl_texture.h"
 #include "rendering/renderer.h"
 #include "rendering/shader.h"
 
@@ -20,7 +21,9 @@ public:
     void end_frame() const override;
     void clean() const override;
     void draw(const Ref<VertexArray>& vertex_array, const Ref<Shader>& shader, const glm::mat4& transform) const override;
+    void draw(const Ref<VertexArray>& vertex_array, const Ref<Shader>& shader, const glm::mat4& transform, const Ref<Texture>& texture) const override;
 
 private:
     Ref<Framebuffer> framebuffer;
+    Ref<OpenGLTexture2D> white_pixel_texture;
 };
