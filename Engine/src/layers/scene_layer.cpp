@@ -5,6 +5,7 @@
 #include <glm/ext/matrix_transform.hpp>
 
 #include "editor/scripts/camera_script.h"
+#include "editor/scripts/light_script.h"
 #include "platforms/opengl/opengl_shader.h"
 #include "scene/models/model_importer.h"
 
@@ -128,6 +129,8 @@ SceneLayer::SceneLayer(const Application* app) {
     this->rgba_texture = renderer->create_texture2d("../assets/dicystudios_rgba.png");
 
     this->directional_light = std::make_shared<DirectionalLight>(Rotation(-45, 90, 0), 1.0f);
+    Ref<Entity> light_entity = this->scene->create_entity();
+    light_entity->add<Script>(std::make_shared<LightScript>(app, light_entity, this->directional_light));
 
     renderer->set_camera(this->camera_script->get_camera());
 
