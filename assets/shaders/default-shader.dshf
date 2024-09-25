@@ -29,7 +29,7 @@ uniform sampler2D u_texture;
 void main() {
     vec4 ambient_light = vec4(u_material.ambient_color * u_ambient_light.color * u_ambient_light.intensity, 1.0);
     vec4 diffuse_color = vec4(0, 0, 0, 0);
-    float diffuse_factor = dot(normalize(v_normal), u_directional_light.direction);
+    float diffuse_factor = dot(normalize(v_normal), -u_directional_light.direction);
     if (diffuse_factor > 0) {
         diffuse_color = vec4(u_directional_light.color * diffuse_factor, 1.0);
     }
