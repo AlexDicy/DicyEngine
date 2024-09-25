@@ -88,6 +88,8 @@ void OpenGLRenderer::draw(const Ref<VertexArray>& vertex_array, const Ref<Shader
     shader->upload_uniform_vec3("u_directional_light.color", {1.0f, 1.0f, 1.0f});
     shader->upload_uniform_float("u_directional_light.intensity", directional_light->get_intensity());
     shader->upload_uniform_vec3("u_directional_light.direction", directional_light->get_local_direction(transform));
+    const auto camera_position_local = glm::vec3(inverse(transform) * glm::vec4(this->camera->get_position(), 1.0f));
+    shader->upload_uniform_vec3("u_camera_position_local", camera_position_local);
 
     vertex_array->bind();
     glDrawElements(GL_TRIANGLES, static_cast<int>(vertex_array->get_index_buffer()->get_count()), GL_UNSIGNED_INT, nullptr);
