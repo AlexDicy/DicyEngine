@@ -134,12 +134,12 @@ SceneLayer::SceneLayer(const Application* app) {
 
     renderer->set_camera(this->camera_script->get_camera());
 
-    std::vector<Model> models = ModelImporter::import_from_file("../assets/models/fountain.glb");
+    std::vector<Model> models = ModelImporter::import_from_file(renderer, "../assets/models/fountain.glb");
     for (const Model& model : models) {
         const VertexData* vertex_data = model.vertices.data();
         auto vertex_data_floats = reinterpret_cast<const float*>(vertex_data);
         Ref<Entity> entity = this->scene->create_entity();
-        entity->add<Mesh>(renderer, vertex_data_floats, model.vertices.size() * sizeof(VertexData), model.indexes.data(), model.indexes.size());
+        entity->add<Mesh>(renderer, vertex_data_floats, model.vertices.size() * sizeof(VertexData), model.indexes.data(), model.indexes.size(), model.texture);
         entity->add<Transform>(glm::vec3({0.0f, 0.0f, 4.0f}), Rotation(), glm::vec3(1.2f));
     }
 }
@@ -154,7 +154,11 @@ void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
         const Mesh& mesh = meshes_view.get<Mesh>(entity);
 
         const glm::mat4 transform_mat = translate(glm::mat4(1.0f), transform.position) * toMat4(transform.rotation.to_quaternion());
-        ctx->renderer->draw(mesh.vertex_array, this->shader, scale(transform_mat, transform.scale), this->directional_light);
+        if (mesh.texture) {
+            ctx->renderer->draw(mesh.vertex_array, this->shader, scale(transform_mat, transform.scale), this->directional_light, mesh.texture);
+        } else {
+            ctx->renderer->draw(mesh.vertex_array, this->shader, scale(transform_mat, transform.scale), this->directional_light);
+        }
     }
 
     const glm::mat4 square_rgb_transform = translate(glm::mat4(1.0f), {-1.0f, 0.6f, 1.2f});

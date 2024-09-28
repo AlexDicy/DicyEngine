@@ -11,4 +11,5 @@ struct Model {
     std::vector<VertexData> vertices;
     std::vector<unsigned int> indexes;
     Material material;
+    Ref<Texture2D> texture;
 };

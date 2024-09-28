@@ -20,7 +20,7 @@ OpenGLTexture2D::OpenGLTexture2D(const std::string& path) : path(path) {
     stbi_image_free(texture);
 }
 
-OpenGLTexture2D::OpenGLTexture2D(const int channels, const int width, const int height, const void* data) {
+OpenGLTexture2D::OpenGLTexture2D(const unsigned int channels, const unsigned int width, const unsigned int height, const void* data) {
     this->create_texture_with_data(channels, width, height, data);
 }
 
@@ -38,7 +38,7 @@ void OpenGLTexture2D::bind(const uint32_t slot) const {
 #endif
 }
 
-void OpenGLTexture2D::create_texture_with_data(int channels, int width, int height, const void* data) {
+void OpenGLTexture2D::create_texture_with_data(unsigned int channels, unsigned int width, unsigned int height, const void* data) {
     this->width = width;
     this->height = height;
 #ifdef OPENGL_4_6

@@ -52,6 +52,10 @@ Ref<Texture2D> OpenGLRenderer::create_texture2d(const std::string& path) const {
     return std::make_shared<OpenGLTexture2D>(path);
 }
 
+Ref<Texture2D> OpenGLRenderer::create_texture2d(const unsigned int channels, const unsigned int width, const unsigned int height, const void* data) const {
+    return std::make_shared<OpenGLTexture2D>(channels, width, height, data);
+}
+
 
 void OpenGLRenderer::begin_frame() {
     this->view_projection_matrix = this->camera->get_view_projection_matrix(true);

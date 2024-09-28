@@ -16,6 +16,7 @@ public:
     Ref<IndexBuffer> create_index_buffer(const uint32_t* indexes, uint32_t count) const override;
     Ref<Shader> create_shader(const std::string& vertex_path, const std::string& fragment_path) const override;
     Ref<Texture2D> create_texture2d(const std::string& path) const override;
+    Ref<Texture2D> create_texture2d(unsigned int channels, unsigned int width, unsigned int height, const void* data) const override;
 
     void begin_frame() override;
     void end_frame() const override;
