@@ -21,11 +21,11 @@ SceneLayer::SceneLayer(const Application* app) {
             {
                 const auto square = this->scene->create_entity();
                 square->add<Transform>(position, rotation);
-                constexpr float vertices[4 * 10] = {
-                    -0.5f, -0.5f, 2.1f, 0.1f, 0.1f, 0.7f, 1.0f, 0.0f, 1.0f, 0.0f, //
-                    0.5f,  -0.5f, 2.1f, 0.1f, 0.1f, 0.7f, 1.0f, 0.0f, 1.0f, 0.0f, //
-                    0.5f,  0.5f,  2.1f, 0.1f, 0.1f, 0.7f, 1.0f, 0.0f, 1.0f, 0.0f, //
-                    -0.5f, 0.5f,  2.1f, 0.1f, 0.1f, 0.7f, 1.0f, 0.0f, 1.0f, 0.0f, //
+                constexpr float vertices[4 * 12] = {
+                    -0.5f, -0.5f, 2.1f, 0.1f, 0.1f, 0.7f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, //
+                    0.5f,  -0.5f, 2.1f, 0.1f, 0.1f, 0.7f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, //
+                    0.5f,  0.5f,  2.1f, 0.1f, 0.1f, 0.7f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, //
+                    -0.5f, 0.5f,  2.1f, 0.1f, 0.1f, 0.7f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, //
                 };
                 constexpr unsigned int indexes[6] = {0, 1, 2, 2, 3, 0};
                 square->add<Mesh>(renderer, vertices, sizeof(vertices), indexes, 6);
@@ -35,10 +35,10 @@ SceneLayer::SceneLayer(const Application* app) {
             {
                 const auto triangle = this->scene->create_entity();
                 triangle->add<Transform>(position, rotation);
-                constexpr float vertices[3 * 10] = {
-                    -0.5f, -0.5f, 2.0f, 0.8f, 0.1f, 0.1f, 1.0f, 0.0f, 1.0f, 0.0f, //
-                    0.5f,  -0.5f, 2.0f, 0.8f, 0.1f, 0.1f, 1.0f, 0.0f, 1.0f, 0.0f, //
-                    0.0f,  0.5f,  2.0f, 0.1f, 0.9f, 0.1f, 1.0f, 0.0f, 1.0f, 0.0f, //
+                constexpr float vertices[3 * 12] = {
+                    -0.5f, -0.5f, 2.0f, 0.8f, 0.1f, 0.1f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, //
+                    0.5f,  -0.5f, 2.0f, 0.8f, 0.1f, 0.1f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, //
+                    0.0f,  0.5f,  2.0f, 0.1f, 0.9f, 0.1f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, //
                 };
                 constexpr unsigned int indexes[3] = {0, 1, 2};
                 triangle->add<Mesh>(renderer, vertices, sizeof(vertices), indexes, 3);
@@ -55,20 +55,20 @@ SceneLayer::SceneLayer(const Application* app) {
         x->add<Transform>(position);
         y->add<Transform>(position);
         z->add<Transform>(position);
-        constexpr float vertices_x[3 * 10] = {
-            0.0f, 0.0f, -0.1f, 0.8f, 0.1f, 0.1f, 0.8f, 0.0f, 1.0f, 0.0f, //
-            0.0f, 0.0f, 0.1f,  0.8f, 0.1f, 0.1f, 0.8f, 0.0f, 1.0f, 0.0f, //
-            1.0f, 0.0f, 0.0f,  0.8f, 0.1f, 0.1f, 0.8f, 0.0f, 1.0f, 0.0f, //
+        constexpr float vertices_x[3 * 12] = {
+            0.0f, 0.0f, -0.1f, 0.8f, 0.1f, 0.1f, 0.8f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, //
+            0.0f, 0.0f, 0.1f,  0.8f, 0.1f, 0.1f, 0.8f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, //
+            1.0f, 0.0f, 0.0f,  0.8f, 0.1f, 0.1f, 0.8f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, //
         };
-        constexpr float vertices_y[3 * 10] = {
-            -0.1f, 0.0f, 0.0f, 0.1f, 0.1f, 0.8f, 0.8f, 0.0f, 1.0f, 0.0f, //
-            0.1f,  0.0f, 0.0f, 0.1f, 0.1f, 0.8f, 0.8f, 0.0f, 1.0f, 0.0f, //
-            0.0f,  1.0f, 0.0f, 0.1f, 0.1f, 0.8f, 0.8f, 0.0f, 1.0f, 0.0f, //
+        constexpr float vertices_y[3 * 12] = {
+            -0.1f, 0.0f, 0.0f, 0.1f, 0.1f, 0.8f, 0.8f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, //
+            0.1f,  0.0f, 0.0f, 0.1f, 0.1f, 0.8f, 0.8f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, //
+            0.0f,  1.0f, 0.0f, 0.1f, 0.1f, 0.8f, 0.8f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, //
         };
-        constexpr float vertices_z[3 * 10] = {
-            -0.1f, 0.0f, 0.0f, 0.1f, 0.8f, 0.1f, 0.8f, 0.0f, 1.0f, 0.0f, //
-            0.1f,  0.0f, 0.0f, 0.1f, 0.8f, 0.1f, 0.8f, 0.0f, 1.0f, 0.0f, //
-            0.0f,  0.0f, 1.0f, 0.1f, 0.8f, 0.1f, 0.8f, 0.0f, 1.0f, 0.0f, //
+        constexpr float vertices_z[3 * 12] = {
+            -0.1f, 0.0f, 0.0f, 0.1f, 0.8f, 0.1f, 0.8f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, //
+            0.1f,  0.0f, 0.0f, 0.1f, 0.8f, 0.1f, 0.8f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, //
+            0.0f,  0.0f, 1.0f, 0.1f, 0.8f, 0.1f, 0.8f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, //
         };
         constexpr unsigned int indexes[3] = {0, 1, 2};
         x->add<Mesh>(renderer, vertices_x, sizeof(vertices_x), indexes, 3);
@@ -106,11 +106,11 @@ SceneLayer::SceneLayer(const Application* app) {
     {
         const auto square = this->scene->create_entity();
         square->add<Transform>(glm::vec3({0.0f, 0.0f, 4.0f}), Rotation(), glm::vec3(2.46f));
-        constexpr float vertices[4 * 10] = {
-            -0.5f, -0.5f, 0.0f, 0.1f, 0.7f, 0.1f, 1.0f, 0.0f, 1.0f, 0.0f, //
-            0.5f,  -0.5f, 0.0f, 0.1f, 0.7f, 0.1f, 1.0f, 0.0f, 1.0f, 0.0f, //
-            0.5f,  0.5f,  0.0f, 0.1f, 0.7f, 0.1f, 1.0f, 0.0f, 1.0f, 0.0f, //
-            -0.5f, 0.5f,  0.0f, 0.1f, 0.7f, 0.1f, 1.0f, 0.0f, 1.0f, 0.0f, //
+        constexpr float vertices[4 * 12] = {
+            -0.5f, -0.5f, 0.0f, 0.1f, 0.7f, 0.1f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, //
+            0.5f,  -0.5f, 0.0f, 0.1f, 0.7f, 0.1f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, //
+            0.5f,  0.5f,  0.0f, 0.1f, 0.7f, 0.1f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, //
+            -0.5f, 0.5f,  0.0f, 0.1f, 0.7f, 0.1f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, //
         };
         constexpr unsigned int indexes[6] = {0, 1, 2, 2, 3, 0};
         square->add<Mesh>(renderer, vertices, sizeof(vertices), indexes, 6);

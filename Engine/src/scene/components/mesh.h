@@ -15,6 +15,7 @@ struct Mesh {
             {DataType::FLOAT3, "position"},
             {DataType::FLOAT4, "color"},
             {DataType::FLOAT3, "normal"},
+            {DataType::FLOAT2, "texture_coords"},
         });
 
         const Ref<IndexBuffer> index_buffer = renderer->create_index_buffer(indexes, indexes_count);

@@ -30,8 +30,19 @@ std::vector<Model> ModelImporter::import_from_file(const Ref<Renderer>& renderer
         for (unsigned int v = 0; v < mesh->mNumVertices; v++) {
             aiVector3f normal = mesh->mNormals == nullptr ? aiVector3D(0.0f, 1.0f, 0.0f) : mesh->mNormals[v];
 
-            models[i].vertices.push_back(
-                {mesh->mVertices[v].x, mesh->mVertices[v].y, mesh->mVertices[v].z, diffuse_color.r, diffuse_color.g, diffuse_color.b, 1.0f, {normal.x, normal.y, normal.z}});
+            const glm::vec2 texture_coords = mesh->mTextureCoords[0] == nullptr ? glm::vec2() : glm::vec2(mesh->mTextureCoords[0][v].x, mesh->mTextureCoords[0][v].y);
+
+            models[i].vertices.push_back({
+                mesh->mVertices[v].x,
+                mesh->mVertices[v].y,
+                mesh->mVertices[v].z,
+                diffuse_color.r,
+                diffuse_color.g,
+                diffuse_color.b,
+                1.0f,
+                {normal.x, normal.y, normal.z},
+                texture_coords,
+            });
         }
 
         models[i].indexes.reserve(static_cast<size_t>(mesh->mNumFaces) * 3);

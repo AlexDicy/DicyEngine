@@ -5,6 +5,7 @@ struct VertexData {
     float x, y, z;
     float r, g, b, a;
     glm::vec3 normal;
+    glm::vec2 texture_coords;
 };
 
 struct Model {
