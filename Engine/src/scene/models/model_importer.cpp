@@ -21,12 +21,13 @@ std::vector<Model> ModelImporter::import_from_file(const Ref<Renderer>& renderer
 
     std::vector<Model> models(scene->mNumMeshes);
     for (unsigned int i = 0; i < scene->mNumMeshes; i++) {
+        Model* model = &models[i];
         aiMesh* mesh = scene->mMeshes[i];
 
         aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
-        aiColor3D diffuse_color = {1.0f, 1.0f, 1.0f};
-        material->Get(AI_MATKEY_COLOR_DIFFUSE, diffuse_color);
-        models[i].texture = get_texture_from_material(renderer, scene, material, base_path);
+        model->material.albedo = get_texture_from_material(renderer, scene, material, aiTextureType_BASE_COLOR, base_path);
+        model->material.roughness = get_texture_from_material(renderer, scene, material, aiTextureType_DIFFUSE_ROUGHNESS, base_path);
+        model->material.metallic = get_texture_from_material(renderer, scene, material, aiTextureType_METALNESS, base_path);
 
         models[i].vertices.reserve(mesh->mNumVertices);
         for (unsigned int v = 0; v < mesh->mNumVertices; v++) {
@@ -38,10 +39,6 @@ std::vector<Model> ModelImporter::import_from_file(const Ref<Renderer>& renderer
                 mesh->mVertices[v].x,
                 mesh->mVertices[v].y,
                 mesh->mVertices[v].z,
-                diffuse_color.r,
-                diffuse_color.g,
-                diffuse_color.b,
-                1.0f,
                 {normal.x, normal.y, normal.z},
                 texture_coords,
             });
@@ -58,13 +55,13 @@ std::vector<Model> ModelImporter::import_from_file(const Ref<Renderer>& renderer
     return models;
 }
 
-Ref<Texture2D> ModelImporter::get_texture_from_material(const Ref<Renderer>& renderer, const aiScene* scene, const aiMaterial* material, const std::string& base_path) {
-    if (material->GetTextureCount(aiTextureType_DIFFUSE) == 0) {
+Ref<Texture2D> ModelImporter::get_texture_from_material(const Ref<Renderer>& renderer, const aiScene* scene, const aiMaterial* material, const aiTextureType type, const std::string& base_path) {
+    if (material->GetTextureCount(type) == 0) {
         return nullptr;
     }
 
     aiString ai_texture_path;
-    if (material->GetTexture(aiTextureType_DIFFUSE, 0, &ai_texture_path) != AI_SUCCESS) {
+    if (material->GetTexture(type, 0, &ai_texture_path) != AI_SUCCESS) {
         return nullptr;
     }
 

@@ -22,25 +22,25 @@ SceneLayer::SceneLayer(const Application* app) {
         x->add<Transform>(position);
         y->add<Transform>(position);
         z->add<Transform>(position);
-        constexpr float vertices_x[3 * 12] = {
-            0.0f, 0.0f, -0.1f, 0.8f, 0.1f, 0.1f, 0.8f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, //
-            0.0f, 0.0f, 0.1f,  0.8f, 0.1f, 0.1f, 0.8f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, //
-            1.0f, 0.0f, 0.0f,  0.8f, 0.1f, 0.1f, 0.8f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, //
+        constexpr float vertices_x[3 * 8] = {
+            0.0f, 0.0f, -0.1f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, //
+            0.0f, 0.0f, 0.1f,  0.0f, 1.0f, 0.0f, 0.0f, 0.0f, //
+            1.0f, 0.0f, 0.0f,  0.0f, 1.0f, 0.0f, 0.0f, 0.0f, //
         };
-        constexpr float vertices_y[3 * 12] = {
-            -0.1f, 0.0f, 0.0f, 0.1f, 0.1f, 0.8f, 0.8f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, //
-            0.1f,  0.0f, 0.0f, 0.1f, 0.1f, 0.8f, 0.8f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, //
-            0.0f,  1.0f, 0.0f, 0.1f, 0.1f, 0.8f, 0.8f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, //
+        constexpr float vertices_y[3 * 8] = {
+            -0.1f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, //
+            0.1f,  0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, //
+            0.0f,  1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, //
         };
-        constexpr float vertices_z[3 * 12] = {
-            -0.1f, 0.0f, 0.0f, 0.1f, 0.8f, 0.1f, 0.8f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, //
-            0.1f,  0.0f, 0.0f, 0.1f, 0.8f, 0.1f, 0.8f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, //
-            0.0f,  0.0f, 1.0f, 0.1f, 0.8f, 0.1f, 0.8f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, //
+        constexpr float vertices_z[3 * 8] = {
+            -0.1f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, //
+            0.1f,  0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, //
+            0.0f,  0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, //
         };
         constexpr unsigned int indexes[3] = {0, 1, 2};
-        x->add<Mesh>(renderer, vertices_x, sizeof(vertices_x), indexes, 3);
-        y->add<Mesh>(renderer, vertices_y, sizeof(vertices_y), indexes, 3);
-        z->add<Mesh>(renderer, vertices_z, sizeof(vertices_z), indexes, 3);
+        x->add<Mesh>(renderer, vertices_x, sizeof(vertices_x), indexes, 3, Material(renderer->create_texture2d(4, 1, 1, std::array<unsigned char, 4>{204, 24, 24, 204}.data())));
+        y->add<Mesh>(renderer, vertices_y, sizeof(vertices_y), indexes, 3, Material(renderer->create_texture2d(4, 1, 1, std::array<unsigned char, 4>{24, 24, 204, 204}.data())));
+        z->add<Mesh>(renderer, vertices_z, sizeof(vertices_z), indexes, 3, Material(renderer->create_texture2d(4, 1, 1, std::array<unsigned char, 4>{24, 204, 24, 204}.data())));
     }
 
     // camera
@@ -74,8 +74,8 @@ void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
         const Mesh& mesh = meshes_view.get<Mesh>(entity);
 
         const glm::mat4 transform_mat = translate(glm::mat4(1.0f), transform.position) * toMat4(transform.rotation.to_quaternion());
-        if (mesh.texture) {
-            ctx->renderer->draw(mesh.vertex_array, this->shader, scale(transform_mat, transform.scale), this->directional_light, mesh.texture);
+        if (mesh.material.albedo) {
+            ctx->renderer->draw(mesh.vertex_array, this->shader, scale(transform_mat, transform.scale), this->directional_light, mesh.material.albedo);
         } else {
             ctx->renderer->draw(mesh.vertex_array, this->shader, scale(transform_mat, transform.scale), this->directional_light);
         }
@@ -95,8 +95,9 @@ void SceneLayer::load_model(const Ref<Renderer>& renderer, const std::string& pa
     for (const Model& model : models) {
         const VertexData* vertex_data = model.vertices.data();
         auto vertex_data_floats = reinterpret_cast<const float*>(vertex_data);
+        const Material& material = model.material;
         Ref<Entity> entity = this->scene->create_entity();
-        entity->add<Mesh>(renderer, vertex_data_floats, model.vertices.size() * sizeof(VertexData), model.indexes.data(), model.indexes.size(), model.texture);
+        entity->add<Mesh>(renderer, vertex_data_floats, model.vertices.size() * sizeof(VertexData), model.indexes.data(), model.indexes.size(), material);
         entity->add<Transform>(position, rotation, scale);
     }
 }

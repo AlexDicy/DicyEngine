@@ -16,7 +16,7 @@ void OpenGLRenderer::init(const int x, const int y, const uint32_t width, const 
     glEnable(GL_DEPTH_TEST);
     this->set_viewport(x, y, width, height);
     unsigned char white[4] = {255, 255, 255, 255};
-    this->white_pixel_texture = std::make_shared<OpenGLTexture2D>(1, 1, 1, white);
+    this->white_pixel_texture = std::make_shared<OpenGLTexture2D>(3, 1, 1, white);
 }
 
 void OpenGLRenderer::set_viewport(const int x, const int y, const uint32_t width, const uint32_t height) {

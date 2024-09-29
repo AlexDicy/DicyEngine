@@ -1,8 +1,11 @@
 ﻿#pragma once
 
-using RGBColor = glm::vec3;
-
 struct Material {
-    RGBColor ambient_color = {1.0f, 1.0f, 1.0f};
-    RGBColor albedo = {1.0f, 1.0f, 1.0f};
+    Ref<Texture2D> albedo;
+    Ref<Texture2D> roughness;
+    Ref<Texture2D> metallic;
+
+    Material() = default;
+    Material(const Ref<Texture2D>& albedo, const Ref<Texture2D>& roughness, const Ref<Texture2D>& metallic) : albedo(albedo), roughness(roughness), metallic(metallic) {}
+    Material(const Ref<Texture2D>& albedo) : albedo(albedo), roughness(nullptr), metallic(nullptr) {}
 };
