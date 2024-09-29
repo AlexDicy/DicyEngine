@@ -5,6 +5,7 @@
 #include "shader.h"
 #include "texture.h"
 #include "scene/lights/directional_light.h"
+#include "scene/materials/material.h"
 
 enum class RenderAPI { NONE, OPENGL };
 
@@ -36,7 +37,7 @@ public:
     virtual void end_frame() const = 0;
     virtual void clean() const = 0;
     virtual void draw(const Ref<VertexArray>& vertex_array, const Ref<Shader>& shader, const glm::mat4& transform, const Ref<DirectionalLight>& directional_light) const = 0;
-    virtual void draw(const Ref<VertexArray>& vertex_array, const Ref<Shader>& shader, const glm::mat4& transform, const Ref<DirectionalLight>& directional_light, const Ref<Texture>& texture) const = 0;
+    virtual void draw(const Ref<VertexArray>& vertex_array, const Ref<Shader>& shader, const glm::mat4& transform, const Ref<DirectionalLight>& directional_light, const Material& material) const = 0;
 
 protected:
     Ref<Camera> camera;

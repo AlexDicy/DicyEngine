@@ -2,10 +2,9 @@
 
 struct Material {
     Ref<Texture2D> albedo;
-    Ref<Texture2D> roughness;
-    Ref<Texture2D> metallic;
+    Ref<Texture2D> occlusion_roughness_metallic;
 
     Material() = default;
-    Material(const Ref<Texture2D>& albedo, const Ref<Texture2D>& roughness, const Ref<Texture2D>& metallic) : albedo(albedo), roughness(roughness), metallic(metallic) {}
-    Material(const Ref<Texture2D>& albedo) : albedo(albedo), roughness(nullptr), metallic(nullptr) {}
+    Material(const Ref<Texture2D>& albedo, const Ref<Texture2D>& occlusion_roughness_metallic) : albedo(albedo), occlusion_roughness_metallic(occlusion_roughness_metallic) {}
+    Material(const Ref<Texture2D>& albedo) : albedo(albedo), occlusion_roughness_metallic(nullptr) {}
 };
