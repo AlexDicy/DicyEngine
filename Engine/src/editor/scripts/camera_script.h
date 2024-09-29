@@ -15,4 +15,6 @@ public:
 private:
     Ref<Camera> camera;
     Transform* transform;
+    glm::vec3 velocity;
+    bool move_faster;
 };

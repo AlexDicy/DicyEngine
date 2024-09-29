@@ -18,6 +18,7 @@ CameraScript::CameraScript(const Application* app, const Ref<Entity>& entity) : 
     Input::set_action("change_camera", InputCode::KEY_O);
     Input::set_action("move_camera_up", InputCode::KEY_E);
     Input::set_action("move_camera_down", InputCode::KEY_Q);
+    Input::set_action("move_camera_faster", InputCode::KEY_LEFT_SHIFT);
 
     constexpr float sensitivity = 0.16f;
     Input::bind_axis("look_x", [this](const float delta_x) {
@@ -41,36 +42,47 @@ CameraScript::CameraScript(const Application* app, const Ref<Entity>& entity) : 
         renderer->set_camera(this->camera);
         camera_bool = !camera_bool;
     });
+
+    Input::bind_action_pressed("move_camera_faster", [this] {
+        this->move_faster = true;
+    });
+    Input::bind_action_released("move_camera_faster", [this] {
+        this->move_faster = false;
+    });
 }
 
-constexpr float camera_speed = 2.0f;
+constexpr float damping_factor = 10.0f;
+constexpr float base_acceleration = 50.0f;
 
 void CameraScript::on_update(const float delta_time) {
     DE_PROFILE_FUNCTION();
-    const float speed_delta = camera_speed * delta_time;
-    glm::vec3& position = this->transform->position;
+    // slow down
+    this->velocity -= this->velocity * damping_factor * delta_time;
+    // direction
     const float yaw = glm::radians(this->transform->rotation.yaw);
     const auto forward = glm::vec3(sinf(yaw), 0, cosf(yaw));
     const auto right = glm::vec3(forward.z, 0, -forward.x);
 
+    const float acceleration = this->move_faster ? base_acceleration * 2 : base_acceleration;
     if (Input::is_action_pressed("move_left")) {
-        position -= right * speed_delta;
+        this->velocity -= right * acceleration * delta_time;
     }
     if (Input::is_action_pressed("move_right")) {
-        position += right * speed_delta;
+        this->velocity += right * acceleration * delta_time;
     }
     if (Input::is_action_pressed("move_forward")) {
-        position += forward * speed_delta;
+        this->velocity += forward * acceleration * delta_time;
     }
     if (Input::is_action_pressed("move_backward")) {
-        position -= forward * speed_delta;
+        this->velocity -= forward * acceleration * delta_time;
     }
     if (Input::is_action_pressed("move_camera_up")) {
-        position.y += speed_delta;
+        this->velocity.y += acceleration * delta_time;
     }
     if (Input::is_action_pressed("move_camera_down")) {
-        position.y -= speed_delta;
+        this->velocity.y -= acceleration * delta_time;
     }
+    this->transform->position += this->velocity * delta_time;
 
     this->camera->set_position(this->transform->position);
     this->camera->set_rotation(this->transform->rotation);
