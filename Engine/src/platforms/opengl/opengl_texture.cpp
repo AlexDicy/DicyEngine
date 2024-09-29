@@ -12,6 +12,11 @@ OpenGLTexture2D::OpenGLTexture2D(const std::string& path) : path(path) {
     stbi_set_flip_vertically_on_load(true);
     stbi_uc* texture = stbi_load(path.c_str(), &width, &height, &channels, 0);
 
+    if (!texture) {
+        const char* error = stbi_failure_reason();
+        DE_ERROR("Failed to read texture file {0} - {1}", path, error);
+    }
+
     this->width = width;
     this->height = height;
 
