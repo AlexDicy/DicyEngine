@@ -50,7 +50,7 @@ void OpenGLTexture2D::create_texture_with_data(unsigned int channels, unsigned i
     glCreateTextures(GL_TEXTURE_2D, 1, &this->id);
     glTextureStorage2D(this->id, 1, channels > 3 ? GL_RGBA8 : GL_RGB8, width, height);
     glTextureParameteri(this->id, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTextureParameteri(this->id, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTextureParameteri(this->id, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTextureSubImage2D(this->id, 0, 0, 0, width, height, channels > 3 ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, data);
 #else
     glGenTextures(1, &this->id);
