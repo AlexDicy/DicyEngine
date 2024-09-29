@@ -17,6 +17,8 @@ std::vector<Model> ModelImporter::import_from_file(const Ref<Renderer>& renderer
         throw std::runtime_error(importer.GetErrorString());
     }
 
+    std::string base_path = filename.substr(0, filename.find_last_of('/'));
+
     std::vector<Model> models(scene->mNumMeshes);
     for (unsigned int i = 0; i < scene->mNumMeshes; i++) {
         aiMesh* mesh = scene->mMeshes[i];
@@ -24,7 +26,7 @@ std::vector<Model> ModelImporter::import_from_file(const Ref<Renderer>& renderer
         aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
         aiColor3D diffuse_color = {1.0f, 1.0f, 1.0f};
         material->Get(AI_MATKEY_COLOR_DIFFUSE, diffuse_color);
-        models[i].texture = get_texture_from_material(renderer, scene, material);
+        models[i].texture = get_texture_from_material(renderer, scene, material, base_path);
 
         models[i].vertices.reserve(mesh->mNumVertices);
         for (unsigned int v = 0; v < mesh->mNumVertices; v++) {
@@ -56,7 +58,7 @@ std::vector<Model> ModelImporter::import_from_file(const Ref<Renderer>& renderer
     return models;
 }
 
-Ref<Texture2D> ModelImporter::get_texture_from_material(const Ref<Renderer>& renderer, const aiScene* scene, const aiMaterial* material) {
+Ref<Texture2D> ModelImporter::get_texture_from_material(const Ref<Renderer>& renderer, const aiScene* scene, const aiMaterial* material, const std::string& base_path) {
     if (material->GetTextureCount(aiTextureType_DIFFUSE) == 0) {
         return nullptr;
     }
@@ -78,12 +80,12 @@ Ref<Texture2D> ModelImporter::get_texture_from_material(const Ref<Renderer>& ren
         }
         return renderer->create_texture2d(channels, width, height, data);
     }
-    return renderer->create_texture2d(texture_path);
+    return renderer->create_texture2d(base_path + "/" + texture_path);
 }
 
 unsigned char* ModelImporter::decompress_texture(const unsigned char* data, const unsigned int size, unsigned int& channels, unsigned int& width, unsigned int& height) {
     int stbi_width, stbi_height, stbi_channels;
-    stbi_uc* texture = stbi_load_from_memory(data, size, &stbi_width, &stbi_height, &stbi_channels, 0);  // NOLINT(bugprone-narrowing-conversions, cppcoreguidelines-narrowing-conversions)
+    stbi_uc* texture = stbi_load_from_memory(data, size, &stbi_width, &stbi_height, &stbi_channels, 0); // NOLINT(bugprone-narrowing-conversions, cppcoreguidelines-narrowing-conversions)
 
     channels = stbi_channels;
     width = stbi_width;
