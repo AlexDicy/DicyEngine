@@ -13,39 +13,6 @@ SceneLayer::SceneLayer(const Application* app) {
     const Ref<Renderer>& renderer = app->get_renderer();
     this->scene = std::make_shared<Scene>();
 
-    for (int x = -5; x <= 5; x++) {
-        for (int y = -5; y <= 5; y++) {
-            const glm::vec3 position = {x * 5.0f, y * 2.0f, abs(x) * 4.0f};
-            const Rotation rotation = {x * 10.0f, 0.0f, 0.0f};
-            // square
-            {
-                const auto square = this->scene->create_entity();
-                square->add<Transform>(position, rotation);
-                constexpr float vertices[4 * 12] = {
-                    -0.5f, -0.5f, 2.1f, 0.1f, 0.1f, 0.7f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, //
-                    0.5f,  -0.5f, 2.1f, 0.1f, 0.1f, 0.7f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, //
-                    0.5f,  0.5f,  2.1f, 0.1f, 0.1f, 0.7f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, //
-                    -0.5f, 0.5f,  2.1f, 0.1f, 0.1f, 0.7f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, //
-                };
-                constexpr unsigned int indexes[6] = {0, 1, 2, 2, 3, 0};
-                square->add<Mesh>(renderer, vertices, sizeof(vertices), indexes, 6);
-            }
-
-            // triangle
-            {
-                const auto triangle = this->scene->create_entity();
-                triangle->add<Transform>(position, rotation);
-                constexpr float vertices[3 * 12] = {
-                    -0.5f, -0.5f, 2.0f, 0.8f, 0.1f, 0.1f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, //
-                    0.5f,  -0.5f, 2.0f, 0.8f, 0.1f, 0.1f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, //
-                    0.0f,  0.5f,  2.0f, 0.1f, 0.9f, 0.1f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, //
-                };
-                constexpr unsigned int indexes[3] = {0, 1, 2};
-                triangle->add<Mesh>(renderer, vertices, sizeof(vertices), indexes, 3);
-            }
-        }
-    }
-
     // x,y,z indicator
     {
         const auto x = this->scene->create_entity();
@@ -76,72 +43,25 @@ SceneLayer::SceneLayer(const Application* app) {
         z->add<Mesh>(renderer, vertices_z, sizeof(vertices_z), indexes, 3);
     }
 
-    // textured square
-    {
-        Ref<VertexBuffer> vertex_buffer;
-        Ref<IndexBuffer> index_buffer;
-        constexpr float vertices[4 * 12] = {
-            -0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, //
-            0.5f,  -0.5f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, //
-            0.5f,  0.5f,  0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, //
-            -0.5f, 0.5f,  0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, //
-        };
-
-        vertex_buffer = renderer->create_vertex_buffer(vertices, sizeof(vertices));
-
-        vertex_buffer->set_layout({
-            {DataType::FLOAT3, "position"},
-            {DataType::FLOAT4, "color"},
-            {DataType::FLOAT3, "normal"},
-            {DataType::FLOAT2, "texture_coords"},
-        });
-
-        constexpr unsigned int indexes[6] = {0, 1, 2, 2, 3, 0};
-        index_buffer = renderer->create_index_buffer(indexes, 6);
-
-        textured_square_vertex_array = renderer->create_vertex_array(vertex_buffer, index_buffer);
-    }
-
-    // moving square
-    {
-        const auto square = this->scene->create_entity();
-        square->add<Transform>(glm::vec3({0.0f, 0.0f, 4.0f}), Rotation(), glm::vec3(2.46f));
-        constexpr float vertices[4 * 12] = {
-            -0.5f, -0.5f, 0.0f, 0.1f, 0.7f, 0.1f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, //
-            0.5f,  -0.5f, 0.0f, 0.1f, 0.7f, 0.1f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, //
-            0.5f,  0.5f,  0.0f, 0.1f, 0.7f, 0.1f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, //
-            -0.5f, 0.5f,  0.0f, 0.1f, 0.7f, 0.1f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, //
-        };
-        constexpr unsigned int indexes[6] = {0, 1, 2, 2, 3, 0};
-        square->add<Mesh>(renderer, vertices, sizeof(vertices), indexes, 6);
-        square->add<Script>(std::make_shared<MovingSquareScript>(app, square));
-    }
-
     // camera
     this->camera = this->scene->create_entity();
-    this->camera->add<Transform>();
+    this->camera->add<Transform>(glm::vec3(0.0f, 2.0f, 0.0f), Rotation(-15, 0, 0));
     this->camera_script = std::make_shared<CameraScript>(app, this->camera);
     this->camera->add<Script>(camera_script);
 
     this->shader = app->get_shader_registry()->load("../assets/shaders/default-shader");
 
-    this->rgb_texture = renderer->create_texture2d("../assets/dicystudios_rgb.png");
-    this->rgba_texture = renderer->create_texture2d("../assets/dicystudios_rgba.png");
-
-    this->directional_light = std::make_shared<DirectionalLight>(Rotation(-45, 90, 0), 1.0f);
+    this->directional_light = std::make_shared<DirectionalLight>(Rotation(-60, 90, 0), 1.0f);
     Ref<Entity> light_entity = this->scene->create_entity();
     light_entity->add<Script>(std::make_shared<LightScript>(app, light_entity, this->directional_light));
 
     renderer->set_camera(this->camera_script->get_camera());
 
-    std::vector<Model> models = ModelImporter::import_from_file(renderer, "../assets/models/fountain.glb");
-    for (const Model& model : models) {
-        const VertexData* vertex_data = model.vertices.data();
-        auto vertex_data_floats = reinterpret_cast<const float*>(vertex_data);
-        Ref<Entity> entity = this->scene->create_entity();
-        entity->add<Mesh>(renderer, vertex_data_floats, model.vertices.size() * sizeof(VertexData), model.indexes.data(), model.indexes.size(), model.texture);
-        entity->add<Transform>(glm::vec3({0.0f, 0.0f, 4.0f}), Rotation(), glm::vec3(1.2f));
-    }
+    this->load_model(renderer, "../assets/models/sand_rocks/sand_rocks_small_01_1k.gltf", {0.0f, 0.0f, 3.0f});
+    this->load_model(renderer, "../assets/models/fountain.glb", {-4.0f, 0.2f, 4.0f});
+    this->load_model(renderer, "../assets/models/wooden_stool/wooden_stool_02_1k.gltf", {0.0f, 0.0f, 3.0f}, Rotation(), glm::vec3(4.0f));
+    this->load_model(renderer, "../assets/models/covered_car/covered_car_1k.gltf", {2.5f, 0.0f, 3.0f}, Rotation(0, -15, 0));
+    this->load_model(renderer, "../assets/models/picnic_table/wooden_picnic_table_1k.gltf", {0.0f, 0.0f, 6.0f}, Rotation(4, -85, 0));
 }
 
 void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
@@ -161,17 +81,23 @@ void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
         }
     }
 
-    const glm::mat4 square_rgb_transform = translate(glm::mat4(1.0f), {-1.0f, 0.6f, 1.2f});
-    const glm::mat4 square_rgba_transform = translate(glm::mat4(1.0f), {-1.0f, -0.6f, 1.2f});
-    ctx->renderer->draw(this->textured_square_vertex_array, this->shader, square_rgb_transform, this->directional_light, this->rgb_texture);
-    ctx->renderer->draw(this->textured_square_vertex_array, this->shader, square_rgba_transform, this->directional_light, this->rgba_texture);
-
     ctx->renderer->end_frame();
 
     const auto scripts_view = this->scene->get_scripts();
     for (const auto& entity : scripts_view) {
         Script& script = scripts_view.get<Script>(entity);
         script.entity_script->on_update(ctx->delta_time);
+    }
+}
+
+void SceneLayer::load_model(const Ref<Renderer>& renderer, const std::string& path, const glm::vec3 position, const Rotation rotation, const glm::vec3 scale) const {
+    std::vector<Model> models = ModelImporter::import_from_file(renderer, path);
+    for (const Model& model : models) {
+        const VertexData* vertex_data = model.vertices.data();
+        auto vertex_data_floats = reinterpret_cast<const float*>(vertex_data);
+        Ref<Entity> entity = this->scene->create_entity();
+        entity->add<Mesh>(renderer, vertex_data_floats, model.vertices.size() * sizeof(VertexData), model.indexes.data(), model.indexes.size(), model.texture);
+        entity->add<Transform>(position, rotation, scale);
     }
 }
 
