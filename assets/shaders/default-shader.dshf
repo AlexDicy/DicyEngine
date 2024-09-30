@@ -32,22 +32,29 @@ uniform sampler2D u_occlusion_roughness_metallic;
 
 // Trowbridge–Reitz (GGX) distribution
 float distribution_ggx(float NoH, float roughness) {
-    float one_minus_NoH2 = 1.0 - NoH * NoH;
-    float a = NoH * roughness;
-    float k = roughness / (one_minus_NoH2 + a * a);
-    return k * k * (1.0 / PI);
+//    float one_minus_NoH2 = 1.0 - NoH * NoH;
+//    float a = NoH * roughness;
+//    float k = roughness / (one_minus_NoH2 + a * a);
+//    return k * k * (1.0 / PI);
+    float a2 = roughness * roughness;
+    return a2 / max(PI * pow(pow(NoH, 2.0) * (a2 - 1.0) + 1.0, 2.0), 0.000001);
 }
 
-// Schlick geometric shadowing/masking approximation
-float geometry_schlick_ggx(float NoV, float roughness) {
-    float a = roughness * roughness;
-    float k = a / 2.0;
-    return NoV / (NoV * (1.0 - k) + k);
+//// Schlick geometric shadowing/masking approximation
+//float geometry_schlick_ggx(float NoV, float roughness) {
+//    float a = roughness * roughness;
+//    float k = a / 2.0;
+//    return NoV / (NoV * (1.0 - k) + k);
+//}
+
+float G1(float NoV, float roughness) {
+    float k = roughness / 2;
+    return NoV / max(NoV * (1.0 - k) + k, 0.000001);
 }
 
 // Fresnel-Schlick approximation
 vec3 fresnel_schlick(float VoH, vec3 F0) {
-    return F0 + (1.0 - F0) * pow(1.0 - VoH, 5.0);
+    return F0 + (vec3(1.0) - F0) * pow(1.0 - VoH, 5.0);
 }
 
 void main() {
@@ -58,9 +65,9 @@ void main() {
     float metallic = occlusion_roughness_metallic.b;
 
     vec3 N = normalize(v_normal);
-    vec3 L = normalize(-u_directional_light.direction);
     vec3 V = normalize(u_camera_position_local - v_position);
-    vec3 H = normalize(L + V);
+    vec3 L = normalize(-u_directional_light.direction);
+    vec3 H = normalize(V + L);
 
     float NoV = max(dot(N, V), 0.0);
     float NoL = max(dot(N, L), 0.0);
@@ -71,12 +78,15 @@ void main() {
     vec3 F0 = mix(vec3(0.04), albedo.rgb, metallic);
     vec3 F = fresnel_schlick(VoH, F0);
     float D = distribution_ggx(NoH, roughness);
-    float G = geometry_schlick_ggx(NoV, roughness) * geometry_schlick_ggx(NoL, roughness);
-    
-    vec3 diffuse = (1.0 - F) * albedo.rgb / PI;
-    vec3 specular = F * G * D / (4.0 * NoV * NoL);
+//    float G = geometry_schlick_ggx(NoV, roughness) * geometry_schlick_ggx(NoL, roughness);
+    float G = G1(NoV, roughness) * G1(NoL, roughness);
 
-    vec3 direct = (diffuse + specular) * u_directional_light.color * u_directional_light.intensity * NoL;
+    vec3 kd = (vec3(1.0) - F) * (1.0 - metallic);
+    vec3 diffuse = kd * albedo.rgb / PI;
+    vec3 specular = F * G * D / (4.0 * NoV * NoL);
+    vec3 brdf = diffuse + specular;
+
+    vec3 direct = brdf * u_directional_light.color * u_directional_light.intensity * NoL;
 
     // TODO use occlusion
     color = vec4(direct, albedo.a);
