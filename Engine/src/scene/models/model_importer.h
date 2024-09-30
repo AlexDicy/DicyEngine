@@ -2,10 +2,10 @@
 #include "model.h"
 #include "scene/entities/entity.h"
 
+#include <assimp/material.h>
 
-struct aiMaterial;
+
 struct aiScene;
-enum aiTextureType : int;
 
 class ModelImporter {
 public:
