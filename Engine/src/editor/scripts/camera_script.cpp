@@ -57,31 +57,38 @@ constexpr float base_acceleration = 50.0f;
 void CameraScript::on_update(const float delta_time) {
     DE_PROFILE_FUNCTION();
     // slow down
-    this->velocity -= this->velocity * damping_factor * delta_time;
+    this->velocity *= std::max(0.0f, 1.0f - damping_factor * delta_time);
     // direction
     const float yaw = glm::radians(this->transform->rotation.yaw);
-    const auto forward = glm::vec3(sinf(yaw), 0, cosf(yaw));
-    const auto right = glm::vec3(forward.z, 0, -forward.x);
+    const auto forward = glm::vec3(sinf(yaw), 0.0f, cosf(yaw));
+    const auto right = glm::vec3(forward.z, 0.0f, -forward.x);
 
-    const float acceleration = this->move_faster ? base_acceleration * 2 : base_acceleration;
+    glm::vec3 movement_direction(0.0f);
+
     if (Input::is_action_pressed("move_left")) {
-        this->velocity -= right * acceleration * delta_time;
+        movement_direction -= right;
     }
     if (Input::is_action_pressed("move_right")) {
-        this->velocity += right * acceleration * delta_time;
+        movement_direction += right;
     }
     if (Input::is_action_pressed("move_forward")) {
-        this->velocity += forward * acceleration * delta_time;
+        movement_direction += forward;
     }
     if (Input::is_action_pressed("move_backward")) {
-        this->velocity -= forward * acceleration * delta_time;
+        movement_direction -= forward;
     }
     if (Input::is_action_pressed("move_camera_up")) {
-        this->velocity.y += acceleration * delta_time;
+        movement_direction.y += 1.0f;
     }
     if (Input::is_action_pressed("move_camera_down")) {
-        this->velocity.y -= acceleration * delta_time;
+        movement_direction.y -= 1.0f;
     }
+
+    if (length(movement_direction) > 0.0f) {
+        const float acceleration = this->move_faster ? base_acceleration * 2.0f : base_acceleration;
+        this->velocity += normalize(movement_direction) * acceleration * delta_time;
+    }
+
     this->transform->position += this->velocity * delta_time;
 
     this->camera->set_position(this->transform->position);
