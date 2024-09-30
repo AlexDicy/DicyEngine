@@ -21,6 +21,6 @@ struct Rotation {
 
     glm::vec3 to_direction() const {
         const glm::quat quaternion = this->to_quaternion();
-        return normalize(glm::vec3(quaternion * glm::vec4(0.0f, 0.0f, 1.0f, 0.0f)));
+        return normalize(quaternion * glm::vec3(0.0f, 0.0f, 1.0f));
     }
 };

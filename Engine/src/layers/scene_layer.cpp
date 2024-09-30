@@ -18,7 +18,7 @@ SceneLayer::SceneLayer(const Application* app) {
         const auto x = this->scene->create_entity();
         const auto y = this->scene->create_entity();
         const auto z = this->scene->create_entity();
-        constexpr glm::vec3 position = {0.0f, -1.0f, 1.2f};
+        constexpr glm::vec3 position = {0.0f, 0.0f, 0.0f};
         x->add<Transform>(position);
         y->add<Transform>(position);
         z->add<Transform>(position);
@@ -54,6 +54,16 @@ SceneLayer::SceneLayer(const Application* app) {
     this->directional_light = std::make_shared<DirectionalLight>(Rotation(-60, 90, 0), 1.0f);
     Ref<Entity> light_entity = this->scene->create_entity();
     light_entity->add<Script>(std::make_shared<LightScript>(app, light_entity, this->directional_light));
+    light_entity->add<Transform>();
+    constexpr float light_vertices[4 * 8] = {
+        -0.2f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, //
+        0.2f,  -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, //
+        0.2f,  0.5f,  0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, //
+        -0.2f,  0.5f,  0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, //
+    };
+    constexpr unsigned int indexes[6] = {0, 1, 2, 2, 3, 0};
+    light_entity->add<Mesh>(renderer, light_vertices, sizeof(light_vertices), indexes, 6,
+                            Material(renderer->create_texture2d(4, 1, 1, std::array<unsigned char, 4>{255, 255, 255, 220}.data())));
 
     renderer->set_camera(this->camera_script->get_camera());
 

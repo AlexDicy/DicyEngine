@@ -9,4 +9,9 @@ void LightScript::on_update(const float delta_time) {
     DE_PROFILE_FUNCTION();
     const float speed_delta = rotation_speed * delta_time;
     this->light->get_rotation().yaw += speed_delta;
+
+    const Rotation rotation = this->light->get_rotation();
+    const glm::vec3 direction = rotation.to_direction();
+    this->get_component<Transform>().position = direction * glm::vec3(0.0f, 1.0f, 0.0f) + glm::vec3(0.0f, 4.0f, 4.0f);
+    this->get_component<Transform>().rotation = Rotation(-rotation.pitch, rotation.yaw, -rotation.roll);
 }
