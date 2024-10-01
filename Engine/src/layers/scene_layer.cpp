@@ -111,7 +111,10 @@ void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
         const Transform& transform = meshes_view.get<Transform>(entity);
         const Mesh& mesh = meshes_view.get<Mesh>(entity);
 
-        const glm::mat4 transform_mat = scale(translate(mesh.transformation_matrix, transform.position) * toMat4(transform.rotation.to_quaternion()), transform.scale);
+        const glm::mat4 translation_mat = translate(glm::mat4(1.0f), transform.position);
+        const glm::mat4 rotation_mat = toMat4(transform.rotation.to_quaternion());
+        const glm::mat4 scale_mat = scale(translation_mat * rotation_mat, transform.scale);
+        const glm::mat4 transform_mat = scale_mat * mesh.transformation_matrix;
         if (mesh.material.albedo) {
             ctx->renderer->draw(mesh.vertex_array, this->shader, transform_mat, this->directional_light, mesh.material);
         } else {
