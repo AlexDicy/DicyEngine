@@ -10,5 +10,6 @@ struct VertexData {
 struct Model {
     std::vector<VertexData> vertices;
     std::vector<unsigned int> indexes;
+    glm::mat4 transformation_matrix;
     Material material;
 };

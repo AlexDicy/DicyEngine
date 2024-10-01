@@ -19,9 +19,16 @@ std::vector<Model> ModelImporter::import_from_file(const Ref<Renderer>& renderer
 
     std::string base_path = filename.substr(0, filename.find_last_of('/'));
 
+    aiMatrix4x4 ai_tm = scene->mRootNode->mTransformation;
+    glm::mat4 root_transformation = glm::mat4(ai_tm.a1, ai_tm.b1, ai_tm.c1, ai_tm.d1, //
+                                                    ai_tm.a2, ai_tm.b2, ai_tm.c2, ai_tm.d2, //
+                                                    ai_tm.a3, ai_tm.b3, ai_tm.c3, ai_tm.d3, //
+                                                    ai_tm.a4, ai_tm.b4, ai_tm.c4, ai_tm.d4);
+
     std::vector<Model> models(scene->mNumMeshes);
     for (unsigned int i = 0; i < scene->mNumMeshes; i++) {
         Model* model = &models[i];
+        model->transformation_matrix = root_transformation;
         aiMesh* mesh = scene->mMeshes[i];
 
         aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];

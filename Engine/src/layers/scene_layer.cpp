@@ -74,6 +74,16 @@ SceneLayer::SceneLayer(const Application* app) {
     this->load_model(renderer, "../assets/models/covered_car/covered_car_1k.gltf", {2.5f, 0.0f, 3.0f}, Rotation(0, -15, 0));
     this->load_model(renderer, "../assets/models/picnic_table/wooden_picnic_table_1k.gltf", {0.0f, 0.0f, 6.0f}, Rotation(4, -85, 0));
 
+    {
+        Model model = ModelImporter::import_from_file(renderer, "../assets/models/lamp.glb")[0];
+        const VertexData* vertex_data = model.vertices.data();
+        auto vertex_data_floats = reinterpret_cast<const float*>(vertex_data);
+        Ref<Entity> entity = this->scene->create_entity();
+        entity->add<Mesh>(renderer, vertex_data_floats, model.vertices.size() * sizeof(VertexData), model.indexes.data(), model.indexes.size(), model.material,
+                          model.transformation_matrix);
+        entity->add<Transform>(glm::vec3(0.0, 6.0f, 0.0f), Rotation(), glm::vec3(1.0f));
+    }
+
     for (int x = 0; x < 10; x++) {
         for (int z = 0; z < 10; z++) {
             const float x_pos = -5.0f + x;
@@ -101,11 +111,11 @@ void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
         const Transform& transform = meshes_view.get<Transform>(entity);
         const Mesh& mesh = meshes_view.get<Mesh>(entity);
 
-        const glm::mat4 transform_mat = translate(glm::mat4(1.0f), transform.position) * toMat4(transform.rotation.to_quaternion());
+        const glm::mat4 transform_mat = scale(translate(mesh.transformation_matrix, transform.position) * toMat4(transform.rotation.to_quaternion()), transform.scale);
         if (mesh.material.albedo) {
-            ctx->renderer->draw(mesh.vertex_array, this->shader, scale(transform_mat, transform.scale), this->directional_light, mesh.material);
+            ctx->renderer->draw(mesh.vertex_array, this->shader, transform_mat, this->directional_light, mesh.material);
         } else {
-            ctx->renderer->draw(mesh.vertex_array, this->shader, scale(transform_mat, transform.scale), this->directional_light);
+            ctx->renderer->draw(mesh.vertex_array, this->shader, transform_mat, this->directional_light);
         }
     }
 
@@ -125,7 +135,8 @@ void SceneLayer::load_model(const Ref<Renderer>& renderer, const std::string& pa
         auto vertex_data_floats = reinterpret_cast<const float*>(vertex_data);
         const Material& material = model.material;
         Ref<Entity> entity = this->scene->create_entity();
-        entity->add<Mesh>(renderer, vertex_data_floats, model.vertices.size() * sizeof(VertexData), model.indexes.data(), model.indexes.size(), material);
+        entity->add<Mesh>(renderer, vertex_data_floats, model.vertices.size() * sizeof(VertexData), model.indexes.data(), model.indexes.size(), material,
+                          model.transformation_matrix);
         entity->add<Transform>(position, rotation, scale);
     }
 }

@@ -6,11 +6,13 @@
 struct Mesh {
     Ref<VertexArray> vertex_array;
     Material material;
+    glm::mat4 transformation_matrix;
 
-    Mesh(const Ref<Renderer>& renderer, const float* vertices, const size_t vertices_size, const uint32_t* indexes, const uint32_t indexes_count, const Material& material) {
+    Mesh(const Ref<Renderer>& renderer, const float* vertices, const size_t vertices_size, const uint32_t* indexes, const uint32_t indexes_count, const Material& material, const glm::mat4& transformation_matrix = glm::mat4(1.0f)) {
         this->material = material;
-        const Ref<VertexBuffer> vertex_buffer = renderer->create_vertex_buffer(vertices, static_cast<uint32_t>(vertices_size));
+        this->transformation_matrix = transformation_matrix;
 
+        const Ref<VertexBuffer> vertex_buffer = renderer->create_vertex_buffer(vertices, static_cast<uint32_t>(vertices_size));
         vertex_buffer->set_layout({
             {DataType::FLOAT3, "position"},
             {DataType::FLOAT3, "normal"},
