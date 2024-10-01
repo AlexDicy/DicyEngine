@@ -52,9 +52,10 @@ SceneLayer::SceneLayer(const Application* app) {
 
     this->shader = app->get_shader_registry()->load("../assets/shaders/default-shader");
 
-    this->directional_light = std::make_shared<DirectionalLight>(Rotation(-90, 90, 0), 1.0f);
+    this->directional_light = std::make_shared<DirectionalLight>(Rotation(-20, 90, 0), 1.0f);
     Ref<Entity> light_entity = this->scene->create_entity();
-    light_entity->add<Script>(std::make_shared<LightScript>(app, light_entity, this->directional_light));
+    Ref<Entity> light_mesh_entity = this->scene->create_entity();
+    light_entity->add<Script>(std::make_shared<LightScript>(app, light_entity, this->directional_light, light_mesh_entity));
     light_entity->add<Transform>();
     constexpr float light_vertices[4 * 8] = {
         -0.2f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, //
@@ -78,25 +79,26 @@ SceneLayer::SceneLayer(const Application* app) {
         Model model = ModelImporter::import_from_file(renderer, "../assets/models/lamp.glb")[0];
         const VertexData* vertex_data = model.vertices.data();
         auto vertex_data_floats = reinterpret_cast<const float*>(vertex_data);
-        Ref<Entity> entity = this->scene->create_entity();
-        entity->add<Mesh>(renderer, vertex_data_floats, model.vertices.size() * sizeof(VertexData), model.indexes.data(), model.indexes.size(), model.material,
-                          model.transformation_matrix);
-        entity->add<Transform>(glm::vec3(0.0, 6.0f, 0.0f), Rotation(), glm::vec3(1.0f));
+        light_mesh_entity->add<Mesh>(renderer, vertex_data_floats, model.vertices.size() * sizeof(VertexData), model.indexes.data(), model.indexes.size(), model.material,
+                                     model.transformation_matrix);
+        light_mesh_entity->add<Transform>(glm::vec3(0.0, 3.0f, 0.0f), Rotation(), glm::vec3(1.0f));
     }
 
     for (int x = 0; x < 10; x++) {
         for (int z = 0; z < 10; z++) {
-            const float x_pos = -5.0f + x;
-            const float z_pos = -5.0f + z;
+            const float x_pos = -5.0f + x + 0.5f;
+            const float z_pos = -5.0f + z + 0.5f;
             std::vector<Model> models = ModelImporter::import_from_file(renderer, "../assets/models/sphere.glb");
             for (const Model& model : models) {
                 const VertexData* vertex_data = model.vertices.data();
                 auto vertex_data_floats = reinterpret_cast<const float*>(vertex_data);
+                unsigned char roughness = static_cast<unsigned char>(static_cast<float>(10 - x) / 10 * 255.0f);
+                unsigned char metallic = static_cast<unsigned char>(static_cast<float>(10 - z) / 10 * 255.0f);
                 Material material(renderer->create_texture2d(4, 1, 1, std::array<unsigned char, 4>{250, 40, 40, 255}.data()),
-                                  renderer->create_texture2d(3, 1, 1, std::array<unsigned char, 3>{255, 128, 0}.data()));
+                                  renderer->create_texture2d(3, 1, 1, std::array<unsigned char, 3>{255, roughness, metallic}.data()));
                 Ref<Entity> entity = this->scene->create_entity();
-                entity->add<Mesh>(renderer, vertex_data_floats, model.vertices.size() * sizeof(VertexData), model.indexes.data(), model.indexes.size(), material);
-                entity->add<Transform>(glm::vec3(x_pos, 4.0f, z_pos), Rotation(), glm::vec3(0.01f));
+                entity->add<Mesh>(renderer, vertex_data_floats, model.vertices.size() * sizeof(VertexData), model.indexes.data(), model.indexes.size(), material, model.transformation_matrix);
+                entity->add<Transform>(glm::vec3(x_pos, 4.0f, z_pos), Rotation(), glm::vec3(0.4f));
             }
         }
     }
