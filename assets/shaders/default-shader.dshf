@@ -76,13 +76,12 @@ void main() {
     float D = distribution_ggx(NoH, roughness2);
     float G = geometry_schlick_ggx(NoV, roughness) * geometry_schlick_ggx(NoL, roughness);
 
-    vec3 kd = (vec3(1.0) - F) * (1.0 - metallic);
-    vec3 diffuse = kd * albedo.rgb / PI;
-    vec3 specular = F * G * D / (4.0 * NoV * NoL);
+    vec3 kd = (1.0 - F) * (1.0 - metallic);
+    vec3 diffuse = kd * albedo.rgb / PI; // lambert brdf
+    vec3 specular = F * G * D / (4.0 * NoV * NoL); // cook-torrance brdf
     vec3 brdf = diffuse + specular;
 
     vec3 direct = brdf * u_directional_light.color * u_directional_light.intensity * NoL;
 
-    // TODO use occlusion
     color = vec4(direct * occlusion, albedo.a);
 }

@@ -52,7 +52,7 @@ SceneLayer::SceneLayer(const Application* app) {
 
     this->shader = app->get_shader_registry()->load("../assets/shaders/default-shader");
 
-    this->directional_light = std::make_shared<DirectionalLight>(Rotation(-20, 90, 0), 1.0f);
+    this->directional_light = std::make_shared<DirectionalLight>(Rotation(-70, 90, 0), 1.0f);
     Ref<Entity> light_entity = this->scene->create_entity();
     Ref<Entity> light_mesh_entity = this->scene->create_entity();
     light_entity->add<Script>(std::make_shared<LightScript>(app, light_entity, this->directional_light, light_mesh_entity));
