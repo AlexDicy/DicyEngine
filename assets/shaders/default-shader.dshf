@@ -34,24 +34,17 @@ uniform sampler2D u_occlusion_roughness_metallic;
 
 // Trowbridge–Reitz (GGX) distribution
 float distribution_ggx(float NoH, float roughness2) {
-//    float one_minus_NoH2 = 1.0 - NoH * NoH;
-//    float a = NoH * roughness;
-//    float k = roughness / (one_minus_NoH2 + a * a);
-//    return k * k * (1.0 / PI);
-    float a2 = roughness2 * roughness2;
-    return a2 / max(PI * pow(pow(NoH, 2.0) * (a2 - 1.0) + 1.0, 2.0), 1e-5);
+    float one_minus_NoH2 = 1.0 - NoH * NoH;
+    float a = NoH * roughness2;
+    float k = roughness2 / (one_minus_NoH2 + a * a);
+    return k * k * (1.0 / PI);
 }
 
-//// Schlick geometric shadowing/masking approximation
-//float geometry_schlick_ggx(float NoV, float roughness) {
-//    float a = roughness * roughness;
-//    float k = a / 2.0;
-//    return NoV / (NoV * (1.0 - k) + k);
-//}
-
-float G1(float NoV, float roughness2) {
-    float k = roughness2 / 2;
-    return NoV / max(NoV * (1.0 - k) + k, 1e-5);
+// Schlick geometric shadowing/masking approximation
+float geometry_schlick_ggx(float NoV, float roughness) {
+    float a = roughness * roughness;
+    float k = a / 2.0;
+    return NoV / (NoV * (1.0 - k) + k);
 }
 
 // Fresnel-Schlick approximation
@@ -81,8 +74,7 @@ void main() {
     vec3 F0 = mix(vec3(0.04), albedo.rgb, metallic);
     vec3 F = fresnel_schlick(VoH, F0);
     float D = distribution_ggx(NoH, roughness2);
-//    float G = geometry_schlick_ggx(NoV, roughness) * geometry_schlick_ggx(NoL, roughness);
-    float G = G1(NoV, roughness2) * G1(NoL, roughness2);
+    float G = geometry_schlick_ggx(NoV, roughness) * geometry_schlick_ggx(NoL, roughness);
 
     vec3 kd = (vec3(1.0) - F) * (1.0 - metallic);
     vec3 diffuse = kd * albedo.rgb / PI;
