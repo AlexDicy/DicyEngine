@@ -84,20 +84,21 @@ SceneLayer::SceneLayer(const Application* app) {
         light_mesh_entity->add<Transform>(glm::vec3(0.0, 3.0f, 0.0f), Rotation(), glm::vec3(1.0f));
     }
 
+    std::vector<Model> sphere_models = ModelImporter::import_from_file(renderer, "../assets/models/sphere.glb");
     for (int x = 0; x < 10; x++) {
         for (int z = 0; z < 10; z++) {
             const float x_pos = -5.0f + x + 0.5f;
             const float z_pos = -5.0f + z + 0.5f;
-            std::vector<Model> models = ModelImporter::import_from_file(renderer, "../assets/models/sphere.glb");
-            for (const Model& model : models) {
+            for (const Model& model : sphere_models) {
                 const VertexData* vertex_data = model.vertices.data();
                 auto vertex_data_floats = reinterpret_cast<const float*>(vertex_data);
-                unsigned char roughness = static_cast<unsigned char>(static_cast<float>(10 - x) / 10 * 255.0f);
-                unsigned char metallic = static_cast<unsigned char>(static_cast<float>(10 - z) / 10 * 255.0f);
+                unsigned char roughness = static_cast<unsigned char>(static_cast<float>(9 - x) / 9 * 255.0f);
+                unsigned char metallic = static_cast<unsigned char>(static_cast<float>(9 - z) / 9 * 255.0f);
                 Material material(renderer->create_texture2d(4, 1, 1, std::array<unsigned char, 4>{250, 40, 40, 255}.data()),
                                   renderer->create_texture2d(3, 1, 1, std::array<unsigned char, 3>{255, roughness, metallic}.data()));
                 Ref<Entity> entity = this->scene->create_entity();
-                entity->add<Mesh>(renderer, vertex_data_floats, model.vertices.size() * sizeof(VertexData), model.indexes.data(), model.indexes.size(), material, model.transformation_matrix);
+                entity->add<Mesh>(renderer, vertex_data_floats, model.vertices.size() * sizeof(VertexData), model.indexes.data(), model.indexes.size(), material,
+                                  model.transformation_matrix);
                 entity->add<Transform>(glm::vec3(x_pos, 4.0f, z_pos), Rotation(), glm::vec3(0.4f));
             }
         }
