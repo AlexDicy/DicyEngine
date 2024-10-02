@@ -63,12 +63,16 @@ void main() {
     vec3 V = normalize(u_camera_position_local - v_position);
     vec3 L = normalize(-u_directional_light.direction);
     vec3 H = normalize(V + L);
+    #if defined(DEBUG_WHITE_FURNACE) || 1
+    H = normalize(V + N);
+    L = N;
+    #endif
 
     float NoV = max(dot(N, V), 1e-5);
     float NoL = saturate(dot(N, L));
     float NoH = saturate(dot(N, H));
     float VoH = saturate(dot(V, H));
-    float roughness2 = clamp(roughness * roughness, 1e-5, 1.0);
+    float roughness2 = clamp(roughness * roughness, 1e-3, 1.0);
 
     // F0 is calculated using the IOR (index of refraction), we approximate it to 0.04 for non-metals and use the albedo for metals
     vec3 F0 = mix(vec3(0.04), albedo.rgb, metallic);
@@ -78,7 +82,7 @@ void main() {
 
     vec3 kd = (1.0 - F) * (1.0 - metallic);
     vec3 diffuse = kd * albedo.rgb / PI; // lambert brdf
-    vec3 specular = F * G * D / (4.0 * NoV * NoL); // cook-torrance brdf
+    vec3 specular = F * G * D / max(4.0 * NoV * NoL, 0.0001); // cook-torrance brdf
     vec3 brdf = diffuse + specular;
 
     vec3 direct = brdf * u_directional_light.color * u_directional_light.intensity * NoL;
