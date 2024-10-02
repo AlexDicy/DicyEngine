@@ -27,4 +27,5 @@ public:
 private:
     Ref<Framebuffer> framebuffer;
     Ref<OpenGLTexture2D> white_pixel_texture;
+    Ref<OpenGLTexture2D> default_occlusion_roughness_metallic_texture;
 };

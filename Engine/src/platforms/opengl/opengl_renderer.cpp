@@ -16,7 +16,8 @@ void OpenGLRenderer::init(const int x, const int y, const uint32_t width, const 
     glEnable(GL_DEPTH_TEST);
     this->set_viewport(x, y, width, height);
     unsigned char white[4] = {255, 255, 255, 255};
-    this->white_pixel_texture = std::make_shared<OpenGLTexture2D>(3, 1, 1, white);
+    this->white_pixel_texture = std::make_shared<OpenGLTexture2D>(1, 1, 1, white);
+    this->default_occlusion_roughness_metallic_texture = std::make_shared<OpenGLTexture2D>(3, 1, 1, std::array<unsigned char, 3>{255, 255, 0}.data());
 }
 
 void OpenGLRenderer::set_viewport(const int x, const int y, const uint32_t width, const uint32_t height) {
@@ -85,11 +86,13 @@ void OpenGLRenderer::draw(const Ref<VertexArray>& vertex_array, const Ref<Shader
     // texture
     int texture_slot = 0;
     material.albedo->bind(texture_slot);
-    shader->upload_uniform_int("u_albedo", texture_slot);
+    shader->upload_uniform_int("u_albedo", texture_slot++);
     if (material.occlusion_roughness_metallic) {
-        material.occlusion_roughness_metallic->bind(++texture_slot);
-        shader->upload_uniform_int("u_occlusion_roughness_metallic", texture_slot);
+        material.occlusion_roughness_metallic->bind(texture_slot);
+    } else {
+        this->default_occlusion_roughness_metallic_texture->bind(texture_slot);
     }
+    shader->upload_uniform_int("u_occlusion_roughness_metallic", texture_slot);
     // lights
     shader->upload_uniform_vec3("u_material.ambient_color", {1.0f, 1.0f, 1.0f});
     shader->upload_uniform_vec3("u_ambient_light.color", {1.0f, 1.0f, 1.0f});
