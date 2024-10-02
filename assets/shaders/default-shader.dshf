@@ -74,7 +74,7 @@ void main() {
     vec3 F0 = mix(vec3(0.04), albedo.rgb, metallic);
     vec3 F = fresnel_schlick(VoH, F0);
     float D = distribution_ggx(NoH, roughness2);
-    float G = geometry_schlick_ggx(NoV, roughness) * geometry_schlick_ggx(NoL, roughness);
+    float G = geometry_schlick_ggx(NoV, roughness2) * geometry_schlick_ggx(NoL, roughness2);
 
     vec3 kd = (1.0 - F) * (1.0 - metallic);
     vec3 diffuse = kd * albedo.rgb / PI; // lambert brdf
