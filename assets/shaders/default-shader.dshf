@@ -63,7 +63,7 @@ void main() {
     vec3 V = normalize(u_camera_position_local - v_position);
     vec3 L = normalize(-u_directional_light.direction);
     vec3 H = normalize(V + L);
-    #if defined(DEBUG_WHITE_FURNACE) || 1
+    #if defined(DEBUG_WHITE_FURNACE)
     H = normalize(V + N);
     L = N;
     #endif

@@ -52,8 +52,7 @@ SceneLayer::SceneLayer(const Application* app) {
 
     this->shader = app->get_shader_registry()->load("../assets/shaders/default-shader");
 
-    // this->directional_light = std::make_shared<DirectionalLight>(Rotation(-70, 90, 0), 1.0f);
-    this->directional_light = std::make_shared<DirectionalLight>(Rotation(-90, 90, 0), 2.86f);
+    this->directional_light = std::make_shared<DirectionalLight>(Rotation(-70, 90, 0), 2.86f);
     Ref<Entity> light_entity = this->scene->create_entity();
     Ref<Entity> light_mesh_entity = this->scene->create_entity();
     light_entity->add<Script>(std::make_shared<LightScript>(app, light_entity, this->directional_light, light_mesh_entity));
@@ -75,7 +74,6 @@ SceneLayer::SceneLayer(const Application* app) {
     this->load_model(renderer, "../assets/models/wooden_stool/wooden_stool_02_1k.gltf", {0.0f, 0.0f, 3.0f}, Rotation(), glm::vec3(4.0f));
     this->load_model(renderer, "../assets/models/covered_car/covered_car_1k.gltf", {2.5f, 0.0f, 3.0f}, Rotation(0, -15, 0));
     this->load_model(renderer, "../assets/models/picnic_table/wooden_picnic_table_1k.gltf", {0.0f, 0.0f, 6.0f}, Rotation(4, -85, 0));
-    this->load_model(renderer, "../assets/models/white_square.glb", {0.0f, 3.0f, 0.0f}, Rotation(), glm::vec3(0.4f));
 
     {
         Model model = ModelImporter::import_from_file(renderer, "../assets/models/lamp.glb")[0];
@@ -96,8 +94,7 @@ SceneLayer::SceneLayer(const Application* app) {
                 auto vertex_data_floats = reinterpret_cast<const float*>(vertex_data);
                 unsigned char roughness = static_cast<unsigned char>(static_cast<float>(9 - x) / 9 * 255.0f);
                 unsigned char metallic = static_cast<unsigned char>(static_cast<float>(9 - z) / 9 * 255.0f);
-                // Material material(renderer->create_texture2d(4, 1, 1, std::array<unsigned char, 4>{250, 40, 40, 255}.data()),
-                Material material(renderer->create_texture2d(4, 1, 1, std::array<unsigned char, 4>{255, 255, 255, 255}.data()),
+                Material material(renderer->create_texture2d(4, 1, 1, std::array<unsigned char, 4>{250, 40, 40, 255}.data()),
                                   renderer->create_texture2d(3, 1, 1, std::array<unsigned char, 3>{255, roughness, metallic}.data()));
                 Ref<Entity> entity = this->scene->create_entity();
                 entity->add<Mesh>(renderer, vertex_data_floats, model.vertices.size() * sizeof(VertexData), model.indexes.data(), model.indexes.size(), material,
