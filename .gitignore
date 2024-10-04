@@ -1,4 +1,5 @@
 .idea/
+*.iml
 
 # xmake
 .xmake/
@@ -13,3 +14,12 @@ vsxmake20*/*
 .DS_Store
 
 imgui.ini
+
+scripting/.gradle
+scripting/**/build/
+scripting/!src/**/build/
+scripting/!gradle-wrapper.jar
+scripting/!gradle-wrapper.properties
+scripting/.gradletasknamecache
+scripting/.project
+scripting/.classpath
