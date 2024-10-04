@@ -23,10 +23,10 @@ struct DirectionalLight {
 
 uniform vec3 u_camera_position_local;
 uniform Material u_material;
-uniform AmbientLight u_ambient_light;
-uniform DirectionalLight u_directional_light;
 uniform sampler2D u_albedo;
 uniform sampler2D u_occlusion_roughness_metallic;
+uniform AmbientLight u_ambient_light;
+uniform DirectionalLight u_directional_light;
 
 #define PI 3.14159265359
 
