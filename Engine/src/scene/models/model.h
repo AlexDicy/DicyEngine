@@ -3,7 +3,6 @@
 
 struct VertexData {
     float x, y, z;
-    float r, g, b, a;
     glm::vec3 normal;
     glm::vec2 texture_coords;
 };
@@ -11,6 +10,6 @@ struct VertexData {
 struct Model {
     std::vector<VertexData> vertices;
     std::vector<unsigned int> indexes;
+    glm::mat4 transformation_matrix;
     Material material;
-    Ref<Texture2D> texture;
 };

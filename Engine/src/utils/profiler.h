@@ -9,7 +9,7 @@ namespace DE::Profiling {
     class Profiler {
     public:
         void save_function_time(const char* name, const long duration) {
-            this->timings.push_back({name, duration});
+            this->timings.emplace_back(name, duration);
         }
 
         const std::vector<ProfilerResult>& get_timings() {

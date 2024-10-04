@@ -19,14 +19,22 @@ std::vector<Model> ModelImporter::import_from_file(const Ref<Renderer>& renderer
 
     std::string base_path = filename.substr(0, filename.find_last_of('/'));
 
+    aiMatrix4x4 ai_tm = scene->mRootNode->mTransformation;
+    glm::mat4 root_transformation = glm::mat4(ai_tm.a1, ai_tm.b1, ai_tm.c1, ai_tm.d1, //
+                                              ai_tm.a2, ai_tm.b2, ai_tm.c2, ai_tm.d2, //
+                                              ai_tm.a3, ai_tm.b3, ai_tm.c3, ai_tm.d3, //
+                                              ai_tm.a4, ai_tm.b4, ai_tm.c4, ai_tm.d4);
+
     std::vector<Model> models(scene->mNumMeshes);
     for (unsigned int i = 0; i < scene->mNumMeshes; i++) {
+        Model* model = &models[i];
+        model->transformation_matrix = root_transformation;
         aiMesh* mesh = scene->mMeshes[i];
 
         aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
-        aiColor3D diffuse_color = {1.0f, 1.0f, 1.0f};
-        material->Get(AI_MATKEY_COLOR_DIFFUSE, diffuse_color);
-        models[i].texture = get_texture_from_material(renderer, scene, material, base_path);
+        model->material.albedo = get_texture_from_material(renderer, scene, material, aiTextureType_BASE_COLOR, base_path);
+        // might have to load the 3 channels separately depending on the file format
+        model->material.occlusion_roughness_metallic = get_texture_from_material(renderer, scene, material, aiTextureType_DIFFUSE_ROUGHNESS, base_path);
 
         models[i].vertices.reserve(mesh->mNumVertices);
         for (unsigned int v = 0; v < mesh->mNumVertices; v++) {
@@ -34,17 +42,13 @@ std::vector<Model> ModelImporter::import_from_file(const Ref<Renderer>& renderer
 
             const glm::vec2 texture_coords = mesh->mTextureCoords[0] == nullptr ? glm::vec2() : glm::vec2(mesh->mTextureCoords[0][v].x, mesh->mTextureCoords[0][v].y);
 
-            models[i].vertices.push_back({
-                mesh->mVertices[v].x,
-                mesh->mVertices[v].y,
-                mesh->mVertices[v].z,
-                diffuse_color.r,
-                diffuse_color.g,
-                diffuse_color.b,
-                1.0f,
-                {normal.x, normal.y, normal.z},
-                texture_coords,
-            });
+            models[i].vertices.emplace_back( //
+                mesh->mVertices[v].x, //
+                mesh->mVertices[v].y, //
+                mesh->mVertices[v].z, //
+                glm::vec3(normal.x, normal.y, normal.z),
+                texture_coords //
+            );
         }
 
         models[i].indexes.reserve(static_cast<size_t>(mesh->mNumFaces) * 3);
@@ -58,13 +62,14 @@ std::vector<Model> ModelImporter::import_from_file(const Ref<Renderer>& renderer
     return models;
 }
 
-Ref<Texture2D> ModelImporter::get_texture_from_material(const Ref<Renderer>& renderer, const aiScene* scene, const aiMaterial* material, const std::string& base_path) {
-    if (material->GetTextureCount(aiTextureType_DIFFUSE) == 0) {
+Ref<Texture2D> ModelImporter::get_texture_from_material(const Ref<Renderer>& renderer, const aiScene* scene, const aiMaterial* material, const aiTextureType type,
+                                                        const std::string& base_path) {
+    if (material->GetTextureCount(type) == 0) {
         return nullptr;
     }
 
     aiString ai_texture_path;
-    if (material->GetTexture(aiTextureType_DIFFUSE, 0, &ai_texture_path) != AI_SUCCESS) {
+    if (material->GetTexture(type, 0, &ai_texture_path) != AI_SUCCESS) {
         return nullptr;
     }
 
@@ -85,7 +90,8 @@ Ref<Texture2D> ModelImporter::get_texture_from_material(const Ref<Renderer>& ren
 
 unsigned char* ModelImporter::decompress_texture(const unsigned char* data, const unsigned int size, unsigned int& channels, unsigned int& width, unsigned int& height) {
     int stbi_width, stbi_height, stbi_channels;
-    stbi_uc* texture = stbi_load_from_memory(data, size, &stbi_width, &stbi_height, &stbi_channels, 0); // NOLINT(bugprone-narrowing-conversions, cppcoreguidelines-narrowing-conversions)
+    stbi_uc* texture =
+        stbi_load_from_memory(data, size, &stbi_width, &stbi_height, &stbi_channels, 0); // NOLINT(bugprone-narrowing-conversions, cppcoreguidelines-narrowing-conversions)
 
     channels = stbi_channels;
     width = stbi_width;
