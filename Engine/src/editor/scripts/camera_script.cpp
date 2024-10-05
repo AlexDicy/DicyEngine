@@ -9,6 +9,7 @@ Ref<PerspectiveCamera> get_perspective_camera(const Ref<Window>&);
 Ref<OrthographicCamera> get_orthographic_camera();
 
 CameraScript::CameraScript(const Application* app, const Ref<Entity>& entity) : EntityScript(app, entity) {
+    this->script = EntityScriptJava::create(app, entity, "com/dicydev/engine/scene/scripts/CameraScript");
     this->transform = &get_component<Transform>();
 
     const Ref<Window>& window = app->get_window();
@@ -56,6 +57,7 @@ constexpr float base_acceleration = 50.0f;
 
 void CameraScript::on_update(const float delta_time) {
     DE_PROFILE_FUNCTION();
+    this->script->on_update(delta_time);
     // slow down
     this->velocity *= std::max(0.0f, 1.0f - damping_factor * delta_time);
     // direction
@@ -93,6 +95,22 @@ void CameraScript::on_update(const float delta_time) {
 
     this->camera->set_position(this->transform->position);
     this->camera->set_rotation(this->transform->rotation);
+}
+
+void CameraScript::on_spawn() {
+    this->script->on_spawn();
+}
+
+void CameraScript::on_destroy() {
+    this->script->on_destroy();
+}
+
+void CameraScript::on_awake() {
+    this->script->on_awake();
+}
+
+void CameraScript::on_sleep() {
+    this->script->on_sleep();
 }
 
 Ref<PerspectiveCamera> get_perspective_camera(const Ref<Window>& window) {

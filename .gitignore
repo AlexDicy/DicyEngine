@@ -23,3 +23,4 @@ scripting/!gradle-wrapper.properties
 scripting/.gradletasknamecache
 scripting/.project
 scripting/.classpath
+hs_err_pid*.log
