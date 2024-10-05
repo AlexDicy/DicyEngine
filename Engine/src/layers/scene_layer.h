@@ -7,7 +7,7 @@
 
 class SceneLayer : public Layer {
 public:
-    explicit SceneLayer(const Application* app);
+    explicit SceneLayer(const Ref<Application>& app);
 
     void update(const std::unique_ptr<Context>& ctx) override;
 
@@ -19,15 +19,4 @@ private:
     Ref<CameraScript> camera_script;
     Ref<Shader> shader;
     Ref<DirectionalLight> directional_light;
-};
-
-
-class MovingSquareScript final : public EntityScript {
-public:
-    MovingSquareScript(const Application* app, const Ref<Entity>& entity) : EntityScript(app, entity) {}
-
-    void on_update(float delta_time) override;
-
-private:
-    float move_index = 0;
 };

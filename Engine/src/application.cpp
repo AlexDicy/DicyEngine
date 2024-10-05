@@ -38,7 +38,9 @@ void Application::run() {
 
     Input::init(this->event_dispatcher, this->window);
     this->renderer->init(0, 0, this->window->get_width(), this->window->get_height());
-    register_layers();
+    Ref<Application> app;
+    app.reset(this);
+    register_layers(app);
 
     while (this->running) {
         this->update_frame(ctx);
@@ -61,6 +63,6 @@ void Application::update_frame(const std::unique_ptr<Context>& ctx) const {
     this->window->update();
 }
 
-void Application::register_layers() {
-    this->layers.push_back(new SceneLayer(this));
+void Application::register_layers(const Ref<Application>& app) {
+    this->layers.push_back(new SceneLayer(app));
 }

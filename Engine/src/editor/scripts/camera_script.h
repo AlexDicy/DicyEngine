@@ -4,7 +4,7 @@
 
 class CameraScript final : public EntityScript {
 public:
-    explicit CameraScript(const Application* app, const Ref<Entity>& entity);
+    explicit CameraScript(const Ref<Application>& app, const Ref<Entity>& entity);
 
     void on_update(float delta_time) override;
     void on_spawn() override;

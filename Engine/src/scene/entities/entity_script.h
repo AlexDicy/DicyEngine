@@ -4,7 +4,7 @@
 
 class EntityScript {
 public:
-    explicit EntityScript(const Application* app, const Ref<Entity>& entity);
+    explicit EntityScript(const Ref<Application>& app, const Ref<Entity>& entity);
     virtual ~EntityScript() = default;
 
     virtual void on_update(float delta_time) {}

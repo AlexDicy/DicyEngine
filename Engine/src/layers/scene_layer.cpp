@@ -6,10 +6,9 @@
 
 #include "editor/scripts/camera_script.h"
 #include "editor/scripts/light_script.h"
-#include "platforms/opengl/opengl_shader.h"
 #include "scene/models/model_importer.h"
 
-SceneLayer::SceneLayer(const Application* app) {
+SceneLayer::SceneLayer(const Ref<Application>& app) {
     const Ref<Renderer>& renderer = app->get_renderer();
     this->scene = std::make_shared<Scene>();
 
@@ -145,10 +144,4 @@ void SceneLayer::load_model(const Ref<Renderer>& renderer, const std::string& pa
                           model.transformation_matrix);
         entity->add<Transform>(position, rotation, scale);
     }
-}
-
-void MovingSquareScript::on_update(float delta_time) {
-    this->move_index = this->move_index + 1 * delta_time;
-    const float y = glm::cos(this->move_index) * 5;
-    this->get_component<Transform>().position.y = y;
 }

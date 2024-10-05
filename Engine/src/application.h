@@ -13,7 +13,7 @@ public:
 
     void run();
     void update_frame(const std::unique_ptr<Context>& ctx) const;
-    void register_layers();
+    void register_layers(const Ref<Application>& app);
 
     const Ref<Window>& get_window() const {
         return this->window;

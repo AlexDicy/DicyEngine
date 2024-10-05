@@ -1,3 +1,4 @@
+#include "pch/enginepch.h"
 #include "camera_script.h"
 
 #include "window.h"
@@ -8,7 +9,7 @@
 Ref<PerspectiveCamera> get_perspective_camera(const Ref<Window>&);
 Ref<OrthographicCamera> get_orthographic_camera();
 
-CameraScript::CameraScript(const Application* app, const Ref<Entity>& entity) : EntityScript(app, entity) {
+CameraScript::CameraScript(const Ref<Application>& app, const Ref<Entity>& entity) : EntityScript(app, entity) {
     this->script = EntityScriptJava::create(app, entity, "com/dicydev/engine/scene/scripts/CameraScript");
     this->transform = &get_component<Transform>();
 

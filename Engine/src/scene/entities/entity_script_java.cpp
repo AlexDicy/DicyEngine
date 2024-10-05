@@ -4,7 +4,7 @@
 
 class EntityScriptJavaImpl final : public EntityScriptJava {
 public:
-    EntityScriptJavaImpl(const Application* app, const Ref<Entity>& entity, const std::string& class_name) : EntityScriptJava(app, entity) {
+    EntityScriptJavaImpl(const Ref<Application>& app, const Ref<Entity>& entity, const std::string& class_name) : EntityScriptJava(app, entity) {
         this->java_class = new JavaClass(class_name);
 
         this->on_update_id = this->java_class->get_method("onUpdate", "(F)V");
@@ -51,6 +51,6 @@ private:
     jmethodID on_sleep_id;
 };
 
-Ref<EntityScriptJava> EntityScriptJava::create(const Application* app, const Ref<Entity>& entity, const std::string& class_name) {
+Ref<EntityScriptJava> EntityScriptJava::create(const Ref<Application>& app, const Ref<Entity>& entity, const std::string& class_name) {
     return std::make_shared<EntityScriptJavaImpl>(app, entity, class_name);
 }
