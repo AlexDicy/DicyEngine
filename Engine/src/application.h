@@ -6,7 +6,7 @@
 #include "rendering/shader_registry.h"
 
 
-class Application {
+class Application : public std::enable_shared_from_this<Application> {
 public:
     Application();
     ~Application();

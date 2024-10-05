@@ -38,9 +38,7 @@ void Application::run() {
 
     Input::init(this->event_dispatcher, this->window);
     this->renderer->init(0, 0, this->window->get_width(), this->window->get_height());
-    Ref<Application> app;
-    app.reset(this);
-    register_layers(app);
+    register_layers(this->shared_from_this());
 
     while (this->running) {
         this->update_frame(ctx);
