@@ -67,37 +67,43 @@ jmethodID JavaClass::get_static_method(const char* method_name, const char* sign
 jobject JavaClass::new_instance() const {
     const jmethodID constructor = env->GetMethodID(this->java_class, "<init>", "()V");
     // env->NewGlobalRef
-    return env->NewObject(this->java_class, constructor);
+    const jobject instance = env->NewObject(this->java_class, constructor);
+    this->check_and_clear_exceptions();
+    return instance;
 }
 
 #define CALL_METHOD_IMPLEMENTATION(return_type, class_type, method_name)                                                                                                           \
-    return_type JavaClass::method_name(jobject instance, jmethodID method, ...) const {                                                                                            \
+    return_type JavaClass::method_name(const jobject instance, const jmethodID method, ...) const {                                                                                \
         va_list args;                                                                                                                                                              \
         va_start(args, method);                                                                                                                                                    \
         const return_type result = env->Call##class_type##MethodV(instance, method, args);                                                                                         \
         va_end(args);                                                                                                                                                              \
+        this->check_and_clear_exceptions();                                                                                                                                        \
         return result;                                                                                                                                                             \
     }                                                                                                                                                                              \
-    return_type JavaClass::method_name(jmethodID method, ...) const {                                                                                                              \
+    return_type JavaClass::method_name(const jmethodID method, ...) const {                                                                                                        \
         va_list args;                                                                                                                                                              \
         va_start(args, method);                                                                                                                                                    \
         const return_type result = env->CallStatic##class_type##MethodV(this->java_class, method, args);                                                                           \
         va_end(args);                                                                                                                                                              \
+        this->check_and_clear_exceptions();                                                                                                                                        \
         return result;                                                                                                                                                             \
     }
 
-void JavaClass::call_void(jobject instance, jmethodID method, ...) const {
+void JavaClass::call_void(const jobject instance, const jmethodID method, ...) const {
     va_list args;
     va_start(args, method);
     env->CallVoidMethodV(instance, method, args);
     va_end(args);
+    this->check_and_clear_exceptions();
 }
 
-void JavaClass::call_void(jmethodID method, ...) const {
+void JavaClass::call_void(const jmethodID method, ...) const {
     va_list args;
     va_start(args, method);
     env->CallStaticVoidMethodV(this->java_class, method, args);
     va_end(args);
+    this->check_and_clear_exceptions();
 }
 
 CALL_METHOD_IMPLEMENTATION(jboolean, Boolean, call_boolean)
@@ -111,3 +117,24 @@ CALL_METHOD_IMPLEMENTATION(jdouble, Double, call_double)
 CALL_METHOD_IMPLEMENTATION(jobject, Object, call_object)
 
 #undef CALL_METHOD_IMPLEMENTATION
+
+void JavaClass::check_and_clear_exceptions() const {
+    if (!this->env->ExceptionCheck()) {
+        return;
+    }
+
+    const jthrowable exception = this->env->ExceptionOccurred();
+    this->env->ExceptionClear();
+
+    const jclass exception_class = this->env->GetObjectClass(exception);
+    const jmethodID to_string = this->env->GetMethodID(exception_class, "toString", "()Ljava/lang/String;");
+
+    const auto exception_message = static_cast<jstring>(this->env->CallObjectMethod(exception, to_string));
+    const char* native_string = this->env->GetStringUTFChars(exception_message, nullptr);
+    DE_ERROR("Java Exception: {0}", native_string);
+
+    this->env->ReleaseStringUTFChars(exception_message, native_string);
+    this->env->DeleteLocalRef(exception_message);
+    this->env->DeleteLocalRef(exception_class);
+    this->env->DeleteLocalRef(exception);
+}

@@ -7,6 +7,7 @@
 #include "layers/scene_layer.h"
 #include "rendering/renderer.h"
 #include "platforms/opengl/opengl_renderer.h"
+#include "scripting/java_bindings.h"
 
 Application::Application() {
     Logger::init();
@@ -38,6 +39,7 @@ void Application::run() {
 
     Input::init(this->event_dispatcher, this->window);
     this->renderer->init(0, 0, this->window->get_width(), this->window->get_height());
+    JavaBindings::init();
     register_layers(this->shared_from_this());
 
     while (this->running) {

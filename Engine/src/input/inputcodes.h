@@ -1,5 +1,6 @@
 #pragma once
 
+// Keep in sync with scripting/com.dicydev.engine.input.InputCode
 enum class InputCode : unsigned int {
     INPUT_UNKNOWN = 0,
     KEY_SPACE = 32,

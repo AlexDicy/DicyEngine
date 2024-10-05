@@ -63,6 +63,8 @@ public:
     }
 
 private:
+    void check_and_clear_exceptions() const;
+
     JNIEnv* env;
     jclass java_class;
 };
