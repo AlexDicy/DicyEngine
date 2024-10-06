@@ -19,16 +19,14 @@ test {
 }
 
 tasks.withType(JavaCompile).configureEach {
-    doFirst {
-        exec {
-            workingDir = file('../')
-            commandLine 'xmake', 'build', '-y'
-        }
-    }
     options.compilerArgs += "--enable-preview"
 }
 
 tasks.withType(Test).configureEach {
+    jvmArgs += "--enable-preview"
+}
+
+tasks.withType(JavaExec).configureEach {
     jvmArgs += "--enable-preview"
 }
 
@@ -42,6 +40,8 @@ tasks.register('runEngine', EngineExec) {
 class EngineExec extends JavaExec {
     @Override
     void exec() {
+        this.buildEngine()
+
         List<String> jvmArgs = this.getJvmArgs()
         def args = jvmArgs.collect { it.replace('\\', '\\\\').replace('"', '\\"') }.join(' ')
 
@@ -66,6 +66,13 @@ class EngineExec extends JavaExec {
             }
         } else {
             throw new GradleException("Could not find the engine executable (targetfile in 'xmake show' output is missing)")
+        }
+    }
+
+    void buildEngine() {
+        project.exec {
+            workingDir = project.file('../')
+            commandLine 'xmake', 'build', '-y'
         }
     }
 }
