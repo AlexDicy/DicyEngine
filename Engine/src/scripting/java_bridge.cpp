@@ -12,15 +12,29 @@ JavaBridge::JavaBridge() {
     const CreateJavaVM create_java_vm = load_jvm_dll();
 #endif
 
-    constexpr int num_options = 2;
-    JavaVMOption options[num_options];
-    options[0].optionString = const_cast<char*>("-Djava.class.path=../scripting/build/classes/java/main/");
-    options[1].optionString = const_cast<char*>("-DXcheck:jni:pedantic");
+    std::vector<std::string> arguments;
+    arguments.emplace_back("-Djava.class.path=../scripting/build/classes/java/main/");
+    arguments.emplace_back("-DXcheck:jni:pedantic");
+
+    if (const char* jvm_args = std::getenv("JVM_ARGS")) {
+        std::istringstream stream(jvm_args);
+        std::string arg;
+        while (std::getline(stream, arg, ' ')) {
+            if (!arg.empty()) {
+                arguments.emplace_back(arg);
+            }
+        }
+    }
+
+    std::vector<JavaVMOption> options;
+    for (auto& argument : arguments) {
+        options.push_back({const_cast<char*>(argument.c_str())});
+    }
 
     JavaVMInitArgs init_args;
     init_args.version = JNI_VERSION_21;
-    init_args.nOptions = num_options;
-    init_args.options = options;
+    init_args.nOptions = options.size();
+    init_args.options = options.data();
     init_args.ignoreUnrecognized = false;
 
     if (const jint result = create_java_vm(&jvm, &env, &init_args); result != JNI_OK) {

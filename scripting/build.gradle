@@ -42,9 +42,6 @@ class EngineExec extends JavaExec {
     void exec() {
         this.buildEngine()
 
-        List<String> jvmArgs = this.getJvmArgs()
-        def args = jvmArgs.collect { it.replace('\\', '\\\\').replace('"', '\\"') }.join(' ')
-
         def output = new ByteArrayOutputStream()
         project.exec {
             workingDir = project.file('../')
@@ -59,9 +56,12 @@ class EngineExec extends JavaExec {
             def path = targetLine.split(':', 2)[1].trim()
             def executable = path.replace('\\', '/')
             def absolutePath = project.file('../' + executable).getAbsolutePath()
+            def jvmArgs = this.getJvmArgs().join(' ')
+            def jdkBinPath = javaLauncher.get().getExecutablePath().getAsFile().getParent()
             project.exec {
                 workingDir = project.file('../Engine')
-                environment 'JVM_ARGS', args
+                environment 'PATH', System.getenv('PATH') + File.pathSeparator + jdkBinPath
+                environment 'JVM_ARGS', jvmArgs
                 commandLine absolutePath
             }
         } else {
