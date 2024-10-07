@@ -13,11 +13,14 @@ public:
         this->on_awake_id = this->java_class->get_method("onAwake", "()V");
         this->on_sleep_id = this->java_class->get_method("onSleep", "()V");
 
+        entt::registry* registry_pointer = entity->get_registry().get();
         this->java_object = this->java_class->new_instance();
+        const jmethodID set_entity_info_id = this->java_class->get_method("setEntityInfo", "(JI)V");
+        this->java_class->call_void(this->java_object, set_entity_info_id, registry_pointer, entity->get_entity_id());
     }
+
     ~EntityScriptJavaImpl() override {
         delete this->java_class;
-        DE_INFO("EntityScriptJavaImpl destroyed");
     }
 
     void on_update(float delta_time) override {

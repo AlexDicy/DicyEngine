@@ -20,6 +20,14 @@ public:
         return this->registry->emplace<T>(this->entity, std::forward<Args>(args)...);
     }
 
+    Ref<entt::registry> get_registry() const {
+        return this->registry;
+    }
+
+    entt::entity get_entity_id() const {
+        return this->entity;
+    }
+
 private:
     Ref<entt::registry> registry;
     entt::entity entity;

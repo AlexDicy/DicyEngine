@@ -1,5 +1,6 @@
 package com.dicydev.engine.scene.scripts;
 
+import com.dicydev.engine.components.Transform;
 import com.dicydev.engine.input.Input;
 import com.dicydev.engine.input.InputCode;
 
@@ -15,6 +16,7 @@ public class CameraScript extends EntityScript {
     }
 
     public void onUpdate(float deltaTime) {
-//        System.out.println("Is action pressed (move_camera_up): " + Input.isActionPressed("move_camera_up"));
+        var transform = getComponent(Transform.class);
+        System.out.println("CameraScript onUpdate: " + transform.getPosition().getY());
     }
 }
