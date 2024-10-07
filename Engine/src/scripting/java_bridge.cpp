@@ -15,6 +15,7 @@ JavaBridge::JavaBridge() {
     std::vector<std::string> arguments;
     arguments.emplace_back("-Djava.class.path=../scripting/build/classes/java/main/");
     arguments.emplace_back("-DXcheck:jni:pedantic");
+    arguments.emplace_back("--enable-preview");
 
     if (const char* jvm_args = std::getenv("JVM_ARGS")) {
         std::istringstream stream(jvm_args);
