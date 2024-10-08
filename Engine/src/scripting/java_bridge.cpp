@@ -80,9 +80,16 @@ jmethodID JavaClass::get_static_method(const char* method_name, const char* sign
 }
 
 jobject JavaClass::new_instance() const {
-    const jmethodID constructor = env->GetMethodID(this->java_class, "<init>", "()V");
+    return this->new_instance("()V");
+}
+
+jobject JavaClass::new_instance(const char* signature, ...) const {
+    va_list args;
+    va_start(args, signature);
+    const jmethodID constructor = env->GetMethodID(this->java_class, "<init>", signature);
     // env->NewGlobalRef
-    const jobject instance = env->NewObject(this->java_class, constructor);
+    const jobject instance = env->NewObjectV(this->java_class, constructor, args);
+    va_end(args);
     this->check_and_clear_exceptions();
     return instance;
 }

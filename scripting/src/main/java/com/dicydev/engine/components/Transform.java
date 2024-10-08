@@ -20,6 +20,7 @@ public class Transform extends Component {
         buffer.putFloat(8, position.getZ());
     }
 
+    // TODO: replace Vector3 with a Rotation class
     public Vector3 getRotation() {
         return Vector3.fromBuffer(buffer, 12);
     }

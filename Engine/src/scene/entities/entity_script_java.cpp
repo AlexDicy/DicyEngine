@@ -13,10 +13,11 @@ public:
         this->on_awake_id = this->java_class->get_method("onAwake", "()V");
         this->on_sleep_id = this->java_class->get_method("onSleep", "()V");
 
+        const jobject scene_object = JavaClass("com/dicydev/engine/scene/Scene").new_instance("(J)V", entity->get_scene().get());
         entt::registry* registry_pointer = entity->get_registry().get();
         this->java_object = this->java_class->new_instance();
-        const jmethodID set_entity_info_id = this->java_class->get_method("setEntityInfo", "(JI)V");
-        this->java_class->call_void(this->java_object, set_entity_info_id, registry_pointer, entity->get_entity_id());
+        const jmethodID set_entity_info_id = this->java_class->get_method("setEntityInfo", "(Lcom/dicydev/engine/scene/Scene;JI)V");
+        this->java_class->call_void(this->java_object, set_entity_info_id, scene_object, registry_pointer, entity->get_entity_id());
     }
 
     ~EntityScriptJavaImpl() override {

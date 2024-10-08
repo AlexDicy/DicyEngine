@@ -7,5 +7,7 @@ public class Input {
 
     private static native void setAction(String action, int inputCode);
 
+    public static native void bindAxis(String axis, InputAxisCallback callback);
+
     public static native boolean isActionPressed(String action);
 }

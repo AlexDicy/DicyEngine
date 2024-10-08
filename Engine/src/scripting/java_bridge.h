@@ -29,14 +29,13 @@ private:
 class JavaClass {
 public:
     explicit JavaClass(const std::string& class_name);
-    ~JavaClass() {
-        env->DeleteGlobalRef(java_class);
-    }
+    ~JavaClass() = default;
 
     jmethodID get_method(const char* method_name, const char* signature) const;
     jmethodID get_static_method(const char* method_name, const char* signature) const;
 
     jobject new_instance() const;
+    jobject new_instance(const char* signature, ...) const;
 
 #define CALL_METHOD_DECLARATION(return_type, method_name) \
     return_type method_name(jobject instance, jmethodID method, ...) const; \

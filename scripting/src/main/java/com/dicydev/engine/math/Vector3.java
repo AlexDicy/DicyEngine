@@ -66,60 +66,67 @@ public class Vector3 {
         this.z = z;
     }
 
-    public Vector3 add(Vector3 other) {
-        setX(getX() + other.getX());
-        setY(getY() + other.getY());
-        setZ(getZ() + other.getZ());
+    public void addX(float x) {
+        setX(getX() + x);
+    }
+
+    public void addY(float y) {
+        setY(getY() + y);
+    }
+
+    public void addZ(float z) {
+        setZ(getZ() + z);
+    }
+
+    public Vector3 set(Vector3 other) {
+        setX(other.getX());
+        setY(other.getY());
+        setZ(other.getZ());
         return this;
+    }
+
+    public Vector3 add(Vector3 other) {
+        return new Vector3(getX() + other.getX(), getY() + other.getY(), getZ() + other.getZ());
+    }
+
+    public void subtractX(float x) {
+        setX(getX() - x);
+    }
+
+    public void subtractY(float y) {
+        setY(getY() - y);
+    }
+
+    public void subtractZ(float z) {
+        setZ(getZ() - z);
     }
 
     public Vector3 subtract(Vector3 other) {
-        setX(getX() - other.getX());
-        setY(getY() - other.getY());
-        setZ(getZ() - other.getZ());
-        return this;
+        return new Vector3(getX() - other.getX(), getY() - other.getY(), getZ() - other.getZ());
     }
 
     public Vector3 multiply(Vector3 other) {
-        setX(getX() * other.getX());
-        setY(getY() * other.getY());
-        setZ(getZ() * other.getZ());
-        return this;
+        return new Vector3(getX() * other.getX(), getY() * other.getY(), getZ() * other.getZ());
     }
 
     public Vector3 divide(Vector3 other) {
-        setX(getX() / other.getX());
-        setY(getY() / other.getY());
-        setZ(getZ() / other.getZ());
-        return this;
+        return new Vector3(getX() / other.getX(), getY() / other.getY(), getZ() / other.getZ());
     }
 
     public Vector3 add(float scalar) {
-        setX(getX() + scalar);
-        setY(getY() + scalar);
-        setZ(getZ() + scalar);
-        return this;
+        return new Vector3(getX() + scalar, getY() + scalar, getZ() + scalar);
     }
 
     public Vector3 subtract(float scalar) {
-        setX(getX() - scalar);
-        setY(getY() - scalar);
-        setZ(getZ() - scalar);
-        return this;
+        return new Vector3(getX() - scalar, getY() - scalar, getZ() - scalar);
     }
 
     public Vector3 multiply(float scalar) {
-        setX(getX() * scalar);
-        setY(getY() * scalar);
-        setZ(getZ() * scalar);
-        return this;
+        return new Vector3(getX() * scalar, getY() * scalar, getZ() * scalar);
     }
 
     public Vector3 divide(float scalar) {
-        setX(getX() / scalar);
-        setY(getY() / scalar);
-        setZ(getZ() / scalar);
-        return this;
+        return new Vector3(getX() / scalar, getY() / scalar, getZ() / scalar);
     }
 
     public Vector3 normalize() {

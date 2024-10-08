@@ -43,11 +43,10 @@ SceneLayer::SceneLayer(const Ref<Application>& app) {
     }
 
     // camera
-    this->camera = this->scene->create_entity();
-    // this->camera->add<Transform>(glm::vec3(0.0f, 2.0f, 0.0f), Rotation(-15, 0, 0));
-    this->camera->add<Transform>(glm::vec3(0.0f, 10.0f, 0.0f), Rotation(-90, 0, 0));
-    this->camera_script = std::make_shared<CameraScript>(app, this->camera);
-    this->camera->add<Script>(camera_script);
+    this->camera_entity = this->scene->create_entity();
+    // this->camera_entity->add<Transform>(glm::vec3(0.0f, 2.0f, 0.0f), Rotation(-15, 0, 0));
+    this->camera_entity->add<Transform>(glm::vec3(0.0f, 10.0f, 0.0f), Rotation(-90, 0, 0));
+    this->camera_entity->add<Script>(std::make_shared<CameraScript>(app, this->camera_entity));
 
     this->shader = app->get_shader_registry()->load("../assets/shaders/default-shader");
 
@@ -66,7 +65,7 @@ SceneLayer::SceneLayer(const Ref<Application>& app) {
     light_entity->add<Mesh>(renderer, light_vertices, sizeof(light_vertices), indexes, 6,
                             Material(renderer->create_texture2d(4, 1, 1, std::array<unsigned char, 4>{255, 255, 255, 220}.data())));
 
-    renderer->set_camera(this->camera_script->get_camera());
+    renderer->set_camera(this->scene->get_camera());
 
     this->load_model(renderer, "../assets/models/sand_rocks/sand_rocks_small_01_1k.gltf", {0.0f, 0.0f, 3.0f});
     this->load_model(renderer, "../assets/models/fountain.glb", {-4.0f, 0.2f, 4.0f});

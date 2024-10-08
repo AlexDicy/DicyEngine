@@ -1,9 +1,12 @@
 ﻿#pragma once
+
 #include <entt/entt.hpp>
+
+class Scene;
 
 class Entity {
 public:
-    Entity(const Ref<entt::registry>& registry, const entt::entity& entity) : registry(registry), entity(entity) {}
+    Entity(const Ref<Scene>& scene, const Ref<entt::registry>& registry, const entt::entity& entity) : scene(scene), registry(registry), entity(entity) {}
 
     template <typename... T>
     [[nodiscard]] bool has() const {
@@ -20,7 +23,11 @@ public:
         return this->registry->emplace<T>(this->entity, std::forward<Args>(args)...);
     }
 
-    Ref<entt::registry> get_registry() const {
+    const Ref<Scene>& get_scene() const {
+        return this->scene;
+    }
+
+    const Ref<entt::registry>& get_registry() const {
         return this->registry;
     }
 
@@ -29,6 +36,7 @@ public:
     }
 
 private:
+    Ref<Scene> scene;
     Ref<entt::registry> registry;
     entt::entity entity;
 };

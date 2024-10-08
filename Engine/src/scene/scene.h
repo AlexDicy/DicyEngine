@@ -5,7 +5,7 @@
 #include "components/transform.h"
 #include "entt/entt.hpp"
 
-class Scene {
+class Scene : public std::enable_shared_from_this<Scene> {
 public:
     Scene();
 
@@ -19,6 +19,15 @@ public:
         return this->registry->view<Script>();
     }
 
+    const Ref<Camera>& get_camera() const {
+        return this->camera;
+    }
+
+    void set_camera(const Ref<Camera>& camera) {
+        this->camera = camera;
+    }
+
 private:
     Ref<entt::registry> registry;
+    Ref<Camera> camera;
 };

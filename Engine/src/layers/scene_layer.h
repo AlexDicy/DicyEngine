@@ -15,8 +15,7 @@ private:
     void load_model(const Ref<Renderer>& renderer, const std::string& path, glm::vec3 position, Rotation rotation = Rotation(), glm::vec3 scale = glm::vec3(1.0f)) const;
 
     Ref<Scene> scene;
-    Ref<Entity> camera;
-    Ref<CameraScript> camera_script;
+    Ref<Entity> camera_entity;
     Ref<Shader> shader;
     Ref<DirectionalLight> directional_light;
 };
