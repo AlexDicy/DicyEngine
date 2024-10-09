@@ -32,6 +32,7 @@ target("Engine")
         elseif is_plat("macosx") then
             target:add("includedirs", path.join(jdk_path, "include", "darwin"))
             target:add("links", path.join(jdk_path, "lib", "server", "libjvm.dylib"))
+            target:add("rpathdirs", path.join(jdk_path, "lib", "server"))
         elseif is_plat("linux") then
             target:add("includedirs", path.join(jdk_path, "include", "linux"))
         end
