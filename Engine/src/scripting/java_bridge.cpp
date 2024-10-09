@@ -10,6 +10,8 @@ Ref<JavaBridge> JavaBridge::get_instance() {
 JavaBridge::JavaBridge() {
 #ifdef DE_PLATFORM_WINDOWS
     const CreateJavaVM create_java_vm = load_jvm_dll();
+#else
+    const auto create_java_vm = reinterpret_cast<CreateJavaVM>(JNI_CreateJavaVM);
 #endif
 
     std::vector<std::string> arguments;
@@ -98,7 +100,7 @@ jobject JavaClass::new_instance(const char* signature, ...) const {
     return_type JavaClass::method_name(const jobject instance, const jmethodID method, ...) const {                                                                                \
         va_list args;                                                                                                                                                              \
         va_start(args, method);                                                                                                                                                    \
-        const return_type result = env->Call##class_type##MethodV(instance, method, args);                                                                                         \
+        const return_type result = env->Call## class_type## MethodV(instance, method, args);                                                                                         \
         va_end(args);                                                                                                                                                              \
         this->check_and_clear_exceptions();                                                                                                                                        \
         return result;                                                                                                                                                             \
@@ -106,7 +108,7 @@ jobject JavaClass::new_instance(const char* signature, ...) const {
     return_type JavaClass::method_name(const jmethodID method, ...) const {                                                                                                        \
         va_list args;                                                                                                                                                              \
         va_start(args, method);                                                                                                                                                    \
-        const return_type result = env->CallStatic##class_type##MethodV(this->java_class, method, args);                                                                           \
+        const return_type result = env->CallStatic## class_type## MethodV(this->java_class, method, args);                                                                           \
         va_end(args);                                                                                                                                                              \
         this->check_and_clear_exceptions();                                                                                                                                        \
         return result;                                                                                                                                                             \
