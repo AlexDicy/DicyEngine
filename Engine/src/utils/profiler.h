@@ -4,6 +4,9 @@ namespace DE::Profiling {
     struct ProfilerResult {
         std::string name;
         long duration; // microseconds
+
+        ProfilerResult(std::string  name, const long duration) : name(std::move(name)), duration(duration) {}
+        ProfilerResult(const char* name, const long duration) : name(name), duration(duration) {}
     };
 
     class Profiler {
@@ -52,9 +55,9 @@ namespace DE::Profiling {
 }
 
 #if defined(DE_DEBUG)
-    #ifdef __GNUC__
+    #if defined(__GNUC__)
         #define DE_PROFILER_FN_SIG __PRETTY_FUNCTION__
-    #elifdef _MSC_VER
+    #elif defined(_MSC_VER)
         #define DE_PROFILER_FN_SIG __FUNCSIG__
     #else
         #define DE_PROFILER_FN_SIG __FUNCTION__
