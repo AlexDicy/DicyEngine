@@ -30,16 +30,7 @@ CameraScript::CameraScript(const Ref<Application>& app, const Ref<Entity>& entit
         renderer->set_camera(scene->get_camera());
         camera_bool = !camera_bool;
     });
-
-    Input::bind_action_pressed("move_camera_faster", [this] {
-        // this->move_faster = true;
-    });
-    Input::bind_action_released("move_camera_faster", [this] {
-        // this->move_faster = false;
-    });
 }
-
-
 
 void CameraScript::on_update(const float delta_time) {
     DE_PROFILE_FUNCTION();

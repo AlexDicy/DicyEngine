@@ -33,6 +33,10 @@ public class CameraScript extends EntityScript {
                 transform.getRotation().setX(pitch);
             }
         });
+
+        Input.bindActionPressed("move_camera_faster", () -> this.moveFaster = true);
+
+        Input.bindActionReleased("move_camera_faster", () -> this.moveFaster = false);
     }
 
     @Override

@@ -30,6 +30,28 @@ void input_bind_axis(JNIEnv* env, jobject, const jstring axis, const jobject cal
     env->ReleaseStringUTFChars(axis, axis_str);
 }
 
+void input_bind_action_pressed(JNIEnv* env, jobject, const jstring action, const jobject callback) {
+    const char* action_str = env->GetStringUTFChars(action, nullptr);
+    const auto callback_ref = env->NewGlobalRef(callback);
+
+    Input::bind_action_pressed(action_str, [env, callback_ref] {
+        env->CallVoidMethod(callback_ref, env->GetMethodID(env->GetObjectClass(callback_ref), "callback", "()V"));
+    });
+
+    env->ReleaseStringUTFChars(action, action_str);
+}
+
+void input_bind_action_released(JNIEnv* env, jobject, const jstring action, const jobject callback) {
+    const char* action_str = env->GetStringUTFChars(action, nullptr);
+    const auto callback_ref = env->NewGlobalRef(callback);
+
+    Input::bind_action_released(action_str, [env, callback_ref] {
+        env->CallVoidMethod(callback_ref, env->GetMethodID(env->GetObjectClass(callback_ref), "callback", "()V"));
+    });
+
+    env->ReleaseStringUTFChars(action, action_str);
+}
+
 
 jobject native_registry_get_component_buffer(JNIEnv* env, jobject, const jlong registry, jint entity_id, jint component_id) {
     const auto* registry_pointer = reinterpret_cast<entt::registry*>(registry); // NOLINT(performance-no-int-to-ptr)
@@ -66,10 +88,12 @@ jobject camera_get_rotation(JNIEnv* env, jobject, const jlong camera) {
 void JavaBindings::init() {
     JNIEnv* env = JavaBridge::get_env();
 
-    const std::array<JNINativeMethod, 3> input_methods = {{
+    const std::array<JNINativeMethod, 5> input_methods = {{
         {const_cast<char*>("setAction"), const_cast<char*>("(Ljava/lang/String;I)V"), reinterpret_cast<void*>(input_set_action)},
         {const_cast<char*>("isActionPressed"), const_cast<char*>("(Ljava/lang/String;)Z"), reinterpret_cast<void*>(input_is_action_pressed)},
         {const_cast<char*>("bindAxis"), const_cast<char*>("(Ljava/lang/String;Lcom/dicydev/engine/input/InputAxisCallback;)V"), reinterpret_cast<void*>(input_bind_axis)},
+        {const_cast<char*>("bindActionPressed"), const_cast<char*>("(Ljava/lang/String;Lcom/dicydev/engine/input/InputActionCallback;)V"), reinterpret_cast<void*>(input_bind_action_pressed)},
+        {const_cast<char*>("bindActionReleased"), const_cast<char*>("(Ljava/lang/String;Lcom/dicydev/engine/input/InputActionCallback;)V"), reinterpret_cast<void*>(input_bind_action_released)},
     }};
     env->RegisterNatives(env->FindClass("com/dicydev/engine/input/Input"), input_methods.data(), input_methods.size());
 

@@ -1,5 +1,7 @@
 package com.dicydev.engine.input;
 
+import com.dicydev.engine.annotations.CalledByNative;
+
 @FunctionalInterface
 public interface InputAxisCallback {
 
@@ -8,5 +10,6 @@ public interface InputAxisCallback {
      *
      * @param delta The change in the axis value.
      */
+    @CalledByNative
     void callback(float delta);
 }

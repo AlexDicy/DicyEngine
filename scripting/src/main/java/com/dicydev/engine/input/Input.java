@@ -9,5 +9,9 @@ public class Input {
 
     public static native void bindAxis(String axis, InputAxisCallback callback);
 
+    public static native void bindActionPressed(String action, InputActionCallback callback);
+
+    public static native void bindActionReleased(String action, InputActionCallback callback);
+
     public static native boolean isActionPressed(String action);
 }
