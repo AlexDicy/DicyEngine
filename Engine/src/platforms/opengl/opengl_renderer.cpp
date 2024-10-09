@@ -60,6 +60,7 @@ Ref<Texture2D> OpenGLRenderer::create_texture2d(const unsigned int channels, con
 
 void OpenGLRenderer::begin_frame() {
     this->view_projection_matrix = this->camera->get_view_projection_matrix(true);
+    this->point_lights.clear();
     this->framebuffer->bind();
     this->clean(); // make sure to clean the framebuffer
 }
@@ -72,6 +73,10 @@ void OpenGLRenderer::clean() const {
     DE_PROFILE_FUNCTION();
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+void OpenGLRenderer::add_point_light(const PointLight& point_light) {
+    this->point_lights.push_back(point_light);
 }
 
 void OpenGLRenderer::draw(const Ref<VertexArray>& vertex_array, const Ref<Shader>& shader, const glm::mat4& transform, const Ref<DirectionalLight>& directional_light) const {
@@ -94,12 +99,18 @@ void OpenGLRenderer::draw(const Ref<VertexArray>& vertex_array, const Ref<Shader
     }
     shader->upload_uniform_int("u_occlusion_roughness_metallic", texture_slot);
     // lights
-    shader->upload_uniform_vec3("u_material.ambient_color", {1.0f, 1.0f, 1.0f});
-    shader->upload_uniform_vec3("u_ambient_light.color", {1.0f, 1.0f, 1.0f});
-    shader->upload_uniform_float("u_ambient_light.intensity", 0.12f);
+    shader->upload_uniform_int("u_material.ignore_lighting", material.ignore_lighting);
     shader->upload_uniform_vec3("u_directional_light.color", {1.0f, 1.0f, 1.0f});
     shader->upload_uniform_float("u_directional_light.intensity", directional_light->get_intensity());
     shader->upload_uniform_vec3("u_directional_light.direction", directional_light->get_local_direction(transform));
+    for (size_t i = 0; i < this->point_lights.size(); i++) {
+        const PointLight& point_light = this->point_lights[i];
+        shader->upload_uniform_vec3("u_point_lights[" + std::to_string(i) + "].position", glm::vec3(inverse(transform) * glm::vec4(point_light.position, 1.0f)));
+        shader->upload_uniform_vec3("u_point_lights[" + std::to_string(i) + "].color", point_light.color);
+        shader->upload_uniform_float("u_point_lights[" + std::to_string(i) + "].intensity", point_light.intensity);
+    }
+    shader->upload_uniform_int("u_point_lights_count", static_cast<int>(this->point_lights.size()));
+    // camera position
     const auto camera_position_local = glm::vec3(inverse(transform) * glm::vec4(this->camera->get_position(), 1.0f));
     shader->upload_uniform_vec3("u_camera_position_local", camera_position_local);
 

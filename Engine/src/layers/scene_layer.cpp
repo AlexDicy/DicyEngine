@@ -55,15 +55,6 @@ SceneLayer::SceneLayer(const Ref<Application>& app) {
     Ref<Entity> light_mesh_entity = this->scene->create_entity();
     light_entity->add<Script>(std::make_shared<LightScript>(app, light_entity, this->directional_light, light_mesh_entity));
     light_entity->add<Transform>();
-    constexpr float light_vertices[4 * 8] = {
-        -0.2f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, //
-        0.2f,  -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, //
-        0.2f,  0.5f,  0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, //
-        -0.2f, 0.5f,  0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, //
-    };
-    constexpr unsigned int indexes[6] = {0, 1, 2, 2, 3, 0};
-    light_entity->add<Mesh>(renderer, light_vertices, sizeof(light_vertices), indexes, 6,
-                            Material(renderer->create_texture2d(4, 1, 1, std::array<unsigned char, 4>{255, 255, 255, 220}.data())));
 
     renderer->set_camera(this->scene->get_camera());
 
@@ -82,30 +73,47 @@ SceneLayer::SceneLayer(const Ref<Application>& app) {
         light_mesh_entity->add<Transform>(glm::vec3(0.0, 3.0f, 0.0f), Rotation(), glm::vec3(1.0f));
     }
 
-    std::vector<Model> sphere_models = ModelImporter::import_from_file(renderer, "../assets/models/sphere.glb");
+    Model sphere_model = std::move(ModelImporter::import_from_file(renderer, "../assets/models/sphere.glb")[0]);
     for (int x = 0; x < 10; x++) {
         for (int z = 0; z < 10; z++) {
             const float x_pos = -5.0f + x + 0.5f;
             const float z_pos = -5.0f + z + 0.5f;
-            for (const Model& model : sphere_models) {
-                const VertexData* vertex_data = model.vertices.data();
-                auto vertex_data_floats = reinterpret_cast<const float*>(vertex_data);
-                unsigned char roughness = static_cast<unsigned char>(static_cast<float>(9 - x) / 9 * 255.0f);
-                unsigned char metallic = static_cast<unsigned char>(static_cast<float>(9 - z) / 9 * 255.0f);
-                Material material(renderer->create_texture2d(4, 1, 1, std::array<unsigned char, 4>{250, 40, 40, 255}.data()),
-                                  renderer->create_texture2d(3, 1, 1, std::array<unsigned char, 3>{255, roughness, metallic}.data()));
-                Ref<Entity> entity = this->scene->create_entity();
-                entity->add<Mesh>(renderer, vertex_data_floats, model.vertices.size() * sizeof(VertexData), model.indexes.data(), model.indexes.size(), material,
-                                  model.transformation_matrix);
-                entity->add<Transform>(glm::vec3(x_pos, 4.0f, z_pos), Rotation(), glm::vec3(0.4f));
-            }
+            const VertexData* vertex_data = sphere_model.vertices.data();
+            auto vertex_data_floats = reinterpret_cast<const float*>(vertex_data);
+            unsigned char roughness = static_cast<unsigned char>(static_cast<float>(9 - x) / 9 * 255.0f);
+            unsigned char metallic = static_cast<unsigned char>(static_cast<float>(9 - z) / 9 * 255.0f);
+            Material material(renderer->create_texture2d(4, 1, 1, std::array<unsigned char, 4>{250, 40, 40, 255}.data()),
+                              renderer->create_texture2d(3, 1, 1, std::array<unsigned char, 3>{255, roughness, metallic}.data()));
+            Ref<Entity> entity = this->scene->create_entity();
+            entity->add<Mesh>(renderer, vertex_data_floats, sphere_model.vertices.size() * sizeof(VertexData), sphere_model.indexes.data(), sphere_model.indexes.size(), material,
+                              sphere_model.transformation_matrix);
+            entity->add<Transform>(glm::vec3(x_pos, 4.0f, z_pos), Rotation(), glm::vec3(0.4f));
         }
+    }
+
+    // point lights
+    for (glm::vec3 positions[] = {{1.0f, 1.0f, 1.0f}, {4.0f, 4.2f, 2.0f}}; const glm::vec3& position : positions) {
+        Ref<Entity> point_light_entity = this->scene->create_entity();
+        point_light_entity->add<PointLight>(position, glm::vec3(0.2f, 0.2f, 1.0f), 10.0f);
+        point_light_entity->add<Transform>(position, Rotation(), glm::vec3(0.1f));
+        const VertexData* vertex_data = sphere_model.vertices.data();
+        auto vertex_data_floats = reinterpret_cast<const float*>(vertex_data);
+        auto material = Material(renderer->create_texture2d(4, 1, 1, std::array<unsigned char, 4>{50, 50, 255, 255}.data()));
+        material.ignore_lighting = true;
+        point_light_entity->add<Mesh>(renderer, vertex_data_floats, sphere_model.vertices.size() * sizeof(VertexData), sphere_model.indexes.data(), sphere_model.indexes.size(),
+                                      material, sphere_model.transformation_matrix);
     }
 }
 
 void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
     DE_PROFILE_FUNCTION();
     ctx->renderer->begin_frame();
+
+    const auto point_lights_view = this->scene->get_point_lights();
+    for (const auto& entity : point_lights_view) {
+        PointLight& light = point_lights_view.get<PointLight>(entity);
+        ctx->renderer->add_point_light(light);
+    }
 
     const auto meshes_view = this->scene->get_meshes();
     for (const auto& entity : meshes_view) {

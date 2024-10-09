@@ -4,6 +4,7 @@
 #include "vertex_array.h"
 #include "shader.h"
 #include "texture.h"
+#include "scene/components/point_light.h"
 #include "scene/lights/directional_light.h"
 #include "scene/materials/material.h"
 
@@ -36,12 +37,14 @@ public:
     virtual void begin_frame() = 0;
     virtual void end_frame() const = 0;
     virtual void clean() const = 0;
+    virtual void add_point_light(const PointLight& point_light) = 0;
     virtual void draw(const Ref<VertexArray>& vertex_array, const Ref<Shader>& shader, const glm::mat4& transform, const Ref<DirectionalLight>& directional_light) const = 0;
     virtual void draw(const Ref<VertexArray>& vertex_array, const Ref<Shader>& shader, const glm::mat4& transform, const Ref<DirectionalLight>& directional_light, const Material& material) const = 0;
 
 protected:
     Ref<Camera> camera;
     glm::mat4 view_projection_matrix;
+    std::vector<PointLight> point_lights = std::vector<PointLight>(10);
 
 private:
     RenderAPI api;

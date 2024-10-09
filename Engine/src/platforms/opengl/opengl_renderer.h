@@ -21,6 +21,7 @@ public:
     void begin_frame() override;
     void end_frame() const override;
     void clean() const override;
+    void add_point_light(const PointLight& point_light) override;
     void draw(const Ref<VertexArray>& vertex_array, const Ref<Shader>& shader, const glm::mat4& transform, const Ref<DirectionalLight>& directional_light) const override;
     void draw(const Ref<VertexArray>& vertex_array, const Ref<Shader>& shader, const glm::mat4& transform, const Ref<DirectionalLight>& directional_light, const Material& material) const override;
 

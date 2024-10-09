@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "entities/entity.h"
 #include "components/mesh.h"
+#include "components/point_light.h"
 #include "components/script.h"
 #include "components/transform.h"
 #include "entt/entt.hpp"
@@ -13,6 +14,10 @@ public:
 
     auto get_meshes() const {
         return this->registry->view<Mesh, Transform>();
+    }
+
+    auto get_point_lights() const {
+        return this->registry->view<PointLight>();
     }
 
     auto get_scripts() const {
