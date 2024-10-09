@@ -10,7 +10,7 @@ add_requires("assimp v5.4.3")
 
 target("Engine")
     set_kind("binary")
-    set_languages("cxx20")
+    set_languages("cxx23")
     set_rundir("$(projectdir)/Engine")
 
     set_pcxxheader("Engine/src/pch/enginepch.h")
