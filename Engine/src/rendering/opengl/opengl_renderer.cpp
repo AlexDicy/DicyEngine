@@ -14,6 +14,8 @@ void OpenGLRenderer::init(const int x, const int y, const uint32_t width, const 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+    glFrontFace(GL_CW);
     this->set_viewport(x, y, width, height);
     unsigned char white[4] = {255, 255, 255, 255};
     this->white_pixel_texture = std::make_shared<OpenGLTexture2D>(1, 1, 1, white);
