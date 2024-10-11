@@ -1,7 +1,8 @@
 ﻿#pragma once
-#include "opengl_texture.h"
+#include "opengl_texture_2d.h"
 #include "rendering/renderer.h"
 #include "rendering/shader.h"
+#include "scene/skybox.h"
 
 class OpenGLRenderer : public Renderer {
 public:
@@ -17,13 +18,16 @@ public:
     Ref<Shader> create_shader(const std::string& vertex_path, const std::string& fragment_path) const override;
     Ref<Texture2D> create_texture2d(const std::string& path) const override;
     Ref<Texture2D> create_texture2d(unsigned int channels, unsigned int width, unsigned int height, const void* data) const override;
+    Ref<TextureCube> create_texture_cube(const std::array<std::string, 6>& paths) const override;
 
     void begin_frame() override;
     void end_frame() const override;
     void clean() const override;
     void add_point_light(const PointLight& point_light) override;
     void draw(const Ref<VertexArray>& vertex_array, const Ref<Shader>& shader, const glm::mat4& transform, const Ref<DirectionalLight>& directional_light) const override;
-    void draw(const Ref<VertexArray>& vertex_array, const Ref<Shader>& shader, const glm::mat4& transform, const Ref<DirectionalLight>& directional_light, const Material& material) const override;
+    void draw(const Ref<VertexArray>& vertex_array, const Ref<Shader>& shader, const glm::mat4& transform, const Ref<DirectionalLight>& directional_light,
+              const Material& material) const override;
+    void draw_skybox(const Ref<Skybox>& skybox) const override;
 
 private:
     Ref<Framebuffer> framebuffer;

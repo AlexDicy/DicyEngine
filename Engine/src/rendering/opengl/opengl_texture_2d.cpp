@@ -1,5 +1,5 @@
 ﻿#include "pch/enginepch.h"
-#include "opengl_texture.h"
+#include "opengl_texture_2d.h"
 
 #include <glad/gl.h>
 #include <stb_image.h>

@@ -32,6 +32,14 @@ public:
         return this->view_projection_matrix;
     }
 
+    const glm::mat4& get_view_matrix() const {
+        return this->view_matrix;
+    }
+
+    const glm::mat4& get_projection_matrix() const {
+        return this->projection_matrix;
+    }
+
     void set_position(const glm::vec3& position);
     void set_rotation(const Rotation& rotation);
     void update_view_matrix();

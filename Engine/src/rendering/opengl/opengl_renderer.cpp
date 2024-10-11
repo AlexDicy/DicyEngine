@@ -4,7 +4,8 @@
 #include "opengl_buffer.h"
 #include "opengl_framebuffer.h"
 #include "opengl_shader.h"
-#include "opengl_texture.h"
+#include "opengl_texture_2d.h"
+#include "opengl_texture_cube.h"
 #include "opengl_vertex_array.h"
 
 #include <glad/gl.h>
@@ -14,7 +15,6 @@ void OpenGLRenderer::init(const int x, const int y, const uint32_t width, const 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
     glFrontFace(GL_CW);
     this->set_viewport(x, y, width, height);
     unsigned char white[4] = {255, 255, 255, 255};
@@ -59,12 +59,20 @@ Ref<Texture2D> OpenGLRenderer::create_texture2d(const unsigned int channels, con
     return std::make_shared<OpenGLTexture2D>(channels, width, height, data);
 }
 
+Ref<TextureCube> OpenGLRenderer::create_texture_cube(const std::array<std::string, 6>& paths) const {
+    return std::make_shared<OpenGLTextureCube>(paths);
+}
+
 
 void OpenGLRenderer::begin_frame() {
     this->view_projection_matrix = this->camera->get_view_projection_matrix(true);
+    this->view_matrix = this->camera->get_view_matrix();
+    this->projection_matrix = this->camera->get_projection_matrix();
     this->point_lights.clear();
     this->framebuffer->bind();
     this->clean(); // make sure to clean the framebuffer
+    glEnable(GL_CULL_FACE); // disabled by the skybox
+    glDepthFunc(GL_LESS); // changed by the skybox
 }
 
 void OpenGLRenderer::end_frame() const {
@@ -118,4 +126,18 @@ void OpenGLRenderer::draw(const Ref<VertexArray>& vertex_array, const Ref<Shader
 
     vertex_array->bind();
     glDrawElements(GL_TRIANGLES, static_cast<int>(vertex_array->get_index_buffer()->get_count()), GL_UNSIGNED_INT, nullptr);
+}
+
+void OpenGLRenderer::draw_skybox(const Ref<Skybox>& skybox) const {
+    skybox->get_shader()->bind();
+    // remove the translation part of the view matrix
+    const auto view_matrix = glm::mat4(glm::mat3(this->view_matrix));
+    const auto view_projection_matrix = this->projection_matrix * view_matrix;
+    skybox->get_shader()->upload_uniform_mat4("u_view_projection", view_projection_matrix);
+    skybox->get_texture()->bind(0);
+    skybox->get_shader()->upload_uniform_int("u_skybox", 0);
+    skybox->get_vertex_array()->bind();
+    glDepthFunc(GL_LEQUAL);
+    glDisable(GL_CULL_FACE);
+    glDrawElements(GL_TRIANGLES, static_cast<int>(skybox->get_vertex_array()->get_index_buffer()->get_count()), GL_UNSIGNED_INT, nullptr);
 }

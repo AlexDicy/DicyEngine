@@ -12,3 +12,6 @@ public:
 
 class Texture2D : public Texture {
 };
+
+class TextureCube : public Texture {
+};

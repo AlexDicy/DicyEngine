@@ -3,6 +3,7 @@
 #include "layer.h"
 #include "editor/scripts/camera_script.h"
 #include "scene/scene.h"
+#include "scene/skybox.h"
 #include "scene/lights/directional_light.h"
 
 class SceneLayer : public Layer {
@@ -17,5 +18,6 @@ private:
     Ref<Scene> scene;
     Ref<Entity> camera_entity;
     Ref<Shader> shader;
+    Ref<Skybox> skybox;
     Ref<DirectionalLight> directional_light;
 };

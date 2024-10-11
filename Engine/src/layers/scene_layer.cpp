@@ -49,6 +49,16 @@ SceneLayer::SceneLayer(const Ref<Application>& app) {
     this->camera_entity->add<Script>(std::make_shared<CameraScript>(app, this->camera_entity));
 
     this->shader = app->get_shader_registry()->load("../assets/shaders/default-shader");
+    Ref<Shader> skybox_shader = app->get_shader_registry()->load("../assets/shaders/skybox-shader");
+    Ref<TextureCube> skybox_texture = renderer->create_texture_cube(std::array<std::string, 6>{
+        "../assets/skybox/skybox-right.jpg",
+        "../assets/skybox/skybox-left.jpg",
+        "../assets/skybox/skybox-top.jpg",
+        "../assets/skybox/skybox-bottom.jpg",
+        "../assets/skybox/skybox-front.jpg",
+        "../assets/skybox/skybox-back.jpg",
+    });
+    this->skybox = std::make_shared<Skybox>(renderer, skybox_shader, skybox_texture);
 
     this->directional_light = std::make_shared<DirectionalLight>(Rotation(-70, 90, 0), 2.86f);
     Ref<Entity> light_entity = this->scene->create_entity();
@@ -109,12 +119,14 @@ void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
     DE_PROFILE_FUNCTION();
     ctx->renderer->begin_frame();
 
+    // add point lights to the renderer
     const auto point_lights_view = this->scene->get_point_lights();
     for (const auto& entity : point_lights_view) {
         PointLight& light = point_lights_view.get<PointLight>(entity);
         ctx->renderer->add_point_light(light);
     }
 
+    // render meshes
     const auto meshes_view = this->scene->get_meshes();
     for (const auto& entity : meshes_view) {
         const Transform& transform = meshes_view.get<Transform>(entity);
@@ -130,6 +142,9 @@ void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
             ctx->renderer->draw(mesh.vertex_array, this->shader, transform_mat, this->directional_light);
         }
     }
+
+    // render skybox
+    ctx->renderer->draw_skybox(this->skybox);
 
     ctx->renderer->end_frame();
 
