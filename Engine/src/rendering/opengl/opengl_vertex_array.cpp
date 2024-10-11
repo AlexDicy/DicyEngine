@@ -1,9 +1,8 @@
 ﻿#include "pch/enginepch.h"
 #include "opengl_vertex_array.h"
+#include "opengl_datatype.h"
 
-#include "platforms/opengl/opengl_datatype.h"
-
-#include "glad/gl.h"
+#include <glad/gl.h>
 
 
 OpenGLVertexArray::OpenGLVertexArray(const Ref<VertexBuffer>& vertex_buffer, const Ref<IndexBuffer>& index_buffer) :

@@ -1,9 +1,9 @@
 #include "pch/enginepch.h"
 #include "glfw3_window.h"
 #include "events/dispatcher.h"
+#include "rendering/opengl/opengl_context.h"
 
-#include "GLFW/glfw3.h"
-#include "platforms/opengl/opengl_context.h"
+#include <GLFW/glfw3.h>
 
 Ref<Window> Window::create(const char* title, const unsigned int width, const unsigned int height) {
     return std::make_shared<GLFW3Window>(title, width, height);

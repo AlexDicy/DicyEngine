@@ -6,7 +6,7 @@
 #include "input/input.h"
 #include "layers/scene_layer.h"
 #include "rendering/renderer.h"
-#include "platforms/opengl/opengl_renderer.h"
+#include "rendering/opengl/opengl_renderer.h"
 #include "scripting/java_bindings.h"
 
 Application::Application() {
