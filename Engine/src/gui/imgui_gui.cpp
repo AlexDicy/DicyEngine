@@ -70,6 +70,8 @@ void ImGuiGUI::update(const std::unique_ptr<Context>& ctx) {
     ImGui::SameLine();
     ImGui::Checkbox("Demo Window", &show_demo_window);
 
+    const glm::vec3& camera_position = ctx->renderer->get_camera()->get_position();
+    ImGui::Text("Camera position: %.2f, %.2f, %.2f", camera_position.x, camera_position.y, camera_position.z);
     ImGui::Text("%.3f ms/frame (%.1f FPS)", 1000.0f / io->Framerate, io->Framerate);
 
     const std::vector<DE::Profiling::ProfilerResult> timings = DE::Profiling::get_profiler().get_timings();

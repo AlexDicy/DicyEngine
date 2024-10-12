@@ -1,5 +1,4 @@
 #pragma once
-#include "rendering/camera/camera.h"
 #include "scene/entities/entity_script_java.h"
 
 class CameraScript final : public EntityScript {

@@ -20,6 +20,10 @@ public:
         return this->api;
     }
 
+    const Ref<Camera>& get_camera() {
+        return this->camera;
+    }
+
     void set_camera(const Ref<Camera>& camera) {
         this->camera = camera;
     }
@@ -41,7 +45,8 @@ public:
     virtual void clean() const = 0;
     virtual void add_point_light(const PointLight& point_light) = 0;
     virtual void draw(const Ref<VertexArray>& vertex_array, const Ref<Shader>& shader, const glm::mat4& transform, const Ref<DirectionalLight>& directional_light) const = 0;
-    virtual void draw(const Ref<VertexArray>& vertex_array, const Ref<Shader>& shader, const glm::mat4& transform, const Ref<DirectionalLight>& directional_light, const Material& material) const = 0;
+    virtual void draw(const Ref<VertexArray>& vertex_array, const Ref<Shader>& shader, const glm::mat4& transform, const Ref<DirectionalLight>& directional_light,
+                      const Material& material) const = 0;
     virtual void draw_skybox(const Ref<Skybox>& skybox) const = 0;
 
 protected:

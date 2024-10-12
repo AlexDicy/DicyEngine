@@ -14,7 +14,7 @@ public class CameraScript extends EntityScript {
     private boolean moveFaster = false;
     private final float sensitivity = 0.16f;
     private final float dampingFactor = 10.0f;
-    private final float baseAcceleration = 50.0f;
+    private final float baseAcceleration = 36.0f;
 
     public CameraScript() {
         Input.setAction("move_camera_up", InputCode.KEY_E);

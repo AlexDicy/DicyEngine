@@ -54,7 +54,7 @@ void CameraScript::on_sleep() {
 }
 
 Ref<PerspectiveCamera> get_perspective_camera(const Ref<Window>& window) {
-    return std::make_shared<PerspectiveCamera>(90.0f, static_cast<float>(window->get_width()) / static_cast<float>(window->get_height()));
+    return std::make_shared<PerspectiveCamera>(58.0f, static_cast<float>(window->get_width()) / static_cast<float>(window->get_height()));
 }
 
 Ref<OrthographicCamera> get_orthographic_camera() {

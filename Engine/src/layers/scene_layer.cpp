@@ -45,7 +45,7 @@ SceneLayer::SceneLayer(const Ref<Application>& app) {
     // camera
     this->camera_entity = this->scene->create_entity();
     // this->camera_entity->add<Transform>(glm::vec3(0.0f, 2.0f, 0.0f), Rotation(-15, 0, 0));
-    this->camera_entity->add<Transform>(glm::vec3(0.0f, 10.0f, 0.0f), Rotation(-90, 0, 0));
+    this->camera_entity->add<Transform>(glm::vec3(0.0f, 15.0f, 0.0f), Rotation(-90, 0, 0));
     this->camera_entity->add<Script>(std::make_shared<CameraScript>(app, this->camera_entity));
 
     this->shader = app->get_shader_registry()->load("../assets/shaders/default-shader");
