@@ -13,34 +13,11 @@ SceneLayer::SceneLayer(const Ref<Application>& app) {
     this->scene = std::make_shared<Scene>();
 
     // x,y,z indicator
-    {
-        const auto x = this->scene->create_entity();
-        const auto y = this->scene->create_entity();
-        const auto z = this->scene->create_entity();
-        constexpr glm::vec3 position = {0.0f, 0.0f, 0.0f};
-        x->add<Transform>(position);
-        y->add<Transform>(position);
-        z->add<Transform>(position);
-        constexpr float vertices_x[3 * 8] = {
-            0.0f, 0.0f, -0.1f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, //
-            0.0f, 0.0f, 0.1f,  0.0f, 1.0f, 0.0f, 0.0f, 0.0f, //
-            1.0f, 0.0f, 0.0f,  0.0f, 1.0f, 0.0f, 0.0f, 0.0f, //
-        };
-        constexpr float vertices_y[3 * 8] = {
-            -0.1f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, //
-            0.1f,  0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, //
-            0.0f,  1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, //
-        };
-        constexpr float vertices_z[3 * 8] = {
-            -0.1f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, //
-            0.1f,  0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, //
-            0.0f,  0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, //
-        };
-        constexpr unsigned int indexes[3] = {0, 1, 2};
-        x->add<Mesh>(renderer, vertices_x, sizeof(vertices_x), indexes, 3, Material(renderer->create_texture2d(4, 1, 1, std::array<unsigned char, 4>{204, 24, 24, 204}.data())));
-        y->add<Mesh>(renderer, vertices_y, sizeof(vertices_y), indexes, 3, Material(renderer->create_texture2d(4, 1, 1, std::array<unsigned char, 4>{24, 24, 204, 204}.data())));
-        z->add<Mesh>(renderer, vertices_z, sizeof(vertices_z), indexes, 3, Material(renderer->create_texture2d(4, 1, 1, std::array<unsigned char, 4>{24, 204, 24, 204}.data())));
+    std::vector<Model> xyz_models = ModelImporter::import_from_file(renderer, "../assets/models/arrows.glb");
+    for (Model& arrow : xyz_models) {
+        arrow.material.ignore_lighting = true;
     }
+    this->add_entities_for_models(renderer, xyz_models, {0.0f, 0.0f, 0.0f});
 
     // camera
     this->camera_entity = this->scene->create_entity();
@@ -68,11 +45,11 @@ SceneLayer::SceneLayer(const Ref<Application>& app) {
 
     renderer->set_camera(this->scene->get_camera());
 
-    this->load_model(renderer, "../assets/models/sand_rocks/sand_rocks_small_01_1k.gltf", {0.0f, 0.0f, 3.0f});
-    this->load_model(renderer, "../assets/models/fountain.glb", {-4.0f, 0.2f, 4.0f});
-    this->load_model(renderer, "../assets/models/wooden_stool/wooden_stool_02_1k.gltf", {0.0f, 0.0f, 3.0f}, Rotation(), glm::vec3(4.0f));
-    this->load_model(renderer, "../assets/models/covered_car/covered_car_1k.gltf", {2.5f, 0.0f, 3.0f}, Rotation(0, -15, 0));
-    this->load_model(renderer, "../assets/models/picnic_table/wooden_picnic_table_1k.gltf", {0.0f, 0.0f, 6.0f}, Rotation(4, -85, 0));
+    this->add_entities_for_models(renderer, "../assets/models/sand_rocks/sand_rocks_small_01_1k.gltf", {0.0f, 0.0f, 3.0f});
+    this->add_entities_for_models(renderer, "../assets/models/fountain.glb", {-4.0f, 0.2f, 4.0f});
+    this->add_entities_for_models(renderer, "../assets/models/wooden_stool/wooden_stool_02_1k.gltf", {0.0f, 0.0f, 3.0f}, Rotation(), glm::vec3(4.0f));
+    this->add_entities_for_models(renderer, "../assets/models/covered_car/covered_car_1k.gltf", {2.5f, 0.0f, 3.0f}, Rotation(0, -15, 0));
+    this->add_entities_for_models(renderer, "../assets/models/picnic_table/wooden_picnic_table_1k.gltf", {0.0f, 0.0f, 6.0f}, Rotation(4, -85, 0));
 
     {
         Model model = ModelImporter::import_from_file(renderer, "../assets/models/lamp.glb")[0];
@@ -155,8 +132,13 @@ void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
     }
 }
 
-void SceneLayer::load_model(const Ref<Renderer>& renderer, const std::string& path, const glm::vec3 position, const Rotation rotation, const glm::vec3 scale) const {
-    std::vector<Model> models = ModelImporter::import_from_file(renderer, path);
+void SceneLayer::add_entities_for_models(const Ref<Renderer>& renderer, const std::string& path, const glm::vec3 position, const Rotation rotation, const glm::vec3 scale) const {
+    const std::vector<Model> models = ModelImporter::import_from_file(renderer, path);
+    this->add_entities_for_models(renderer, models, position, rotation, scale);
+}
+
+void SceneLayer::add_entities_for_models(const Ref<Renderer>& renderer, const std::vector<Model>& models, const glm::vec3 position, const Rotation rotation,
+                                         const glm::vec3 scale) const {
     for (const Model& model : models) {
         const VertexData* vertex_data = model.vertices.data();
         auto vertex_data_floats = reinterpret_cast<const float*>(vertex_data);

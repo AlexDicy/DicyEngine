@@ -1,10 +1,10 @@
 ﻿#pragma once
 #include "application.h"
 #include "layer.h"
-#include "editor/scripts/camera_script.h"
 #include "scene/scene.h"
 #include "scene/skybox.h"
 #include "scene/lights/directional_light.h"
+#include "scene/models/model.h"
 
 class SceneLayer : public Layer {
 public:
@@ -13,7 +13,8 @@ public:
     void update(const std::unique_ptr<Context>& ctx) override;
 
 private:
-    void load_model(const Ref<Renderer>& renderer, const std::string& path, glm::vec3 position, Rotation rotation = Rotation(), glm::vec3 scale = glm::vec3(1.0f)) const;
+    void add_entities_for_models(const Ref<Renderer>& renderer, const std::string& path, glm::vec3 position, Rotation rotation = Rotation(), glm::vec3 scale = glm::vec3(1.0f)) const;
+    void add_entities_for_models(const Ref<Renderer>& renderer, const std::vector<Model>& models, glm::vec3 position, Rotation rotation = Rotation(), glm::vec3 scale = glm::vec3(1.0f)) const;
 
     Ref<Scene> scene;
     Ref<Entity> camera_entity;
