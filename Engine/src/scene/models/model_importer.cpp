@@ -1,18 +1,28 @@
 ﻿#include "pch/enginepch.h"
 #include "model_importer.h"
 
+#include <stack>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include <assimp/texture.h>
 #include <stb_image.h>
 
+glm::mat4 convert_ai_matrix_to_glm(const aiMatrix4x4& ai_matrix) {
+    return {
+        ai_matrix.a1, ai_matrix.b1, ai_matrix.c1, ai_matrix.d1, //
+        ai_matrix.a2, ai_matrix.b2, ai_matrix.c2, ai_matrix.d2, //
+        ai_matrix.a3, ai_matrix.b3, ai_matrix.c3, ai_matrix.d3, //
+        ai_matrix.a4, ai_matrix.b4, ai_matrix.c4, ai_matrix.d4, //
+    };
+}
 
 std::vector<Model> ModelImporter::import_from_file(const Ref<Renderer>& renderer, const std::string& filename) {
     Assimp::Importer importer;
 
     // TODO useful flags: aiProcess_SplitLargeMeshes, aiProcess_OptimizeMeshes, aiProcess_GenNormals
-    constexpr int flags = aiProcess_MakeLeftHanded | aiProcess_FlipWindingOrder | aiProcess_CalcTangentSpace | aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_SortByPType;
+    constexpr int flags =
+        aiProcess_MakeLeftHanded | aiProcess_FlipWindingOrder | aiProcess_CalcTangentSpace | aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_SortByPType;
     const aiScene* scene = importer.ReadFile(filename, flags);
     if (scene == nullptr) {
         throw std::runtime_error(importer.GetErrorString());
@@ -20,43 +30,59 @@ std::vector<Model> ModelImporter::import_from_file(const Ref<Renderer>& renderer
 
     std::string base_path = filename.substr(0, filename.find_last_of('/'));
 
-    aiMatrix4x4 ai_tm = scene->mRootNode->mTransformation;
-    glm::mat4 root_transformation = glm::mat4(ai_tm.a1, ai_tm.b1, ai_tm.c1, ai_tm.d1, //
-                                              ai_tm.a2, ai_tm.b2, ai_tm.c2, ai_tm.d2, //
-                                              ai_tm.a3, ai_tm.b3, ai_tm.c3, ai_tm.d3, //
-                                              ai_tm.a4, ai_tm.b4, ai_tm.c4, ai_tm.d4);
 
-    std::vector<Model> models(scene->mNumMeshes);
-    for (unsigned int i = 0; i < scene->mNumMeshes; i++) {
-        Model* model = &models[i];
-        model->transformation_matrix = root_transformation;
-        aiMesh* mesh = scene->mMeshes[i];
+    // TODO: cache the vertex data, indexes, and textures indexed by the mesh/texture index
+    // std::map<int, std::
+    std::vector<Model> models;
+    models.reserve(scene->mNumMeshes);
 
-        aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
-        model->material.albedo = get_texture_from_material(renderer, scene, material, aiTextureType_BASE_COLOR, base_path);
-        // might have to load the 3 channels separately depending on the file format
-        model->material.occlusion_roughness_metallic = get_texture_from_material(renderer, scene, material, aiTextureType_DIFFUSE_ROUGHNESS, base_path);
+    std::stack<std::pair<aiNode*, glm::mat4>> node_stack;
+    node_stack.emplace(scene->mRootNode, glm::mat4(1.0f));
 
-        models[i].vertices.reserve(mesh->mNumVertices);
-        for (unsigned int v = 0; v < mesh->mNumVertices; v++) {
-            aiVector3f normal = mesh->mNormals == nullptr ? aiVector3D(0.0f, 1.0f, 0.0f) : mesh->mNormals[v];
+    while (!node_stack.empty()) {
+        auto [node, parent_transformation] = node_stack.top();
+        node_stack.pop();
 
-            const glm::vec2 texture_coords = mesh->mTextureCoords[0] == nullptr ? glm::vec2() : glm::vec2(mesh->mTextureCoords[0][v].x, mesh->mTextureCoords[0][v].y);
+        glm::mat4 current_transformation = parent_transformation * convert_ai_matrix_to_glm(node->mTransformation);
 
-            models[i].vertices.emplace_back( //
-                mesh->mVertices[v].x, //
-                mesh->mVertices[v].y, //
-                mesh->mVertices[v].z, //
-                glm::vec3(normal.x, normal.y, normal.z),
-                texture_coords //
-            );
+        for (unsigned int i = 0; i < node->mNumMeshes; i++) {
+            const unsigned int mesh_index = node->mMeshes[i];
+            const aiMesh* mesh = scene->mMeshes[mesh_index];
+            Model model;
+            model.transformation_matrix = current_transformation;
+
+            const aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+            model.material.albedo = get_texture_from_material(renderer, scene, material, aiTextureType_BASE_COLOR, base_path);
+            // might have to load the 3 channels separately depending on the file format
+            model.material.occlusion_roughness_metallic = get_texture_from_material(renderer, scene, material, aiTextureType_DIFFUSE_ROUGHNESS, base_path);
+
+            model.vertices.reserve(mesh->mNumVertices);
+            for (unsigned int v = 0; v < mesh->mNumVertices; v++) {
+                const aiVector3D normal = mesh->mNormals == nullptr ? aiVector3D(0.0f, 1.0f, 0.0f) : mesh->mNormals[v];
+
+                const glm::vec2 texture_coords = mesh->mTextureCoords[0] == nullptr ? glm::vec2() : glm::vec2(mesh->mTextureCoords[0][v].x, mesh->mTextureCoords[0][v].y);
+
+                model.vertices.emplace_back( //
+                    mesh->mVertices[v].x, //
+                    mesh->mVertices[v].y, //
+                    mesh->mVertices[v].z, //
+                    glm::vec3(normal.x, normal.y, normal.z),
+                    texture_coords //
+                );
+            }
+
+            model.indexes.reserve(static_cast<size_t>(mesh->mNumFaces) * 3);
+            for (unsigned int f = 0; f < mesh->mNumFaces; f++) {
+                model.indexes.push_back(mesh->mFaces[f].mIndices[0]);
+                model.indexes.push_back(mesh->mFaces[f].mIndices[1]);
+                model.indexes.push_back(mesh->mFaces[f].mIndices[2]);
+            }
+
+            models.push_back(model);
         }
 
-        models[i].indexes.reserve(static_cast<size_t>(mesh->mNumFaces) * 3);
-        for (unsigned int f = 0; f < mesh->mNumFaces; f++) {
-            models[i].indexes.push_back(mesh->mFaces[f].mIndices[0]);
-            models[i].indexes.push_back(mesh->mFaces[f].mIndices[1]);
-            models[i].indexes.push_back(mesh->mFaces[f].mIndices[2]);
+        for (unsigned int i = 0; i < node->mNumChildren; i++) {
+            node_stack.emplace(node->mChildren[i], current_transformation);
         }
     }
 
@@ -66,7 +92,15 @@ std::vector<Model> ModelImporter::import_from_file(const Ref<Renderer>& renderer
 Ref<Texture2D> ModelImporter::get_texture_from_material(const Ref<Renderer>& renderer, const aiScene* scene, const aiMaterial* material, const aiTextureType type,
                                                         const std::string& base_path) {
     if (material->GetTextureCount(type) == 0) {
-        return nullptr;
+        aiColor3D diffuse_color = {1.0f, 1.0f, 1.0f};
+        material->Get(AI_MATKEY_COLOR_DIFFUSE, diffuse_color);
+        const auto color_data = std::array{
+            static_cast<unsigned char>(diffuse_color.r * 255),
+            static_cast<unsigned char>(diffuse_color.g * 255),
+            static_cast<unsigned char>(diffuse_color.b * 255),
+            static_cast<unsigned char>(255),
+        };
+        return renderer->create_texture2d(4, 1, 1, color_data.data());
     }
 
     aiString ai_texture_path;
