@@ -30,6 +30,8 @@ OpenGLTextureCube::OpenGLTextureCube(const std::array<std::string, 6>& paths) : 
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 }
 
+OpenGLTextureCube::OpenGLTextureCube(const uint32_t id) : id(id) {}
+
 OpenGLTextureCube::~OpenGLTextureCube() {
     glDeleteTextures(1, &this->id);
 }

@@ -63,6 +63,59 @@ Ref<TextureCube> OpenGLRenderer::create_texture_cube(const std::array<std::strin
     return std::make_shared<OpenGLTextureCube>(paths);
 }
 
+Ref<TextureCube> OpenGLRenderer::create_texture_cube_from_hdr(const Ref<Texture2D>& hdr_texture, const Ref<Shader>& convert_shader) {
+    uint32_t capture_framebuffer;
+    uint32_t capture_renderbuffer;
+    glGenFramebuffers(1, &capture_framebuffer);
+    glGenRenderbuffers(1, &capture_renderbuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, capture_framebuffer);
+    glBindRenderbuffer(GL_RENDERBUFFER, capture_renderbuffer);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, 512, 512);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, capture_renderbuffer);
+
+    convert_shader->bind();
+    hdr_texture->bind(0);
+    convert_shader->upload_uniform_int("u_equirectangular_map", 0);
+
+    uint32_t cube_map_id;
+    glGenTextures(1, &cube_map_id);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, cube_map_id);
+    for (unsigned int i = 0; i < 6; i++) {
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, 512, 512, 0, GL_RGB, GL_FLOAT, nullptr);
+    }
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+    const auto projection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
+    glm::mat4 view_matrices[] = {
+        lookAt(glm::vec3(0.0f), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)), //
+        lookAt(glm::vec3(0.0f), glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)), //
+        lookAt(glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)), //
+        lookAt(glm::vec3(0.0f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)), //
+        lookAt(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)), //
+        lookAt(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f)), //
+    };
+    int previous_viewport[4];
+    glGetIntegerv(GL_VIEWPORT, previous_viewport);
+    glViewport(0, 0, 512, 512);
+    const SkyboxCube cube(this->shared_from_this(), convert_shader, hdr_texture);
+    for (unsigned int i = 0; i < 6; i++) {
+        convert_shader->upload_uniform_mat4("u_view_projection", projection * view_matrices[i]);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, cube_map_id, 0);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        cube.get_vertex_array()->bind();
+        glDrawElements(GL_TRIANGLES, static_cast<int>(cube.get_vertex_array()->get_index_buffer()->get_count()), GL_UNSIGNED_INT, nullptr);
+    }
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glViewport(previous_viewport[0], previous_viewport[1], previous_viewport[2], previous_viewport[3]);
+    glDeleteFramebuffers(1, &capture_framebuffer);
+    glDeleteRenderbuffers(1, &capture_renderbuffer);
+    return std::make_shared<OpenGLTextureCube>(cube_map_id);
+}
+
 
 void OpenGLRenderer::begin_frame() {
     this->view_projection_matrix = this->camera->get_view_projection_matrix(true);
@@ -128,7 +181,7 @@ void OpenGLRenderer::draw(const Ref<VertexArray>& vertex_array, const Ref<Shader
     glDrawElements(GL_TRIANGLES, static_cast<int>(vertex_array->get_index_buffer()->get_count()), GL_UNSIGNED_INT, nullptr);
 }
 
-void OpenGLRenderer::draw_skybox(const Ref<Skybox>& skybox) const {
+void OpenGLRenderer::draw_skybox(const Ref<SkyboxCube>& skybox) const {
     skybox->get_shader()->bind();
     // remove the translation part of the view matrix
     const auto view_matrix = glm::mat4(glm::mat3(this->view_matrix));

@@ -5,12 +5,18 @@
 #include <stb_image.h>
 
 OpenGLTexture2D::OpenGLTexture2D(const std::string& path) : path(path) {
+    const bool is_hdr = path.ends_with(".hdr");
     int width;
     int height;
     int channels;
 
     stbi_set_flip_vertically_on_load(true);
-    stbi_uc* texture = stbi_load(path.c_str(), &width, &height, &channels, 0);
+    void* texture;
+    if (is_hdr) {
+        texture = stbi_loadf(path.c_str(), &width, &height, &channels, 0);
+    } else {
+        texture = stbi_load(path.c_str(), &width, &height, &channels, 0);
+    }
 
     if (!texture) {
         const char* error = stbi_failure_reason();
@@ -20,7 +26,7 @@ OpenGLTexture2D::OpenGLTexture2D(const std::string& path) : path(path) {
     this->width = width;
     this->height = height;
 
-    this->create_texture_with_data(channels, width, height, texture);
+    this->create_texture_with_data(channels, width, height, texture, is_hdr);
 
     stbi_image_free(texture);
 }
@@ -43,21 +49,32 @@ void OpenGLTexture2D::bind(const uint32_t slot) const {
 #endif
 }
 
-void OpenGLTexture2D::create_texture_with_data(unsigned int channels, unsigned int width, unsigned int height, const void* data) {
+void OpenGLTexture2D::create_texture_with_data(unsigned int channels, unsigned int width, unsigned int height, const void* data, const bool is_hdr) {
     this->width = width;
     this->height = height;
+    const int internal_format = is_hdr ? GL_RGB16F : channels > 3 ? GL_RGBA8 : GL_RGB8;
+    const int format = !is_hdr && channels > 3 ? GL_RGBA : GL_RGB;
+    const int type = is_hdr ? GL_FLOAT : GL_UNSIGNED_BYTE;
+
 #ifdef OPENGL_4_6
     glCreateTextures(GL_TEXTURE_2D, 1, &this->id);
-    glTextureStorage2D(this->id, 1, channels > 3 ? GL_RGBA8 : GL_RGB8, width, height);
+    glTextureStorage2D(this->id, 1, internal_format, width, height);
     glTextureParameteri(this->id, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTextureParameteri(this->id, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTextureSubImage2D(this->id, 0, 0, 0, width, height, channels > 3 ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, data);
+    if (is_hdr) {
+        glTextureParameteri(this->id, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTextureParameteri(this->id, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    }
+    glTextureSubImage2D(this->id, 0, 0, 0, width, height, format, type, data);
 #else
     glGenTextures(1, &this->id);
     glBindTexture(GL_TEXTURE_2D, this->id);
-    glTexImage2D(GL_TEXTURE_2D, 0, channels > 3 ? GL_RGBA8 : GL_RGB8, width, height, 0, channels > 3 ? GL_RGBA : GL_RG, GL_UNSIGNED_BYTE, nullptr);
+    glTexImage2D(GL_TEXTURE_2D, 0, internal_format, width, height, 0, format, type, data);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, channels > 3 ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, data);
+    if (is_hdr) {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    }
 #endif
 }

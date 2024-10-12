@@ -17,7 +17,7 @@ public:
         return this->height;
     }
 
-    void create_texture_with_data(unsigned int channels, unsigned int width, unsigned int height, const void* data);
+    void create_texture_with_data(unsigned int channels, unsigned int width, unsigned int height, const void* data, bool is_hdr = false);
 
 private:
     std::string path;

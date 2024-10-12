@@ -5,6 +5,7 @@
 class OpenGLTextureCube : public TextureCube {
 public:
     explicit OpenGLTextureCube(const std::array<std::string, 6>& paths);
+    explicit OpenGLTextureCube(uint32_t id);
     ~OpenGLTextureCube() override;
 
     void bind(uint32_t) const override;

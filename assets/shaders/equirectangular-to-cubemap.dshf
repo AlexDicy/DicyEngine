@@ -1,0 +1,22 @@
+#version 410 core
+
+layout (location = 0) out vec4 color;
+
+in vec3 v_position;
+
+uniform sampler2D u_equirectangular_map;
+
+const vec2 inv_atan = vec2(0.1591, 0.3183);
+
+vec2 sample_spherical_map(vec3 position) {
+    vec2 coords = vec2(atan(position.z, position.x), asin(position.y));
+    coords *= inv_atan;
+    coords += 0.5;
+    return coords;
+}
+
+void main() {
+    vec2 texture_coords = sample_spherical_map(normalize(v_position));
+    vec3 albedo = texture(u_equirectangular_map, texture_coords).rgb;
+    color = vec4(albedo, 1.0);
+}

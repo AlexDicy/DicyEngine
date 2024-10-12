@@ -35,7 +35,10 @@ SceneLayer::SceneLayer(const Ref<Application>& app) {
         "../assets/skybox/skybox-front.jpg",
         "../assets/skybox/skybox-back.jpg",
     });
-    this->skybox = std::make_shared<Skybox>(renderer, skybox_shader, skybox_texture);
+    this->skybox = std::make_shared<SkyboxCube>(renderer, skybox_shader, skybox_texture);
+    Ref<Texture2D> skybox_hdr = renderer->create_texture2d("../assets/skybox/zwartkops_curve_afternoon_4k.hdr");
+    Ref<Shader> equirectangular_to_cubemap_shader = app->get_shader_registry()->load("../assets/shaders/equirectangular-to-cubemap");
+    renderer->create_texture_cube_from_hdr(skybox_hdr, equirectangular_to_cubemap_shader);
 
     this->directional_light = std::make_shared<DirectionalLight>(Rotation(-70, 90, 0), 2.86f);
     Ref<Entity> light_entity = this->scene->create_entity();

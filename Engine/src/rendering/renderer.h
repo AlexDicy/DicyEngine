@@ -4,7 +4,7 @@
 #include "vertex_array.h"
 #include "shader.h"
 #include "texture.h"
-#include "scene/skybox.h"
+#include "scene/skybox_cube.h"
 #include "scene/components/point_light.h"
 #include "scene/lights/directional_light.h"
 #include "scene/materials/material.h"
@@ -39,6 +39,7 @@ public:
     virtual Ref<Texture2D> create_texture2d(const std::string& path) const = 0;
     virtual Ref<Texture2D> create_texture2d(unsigned int channels, unsigned int width, unsigned int height, const void* data) const = 0;
     virtual Ref<TextureCube> create_texture_cube(const std::array<std::string, 6>& paths) const = 0;
+    virtual Ref<TextureCube> create_texture_cube_from_hdr(const Ref<Texture2D>& hdr_texture, const Ref<Shader>& convert_shader) = 0;
 
     virtual void begin_frame() = 0;
     virtual void end_frame() const = 0;
@@ -47,7 +48,7 @@ public:
     virtual void draw(const Ref<VertexArray>& vertex_array, const Ref<Shader>& shader, const glm::mat4& transform, const Ref<DirectionalLight>& directional_light) const = 0;
     virtual void draw(const Ref<VertexArray>& vertex_array, const Ref<Shader>& shader, const glm::mat4& transform, const Ref<DirectionalLight>& directional_light,
                       const Material& material) const = 0;
-    virtual void draw_skybox(const Ref<Skybox>& skybox) const = 0;
+    virtual void draw_skybox(const Ref<SkyboxCube>& skybox) const = 0;
 
 protected:
     Ref<Camera> camera;

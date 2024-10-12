@@ -2,7 +2,7 @@
 #include "application.h"
 #include "layer.h"
 #include "scene/scene.h"
-#include "scene/skybox.h"
+#include "scene/skybox_cube.h"
 #include "scene/lights/directional_light.h"
 #include "scene/models/model.h"
 
@@ -19,6 +19,6 @@ private:
     Ref<Scene> scene;
     Ref<Entity> camera_entity;
     Ref<Shader> shader;
-    Ref<Skybox> skybox;
+    Ref<SkyboxCube> skybox;
     Ref<DirectionalLight> directional_light;
 };
