@@ -18,6 +18,8 @@ public:
         return 0;
     }
 
+    static Ref<TextureCube> create_from_hdr(const Ref<Renderer>& renderer, const Ref<Texture2D>& hdr_texture, const Ref<Shader>& convert_shader, uint32_t size);
+
 private:
     std::array<std::string, 6> paths;
     uint32_t id;
