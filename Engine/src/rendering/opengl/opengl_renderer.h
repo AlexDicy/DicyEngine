@@ -24,7 +24,6 @@ public:
     void begin_frame() override;
     void end_frame() const override;
     void clean() const override;
-    void prepare_ambient_light(const Ref<TextureCube>& irradiance_map) override;
     void add_point_light(const PointLight& point_light) override;
     void draw(const Ref<VertexArray>& vertex_array, const Ref<Shader>& shader, const glm::mat4& transform, const Ref<DirectionalLight>& directional_light) const override;
     void draw(const Ref<VertexArray>& vertex_array, const Ref<Shader>& shader, const glm::mat4& transform, const Ref<DirectionalLight>& directional_light,
@@ -35,5 +34,4 @@ private:
     Ref<Framebuffer> framebuffer;
     Ref<OpenGLTexture2D> white_pixel_texture;
     Ref<OpenGLTexture2D> default_occlusion_roughness_metallic_texture;
-    Ref<TextureCube> irradiance_map;
 };

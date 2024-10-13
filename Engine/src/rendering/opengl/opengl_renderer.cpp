@@ -93,10 +93,6 @@ void OpenGLRenderer::clean() const {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void OpenGLRenderer::prepare_ambient_light(const Ref<TextureCube>& irradiance_map) {
-    this->irradiance_map = irradiance_map;
-}
-
 void OpenGLRenderer::add_point_light(const PointLight& point_light) {
     this->point_lights.push_back(point_light);
 }
