@@ -26,6 +26,7 @@ uniform vec3 u_camera_position_local;
 uniform Material u_material;
 uniform sampler2D u_albedo;
 uniform sampler2D u_occlusion_roughness_metallic;
+uniform samplerCube u_irradiance_map;
 uniform DirectionalLight u_directional_light;
 uniform PointLight u_point_lights[10];
 uniform int u_point_lights_count;
@@ -54,17 +55,28 @@ vec3 fresnel_schlick(float VoH, vec3 F0) {
     return F0 + (1.0 - F0) * pow(1.0 - VoH, 5);
 }
 
-vec3 calculate_light(float NoV, float NoL, float NoH, float VoH, vec3 albedo, float metallic, float roughness2, vec3 radiance) {
-    // F0 is calculated using the IOR (index of refraction), we approximate it to 0.04 for non-metals and use the albedo for metals
-    vec3 F0 = mix(vec3(0.04), albedo, metallic);
+// Fresnel-Schlick approximation with roughness, Sébastien Lagarde
+vec3 fresnel_schlick_with_roughness(float VoH, vec3 F0, float roughness) {
+    //return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(1.0 - VoH, 5);
+    return F0 + (max(vec3(roughness), F0) - F0) * pow(1 - VoH, 5);
+}
+
+vec3 calculate_light(float NoV, float NoL, float NoH, float VoH, vec3 albedo, float metallic, float roughness2, vec3 F0, vec3 radiance) {
     vec3 F = fresnel_schlick(VoH, F0);
     float D = distribution_ggx(NoH, roughness2);
     float G = geometry_schlick_ggx(NoV, roughness2) * geometry_schlick_ggx(NoL, roughness2);
 
-    vec3 kd = (1.0 - F) * (1.0 - metallic);
-    vec3 diffuse = kd * albedo / PI; // lambert brdf
+    vec3 kD = (1.0 - F) * (1.0 - metallic);
+    vec3 diffuse = kD * albedo / PI; // lambert brdf
     vec3 specular = F * G * D / max(4.0 * NoV * NoL, 0.0001); // cook-torrance brdf
     return (diffuse + specular) * radiance * NoL;
+}
+
+vec3 calculate_indirect_lighting(vec3 N, vec3 V, vec3 albedo, float roughness2, vec3 F0) {
+    vec3 irradiance = texture(u_irradiance_map, N).rgb;
+    vec3 F = fresnel_schlick_with_roughness(max(dot(N, V), 0.0), F0, roughness2);
+    vec3 kD = 1.0 - F;
+    return kD * albedo * irradiance;
 }
 
 void main() {
@@ -74,7 +86,7 @@ void main() {
         return;
     }
 
-    vec4 albedo = vec4(pow(linear_albedo.rgb, vec3(2.2)), linear_albedo.a);
+    vec3 albedo = pow(linear_albedo.rgb, vec3(2.2));
     vec4 occlusion_roughness_metallic = texture(u_occlusion_roughness_metallic, v_texture_coords);
     float occlusion = occlusion_roughness_metallic.r;
     float roughness = occlusion_roughness_metallic.g;
@@ -85,6 +97,8 @@ void main() {
     vec3 V = normalize(u_camera_position_local - v_position);
     float NoV = saturate(dot(N, V));
     float roughness2 = clamp(roughness * roughness, 1e-3, 1.0);
+    // F0 is calculated using the IOR (index of refraction), we approximate it to 0.04 for non-metals and use the albedo for metals
+    vec3 F0 = mix(vec3(0.04), albedo, metallic);
 
     // directional light
     vec3 L = normalize(-u_directional_light.direction);
@@ -92,7 +106,9 @@ void main() {
     float NoL = saturate(dot(N, L));
     float NoH = saturate(dot(N, H));
     float VoH = saturate(dot(V, H));
-    vec3 reflectance = calculate_light(NoV, NoL, NoH, VoH, albedo.rgb, metallic, roughness2, u_directional_light.color * u_directional_light.intensity);
+    vec3 reflectance = calculate_light(NoV, NoL, NoH, VoH, albedo, metallic, roughness2, F0, u_directional_light.color * u_directional_light.intensity);
+
+    // point lights
     for (int i = 0; i < u_point_lights_count; i++) {
         L = normalize(u_point_lights[i].position - v_position);
         H = normalize(V + L);
@@ -102,10 +118,13 @@ void main() {
         float distance = length(u_point_lights[i].position - v_position);
         float attenuation = 1.0 / (distance * distance);
         vec3 radiance = u_point_lights[i].color * u_point_lights[i].intensity * attenuation;
-        reflectance += calculate_light(NoV, NoL, NoH, VoH, albedo.rgb, metallic, roughness2, radiance);
+        reflectance += calculate_light(NoV, NoL, NoH, VoH, albedo.rgb, metallic, roughness2, F0, radiance);
     }
+
+    // indirect lighting
+    reflectance += calculate_indirect_lighting(N, V, albedo.rgb, roughness2, F0);
 
     vec3 linear_color = vec3(reflectance * occlusion);
     linear_color = linear_color / (linear_color + vec3(1.0));
-    color = vec4(pow(linear_color, vec3(1.0 / 2.2)), albedo.a);
+    color = vec4(pow(linear_color, vec3(1.0 / 2.2)), linear_albedo.a);
 }

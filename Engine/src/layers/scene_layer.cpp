@@ -31,7 +31,8 @@ SceneLayer::SceneLayer(const Ref<Application>& app) {
     Ref<Shader> equirectangular_to_cubemap_shader = app->get_shader_registry()->load("../assets/shaders/equirectangular-to-cubemap");
     Ref<TextureCube> skybox_texture_512 = renderer->create_texture_cube_from_hdr(skybox_hdr, equirectangular_to_cubemap_shader, 512);
     Ref<TextureCube> skybox_texture_2048 = renderer->create_texture_cube_from_hdr(skybox_hdr, equirectangular_to_cubemap_shader, 2048);
-    this->skybox = std::make_shared<SkyboxCube>(renderer, skybox_shader, skybox_texture_2048);
+    this->irradiance_map = renderer->create_irradiance_map(skybox_texture_512, app->get_shader_registry()->load("../assets/shaders/cubemap-to-irradiance"), 512);
+    this->skybox = std::make_shared<SkyboxCube>(renderer, skybox_shader, irradiance_map);
 
     this->directional_light = std::make_shared<DirectionalLight>(Rotation(-70, 90, 0), 2.86f);
     Ref<Entity> light_entity = this->scene->create_entity();
@@ -92,6 +93,8 @@ void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
     DE_PROFILE_FUNCTION();
     ctx->renderer->begin_frame();
 
+    // ambient lighting
+    ctx->renderer->prepare_ambient_light(this->irradiance_map);
     // add point lights to the renderer
     const auto point_lights_view = this->scene->get_point_lights();
     for (const auto& entity : point_lights_view) {

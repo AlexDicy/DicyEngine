@@ -18,7 +18,9 @@ public:
         return 0;
     }
 
+
     static Ref<TextureCube> create_from_hdr(const Ref<Renderer>& renderer, const Ref<Texture2D>& hdr_texture, const Ref<Shader>& convert_shader, uint32_t size);
+    static Ref<TextureCube> create_irradiance_map(const Ref<Renderer>& renderer, const Ref<TextureCube>& texture_cube, const Ref<Shader>& irradiance_shader, uint32_t size);
 
 private:
     std::array<std::string, 6> paths;

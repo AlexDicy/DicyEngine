@@ -20,5 +20,6 @@ private:
     Ref<Entity> camera_entity;
     Ref<Shader> shader;
     Ref<SkyboxCube> skybox;
+    Ref<TextureCube> irradiance_map;
     Ref<DirectionalLight> directional_light;
 };

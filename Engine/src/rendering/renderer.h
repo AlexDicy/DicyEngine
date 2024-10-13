@@ -40,10 +40,12 @@ public:
     virtual Ref<Texture2D> create_texture2d(unsigned int channels, unsigned int width, unsigned int height, const void* data) const = 0;
     virtual Ref<TextureCube> create_texture_cube(const std::array<std::string, 6>& paths) const = 0;
     virtual Ref<TextureCube> create_texture_cube_from_hdr(const Ref<Texture2D>& hdr_texture, const Ref<Shader>& convert_shader, uint32_t size) = 0;
+    virtual Ref<TextureCube> create_irradiance_map(const Ref<TextureCube>& texture_cube, const Ref<Shader>& irradiance_shader, uint32_t size) = 0;
 
     virtual void begin_frame() = 0;
     virtual void end_frame() const = 0;
     virtual void clean() const = 0;
+    virtual void prepare_ambient_light(const Ref<TextureCube>& irradiance_map) = 0;
     virtual void add_point_light(const PointLight& point_light) = 0;
     virtual void draw(const Ref<VertexArray>& vertex_array, const Ref<Shader>& shader, const glm::mat4& transform, const Ref<DirectionalLight>& directional_light) const = 0;
     virtual void draw(const Ref<VertexArray>& vertex_array, const Ref<Shader>& shader, const glm::mat4& transform, const Ref<DirectionalLight>& directional_light,

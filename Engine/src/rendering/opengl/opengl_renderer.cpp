@@ -67,6 +67,10 @@ Ref<TextureCube> OpenGLRenderer::create_texture_cube_from_hdr(const Ref<Texture2
     return OpenGLTextureCube::create_from_hdr(shared_from_this(), hdr_texture, convert_shader, size);
 }
 
+Ref<TextureCube> OpenGLRenderer::create_irradiance_map(const Ref<TextureCube>& texture_cube, const Ref<Shader>& irradiance_shader, const uint32_t size) {
+    return OpenGLTextureCube::create_irradiance_map(shared_from_this(), texture_cube, irradiance_shader, size);
+}
+
 
 void OpenGLRenderer::begin_frame() {
     this->view_projection_matrix = this->camera->get_view_projection_matrix(true);
@@ -87,6 +91,10 @@ void OpenGLRenderer::clean() const {
     DE_PROFILE_FUNCTION();
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+void OpenGLRenderer::prepare_ambient_light(const Ref<TextureCube>& irradiance_map) {
+    this->irradiance_map = irradiance_map;
 }
 
 void OpenGLRenderer::add_point_light(const PointLight& point_light) {
@@ -111,8 +119,12 @@ void OpenGLRenderer::draw(const Ref<VertexArray>& vertex_array, const Ref<Shader
     } else {
         this->default_occlusion_roughness_metallic_texture->bind(texture_slot);
     }
-    shader->upload_uniform_int("u_occlusion_roughness_metallic", texture_slot);
+    shader->upload_uniform_int("u_occlusion_roughness_metallic", texture_slot++);
     // lights
+    if (this->irradiance_map) {
+        this->irradiance_map->bind(texture_slot);
+        shader->upload_uniform_int("u_irradiance_map", texture_slot);
+    }
     shader->upload_uniform_int("u_material.ignore_lighting", material.ignore_lighting);
     shader->upload_uniform_vec3("u_directional_light.color", {1.0f, 1.0f, 1.0f});
     shader->upload_uniform_float("u_directional_light.intensity", directional_light->get_intensity());
