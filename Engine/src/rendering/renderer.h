@@ -39,7 +39,7 @@ public:
     virtual Ref<Texture2D> create_texture2d(const std::string& path) const = 0;
     virtual Ref<Texture2D> create_texture2d(unsigned int channels, unsigned int width, unsigned int height, const void* data) const = 0;
     virtual Ref<TextureCube> create_texture_cube(const std::array<std::string, 6>& paths) const = 0;
-    virtual Ref<TextureCube> create_texture_cube_from_hdr(const Ref<Texture2D>& hdr_texture, const Ref<Shader>& convert_shader) = 0;
+    virtual Ref<TextureCube> create_texture_cube_from_hdr(const Ref<Texture2D>& hdr_texture, const Ref<Shader>& convert_shader, uint32_t size) = 0;
 
     virtual void begin_frame() = 0;
     virtual void end_frame() const = 0;

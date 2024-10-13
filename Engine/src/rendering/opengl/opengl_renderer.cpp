@@ -63,14 +63,14 @@ Ref<TextureCube> OpenGLRenderer::create_texture_cube(const std::array<std::strin
     return std::make_shared<OpenGLTextureCube>(paths);
 }
 
-Ref<TextureCube> OpenGLRenderer::create_texture_cube_from_hdr(const Ref<Texture2D>& hdr_texture, const Ref<Shader>& convert_shader) {
+Ref<TextureCube> OpenGLRenderer::create_texture_cube_from_hdr(const Ref<Texture2D>& hdr_texture, const Ref<Shader>& convert_shader, const uint32_t size) {
     uint32_t capture_framebuffer;
     uint32_t capture_renderbuffer;
     glGenFramebuffers(1, &capture_framebuffer);
     glGenRenderbuffers(1, &capture_renderbuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, capture_framebuffer);
     glBindRenderbuffer(GL_RENDERBUFFER, capture_renderbuffer);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, 512, 512);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, size, size);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, capture_renderbuffer);
 
     convert_shader->bind();
@@ -81,7 +81,7 @@ Ref<TextureCube> OpenGLRenderer::create_texture_cube_from_hdr(const Ref<Texture2
     glGenTextures(1, &cube_map_id);
     glBindTexture(GL_TEXTURE_CUBE_MAP, cube_map_id);
     for (unsigned int i = 0; i < 6; i++) {
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, 512, 512, 0, GL_RGB, GL_FLOAT, nullptr);
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, size, size, 0, GL_RGB, GL_FLOAT, nullptr);
     }
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -91,16 +91,16 @@ Ref<TextureCube> OpenGLRenderer::create_texture_cube_from_hdr(const Ref<Texture2
 
     const auto projection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
     glm::mat4 view_matrices[] = {
-        lookAt(glm::vec3(0.0f), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)), //
-        lookAt(glm::vec3(0.0f), glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)), //
-        lookAt(glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)), //
-        lookAt(glm::vec3(0.0f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)), //
-        lookAt(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)), //
-        lookAt(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f)), //
+        lookAt(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)), // right
+        lookAt(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f)), // left
+        lookAt(glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f)), // top
+        lookAt(glm::vec3(0.0f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(-1.0f, 0.0f, 0.0f)), // bottom
+        lookAt(glm::vec3(0.0f), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)), // front
+        lookAt(glm::vec3(0.0f), glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)), // back
     };
     int previous_viewport[4];
     glGetIntegerv(GL_VIEWPORT, previous_viewport);
-    glViewport(0, 0, 512, 512);
+    glViewport(0, 0, size, size);
     const SkyboxCube cube(this->shared_from_this(), convert_shader, hdr_texture);
     for (unsigned int i = 0; i < 6; i++) {
         convert_shader->upload_uniform_mat4("u_view_projection", projection * view_matrices[i]);
