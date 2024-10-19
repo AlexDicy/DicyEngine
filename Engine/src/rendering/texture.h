@@ -14,4 +14,5 @@ class Texture2D : public Texture {
 };
 
 class TextureCube : public Texture {
+    virtual uint32_t get_size() const = 0;
 };

@@ -9,9 +9,9 @@ OpenGLTextureCube::OpenGLTextureCube(const std::array<std::string, 6>& paths) : 
     glGenTextures(1, &this->id);
     glBindTexture(GL_TEXTURE_CUBE_MAP, this->id);
 
-    int width;
-    int height;
-    int channels;
+    int width = -1;
+    int height = -1;
+    int channels = 0;
     for (unsigned int i = 0; i < paths.size(); i++) {
         stbi_uc* texture = stbi_load(paths[i].c_str(), &width, &height, &channels, 0);
         if (!texture) {
@@ -23,6 +23,8 @@ OpenGLTextureCube::OpenGLTextureCube(const std::array<std::string, 6>& paths) : 
         stbi_image_free(texture);
     }
 
+    this->size = width;
+
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -30,7 +32,7 @@ OpenGLTextureCube::OpenGLTextureCube(const std::array<std::string, 6>& paths) : 
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 }
 
-OpenGLTextureCube::OpenGLTextureCube(const uint32_t id) : id(id) {}
+OpenGLTextureCube::OpenGLTextureCube(const uint32_t id, const uint32_t size) : id(id), size(size) {}
 
 OpenGLTextureCube::~OpenGLTextureCube() {
     glDeleteTextures(1, &this->id);
@@ -107,7 +109,7 @@ Ref<TextureCube> OpenGLTextureCube::create_from_hdr(const Ref<Renderer>& rendere
     glViewport(previous_viewport[0], previous_viewport[1], previous_viewport[2], previous_viewport[3]);
     glDeleteFramebuffers(1, &capture_framebuffer);
     glDeleteRenderbuffers(1, &capture_renderbuffer);
-    return std::make_shared<OpenGLTextureCube>(cube_map_id);
+    return std::make_shared<OpenGLTextureCube>(cube_map_id, size);
 }
 
 Ref<TextureCube> OpenGLTextureCube::create_irradiance_map(const Ref<Renderer>& renderer, const Ref<TextureCube>& texture_cube, const Ref<Shader>& irradiance_shader,
@@ -131,5 +133,5 @@ Ref<TextureCube> OpenGLTextureCube::create_irradiance_map(const Ref<Renderer>& r
     glViewport(previous_viewport[0], previous_viewport[1], previous_viewport[2], previous_viewport[3]);
     glDeleteFramebuffers(1, &capture_framebuffer);
     glDeleteRenderbuffers(1, &capture_renderbuffer);
-    return std::make_shared<OpenGLTextureCube>(irradiance_map_id);
+    return std::make_shared<OpenGLTextureCube>(irradiance_map_id, size);
 }
