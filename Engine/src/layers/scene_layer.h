@@ -2,7 +2,6 @@
 #include "application.h"
 #include "layer.h"
 #include "scene/scene.h"
-#include "scene/skybox_cube.h"
 #include "scene/lights/directional_light.h"
 #include "scene/models/model.h"
 

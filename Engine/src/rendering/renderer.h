@@ -4,10 +4,10 @@
 #include "vertex_array.h"
 #include "shader.h"
 #include "texture.h"
-#include "scene/skybox_cube.h"
 #include "scene/components/point_light.h"
 #include "scene/lights/directional_light.h"
 #include "scene/materials/material.h"
+#include "skybox/skybox_cube.h"
 
 enum class RenderAPI { NONE, OPENGL };
 
@@ -59,6 +59,7 @@ protected:
     glm::mat4 projection_matrix;
 
     Ref<TextureCube> irradiance_map;
+    std::array<glm::vec3, 9> ibl_spherical_harmonics = std::array<glm::vec3, 9>();
     std::vector<PointLight> point_lights = std::vector<PointLight>();
 
 private:

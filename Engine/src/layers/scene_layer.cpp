@@ -32,7 +32,7 @@ SceneLayer::SceneLayer(const Ref<Application>& app) {
     Ref<TextureCube> skybox_texture_512 = renderer->create_texture_cube_from_hdr(skybox_hdr, equirectangular_to_cubemap_shader, 512);
     Ref<TextureCube> skybox_texture_2048 = renderer->create_texture_cube_from_hdr(skybox_hdr, equirectangular_to_cubemap_shader, 2048);
     this->irradiance_map = renderer->create_irradiance_map(skybox_texture_512, app->get_shader_registry()->load("../assets/shaders/cubemap-to-irradiance"), 512);
-    this->skybox = std::make_shared<SkyboxCube>(renderer, skybox_shader, irradiance_map);
+    this->skybox = std::make_shared<SkyboxCube>(renderer, skybox_shader, skybox_texture_2048);
 
     this->directional_light = std::make_shared<DirectionalLight>(Rotation(-70, 90, 0), 2.86f);
     Ref<Entity> light_entity = this->scene->create_entity();
