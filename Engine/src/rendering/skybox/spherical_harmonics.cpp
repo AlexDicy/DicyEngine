@@ -14,6 +14,7 @@ static constexpr uint64_t getSHIndex(const int64_t m, const uint64_t l) {
     return l * (l + 1) + m;
 }
 
+/*
 std::vector<glm::vec3> SphericalHarmonics::calculateSH(const Cubemap& cm, uint64_t numBands, const bool irradiance) {
     const uint64_t numCoefficients = numBands * numBands;
     std::vector<glm::vec3> SH(numCoefficients);
@@ -84,9 +85,9 @@ std::vector<glm::vec3> SphericalHarmonics::calculateSH(const Cubemap& cm, uint64
         SH[i] *= K[i];
     }
     return SH;
-}
+}*/
 
-void SphericalHarmonics::calculateSHBasis(float* shB, const uint64_t numBands, const glm::vec3& s) {
+void SphericalHarmonics::calculateSHBasis(float* shB, const uint64_t bands, const glm::vec3& s) {
     /*
      * Below, we compute the associated Legendre polynomials using recursion.
      * see: http://mathworld.wolfram.com/AssociatedLegendrePolynomial.html
@@ -104,25 +105,25 @@ void SphericalHarmonics::calculateSHBasis(float* shB, const uint64_t numBands, c
     float Pml_2 = 0;
     float Pml_1 = 1;
     shB[0] = Pml_1;
-    for (uint64_t l = 1; l < numBands; l++) {
+    for (uint64_t l = 1; l < bands; l++) {
         const float Pml = ((2 * l - 1.0f) * Pml_1 * s.z - (l - 1.0f) * Pml_2) / l;
         Pml_2 = Pml_1;
         Pml_1 = Pml;
         shB[getSHIndex(0, l)] = Pml;
     }
     float Pmm = 1;
-    for (uint64_t m = 1; m < numBands; m++) {
+    for (uint64_t m = 1; m < bands; m++) {
         Pmm = (1.0f - 2 * m) * Pmm; // See [1], divide by sqrt(1 - s.z*s.z);
         Pml_2 = Pmm;
         Pml_1 = (2 * m + 1.0f) * Pmm * s.z;
         // l == m
         shB[getSHIndex(-m, m)] = Pml_2;
         shB[getSHIndex(m, m)] = Pml_2;
-        if (m + 1 < numBands) {
+        if (m + 1 < bands) {
             // l == m+1
             shB[getSHIndex(-m, m + 1)] = Pml_1;
             shB[getSHIndex(m, m + 1)] = Pml_1;
-            for (size_t l = m + 2; l < numBands; l++) {
+            for (size_t l = m + 2; l < bands; l++) {
                 const float Pml = ((2 * l - 1.0f) * Pml_1 * s.z - (l + m - 1.0f) * Pml_2) / (l - m);
                 Pml_2 = Pml_1;
                 Pml_1 = Pml;
@@ -146,8 +147,8 @@ void SphericalHarmonics::calculateSHBasis(float* shB, const uint64_t numBands, c
     //      (cos((m*phi), sin(m*phi)) * sin(theta)^|m|
     float Cm = s.x;
     float Sm = s.y;
-    for (uint64_t m = 1; m <= numBands; m++) {
-        for (uint64_t l = m; l < numBands; l++) {
+    for (uint64_t m = 1; m <= bands; m++) {
+        for (uint64_t l = m; l < bands; l++) {
             shB[getSHIndex(-m, l)] *= Sm;
             shB[getSHIndex(m, l)] *= Cm;
         }
@@ -175,10 +176,10 @@ constexpr float SphericalHarmonics::calculateTruncatedCosSH(const uint64_t l) {
     return 2 * glm::pi<float>() * A0 * A1;
 }
 
-std::vector<float> SphericalHarmonics::calculateKi(const uint64_t numBands) {
-    const uint64_t numCoefs = numBands * numBands;
-    std::vector<float> K(numCoefs);
-    for (uint64_t l = 0; l < numBands; l++) {
+constexpr std::vector<float> SphericalHarmonics::calculateKi(const uint64_t bands) {
+    const uint64_t numCoefficients = bands * bands;
+    std::vector<float> K(numCoefficients);
+    for (uint64_t l = 0; l < bands; l++) {
         K[getSHIndex(0, l)] = calculateKml(0, l);
         for (uint64_t m = 1; m <= l; m++) {
             K[getSHIndex(m, l)] = K[getSHIndex(-m, l)] = glm::root_two<float>() * calculateKml(m, l);
@@ -191,8 +192,9 @@ std::vector<float> SphericalHarmonics::calculateKi(const uint64_t numBands) {
  * SH scaling factors:
  * returns sqrt((2*l + 1) / 4*pi) * sqrt( (l-|m|)! / (l+|m|)! )
  */
-constexpr float SphericalHarmonics::calculateKml(int64_t m, const uint64_t l) {
-    m = m < 0 ? -m : m; // abs() is not constexpr
+float SphericalHarmonics::calculateKml(int64_t m, const uint64_t l) {
+    //todo: m = m < 0 ? -m : m;
+    m = std::abs(m);
     const float K = (2 * l + 1) * factorial(l - m, l + m);
     return std::sqrt(K) * (glm::two_over_root_pi<float>() * 0.25);
 }
@@ -200,7 +202,7 @@ constexpr float SphericalHarmonics::calculateKml(int64_t m, const uint64_t l) {
 /*
  * returns n! / d!
  */
-constexpr float SphericalHarmonics::factorial(uint64_t n, uint64_t d = 1) {
+constexpr float SphericalHarmonics::factorial(uint64_t n, uint64_t d) {
     d = std::max(static_cast<uint64_t>(1), d);
     n = std::max(static_cast<uint64_t>(1), n);
     float r = 1.0;

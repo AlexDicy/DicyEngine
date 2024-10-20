@@ -6,6 +6,7 @@
 
 #include "editor/scripts/camera_script.h"
 #include "editor/scripts/light_script.h"
+#include "images/Image.h"
 #include "scene/models/model_importer.h"
 
 SceneLayer::SceneLayer(const Ref<Application>& app) {
@@ -27,7 +28,9 @@ SceneLayer::SceneLayer(const Ref<Application>& app) {
 
     this->shader = app->get_shader_registry()->load("../assets/shaders/default-shader");
     Ref<Shader> skybox_shader = app->get_shader_registry()->load("../assets/shaders/skybox-shader");
-    Ref<Texture2D> skybox_hdr = renderer->create_texture2d("../assets/skybox/kloofendal_48d_partly_cloudy_puresky_8k.hdr");
+    Ref<Image> skybox_hdr_image = std::make_shared<Image>("../assets/skybox/kloofendal_48d_partly_cloudy_puresky_8k.hdr");
+    Ref<Texture2D> skybox_hdr = renderer->create_texture2d(skybox_hdr_image->getChannels(), skybox_hdr_image->getWidth(), skybox_hdr_image->getHeight(),
+                                                           skybox_hdr_image->getBytesPerPixel(), skybox_hdr_image->getData());
     Ref<Shader> equirectangular_to_cubemap_shader = app->get_shader_registry()->load("../assets/shaders/equirectangular-to-cubemap");
     Ref<TextureCube> skybox_texture_512 = renderer->create_texture_cube_from_hdr(skybox_hdr, equirectangular_to_cubemap_shader, 512);
     Ref<TextureCube> skybox_texture_2048 = renderer->create_texture_cube_from_hdr(skybox_hdr, equirectangular_to_cubemap_shader, 2048);
@@ -66,8 +69,8 @@ SceneLayer::SceneLayer(const Ref<Application>& app) {
             auto vertex_data_floats = reinterpret_cast<const float*>(vertex_data);
             unsigned char roughness = static_cast<unsigned char>(static_cast<float>(9 - x) / 9 * 255.0f);
             unsigned char metallic = static_cast<unsigned char>(static_cast<float>(9 - z) / 9 * 255.0f);
-            Material material(renderer->create_texture2d(4, 1, 1, std::array<unsigned char, 4>{250, 40, 40, 255}.data()),
-                              renderer->create_texture2d(3, 1, 1, std::array<unsigned char, 3>{255, roughness, metallic}.data()));
+            Material material(renderer->create_texture2d(4, 1, 1, 1, std::array<unsigned char, 4>{250, 40, 40, 255}.data()),
+                              renderer->create_texture2d(3, 1, 1, 1, std::array<unsigned char, 3>{255, roughness, metallic}.data()));
             Ref<Entity> entity = this->scene->create_entity();
             entity->add<Mesh>(renderer, vertex_data_floats, sphere_model.vertices.size() * sizeof(VertexData), sphere_model.indexes.data(), sphere_model.indexes.size(), material,
                               sphere_model.transformation_matrix);
@@ -82,7 +85,7 @@ SceneLayer::SceneLayer(const Ref<Application>& app) {
         point_light_entity->add<Transform>(position, Rotation(), glm::vec3(0.1f));
         const VertexData* vertex_data = sphere_model.vertices.data();
         auto vertex_data_floats = reinterpret_cast<const float*>(vertex_data);
-        auto material = Material(renderer->create_texture2d(4, 1, 1, std::array<unsigned char, 4>{50, 50, 255, 255}.data()));
+        auto material = Material(renderer->create_texture2d(4, 1, 1, 1, std::array<unsigned char, 4>{50, 50, 255, 255}.data()));
         material.ignore_lighting = true;
         point_light_entity->add<Mesh>(renderer, vertex_data_floats, sphere_model.vertices.size() * sizeof(VertexData), sphere_model.indexes.data(), sphere_model.indexes.size(),
                                       material, sphere_model.transformation_matrix);

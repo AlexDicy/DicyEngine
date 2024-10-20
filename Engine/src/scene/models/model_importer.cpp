@@ -100,7 +100,7 @@ Ref<Texture2D> ModelImporter::get_texture_from_material(const Ref<Renderer>& ren
             static_cast<unsigned char>(diffuse_color.b * 255),
             static_cast<unsigned char>(255),
         };
-        return renderer->create_texture2d(4, 1, 1, color_data.data());
+        return renderer->create_texture2d(4, 1, 1, 1, color_data.data());
     }
 
     aiString ai_texture_path;
@@ -118,7 +118,7 @@ Ref<Texture2D> ModelImporter::get_texture_from_material(const Ref<Renderer>& ren
         if (texture->mHeight == 0) { // compressed texture
             data = decompress_texture(data, texture->mWidth, channels, width, height);
         }
-        return renderer->create_texture2d(channels, width, height, data);
+        return renderer->create_texture2d(channels, width, height, 1, data);
     }
     return renderer->create_texture2d(base_path + "/" + texture_path);
 }

@@ -31,8 +31,8 @@ OpenGLTexture2D::OpenGLTexture2D(const std::string& path) : path(path) {
     stbi_image_free(texture);
 }
 
-OpenGLTexture2D::OpenGLTexture2D(const unsigned int channels, const unsigned int width, const unsigned int height, const void* data) {
-    this->create_texture_with_data(channels, width, height, data);
+OpenGLTexture2D::OpenGLTexture2D(const unsigned int channels, const unsigned int width, const unsigned int height, const unsigned int bytesPerPixel, const void* data) {
+    this->create_texture_with_data(channels, width, height, data, bytesPerPixel == sizeof(float));
 }
 
 OpenGLTexture2D::~OpenGLTexture2D() {

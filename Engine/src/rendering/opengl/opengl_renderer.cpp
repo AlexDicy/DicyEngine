@@ -18,8 +18,8 @@ void OpenGLRenderer::init(const int x, const int y, const uint32_t width, const 
     glFrontFace(GL_CW);
     this->set_viewport(x, y, width, height);
     unsigned char white[4] = {255, 255, 255, 255};
-    this->white_pixel_texture = std::make_shared<OpenGLTexture2D>(1, 1, 1, white);
-    this->default_occlusion_roughness_metallic_texture = std::make_shared<OpenGLTexture2D>(3, 1, 1, std::array<unsigned char, 3>{255, 255, 0}.data());
+    this->white_pixel_texture = std::make_shared<OpenGLTexture2D>(1, 1, 1, 1, white);
+    this->default_occlusion_roughness_metallic_texture = std::make_shared<OpenGLTexture2D>(3, 1, 1, 1, std::array<unsigned char, 3>{255, 255, 0}.data());
 }
 
 void OpenGLRenderer::set_viewport(const int x, const int y, const uint32_t width, const uint32_t height) {
@@ -55,8 +55,8 @@ Ref<Texture2D> OpenGLRenderer::create_texture2d(const std::string& path) const {
     return std::make_shared<OpenGLTexture2D>(path);
 }
 
-Ref<Texture2D> OpenGLRenderer::create_texture2d(const unsigned int channels, const unsigned int width, const unsigned int height, const void* data) const {
-    return std::make_shared<OpenGLTexture2D>(channels, width, height, data);
+Ref<Texture2D> OpenGLRenderer::create_texture2d(const unsigned int channels, const unsigned int width, const unsigned int height, const unsigned int bytesPerPixel, const void* data) const {
+    return std::make_shared<OpenGLTexture2D>(channels, width, height, bytesPerPixel, data);
 }
 
 Ref<TextureCube> OpenGLRenderer::create_texture_cube(const std::array<std::string, 6>& paths) const {
