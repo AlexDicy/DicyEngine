@@ -89,6 +89,16 @@ void render_to_cubemap(const Ref<Renderer>& renderer, const Ref<Shader>& convert
     }
 }
 
+Ref<CubeMap> OpenGLTextureCube::to_cubemap() const {
+    std::array<Image, 6> faces;
+    glBindTexture(GL_TEXTURE_CUBE_MAP, this->id);
+    for (int i = 0; i < 6; i++) {
+        faces[i] = Image(this->size, this->size, 3, sizeof(float), nullptr);
+        glGetTexImage(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, GL_FLOAT, faces[i].getData());
+    }
+    return std::make_shared<CubeMap>(std::move(faces));
+}
+
 Ref<TextureCube> OpenGLTextureCube::create_from_hdr(const Ref<Renderer>& renderer, const Ref<Texture2D>& hdr_texture, const Ref<Shader>& convert_shader, const uint32_t size) {
     uint32_t capture_framebuffer;
     uint32_t capture_renderbuffer;

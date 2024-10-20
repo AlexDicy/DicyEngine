@@ -2,7 +2,9 @@
 
 class Image {
 public:
+    Image() = default;
     explicit Image(const std::string& path);
+    Image(unsigned int width, unsigned int height, unsigned int channels, unsigned int bytesPerPixel, const void* data);
 
     unsigned int getWidth() const {
         return width;
@@ -24,9 +26,9 @@ public:
         return data.get();
     }
 
-    void* getPixel(unsigned int x, unsigned int y) const;
+    void* getPixelPointer(unsigned int x, unsigned int y) const;
 
-private:
+protected:
     unsigned int width;
     unsigned int height;
     unsigned int channels;

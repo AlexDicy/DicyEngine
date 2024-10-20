@@ -45,7 +45,7 @@ public:
     virtual void begin_frame() = 0;
     virtual void end_frame() const = 0;
     virtual void clean() const = 0;
-    void prepare_ambient_light(const Ref<TextureCube>& irradiance_map);
+    void set_irradiance_sh(const std::array<glm::vec3, 9>& irradiance_sh);
     virtual void add_point_light(const PointLight& point_light) = 0;
     virtual void draw(const Ref<VertexArray>& vertex_array, const Ref<Shader>& shader, const glm::mat4& transform, const Ref<DirectionalLight>& directional_light) const = 0;
     virtual void draw(const Ref<VertexArray>& vertex_array, const Ref<Shader>& shader, const glm::mat4& transform, const Ref<DirectionalLight>& directional_light,
@@ -58,8 +58,7 @@ protected:
     glm::mat4 view_matrix;
     glm::mat4 projection_matrix;
 
-    Ref<TextureCube> irradiance_map;
-    std::array<glm::vec3, 9> ibl_spherical_harmonics = std::array<glm::vec3, 9>();
+    std::array<glm::vec3, 9> irradiance_sh = std::array<glm::vec3, 9>();
     std::vector<PointLight> point_lights = std::vector<PointLight>();
 
 private:

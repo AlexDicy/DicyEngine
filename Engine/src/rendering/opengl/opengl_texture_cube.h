@@ -22,6 +22,8 @@ public:
         return this->size;
     }
 
+    Ref<CubeMap> to_cubemap() const override;
+
     static Ref<TextureCube> create_from_hdr(const Ref<Renderer>& renderer, const Ref<Texture2D>& hdr_texture, const Ref<Shader>& convert_shader, uint32_t size);
     static Ref<TextureCube> create_irradiance_map(const Ref<Renderer>& renderer, const Ref<TextureCube>& texture_cube, const Ref<Shader>& irradiance_shader, uint32_t size);
 

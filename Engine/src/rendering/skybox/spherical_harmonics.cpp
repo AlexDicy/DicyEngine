@@ -10,84 +10,66 @@
 // Heavily inspired by Google Filament's implementation
 //
 
-static constexpr uint64_t getSHIndex(const int64_t m, const uint64_t l) {
-    return l * (l + 1) + m;
-}
+std::vector<glm::vec3> SphericalHarmonics::calculateSH(const Ref<CubeMap>& cubeMap, const unsigned int bands, const bool calculateForIrradiance, const bool preprocessForShaders) {
+    const unsigned int numCoefficients = bands * bands;
+    std::vector<glm::vec3> sh(numCoefficients);
+    const unsigned int size = cubeMap->getSize();
 
-/*
-std::vector<glm::vec3> SphericalHarmonics::calculateSH(const Cubemap& cm, uint64_t numBands, const bool irradiance) {
-    const uint64_t numCoefficients = numBands * numBands;
-    std::vector<glm::vec3> SH(numCoefficients);
-
-    for (uint64_t side = 0; side < 6; side++) {
+    for (uint8_t side = 0; side < 6; side++) {
         std::vector<glm::vec3> currentSH(numCoefficients);
         std::vector<float> currentSHb(numCoefficients);
 
-        for (uint64_t i = 0; i < numCoefficients; i++) {
-            SH[i] += currentSH[i];
+        for (unsigned int y = 0; y < size; y++) {
+            for (unsigned int x = 0; x < size; x++) {
+                const glm::vec3 direction = cubeMap->getPixelDirection(static_cast<CubeMap::Face>(side), x, y);
+                glm::vec3 color = cubeMap->getPixel(static_cast<CubeMap::Face>(side), x, y);
+                // take solid angle into account
+                color *= solidAngle(size, x, y);
+                calculateSHBasis(currentSHb.data(), bands, direction);
+                // apply coefficients to the sampled color
+                for (unsigned int i = 0; i < numCoefficients; i++) {
+                    currentSH[i] += color * currentSHb[i];
+                }
+            }
+        }
+
+        for (unsigned int i = 0; i < numCoefficients; i++) {
+            sh[i] += currentSH[i];
         }
     }
 
-    struct State {
-        State() = default;
-        explicit State(size_t numCoefs) : numCoefficients(numCoefs) {}
-
-        State& operator=(State const& rhs) {
-            SH.reset(new glm::vec3[rhs.numCoefficients]{});
-            SHb.reset(new float[rhs.numCoefficients]{});
-            return *this;
-        }
-        size_t numCoefficients = 0;
-        std::unique_ptr<glm::vec3[]> SH;
-        std::unique_ptr<float[]> SHb;
-    } prototype(numCoefficients);
-
-    CubemapUtils::process<State>(
-        const_cast<Cubemap&>(cm), js,
-        [&](State& state, size_t y, CubeMapFace face, Cubemap::Texel const* data, size_t dim) {
-            for (size_t x = 0; x < dim; ++x, ++data) {
-
-                glm::vec3 s(cm.getDirectionFor(face, x, y));
-
-                // sample a color
-                glm::vec3 color(Cubemap::sampleAt(data));
-
-                // take solid angle into account
-                color *= CubemapUtils::solidAngle(dim, x, y);
-
-                calculateSHBasis(state.SHb.get(), numBands, s);
-
-                // apply coefficients to the sampled color
-                for (size_t i = 0; i < numCoefficients; i++) {
-                    state.SH[i] += color * state.SHb[i];
-                }
-            }
-        },
-        prototype);
-
     // precompute the scaling factor K
-    std::vector<float> K = calculateKi(numBands);
+    std::vector<float> K = calculateKi(bands);
 
     // apply truncated cos (irradiance)
-    if (irradiance) {
-        for (uint64_t l = 0; l < numBands; l++) {
+    if (calculateForIrradiance) {
+        for (unsigned int l = 0; l < bands; l++) {
             const float truncatedCosSh = calculateTruncatedCosSH(l);
             K[getSHIndex(0, l)] *= truncatedCosSh;
-            for (uint64_t m = 1; m <= l; m++) {
+            for (unsigned int m = 1; m <= l; m++) {
                 K[getSHIndex(-m, l)] *= truncatedCosSh;
                 K[getSHIndex(m, l)] *= truncatedCosSh;
             }
         }
     }
 
-    // apply all the scale factors
-    for (size_t i = 0; i < numCoefficients; i++) {
-        SH[i] *= K[i];
+    // apply all the scaling factors
+    for (unsigned int i = 0; i < numCoefficients; i++) {
+        sh[i] *= K[i];
     }
-    return SH;
-}*/
 
-void SphericalHarmonics::calculateSHBasis(float* shB, const uint64_t bands, const glm::vec3& s) {
+    if (preprocessForShaders) {
+        preprocessSHForShaders(sh);
+    }
+
+    return sh;
+}
+
+constexpr unsigned int SphericalHarmonics::getSHIndex(const int m, const unsigned int l) {
+    return l * (l + 1) + m;
+}
+
+void SphericalHarmonics::calculateSHBasis(float* shB, const unsigned int bands, const glm::vec3& s) {
     /*
      * Below, we compute the associated Legendre polynomials using recursion.
      * see: http://mathworld.wolfram.com/AssociatedLegendrePolynomial.html
@@ -105,14 +87,14 @@ void SphericalHarmonics::calculateSHBasis(float* shB, const uint64_t bands, cons
     float Pml_2 = 0;
     float Pml_1 = 1;
     shB[0] = Pml_1;
-    for (uint64_t l = 1; l < bands; l++) {
+    for (unsigned int l = 1; l < bands; l++) {
         const float Pml = ((2 * l - 1.0f) * Pml_1 * s.z - (l - 1.0f) * Pml_2) / l;
         Pml_2 = Pml_1;
         Pml_1 = Pml;
         shB[getSHIndex(0, l)] = Pml;
     }
     float Pmm = 1;
-    for (uint64_t m = 1; m < bands; m++) {
+    for (unsigned int m = 1; m < bands; m++) {
         Pmm = (1.0f - 2 * m) * Pmm; // See [1], divide by sqrt(1 - s.z*s.z);
         Pml_2 = Pmm;
         Pml_1 = (2 * m + 1.0f) * Pmm * s.z;
@@ -147,8 +129,8 @@ void SphericalHarmonics::calculateSHBasis(float* shB, const uint64_t bands, cons
     //      (cos((m*phi), sin(m*phi)) * sin(theta)^|m|
     float Cm = s.x;
     float Sm = s.y;
-    for (uint64_t m = 1; m <= bands; m++) {
-        for (uint64_t l = m; l < bands; l++) {
+    for (unsigned int m = 1; m <= bands; m++) {
+        for (unsigned int l = m; l < bands; l++) {
             shB[getSHIndex(-m, l)] *= Sm;
             shB[getSHIndex(m, l)] *= Cm;
         }
@@ -159,8 +141,52 @@ void SphericalHarmonics::calculateSHBasis(float* shB, const uint64_t bands, cons
     }
 }
 
+/*
+ * This computes the 3-bands SH coefficients of the CubeMap convoluted by the truncated
+ * cos(theta) (i.e.: saturate(s.z)), pre-scaled by the reconstruction factors.
+ */
+void SphericalHarmonics::preprocessSHForShaders(std::vector<glm::vec3>& sh) {
+    // Coefficient for the polynomial form of the SH functions -- these were taken from
+    // "Stupid Spherical Harmonics (SH)" by Peter-Pike Sloan
+    // They simply come for expanding the computation of each SH function.
+    //
+    // To render spherical harmonics we can use the polynomial form, like this:
+    //          c += sh[0] * A[0];
+    //          c += sh[1] * A[1] * s.y;
+    //          c += sh[2] * A[2] * s.z;
+    //          c += sh[3] * A[3] * s.x;
+    //          c += sh[4] * A[4] * s.y * s.x;
+    //          c += sh[5] * A[5] * s.y * s.z;
+    //          c += sh[6] * A[6] * (3 * s.z * s.z - 1);
+    //          c += sh[7] * A[7] * s.z * s.x;
+    //          c += sh[8] * A[8] * (s.x * s.x - s.y * s.y);
+    //
+    // To save math in the shader, we pre-multiply our SH coefficient by the A[i] factors.
+    // Additionally, we include the lambertian diffuse BRDF 1/pi.
+
+    const float sqrtPi = glm::root_pi<float>();
+    const float sqrt3 = glm::root_three<float>();
+    const float sqrt5 = glm::root_five<float>();
+    constexpr float sqrt15 = 3.8729833462f;
+    std::vector A = {
+        1.0f / (2.0f * sqrtPi), // 0  0
+        -sqrt3 / (2.0f * sqrtPi), // 1 -1
+        sqrt3 / (2.0f * sqrtPi), // 1  0
+        -sqrt3 / (2.0f * sqrtPi), // 1  1
+        sqrt15 / (2.0f * sqrtPi), // 2 -2
+        -sqrt15 / (2.0f * sqrtPi), // 3 -1
+        sqrt5 / (4.0f * sqrtPi), // 3  0
+        -sqrt15 / (2.0f * sqrtPi), // 3  1
+        sqrt15 / (4.0f * sqrtPi) // 3  2
+    };
+
+    for (size_t i = 0; i < sh.size(); i++) {
+        sh[i] *= A[i] * glm::one_over_pi<float>();
+    }
+}
+
 // < cos(theta) > SH coefficients pre-multiplied by 1 / K(0,l)
-constexpr float SphericalHarmonics::calculateTruncatedCosSH(const uint64_t l) {
+constexpr float SphericalHarmonics::calculateTruncatedCosSH(const unsigned int l) {
     if (l == 0) {
         return glm::pi<float>();
     }
@@ -176,12 +202,12 @@ constexpr float SphericalHarmonics::calculateTruncatedCosSH(const uint64_t l) {
     return 2 * glm::pi<float>() * A0 * A1;
 }
 
-constexpr std::vector<float> SphericalHarmonics::calculateKi(const uint64_t bands) {
-    const uint64_t numCoefficients = bands * bands;
+constexpr std::vector<float> SphericalHarmonics::calculateKi(const unsigned int bands) {
+    const unsigned int numCoefficients = bands * bands;
     std::vector<float> K(numCoefficients);
-    for (uint64_t l = 0; l < bands; l++) {
+    for (unsigned int l = 0; l < bands; l++) {
         K[getSHIndex(0, l)] = calculateKml(0, l);
-        for (uint64_t m = 1; m <= l; m++) {
+        for (unsigned int m = 1; m <= l; m++) {
             K[getSHIndex(m, l)] = K[getSHIndex(-m, l)] = glm::root_two<float>() * calculateKml(m, l);
         }
     }
@@ -192,8 +218,8 @@ constexpr std::vector<float> SphericalHarmonics::calculateKi(const uint64_t band
  * SH scaling factors:
  * returns sqrt((2*l + 1) / 4*pi) * sqrt( (l-|m|)! / (l+|m|)! )
  */
-float SphericalHarmonics::calculateKml(int64_t m, const uint64_t l) {
-    //todo: m = m < 0 ? -m : m;
+float SphericalHarmonics::calculateKml(int m, const unsigned int l) {
+    // todo: m = m < 0 ? -m : m;
     m = std::abs(m);
     const float K = (2 * l + 1) * factorial(l - m, l + m);
     return std::sqrt(K) * (glm::two_over_root_pi<float>() * 0.25);
@@ -202,9 +228,9 @@ float SphericalHarmonics::calculateKml(int64_t m, const uint64_t l) {
 /*
  * returns n! / d!
  */
-constexpr float SphericalHarmonics::factorial(uint64_t n, uint64_t d) {
-    d = std::max(static_cast<uint64_t>(1), d);
-    n = std::max(static_cast<uint64_t>(1), n);
+constexpr float SphericalHarmonics::factorial(unsigned int n, unsigned int d) {
+    d = std::max(static_cast<unsigned int>(1), d);
+    n = std::max(static_cast<unsigned int>(1), n);
     float r = 1.0;
     if (n == d) {
         return r;
@@ -221,4 +247,20 @@ constexpr float SphericalHarmonics::factorial(uint64_t n, uint64_t d) {
         r = 1.0f / r;
     }
     return r;
+}
+
+float SphericalHarmonics::sphereQuadrantArea(const float x, const float y) {
+    return std::atan2(x * y, std::sqrt(x * x + y * y + 1));
+}
+
+float SphericalHarmonics::solidAngle(const unsigned int dim, const unsigned int u, const unsigned int v) {
+    const float iDim = 1.0f / dim;
+    const float s = ((u + 0.5f) * 2 * iDim) - 1;
+    const float t = ((v + 0.5f) * 2 * iDim) - 1;
+    const float x0 = s - iDim;
+    const float y0 = t - iDim;
+    const float x1 = s + iDim;
+    const float y1 = t + iDim;
+    const float solidAngle = sphereQuadrantArea(x0, y0) - sphereQuadrantArea(x0, y1) - sphereQuadrantArea(x1, y0) + sphereQuadrantArea(x1, y1);
+    return solidAngle;
 }

@@ -1,6 +1,8 @@
 ﻿#include "pch/enginepch.h"
 #include "Image.h"
 
+#include "stb_image_write.h"
+
 #include <stb_image.h>
 
 Image::Image(const std::string& path) {
@@ -32,6 +34,13 @@ Image::Image(const std::string& path) {
     stbi_image_free(texture);
 }
 
-void* Image::getPixel(const unsigned int x, const unsigned int y) const {
-    return this->data.get() + (y * this->width + x) * this->channels * this->bytesPerPixel;
+Image::Image(const unsigned int width, const unsigned int height, const unsigned int channels, const unsigned int bytesPerPixel, const void* data) : width(width), height(height), channels(channels), bytesPerPixel(bytesPerPixel) {
+    this->data = std::make_unique<uint8_t[]>(width * height * channels * bytesPerPixel);
+    if (data) {
+        memcpy(this->data.get(), data, width * height * channels * bytesPerPixel);
+    }
+}
+
+void* Image::getPixelPointer(const unsigned int x, const unsigned int y) const {
+    return this->data.get() + static_cast<size_t>((y * this->width + x) * this->channels * this->bytesPerPixel);
 }

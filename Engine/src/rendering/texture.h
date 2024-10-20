@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "images/CubeMap.h"
 
 class Texture {
 public:
@@ -14,5 +15,8 @@ class Texture2D : public Texture {
 };
 
 class TextureCube : public Texture {
+public:
     virtual uint32_t get_size() const = 0;
+
+    virtual Ref<CubeMap> to_cubemap() const = 0;
 };

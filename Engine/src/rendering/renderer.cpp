@@ -1,7 +1,7 @@
 ﻿#include "pch/enginepch.h"
 #include "renderer.h"
 
-void Renderer::prepare_ambient_light(const Ref<TextureCube>& irradiance_map) {
-    this->irradiance_map = irradiance_map;
-}
 
+void Renderer::set_irradiance_sh(const std::array<glm::vec3, 9>& irradiance_sh)  {
+    this->irradiance_sh = irradiance_sh;
+}

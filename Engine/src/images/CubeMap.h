@@ -15,8 +15,14 @@ public:
 
     explicit CubeMap(std::array<Image, 6> faces);
 
+    const Image& getFace(Face face) const;
+    unsigned int getSize() const { return face_size; }
+
     glm::vec3 getPixel(Face face, unsigned int x, unsigned int y) const;
+    void* getPixelPointer(Face face, unsigned int x, unsigned int y) const;
     glm::vec3 getPixelDirection(Face face, unsigned int x, unsigned int y) const;
+
+    // void save_to_files(const std::string& filenamePrefix);
 
 private:
     std::array<Image, 6> faces;

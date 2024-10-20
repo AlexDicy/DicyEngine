@@ -115,12 +115,12 @@ void OpenGLRenderer::draw(const Ref<VertexArray>& vertex_array, const Ref<Shader
     } else {
         this->default_occlusion_roughness_metallic_texture->bind(texture_slot);
     }
-    shader->upload_uniform_int("u_occlusion_roughness_metallic", texture_slot++);
-    // lights
-    if (this->irradiance_map) {
-        this->irradiance_map->bind(texture_slot);
-        shader->upload_uniform_int("u_irradiance_map", texture_slot);
+    shader->upload_uniform_int("u_occlusion_roughness_metallic", texture_slot);
+    // irradiance spherical harmonics
+    for (int i = 0; i < this->irradiance_sh.size(); i++) {
+        shader->upload_uniform_vec3("u_irradiance_sh[" + std::to_string(i) + "]", this->irradiance_sh[i]);
     }
+    // lights
     shader->upload_uniform_int("u_material.ignore_lighting", material.ignore_lighting);
     shader->upload_uniform_vec3("u_directional_light.color", {1.0f, 1.0f, 1.0f});
     shader->upload_uniform_float("u_directional_light.intensity", directional_light->get_intensity());
