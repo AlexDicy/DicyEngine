@@ -32,7 +32,7 @@ OpenGLTexture2D::OpenGLTexture2D(const std::string& path) : path(path) {
 }
 
 OpenGLTexture2D::OpenGLTexture2D(const unsigned int channels, const unsigned int width, const unsigned int height, const unsigned int bytesPerPixel, const void* data) {
-    this->create_texture_with_data(channels, width, height, data, bytesPerPixel == sizeof(float));
+    this->create_texture_with_data(channels, width, height, data, bytesPerPixel == sizeof(float) * channels);
 }
 
 OpenGLTexture2D::~OpenGLTexture2D() {

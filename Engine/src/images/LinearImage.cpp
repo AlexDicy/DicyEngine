@@ -3,7 +3,7 @@
 
 #include <fstream>
 
-LinearImage::LinearImage(const std::string& path) {
+LinearImage::LinearImage(const std::string& path) : Image(0, 0, 3, sizeof(float) * 3, nullptr) {
     auto imageStream = std::ifstream(path, std::ios::in | std::ios::binary);
     if (!imageStream.is_open()) {
         DE_ERROR("Failed to open image file {0}", path);
