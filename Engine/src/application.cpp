@@ -12,48 +12,48 @@
 Application::Application() {
     Logger::init();
     this->running = true;
-    this->is_minimized = false;
+    this->isMinimized = false;
 }
 
 Application::~Application() = default;
 
 void Application::run() {
-    this->event_dispatcher.reset(EventDispatcher::get());
+    this->eventDispatcher.reset(EventDispatcher::get());
     this->renderer = std::make_shared<OpenGLRenderer>();
-    this->shader_registry = std::make_shared<ShaderRegistry>(this->renderer);
+    this->shaderRegistry = std::make_shared<ShaderRegistry>(this->renderer);
     this->window = Window::create("DicyEngine", 1920, 1080);
     this->gui = std::make_unique<ImGuiGUI>(window);
     const auto ctx = std::make_unique<Context>(renderer);
 
-    this->event_dispatcher->register_global_handler<WindowCloseEvent>([this](const WindowCloseEvent&) {
+    this->eventDispatcher->register_global_handler<WindowCloseEvent>([this](const WindowCloseEvent&) {
         this->running = false;
     });
-    this->event_dispatcher->register_global_handler<WindowResizeEvent>([this, &ctx](const WindowResizeEvent& event) {
+    this->eventDispatcher->register_global_handler<WindowResizeEvent>([this, &ctx](const WindowResizeEvent& event) {
         if (event.get_width() == 0 || event.get_height() == 0) {
-            this->is_minimized = true;
+            this->isMinimized = true;
             return;
         }
-        this->is_minimized = false;
-        this->update_frame(ctx); // keep drawing when user holds to resizes the window
+        this->isMinimized = false;
+        this->updateFrame(ctx); // keep drawing when user holds to resizes the window
     });
 
-    Input::init(this->event_dispatcher, this->window);
-    this->renderer->init(0, 0, this->window->get_width(), this->window->get_height());
+    Input::init(this->eventDispatcher, this->window);
+    this->renderer->init(0, 0, this->window->getWidth(), this->window->getHeight());
     JavaBindings::init();
-    register_layers(this->shared_from_this());
+    registerLayers(this->shared_from_this());
 
     while (this->running) {
-        this->update_frame(ctx);
+        this->updateFrame(ctx);
     }
 }
 
-void Application::update_frame(const std::unique_ptr<Context>& ctx) const {
-    DE::Profiling::get_profiler().clear_timings();
+void Application::updateFrame(const std::unique_ptr<Context>& ctx) const {
+    DE::Profiling::getProfiler().clearTimings();
     this->renderer->clean();
 
-    ctx->set_delta_time(this->window->get_last_frame_time());
+    ctx->setDeltaTime(this->window->getLastFrameTime());
 
-    if (!this->is_minimized) {
+    if (!this->isMinimized) {
         for (const auto& layer : layers) {
             layer->update(ctx);
         }
@@ -63,6 +63,6 @@ void Application::update_frame(const std::unique_ptr<Context>& ctx) const {
     this->window->update();
 }
 
-void Application::register_layers(const Ref<Application>& app) {
+void Application::registerLayers(const Ref<Application>& app) {
     this->layers.push_back(new SceneLayer(app));
 }

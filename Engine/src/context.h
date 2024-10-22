@@ -7,15 +7,16 @@ class Context {
 
 public:
     const Ref<Renderer>& renderer;
-    const float& delta_time = _delta_time;
+    const float& deltaTime = _deltaTime;
 
     explicit Context(const Ref<Renderer>& renderer) : renderer(renderer) {}
 
 protected:
-    void set_delta_time(const float& delta_time) {
-        _delta_time = delta_time;
+    void setDeltaTime(const float& deltaTime) {
+        _deltaTime = deltaTime;
     }
 
 private:
-    float _delta_time = 0;
+    // ReSharper disable once CppInconsistentNaming
+    float _deltaTime = 0;
 };

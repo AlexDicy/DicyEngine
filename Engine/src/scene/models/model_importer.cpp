@@ -54,7 +54,7 @@ std::vector<Model> ModelImporter::import_from_file(const Ref<Renderer>& renderer
             const aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
             model.material.albedo = get_texture_from_material(renderer, scene, material, aiTextureType_BASE_COLOR, base_path);
             // might have to load the 3 channels separately depending on the file format
-            model.material.occlusion_roughness_metallic = get_texture_from_material(renderer, scene, material, aiTextureType_DIFFUSE_ROUGHNESS, base_path);
+            model.material.occlusionRoughnessMetallic = get_texture_from_material(renderer, scene, material, aiTextureType_DIFFUSE_ROUGHNESS, base_path);
 
             model.vertices.reserve(mesh->mNumVertices);
             for (unsigned int v = 0; v < mesh->mNumVertices; v++) {

@@ -6,7 +6,7 @@
 
 
 CubeMap::CubeMap(std::array<Image, 6> faces) : faces(std::move(faces)) {
-    this->face_size = this->faces[0].getWidth(); // Assuming all faces have the same size and are square
+    this->faceSize = this->faces[0].getWidth(); // Assuming all faces have the same size and are square
 }
 
 const Image& CubeMap::getFace(Face face) const {
@@ -24,8 +24,8 @@ void* CubeMap::getPixelPointer(Face face, unsigned int x, unsigned int y) const 
 
 glm::vec3 CubeMap::getPixelDirection(const Face face, const unsigned int x, const unsigned int y) const {
     // Normalize x and y to [-1, 1]
-    const float normalizedX = 2.0f * static_cast<float>(x) / static_cast<float>(this->face_size) - 1.0f;
-    const float normalizedY = 2.0f * static_cast<float>(y) / static_cast<float>(this->face_size) - 1.0f;
+    const float normalizedX = 2.0f * static_cast<float>(x) / static_cast<float>(this->faceSize) - 1.0f;
+    const float normalizedY = 2.0f * static_cast<float>(y) / static_cast<float>(this->faceSize) - 1.0f;
 
     switch (face) {
         case Face::RIGHT:

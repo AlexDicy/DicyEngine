@@ -11,15 +11,15 @@ namespace DE::Profiling {
 
     class Profiler {
     public:
-        void save_function_time(const char* name, const long duration) {
+        void saveFunctionTime(const char* name, const long duration) {
             this->timings.emplace_back(name, duration);
         }
 
-        const std::vector<ProfilerResult>& get_timings() {
+        const std::vector<ProfilerResult>& getTimings() {
             return this->timings;
         }
 
-        void clear_timings() {
+        void clearTimings() {
             this->timings.clear();
         }
 
@@ -29,28 +29,28 @@ namespace DE::Profiling {
 
     extern Profiler profiler;
 
-    inline Profiler& get_profiler() {
+    inline Profiler& getProfiler() {
         return profiler;
     }
 
     class ProfilerTimer {
     public:
         explicit ProfilerTimer(const char* name) : name(name) {
-            this->start_time = get_current_time();
+            this->startTime = getCurrentTime();
         }
         ~ProfilerTimer() {
-            const long long duration = get_current_time() - start_time;
-            get_profiler().save_function_time(this->name, static_cast<long>(duration));
+            const long long duration = getCurrentTime() - startTime;
+            getProfiler().saveFunctionTime(this->name, static_cast<long>(duration));
         }
 
-        static long long get_current_time() {
-            const auto time_point = std::chrono::high_resolution_clock::now();
-            return std::chrono::time_point_cast<std::chrono::microseconds>(time_point).time_since_epoch().count();
+        static long long getCurrentTime() {
+            const auto timePoint = std::chrono::high_resolution_clock::now();
+            return std::chrono::time_point_cast<std::chrono::microseconds>(timePoint).time_since_epoch().count();
         }
 
     private:
         const char* name;
-        long long start_time;
+        long long startTime;
     };
 }
 

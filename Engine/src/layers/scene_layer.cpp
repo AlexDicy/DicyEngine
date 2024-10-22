@@ -12,13 +12,13 @@
 #include "scene/models/model_importer.h"
 
 SceneLayer::SceneLayer(const Ref<Application>& app) {
-    const Ref<Renderer>& renderer = app->get_renderer();
+    const Ref<Renderer>& renderer = app->getRenderer();
     this->scene = std::make_shared<Scene>();
 
     // x,y,z indicator
     std::vector<Model> xyz_models = ModelImporter::import_from_file(renderer, "../assets/models/arrows.glb");
     for (Model& arrow : xyz_models) {
-        arrow.material.ignore_lighting = true;
+        arrow.material.ignoreLighting = true;
     }
     this->add_entities_for_models(renderer, xyz_models, {0.0f, 0.0f, 0.0f});
 
@@ -28,12 +28,12 @@ SceneLayer::SceneLayer(const Ref<Application>& app) {
     this->camera_entity->add<Transform>(glm::vec3(0.0f, 15.0f, 0.0f), Rotation(-90, 0, 0));
     this->camera_entity->add<Script>(std::make_shared<CameraScript>(app, this->camera_entity));
 
-    this->shader = app->get_shader_registry()->load("../assets/shaders/default-shader");
-    Ref<Shader> skybox_shader = app->get_shader_registry()->load("../assets/shaders/skybox-shader");
+    this->shader = app->getShaderRegistry()->load("../assets/shaders/default-shader");
+    Ref<Shader> skybox_shader = app->getShaderRegistry()->load("../assets/shaders/skybox-shader");
     Ref<LinearImage> skybox_hdr_image = std::make_shared<LinearImage>("../assets/skybox/kloofendal_48d_partly_cloudy_puresky_8k.hdr");
     Ref<Texture2D> skybox_hdr = renderer->create_texture2d(skybox_hdr_image->getChannels(), skybox_hdr_image->getWidth(), skybox_hdr_image->getHeight(),
                                                            skybox_hdr_image->getBytesPerPixel(), skybox_hdr_image->getData());
-    Ref<Shader> equirectangular_to_cubemap_shader = app->get_shader_registry()->load("../assets/shaders/equirectangular-to-cubemap");
+    Ref<Shader> equirectangular_to_cubemap_shader = app->getShaderRegistry()->load("../assets/shaders/equirectangular-to-cubemap");
     Ref<TextureCube> skybox_texture_256 = renderer->create_texture_cube_from_hdr(skybox_hdr, equirectangular_to_cubemap_shader, 256);
     Ref<TextureCube> skybox_texture_2048 = renderer->create_texture_cube_from_hdr(skybox_hdr, equirectangular_to_cubemap_shader, 2048);
     Ref<CubeMap> skybox_cube_map = skybox_texture_256->to_cubemap();
@@ -102,7 +102,7 @@ SceneLayer::SceneLayer(const Ref<Application>& app) {
         const VertexData* vertex_data = sphere_model.vertices.data();
         auto vertex_data_floats = reinterpret_cast<const float*>(vertex_data);
         auto material = Material(renderer->create_texture2d(4, 1, 1, 1, std::array<unsigned char, 4>{50, 50, 255, 255}.data()));
-        material.ignore_lighting = true;
+        material.ignoreLighting = true;
         point_light_entity->add<Mesh>(renderer, vertex_data_floats, sphere_model.vertices.size() * sizeof(VertexData), sphere_model.indexes.data(), sphere_model.indexes.size(),
                                       material, sphere_model.transformation_matrix);
     }
@@ -144,7 +144,7 @@ void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
     const auto scripts_view = this->scene->get_scripts();
     for (const auto& entity : scripts_view) {
         Script& script = scripts_view.get<Script>(entity);
-        script.entity_script->on_update(ctx->delta_time);
+        script.entity_script->on_update(ctx->deltaTime);
     }
 }
 

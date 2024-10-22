@@ -16,7 +16,7 @@ public:
     explicit CubeMap(std::array<Image, 6> faces);
 
     const Image& getFace(Face face) const;
-    unsigned int getSize() const { return face_size; }
+    unsigned int getSize() const { return faceSize; }
 
     glm::vec3 getPixel(Face face, unsigned int x, unsigned int y) const;
     void* getPixelPointer(Face face, unsigned int x, unsigned int y) const;
@@ -26,5 +26,5 @@ public:
 
 private:
     std::array<Image, 6> faces;
-    unsigned int face_size;
+    unsigned int faceSize;
 };

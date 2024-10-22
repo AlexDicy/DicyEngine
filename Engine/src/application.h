@@ -12,32 +12,32 @@ public:
     ~Application();
 
     void run();
-    void update_frame(const std::unique_ptr<Context>& ctx) const;
-    void register_layers(const Ref<Application>& app);
+    void updateFrame(const std::unique_ptr<Context>& ctx) const;
+    void registerLayers(const Ref<Application>& app);
 
-    const Ref<Window>& get_window() const {
+    const Ref<Window>& getWindow() const {
         return this->window;
     }
 
-    const Ref<EventDispatcher>& get_event_dispatcher() const {
-        return this->event_dispatcher;
+    const Ref<EventDispatcher>& getEventDispatcher() const {
+        return this->eventDispatcher;
     }
 
-    const Ref<Renderer>& get_renderer() const {
+    const Ref<Renderer>& getRenderer() const {
         return this->renderer;
     }
 
-    const Ref<ShaderRegistry>& get_shader_registry() const {
-        return this->shader_registry;
+    const Ref<ShaderRegistry>& getShaderRegistry() const {
+        return this->shaderRegistry;
     }
 
 private:
     Ref<Window> window;
-    Ref<EventDispatcher> event_dispatcher;
+    Ref<EventDispatcher> eventDispatcher;
     std::unique_ptr<GUI> gui;
     Ref<Renderer> renderer;
-    Ref<ShaderRegistry> shader_registry;
+    Ref<ShaderRegistry> shaderRegistry;
     std::vector<Layer*> layers = {};
     bool running;
-    bool is_minimized;
+    bool isMinimized;
 };

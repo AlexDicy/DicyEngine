@@ -13,8 +13,8 @@ Ref<OrthographicCamera> get_orthographic_camera();
 CameraScript::CameraScript(const Ref<Application>& app, const Ref<Entity>& entity) : EntityScript(app, entity) {
     this->script = EntityScriptJava::create(app, entity, "com/dicydev/engine/scene/scripts/CameraScript");
 
-    const Ref<Window>& window = app->get_window();
-    const Ref<Renderer>& renderer = app->get_renderer();
+    const Ref<Window>& window = app->getWindow();
+    const Ref<Renderer>& renderer = app->getRenderer();
     const Ref<Scene>& scene = entity->get_scene();
     scene->set_camera(get_perspective_camera(window));
 
@@ -54,7 +54,7 @@ void CameraScript::on_sleep() {
 }
 
 Ref<PerspectiveCamera> get_perspective_camera(const Ref<Window>& window) {
-    return std::make_shared<PerspectiveCamera>(58.0f, static_cast<float>(window->get_width()) / static_cast<float>(window->get_height()));
+    return std::make_shared<PerspectiveCamera>(58.0f, static_cast<float>(window->getWidth()) / static_cast<float>(window->getHeight()));
 }
 
 Ref<OrthographicCamera> get_orthographic_camera() {

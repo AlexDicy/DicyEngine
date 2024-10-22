@@ -24,7 +24,7 @@ ImGuiGUI::ImGuiGUI(const Ref<Window>& window) : GUI(window) {
     style.Colors[ImGuiCol_TitleBgActive].w = 0.75f;
 
 
-    ImGui_ImplGlfw_InitForOpenGL(this->window->get_native_window(), true);
+    ImGui_ImplGlfw_InitForOpenGL(this->window->getNativeWindow(), true);
     #ifdef OPENGL_4_6
     ImGui_ImplOpenGL3_Init("#version 460");
     #else
@@ -37,7 +37,7 @@ void ImGuiGUI::update(const std::unique_ptr<Context>& ctx) {
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    this->io->DisplaySize = ImVec2(static_cast<float>(this->window->get_width()), static_cast<float>(this->window->get_height()));
+    this->io->DisplaySize = ImVec2(static_cast<float>(this->window->getWidth()), static_cast<float>(this->window->getHeight()));
 
     ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport());
 
@@ -65,7 +65,7 @@ void ImGuiGUI::update(const std::unique_ptr<Context>& ctx) {
     ImGui::Begin("Info");
 
     if (ImGui::Button("Toggle VSync")) { // returns true when clicked
-        this->window->set_vsync(!this->window->is_vsync());
+        this->window->setVSync(!this->window->isVSync());
     }
     ImGui::SameLine();
     ImGui::Checkbox("Demo Window", &show_demo_window);
@@ -74,7 +74,7 @@ void ImGuiGUI::update(const std::unique_ptr<Context>& ctx) {
     ImGui::Text("Camera position: %.2f, %.2f, %.2f", camera_position.x, camera_position.y, camera_position.z);
     ImGui::Text("%.3f ms/frame (%.1f FPS)", 1000.0f / io->Framerate, io->Framerate);
 
-    const std::vector<DE::Profiling::ProfilerResult> timings = DE::Profiling::get_profiler().get_timings();
+    const std::vector<DE::Profiling::ProfilerResult> timings = DE::Profiling::getProfiler().getTimings();
     for (const auto& [name, duration] : timings) {
         ImGui::Text("%.3f ms - %s", static_cast<float>(duration) / 1000.0f, name.c_str());
     }

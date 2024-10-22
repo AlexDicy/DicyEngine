@@ -36,7 +36,7 @@ GLFW3Window::GLFW3Window(const char* title, const unsigned int width, const unsi
     graphic_ctx = new OpenGLContext(this->window);
     graphic_ctx->init();
 
-    this->GLFW3Window::set_vsync(true);
+    this->GLFW3Window::setVSync(true);
     this->register_events();
 }
 
@@ -54,28 +54,28 @@ void GLFW3Window::destroy() {
     glfwDestroyWindow(this->window);
 }
 
-unsigned int GLFW3Window::get_width() const {
+unsigned int GLFW3Window::getWidth() const {
     int width, height;
     glfwGetWindowSize(this->window, &width, &height);
     return static_cast<unsigned int>(width);
 }
 
-unsigned int GLFW3Window::get_height() const {
+unsigned int GLFW3Window::getHeight() const {
     int width, height;
     glfwGetWindowSize(this->window, &width, &height);
     return static_cast<unsigned int>(height);
 }
 
-bool GLFW3Window::is_vsync() const {
+bool GLFW3Window::isVSync() const {
     return this->vsync;
 }
 
-void GLFW3Window::set_vsync(const bool vsync) {
+void GLFW3Window::setVSync(const bool vsync) {
     this->vsync = vsync;
     glfwSwapInterval(this->vsync ? 1 : 0);
 }
 
-float GLFW3Window::get_last_frame_time() const {
+float GLFW3Window::getLastFrameTime() const {
     return this->last_frame_time;
 }
 

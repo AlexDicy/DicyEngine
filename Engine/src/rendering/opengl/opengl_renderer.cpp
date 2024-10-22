@@ -110,8 +110,8 @@ void OpenGLRenderer::draw(const Ref<VertexArray>& vertex_array, const Ref<Shader
     int texture_slot = 0;
     material.albedo->bind(texture_slot);
     shader->upload_uniform_int("u_albedo", texture_slot++);
-    if (material.occlusion_roughness_metallic) {
-        material.occlusion_roughness_metallic->bind(texture_slot);
+    if (material.occlusionRoughnessMetallic) {
+        material.occlusionRoughnessMetallic->bind(texture_slot);
     } else {
         this->default_occlusion_roughness_metallic_texture->bind(texture_slot);
     }
@@ -121,7 +121,7 @@ void OpenGLRenderer::draw(const Ref<VertexArray>& vertex_array, const Ref<Shader
         shader->upload_uniform_vec3("u_irradiance_sh[" + std::to_string(i) + "]", this->irradiance_sh[i]);
     }
     // lights
-    shader->upload_uniform_int("u_material.ignore_lighting", material.ignore_lighting);
+    shader->upload_uniform_int("u_material.ignore_lighting", material.ignoreLighting);
     shader->upload_uniform_vec3("u_directional_light.color", {1.0f, 1.0f, 1.0f});
     shader->upload_uniform_float("u_directional_light.intensity", directional_light->get_intensity());
     shader->upload_uniform_vec3("u_directional_light.direction", directional_light->get_local_direction(transform));

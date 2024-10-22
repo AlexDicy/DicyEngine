@@ -112,11 +112,11 @@ bool Input::is_action_pressed(const std::string& action) {
     const InputCode input_code = actions_mapping[action];
     // mouse button
     if (input_code >= InputCode::MOUSE_BUTTON_RANGE_START && input_code <= InputCode::MOUSE_BUTTON_RANGE_END) {
-        const int status = glfwGetMouseButton(window->get_native_window(), get_glfw_mouse_button_code(input_code));
+        const int status = glfwGetMouseButton(window->getNativeWindow(), get_glfw_mouse_button_code(input_code));
         return status == GLFW_PRESS;
     }
     // keyboard
-    const int status = glfwGetKey(window->get_native_window(), static_cast<int>(input_code));
+    const int status = glfwGetKey(window->getNativeWindow(), static_cast<int>(input_code));
     return status == GLFW_PRESS || status == GLFW_REPEAT;
 }
 #else

@@ -7,10 +7,10 @@ public:
     JavaBridge();
     ~JavaBridge();
 
-    static Ref<JavaBridge> get_instance();
+    static Ref<JavaBridge> getInstance();
 
-    static JNIEnv* get_env() {
-        return get_instance()->env;
+    static JNIEnv* getEnv() {
+        return getInstance()->env;
     }
 
 private:
@@ -20,50 +20,50 @@ private:
     typedef int(JNICALL* CreateJavaVM)(JavaVM** jvm, JNIEnv** env, JavaVMInitArgs* args);
 
 #ifdef DE_PLATFORM_WINDOWS
-    CreateJavaVM load_jvm_dll();
+    CreateJavaVM loadJVMdll();
 
-    HMODULE jvm_dll;
+    HMODULE jvmDll;
 #endif
 };
 
 class JavaClass {
 public:
-    explicit JavaClass(const std::string& class_name);
+    explicit JavaClass(const std::string& className);
     ~JavaClass() = default;
 
-    jmethodID get_method(const char* method_name, const char* signature) const;
-    jmethodID get_static_method(const char* method_name, const char* signature) const;
+    jmethodID getMethod(const char* methodName, const char* signature) const;
+    jmethodID getStaticMethod(const char* methodName, const char* signature) const;
 
-    jobject new_instance() const;
-    jobject new_instance(const char* signature, ...) const;
+    jobject newInstance() const;
+    jobject newInstance(const char* signature, ...) const;
 
-#define CALL_METHOD_DECLARATION(return_type, method_name) \
-    return_type method_name(jobject instance, jmethodID method, ...) const; \
-    return_type method_name(jmethodID method, ...) const;
+#define CALL_METHOD_DECLARATION(returnType, methodName) \
+    returnType methodName(jobject instance, jmethodID method, ...) const; \
+    returnType methodName(jmethodID method, ...) const;
 
-    CALL_METHOD_DECLARATION(void, call_void)
-    CALL_METHOD_DECLARATION(jboolean, call_boolean)
-    CALL_METHOD_DECLARATION(jbyte, call_byte)
-    CALL_METHOD_DECLARATION(jchar, call_char)
-    CALL_METHOD_DECLARATION(jshort, call_short)
-    CALL_METHOD_DECLARATION(jint, call_int)
-    CALL_METHOD_DECLARATION(jlong, call_long)
-    CALL_METHOD_DECLARATION(jfloat, call_float)
-    CALL_METHOD_DECLARATION(jdouble, call_double)
-    CALL_METHOD_DECLARATION(jobject, call_object)
+    CALL_METHOD_DECLARATION(void, callVoid)
+    CALL_METHOD_DECLARATION(jboolean, callBoolean)
+    CALL_METHOD_DECLARATION(jbyte, callByte)
+    CALL_METHOD_DECLARATION(jchar, callChar)
+    CALL_METHOD_DECLARATION(jshort, callShort)
+    CALL_METHOD_DECLARATION(jint, callInt)
+    CALL_METHOD_DECLARATION(jlong, callLong)
+    CALL_METHOD_DECLARATION(jfloat, callFloat)
+    CALL_METHOD_DECLARATION(jdouble, callDouble)
+    CALL_METHOD_DECLARATION(jobject, callObject)
 #undef CALL_METHOD_DECLARATION
 
-    JNIEnv* get_env() const {
+    JNIEnv* getEnv() const {
         return env;
     }
 
-    jclass get_java_class() const {
-        return java_class;
+    jclass getJavaClass() const {
+        return javaClass;
     }
 
 private:
-    void check_and_clear_exceptions() const;
+    void checkAndClearExceptions() const;
 
     JNIEnv* env;
-    jclass java_class;
+    jclass javaClass;
 };
