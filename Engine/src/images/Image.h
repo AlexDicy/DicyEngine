@@ -22,7 +22,7 @@ public:
         return bytesPerPixel;
     }
 
-    void* getData() const {
+    virtual void* getData() const {
         return data.get();
     }
 

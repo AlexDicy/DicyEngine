@@ -67,13 +67,10 @@ LinearImage::LinearImage(const std::string& path) {
                 return;
             }
 
-            int len; // TODO: this is not working
-            imageStream.read(reinterpret_cast<char*>(&len), 1);
-            len <<= 8;
-            unsigned char len2;
+            unsigned char len1, len2;
+            imageStream.read(reinterpret_cast<char*>(&len1), 1);
             imageStream.read(reinterpret_cast<char*>(&len2), 1);
-            DE_INFO("len: {0}, len2: {1}, len |= len2: {2}", len, len2, len |= len2);
-            len |= len2; // changed the order of the bytes
+            const int len = (len1 << 8) | len2; // changed the order of the bytes
             if (len != width) {
                 DE_ERROR("Invalid scanline length in RLE");
                 return;

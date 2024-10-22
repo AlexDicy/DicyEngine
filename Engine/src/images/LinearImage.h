@@ -5,6 +5,10 @@ public:
     LinearImage() = default;
     explicit LinearImage(const std::string& path);
 
+    void* getData() const override {
+        return data.get();
+    }
+
 private:
     static void convertRGBEtoRGB(const unsigned char* rgbe, float* rgb);
 
