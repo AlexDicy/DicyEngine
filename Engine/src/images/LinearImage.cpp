@@ -83,7 +83,7 @@ LinearImage::LinearImage(const std::string& path) : Image(0, 0, 3, sizeof(float)
                     unsigned char count;
                     imageStream.read(reinterpret_cast<char*>(&count), 1);
                     if (count > 128) {
-                        // Run
+                        // run
                         unsigned char value;
                         imageStream.read(reinterpret_cast<char*>(&value), 1);
                         count -= 128;
@@ -95,7 +95,7 @@ LinearImage::LinearImage(const std::string& path) : Image(0, 0, 3, sizeof(float)
                             row[i++ * 4 + k] = value;
                         }
                     } else {
-                        // Dump
+                        // dump
                         if (count == 0 || count > nleft) {
                             DE_ERROR("Invalid RLE data");
                             return;
@@ -111,8 +111,20 @@ LinearImage::LinearImage(const std::string& path) : Image(0, 0, 3, sizeof(float)
             }
         }
     } else {
+        // TODO: implement non-RLE
         throw std::runtime_error("NOT IMPLEMENTED");
     }
+
+    // invert the image vertically
+    // this doubles the memory usage, use a different approach if memory is a concern
+    auto invertedData = std::make_unique<float[]>(width * height * 3);
+    unsigned int bytesPerRow = this->bytesPerPixel * width;
+    for (unsigned int y = 0; y < height; y++) {
+        float* src = this->data.get() + (height - y - 1) * width * 3;  // NOLINT(bugprone-implicit-widening-of-multiplication-result)
+        float* dst = invertedData.get() + y * width * 3;  // NOLINT(bugprone-implicit-widening-of-multiplication-result)
+        std::memcpy(dst, src, bytesPerRow);
+    }
+    this->data = std::move(invertedData);
 }
 
 void LinearImage::convertRGBEtoRGB(const unsigned char* rgbe, float* rgb) {
