@@ -132,8 +132,8 @@ void LinearImage::convertRGBEtoRGB(const unsigned char* rgbe, float* rgb) {
         rgb[0] = rgb[1] = rgb[2] = 0;
     } else {
         const float exponent = std::ldexp(1.0f, rgbe[3] - (128 + 8));
-        rgb[0] = rgbe[0] * exponent;
-        rgb[1] = rgbe[1] * exponent;
-        rgb[2] = rgbe[2] * exponent;
+        rgb[0] = (rgbe[0] + 0.5f) * exponent;
+        rgb[1] = (rgbe[1] + 0.5f) * exponent;
+        rgb[2] = (rgbe[2] + 0.5f) * exponent;
     }
 }
