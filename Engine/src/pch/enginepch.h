@@ -17,13 +17,13 @@
 // compile GLM with a left-handed coordinate system
 #define GLM_FORCE_LEFT_HANDED
 
-#include "utils/common.h"
-#include "utils/logging.h"
-#include "utils/profiler.h"
-#include "events/event.h"
-#include "events/dispatcher.h"
-#include "input/input.h"
-#include "rendering/shader_registry.h"
-#include "rendering/camera/camera.h"
-#include "scene/components/mesh.h"
-#include "scene/components/transform.h"
+#include "utils/Common.h"
+#include "utils/Logging.h"
+#include "utils/Profiler.h"
+#include "events/Event.h"
+#include "events/Dispatcher.h"
+#include "input/Input.h"
+#include "rendering/ShaderRegistry.h"
+#include "rendering/camera/Camera.h"
+#include "scene/components/Mesh.h"
+#include "scene/components/Transform.h"
