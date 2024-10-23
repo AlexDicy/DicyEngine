@@ -2,12 +2,12 @@
 
 layout (location = 0) out vec4 color;
 
-in vec3 v_position;
-in vec3 v_normal;
-in vec2 v_texture_coords;
+in vec3 vPosition;
+in vec3 vNormal;
+in vec2 vTextureCoords;
 
 struct Material {
-    bool ignore_lighting;
+    bool ignoreLighting;
 };
 
 struct DirectionalLight {
@@ -22,49 +22,43 @@ struct PointLight {
     float intensity;
 };
 
-uniform vec3 u_camera_position_local;
-uniform Material u_material;
-uniform sampler2D u_albedo;
-uniform sampler2D u_occlusion_roughness_metallic;
-uniform vec3 u_irradiance_sh[9];
-uniform DirectionalLight u_directional_light;
-uniform PointLight u_point_lights[10];
-uniform int u_point_lights_count;
+uniform vec3 uCameraPositionLocal;
+uniform Material uMaterial;
+uniform sampler2D uAlbedo;
+uniform sampler2D uOcclusionRoughnessMetallic;
+uniform vec3 uIrradianceSH[9];
+uniform DirectionalLight uDirectionalLight;
+uniform PointLight uPointLights[10];
+uniform int uPointLightsCount;
 
 #define PI 3.14159265359
 
 #define saturate(x) clamp(x, 0.0, 1.0)
 
 // Trowbridge–Reitz (GGX) distribution
-float distribution_ggx(float NoH, float roughness2) {
-    float one_minus_NoH2 = 1.0 - NoH * NoH;
+float distributionGGX(float NoH, float roughness2) {
+    float oneMinusNoH2 = 1.0 - NoH * NoH;
     float a = NoH * roughness2;
-    float k = roughness2 / (one_minus_NoH2 + a * a);
+    float k = roughness2 / (oneMinusNoH2 + a * a);
     return k * k * (1.0 / PI);
 }
 
 // Schlick geometric shadowing/masking approximation
-float geometry_schlick_ggx(float NoV, float roughness) {
+float geometrySchlickGGX(float NoV, float roughness) {
     float a = roughness * roughness;
     float k = a / 2.0;
     return NoV / (NoV * (1.0 - k) + k);
 }
 
 // Fresnel-Schlick approximation
-vec3 fresnel_schlick(float VoH, vec3 F0) {
+vec3 fresnelSchlick(float VoH, vec3 F0) {
     return F0 + (1.0 - F0) * pow(1.0 - VoH, 5);
 }
 
-// Fresnel-Schlick approximation with roughness, Sébastien Lagarde
-vec3 fresnel_schlick_with_roughness(float VoH, vec3 F0, float roughness) {
-    //return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(1.0 - VoH, 5);
-    return F0 + (max(vec3(roughness), F0) - F0) * pow(1 - VoH, 5);
-}
-
-vec3 calculate_light(float NoV, float NoL, float NoH, float VoH, vec3 albedo, float metallic, float roughness2, vec3 F0, vec3 radiance) {
-    vec3 F = fresnel_schlick(VoH, F0);
-    float D = distribution_ggx(NoH, roughness2);
-    float G = geometry_schlick_ggx(NoV, roughness2) * geometry_schlick_ggx(NoL, roughness2);
+vec3 calculateLight(float NoV, float NoL, float NoH, float VoH, vec3 albedo, float metallic, float roughness2, vec3 F0, vec3 radiance) {
+    vec3 F = fresnelSchlick(VoH, F0);
+    float D = distributionGGX(NoH, roughness2);
+    float G = geometrySchlickGGX(NoV, roughness2) * geometrySchlickGGX(NoL, roughness2);
 
     vec3 kD = (1.0 - F) * (1.0 - metallic);
     vec3 diffuse = kD * albedo / PI; // lambert brdf
@@ -72,66 +66,66 @@ vec3 calculate_light(float NoV, float NoL, float NoH, float VoH, vec3 albedo, fl
     return (diffuse + specular) * radiance * NoL;
 }
 
-vec3 calculate_irradiance_spherical_harmonics(const vec3 normal) {
-    vec3 sh = u_irradiance_sh[0]
-    + u_irradiance_sh[1] * (normal.y)
-    + u_irradiance_sh[2] * (normal.z)
-    + u_irradiance_sh[3] * (normal.x)
-    + u_irradiance_sh[4] * (normal.y * normal.x)
-    + u_irradiance_sh[5] * (normal.y * normal.z)
-    + u_irradiance_sh[6] * (3.0 * normal.z * normal.z - 1.0)
-    + u_irradiance_sh[7] * (normal.z * normal.x)
-    + u_irradiance_sh[8] * (normal.x * normal.x - normal.y * normal.y);
+vec3 calculateIrradianceSphericalHarmonics(const vec3 normal) {
+    vec3 sh = uIrradianceSH[0]
+    + uIrradianceSH[1] * (normal.y)
+    + uIrradianceSH[2] * (normal.z)
+    + uIrradianceSH[3] * (normal.x)
+    + uIrradianceSH[4] * (normal.y * normal.x)
+    + uIrradianceSH[5] * (normal.y * normal.z)
+    + uIrradianceSH[6] * (3.0 * normal.z * normal.z - 1.0)
+    + uIrradianceSH[7] * (normal.z * normal.x)
+    + uIrradianceSH[8] * (normal.x * normal.x - normal.y * normal.y);
     return max(sh / 1000.0, 0.0);
 }
 
 
 void main() {
-    vec4 linear_albedo = texture(u_albedo, v_texture_coords);
-    if (u_material.ignore_lighting) {
-        color = linear_albedo;
+    vec4 linearAlbedo = texture(uAlbedo, vTextureCoords);
+    if (uMaterial.ignoreLighting) {
+        color = linearAlbedo;
         return;
     }
 
-    vec3 albedo = pow(linear_albedo.rgb, vec3(2.2));
-    vec4 occlusion_roughness_metallic = texture(u_occlusion_roughness_metallic, v_texture_coords);
-    float occlusion = occlusion_roughness_metallic.r;
-    float roughness = occlusion_roughness_metallic.g;
-    float metallic = occlusion_roughness_metallic.b;
+    vec3 albedo = pow(linearAlbedo.rgb, vec3(2.2));
+    vec4 occlusionRoughnessMetallic = texture(uOcclusionRoughnessMetallic, vTextureCoords);
+    float occlusion = occlusionRoughnessMetallic.r;
+    float roughness = occlusionRoughnessMetallic.g;
+    float metallic = occlusionRoughnessMetallic.b;
 
     // common calculations for all lights
-    vec3 N = normalize(v_normal);
-    vec3 V = normalize(u_camera_position_local - v_position);
+    vec3 N = normalize(vNormal);
+    vec3 V = normalize(uCameraPositionLocal - vPosition);
     float NoV = saturate(dot(N, V));
     float roughness2 = clamp(roughness * roughness, 1e-3, 1.0);
     // F0 is calculated using the IOR (index of refraction), we approximate it to 0.04 for non-metals and use the albedo for metals
     vec3 F0 = mix(vec3(0.04), albedo, metallic);
 
     // directional light
-    vec3 L = normalize(-u_directional_light.direction);
+    vec3 L = normalize(-uDirectionalLight.direction);
     vec3 H = normalize(V + L);
     float NoL = saturate(dot(N, L));
     float NoH = saturate(dot(N, H));
     float VoH = saturate(dot(V, H));
-    vec3 total_light = calculate_light(NoV, NoL, NoH, VoH, albedo, metallic, roughness2, F0, u_directional_light.color * u_directional_light.intensity);
+    vec3 totalLight = calculateLight(NoV, NoL, NoH, VoH, albedo, metallic, roughness2, F0, uDirectionalLight.color * uDirectionalLight.intensity);
 
     // point lights
-    for (int i = 0; i < u_point_lights_count; i++) {
-        L = normalize(u_point_lights[i].position - v_position);
+    for (int i = 0; i < uPointLightsCount; i++) {
+        L = normalize(uPointLights[i].position - vPosition);
         H = normalize(V + L);
         NoL = saturate(dot(N, L));
         NoH = saturate(dot(N, H));
         VoH = saturate(dot(V, H));
-        float distance = length(u_point_lights[i].position - v_position);
+        float distance = length(uPointLights[i].position - vPosition);
         float attenuation = 1.0 / (distance * distance);
-        vec3 radiance = u_point_lights[i].color * u_point_lights[i].intensity * attenuation;
-        total_light += calculate_light(NoV, NoL, NoH, VoH, albedo.rgb, metallic, roughness2, F0, radiance);
+        vec3 radiance = uPointLights[i].color * uPointLights[i].intensity * attenuation;
+        totalLight += calculateLight(NoV, NoL, NoH, VoH, albedo.rgb, metallic, roughness2, F0, radiance);
     }
 
     // irradiance
-    total_light += calculate_irradiance_spherical_harmonics(N);
+    totalLight += calculateIrradianceSphericalHarmonics(N);
 
-    vec3 linear_color = vec3(total_light * occlusion);
-    linear_color = linear_color / (linear_color + vec3(1.0));
-    color = vec4(pow(linear_color, vec3(1.0 / 2.2)), linear_albedo.a);
+    vec3 linearColor = vec3(totalLight * occlusion);
+    linearColor = linearColor / (linearColor + vec3(1.0));
+    color = vec4(pow(linearColor, vec3(1.0 / 2.2)), linearAlbedo.a);
 }

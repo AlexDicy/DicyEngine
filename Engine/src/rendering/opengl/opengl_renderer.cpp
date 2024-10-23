@@ -16,74 +16,74 @@ void OpenGLRenderer::init(const int x, const int y, const uint32_t width, const 
     glEnable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);
     glFrontFace(GL_CW);
-    this->set_viewport(x, y, width, height);
+    this->setViewport(x, y, width, height);
     unsigned char white[4] = {255, 255, 255, 255};
-    this->white_pixel_texture = std::make_shared<OpenGLTexture2D>(1, 1, 1, 1, white);
-    this->default_occlusion_roughness_metallic_texture = std::make_shared<OpenGLTexture2D>(3, 1, 1, 1, std::array<unsigned char, 3>{255, 255, 0}.data());
+    this->whitePixelTexture = std::make_shared<OpenGLTexture2D>(1, 1, 1, 1, white);
+    this->defaultOcclusionRoughnessMetallicTexture = std::make_shared<OpenGLTexture2D>(3, 1, 1, 1, std::array<unsigned char, 3>{255, 255, 0}.data());
 }
 
-void OpenGLRenderer::set_viewport(const int x, const int y, const uint32_t width, const uint32_t height) {
+void OpenGLRenderer::setViewport(const int x, const int y, const uint32_t width, const uint32_t height) {
     glViewport(x, y, static_cast<int>(width), static_cast<int>(height));
     if (this->camera) {
-        this->camera->set_aspect_ratio(static_cast<float>(width) / static_cast<float>(height));
+        this->camera->setAspectRatio(static_cast<float>(width) / static_cast<float>(height));
     }
     this->framebuffer = std::make_shared<OpenGLFramebuffer>(width, height);
 }
 
-const Ref<Framebuffer>& OpenGLRenderer::get_framebuffer() const {
+const Ref<Framebuffer>& OpenGLRenderer::getFramebuffer() const {
     return this->framebuffer;
 }
 
 
-Ref<VertexArray> OpenGLRenderer::create_vertex_array(const Ref<VertexBuffer>& vertex_buffer, const Ref<IndexBuffer>& index_buffer) const {
-    return std::make_shared<OpenGLVertexArray>(vertex_buffer, index_buffer);
+Ref<VertexArray> OpenGLRenderer::createVertexArray(const Ref<VertexBuffer>& vertexBuffer, const Ref<IndexBuffer>& indexBuffer) const {
+    return std::make_shared<OpenGLVertexArray>(vertexBuffer, indexBuffer);
 }
 
-Ref<VertexBuffer> OpenGLRenderer::create_vertex_buffer(const float* vertices, const uint32_t size) const {
+Ref<VertexBuffer> OpenGLRenderer::createVertexBuffer(const float* vertices, const uint32_t size) const {
     return std::make_shared<OpenGLVertexBuffer>(vertices, size);
 }
 
-Ref<IndexBuffer> OpenGLRenderer::create_index_buffer(const uint32_t* indexes, const uint32_t count) const {
+Ref<IndexBuffer> OpenGLRenderer::createIndexBuffer(const uint32_t* indexes, const uint32_t count) const {
     return std::make_shared<OpenGLIndexBuffer>(indexes, count);
 }
 
-Ref<Shader> OpenGLRenderer::create_shader(const std::string& vertex_path, const std::string& fragment_path) const {
-    return std::make_shared<OpenGLShader>(vertex_path, fragment_path);
+Ref<Shader> OpenGLRenderer::createShader(const std::string& vertexPath, const std::string& fragmentPath) const {
+    return std::make_shared<OpenGLShader>(vertexPath, fragmentPath);
 }
 
-Ref<Texture2D> OpenGLRenderer::create_texture2d(const std::string& path) const {
+Ref<Texture2D> OpenGLRenderer::createTexture2D(const std::string& path) const {
     return std::make_shared<OpenGLTexture2D>(path);
 }
 
-Ref<Texture2D> OpenGLRenderer::create_texture2d(const unsigned int channels, const unsigned int width, const unsigned int height, const unsigned int bytesPerPixel, const void* data) const {
+Ref<Texture2D> OpenGLRenderer::createTexture2D(const unsigned int channels, const unsigned int width, const unsigned int height, const unsigned int bytesPerPixel, const void* data) const {
     return std::make_shared<OpenGLTexture2D>(channels, width, height, bytesPerPixel, data);
 }
 
-Ref<TextureCube> OpenGLRenderer::create_texture_cube(const std::array<std::string, 6>& paths) const {
+Ref<TextureCube> OpenGLRenderer::createTextureCube(const std::array<std::string, 6>& paths) const {
     return std::make_shared<OpenGLTextureCube>(paths);
 }
 
-Ref<TextureCube> OpenGLRenderer::create_texture_cube_from_hdr(const Ref<Texture2D>& hdr_texture, const Ref<Shader>& convert_shader, const uint32_t size) {
-    return OpenGLTextureCube::create_from_hdr(shared_from_this(), hdr_texture, convert_shader, size);
+Ref<TextureCube> OpenGLRenderer::createTextureCubeFromHDR(const Ref<Texture2D>& hdrTexture, const Ref<Shader>& convertShader, const uint32_t size) {
+    return OpenGLTextureCube::createFromHDR(shared_from_this(), hdrTexture, convertShader, size);
 }
 
-Ref<TextureCube> OpenGLRenderer::create_irradiance_map(const Ref<TextureCube>& texture_cube, const Ref<Shader>& irradiance_shader, const uint32_t size) {
-    return OpenGLTextureCube::create_irradiance_map(shared_from_this(), texture_cube, irradiance_shader, size);
+Ref<TextureCube> OpenGLRenderer::createIrradianceMap(const Ref<TextureCube>& textureCube, const Ref<Shader>& irradianceShader, const uint32_t size) {
+    return OpenGLTextureCube::createIrradianceMap(shared_from_this(), textureCube, irradianceShader, size);
 }
 
 
-void OpenGLRenderer::begin_frame() {
-    this->view_projection_matrix = this->camera->get_view_projection_matrix(true);
-    this->view_matrix = this->camera->get_view_matrix();
-    this->projection_matrix = this->camera->get_projection_matrix();
-    this->point_lights.clear();
+void OpenGLRenderer::beginFrame() {
+    this->viewProjectionMatrix = this->camera->getViewProjectionMatrix(true);
+    this->viewMatrix = this->camera->getViewMatrix();
+    this->projectionMatrix = this->camera->getProjectionMatrix();
+    this->pointLights.clear();
     this->framebuffer->bind();
     this->clean(); // make sure to clean the framebuffer
     glEnable(GL_CULL_FACE); // disabled by the skybox
     glDepthFunc(GL_LESS); // changed by the skybox
 }
 
-void OpenGLRenderer::end_frame() const {
+void OpenGLRenderer::endFrame() const {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
@@ -93,63 +93,63 @@ void OpenGLRenderer::clean() const {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void OpenGLRenderer::add_point_light(const PointLight& point_light) {
-    this->point_lights.push_back(point_light);
+void OpenGLRenderer::addPointLight(const PointLight& pointLight) {
+    this->pointLights.push_back(pointLight);
 }
 
-void OpenGLRenderer::draw(const Ref<VertexArray>& vertex_array, const Ref<Shader>& shader, const glm::mat4& transform, const Ref<DirectionalLight>& directional_light) const {
-    this->draw(vertex_array, shader, transform, directional_light, Material(this->white_pixel_texture));
+void OpenGLRenderer::draw(const Ref<VertexArray>& vertexArray, const Ref<Shader>& shader, const glm::mat4& transform, const Ref<DirectionalLight>& directionalLight) const {
+    this->draw(vertexArray, shader, transform, directionalLight, Material(this->whitePixelTexture));
 }
 
-void OpenGLRenderer::draw(const Ref<VertexArray>& vertex_array, const Ref<Shader>& shader, const glm::mat4& transform, const Ref<DirectionalLight>& directional_light,
+void OpenGLRenderer::draw(const Ref<VertexArray>& vertexArray, const Ref<Shader>& shader, const glm::mat4& transform, const Ref<DirectionalLight>& directionalLight,
                           const Material& material) const {
     shader->bind();
-    shader->upload_uniform_mat4("u_view_projection", this->view_projection_matrix);
-    shader->upload_uniform_mat4("u_transform", transform);
+    shader->uploadUniformMat4("uViewProjection", this->viewProjectionMatrix);
+    shader->uploadUniformMat4("uTransform", transform);
     // texture
-    int texture_slot = 0;
-    material.albedo->bind(texture_slot);
-    shader->upload_uniform_int("u_albedo", texture_slot++);
+    int textureSlot = 0;
+    material.albedo->bind(textureSlot);
+    shader->uploadUniformInt("uAlbedo", textureSlot++);
     if (material.occlusionRoughnessMetallic) {
-        material.occlusionRoughnessMetallic->bind(texture_slot);
+        material.occlusionRoughnessMetallic->bind(textureSlot);
     } else {
-        this->default_occlusion_roughness_metallic_texture->bind(texture_slot);
+        this->defaultOcclusionRoughnessMetallicTexture->bind(textureSlot);
     }
-    shader->upload_uniform_int("u_occlusion_roughness_metallic", texture_slot);
+    shader->uploadUniformInt("uOcclusionRoughnessMetallic", textureSlot);
     // irradiance spherical harmonics
-    for (int i = 0; i < this->irradiance_sh.size(); i++) {
-        shader->upload_uniform_vec3("u_irradiance_sh[" + std::to_string(i) + "]", this->irradiance_sh[i]);
+    for (int i = 0; i < this->irradianceSH.size(); i++) {
+        shader->uploadUniformVec3("uIrradianceSH[" + std::to_string(i) + "]", this->irradianceSH[i]);
     }
     // lights
-    shader->upload_uniform_int("u_material.ignore_lighting", material.ignoreLighting);
-    shader->upload_uniform_vec3("u_directional_light.color", {1.0f, 1.0f, 1.0f});
-    shader->upload_uniform_float("u_directional_light.intensity", directional_light->get_intensity());
-    shader->upload_uniform_vec3("u_directional_light.direction", directional_light->get_local_direction(transform));
-    for (size_t i = 0; i < this->point_lights.size(); i++) {
-        const PointLight& point_light = this->point_lights[i];
-        shader->upload_uniform_vec3("u_point_lights[" + std::to_string(i) + "].position", glm::vec3(inverse(transform) * glm::vec4(point_light.position, 1.0f)));
-        shader->upload_uniform_vec3("u_point_lights[" + std::to_string(i) + "].color", point_light.color);
-        shader->upload_uniform_float("u_point_lights[" + std::to_string(i) + "].intensity", point_light.intensity);
+    shader->uploadUniformInt("uMaterial.ignoreLighting", material.ignoreLighting);
+    shader->uploadUniformVec3("uDirectionalLight.color", {1.0f, 1.0f, 1.0f});
+    shader->uploadUniformFloat("uDirectionalLight.intensity", directionalLight->getIntensity());
+    shader->uploadUniformVec3("uDirectionalLight.direction", directionalLight->getLocalDirection(transform));
+    for (size_t i = 0; i < this->pointLights.size(); i++) {
+        const PointLight& pointLight = this->pointLights[i];
+        shader->uploadUniformVec3("uPointLights[" + std::to_string(i) + "].position", glm::vec3(inverse(transform) * glm::vec4(pointLight.position, 1.0f)));
+        shader->uploadUniformVec3("uPointLights[" + std::to_string(i) + "].color", pointLight.color);
+        shader->uploadUniformFloat("uPointLights[" + std::to_string(i) + "].intensity", pointLight.intensity);
     }
-    shader->upload_uniform_int("u_point_lights_count", static_cast<int>(this->point_lights.size()));
+    shader->uploadUniformInt("uPointLightsCount", static_cast<int>(this->pointLights.size()));
     // camera position
-    const auto camera_position_local = glm::vec3(inverse(transform) * glm::vec4(this->camera->get_position(), 1.0f));
-    shader->upload_uniform_vec3("u_camera_position_local", camera_position_local);
+    const auto cameraPositionLocal = glm::vec3(inverse(transform) * glm::vec4(this->camera->getPosition(), 1.0f));
+    shader->uploadUniformVec3("uCameraPositionLocal", cameraPositionLocal);
 
-    vertex_array->bind();
-    glDrawElements(GL_TRIANGLES, static_cast<int>(vertex_array->get_index_buffer()->get_count()), GL_UNSIGNED_INT, nullptr);
+    vertexArray->bind();
+    glDrawElements(GL_TRIANGLES, static_cast<int>(vertexArray->getIndexBuffer()->getCount()), GL_UNSIGNED_INT, nullptr);
 }
 
-void OpenGLRenderer::draw_skybox(const Ref<SkyboxCube>& skybox) const {
-    skybox->get_shader()->bind();
+void OpenGLRenderer::drawSkybox(const Ref<SkyboxCube>& skybox) const {
+    skybox->getShader()->bind();
     // remove the translation part of the view matrix
-    const auto view_matrix = glm::mat4(glm::mat3(this->view_matrix));
-    const auto view_projection_matrix = this->projection_matrix * view_matrix;
-    skybox->get_shader()->upload_uniform_mat4("u_view_projection", view_projection_matrix);
-    skybox->get_texture()->bind(0);
-    skybox->get_shader()->upload_uniform_int("u_skybox", 0);
-    skybox->get_vertex_array()->bind();
+    const auto viewMatrix = glm::mat4(glm::mat3(this->viewMatrix));
+    const auto viewProjectionMatrix = this->projectionMatrix * viewMatrix;
+    skybox->getShader()->uploadUniformMat4("uViewProjection", viewProjectionMatrix);
+    skybox->getTexture()->bind(0);
+    skybox->getShader()->uploadUniformInt("uSkybox", 0);
+    skybox->getVertexArray()->bind();
     glDepthFunc(GL_LEQUAL);
     glDisable(GL_CULL_FACE);
-    glDrawElements(GL_TRIANGLES, static_cast<int>(skybox->get_vertex_array()->get_index_buffer()->get_count()), GL_UNSIGNED_INT, nullptr);
+    glDrawElements(GL_TRIANGLES, static_cast<int>(skybox->getVertexArray()->getIndexBuffer()->getCount()), GL_UNSIGNED_INT, nullptr);
 }

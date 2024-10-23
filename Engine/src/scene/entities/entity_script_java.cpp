@@ -4,57 +4,57 @@
 
 class EntityScriptJavaImpl final : public EntityScriptJava {
 public:
-    EntityScriptJavaImpl(const Ref<Application>& app, const Ref<Entity>& entity, const std::string& class_name) : EntityScriptJava(app, entity) {
-        this->java_class = new JavaClass(class_name);
+    EntityScriptJavaImpl(const Ref<Application>& app, const Ref<Entity>& entity, const std::string& className) : EntityScriptJava(app, entity) {
+        this->javaClass = new JavaClass(className);
 
-        this->on_update_id = this->java_class->getMethod("onUpdate", "(F)V");
-        this->on_spawn_id = this->java_class->getMethod("onSpawn", "()V");
-        this->on_destroy_id = this->java_class->getMethod("onDestroy", "()V");
-        this->on_awake_id = this->java_class->getMethod("onAwake", "()V");
-        this->on_sleep_id = this->java_class->getMethod("onSleep", "()V");
+        this->onUpdateId = this->javaClass->getMethod("onUpdate", "(F)V");
+        this->onSpawnId = this->javaClass->getMethod("onSpawn", "()V");
+        this->onDestroyId = this->javaClass->getMethod("onDestroy", "()V");
+        this->onAwakeId = this->javaClass->getMethod("onAwake", "()V");
+        this->onSleepId = this->javaClass->getMethod("onSleep", "()V");
 
-        const jobject scene_object = JavaClass("com/dicydev/engine/scene/Scene").newInstance("(J)V", entity->get_scene().get());
-        entt::registry* registry_pointer = entity->get_registry().get();
-        this->java_object = this->java_class->newInstance();
-        const jmethodID set_entity_info_id = this->java_class->getMethod("setEntityInfo", "(Lcom/dicydev/engine/scene/Scene;JI)V");
-        this->java_class->callVoid(this->java_object, set_entity_info_id, scene_object, registry_pointer, entity->get_entity_id());
+        const jobject sceneObject = JavaClass("com/dicydev/engine/scene/Scene").newInstance("(J)V", entity->getScene().get());
+        entt::registry* registryPointer = entity->getRegistry().get();
+        this->javaObject = this->javaClass->newInstance();
+        const jmethodID setEntityInfoId = this->javaClass->getMethod("setEntityInfo", "(Lcom/dicydev/engine/scene/Scene;JI)V");
+        this->javaClass->callVoid(this->javaObject, setEntityInfoId, sceneObject, registryPointer, entity->getEntityId());
     }
 
     ~EntityScriptJavaImpl() override {
-        delete this->java_class;
+        delete this->javaClass;
     }
 
-    void on_update(float delta_time) override {
-        this->java_class->callVoid(this->java_object, this->on_update_id, delta_time);
+    void onUpdate(const float deltaTime) override {
+        this->javaClass->callVoid(this->javaObject, this->onUpdateId, deltaTime);
     }
 
-    void on_spawn() override {
-        this->java_class->callVoid(this->java_object, this->on_spawn_id);
+    void onSpawn() override {
+        this->javaClass->callVoid(this->javaObject, this->onSpawnId);
     }
 
-    void on_destroy() override {
-        this->java_class->callVoid(this->java_object, this->on_destroy_id);
+    void onDestroy() override {
+        this->javaClass->callVoid(this->javaObject, this->onDestroyId);
     }
 
-    void on_awake() override {
-        this->java_class->callVoid(this->java_object, this->on_awake_id);
+    void onAwake() override {
+        this->javaClass->callVoid(this->javaObject, this->onAwakeId);
     }
 
-    void on_sleep() override {
-        this->java_class->callVoid(this->java_object, this->on_sleep_id);
+    void onSleep() override {
+        this->javaClass->callVoid(this->javaObject, this->onSleepId);
     }
 
 private:
-    JavaClass* java_class;
-    jobject java_object;
+    JavaClass* javaClass;
+    jobject javaObject;
 
-    jmethodID on_update_id;
-    jmethodID on_spawn_id;
-    jmethodID on_destroy_id;
-    jmethodID on_awake_id;
-    jmethodID on_sleep_id;
+    jmethodID onUpdateId;
+    jmethodID onSpawnId;
+    jmethodID onDestroyId;
+    jmethodID onAwakeId;
+    jmethodID onSleepId;
 };
 
-Ref<EntityScriptJava> EntityScriptJava::create(const Ref<Application>& app, const Ref<Entity>& entity, const std::string& class_name) {
-    return std::make_shared<EntityScriptJavaImpl>(app, entity, class_name);
+Ref<EntityScriptJava> EntityScriptJava::create(const Ref<Application>& app, const Ref<Entity>& entity, const std::string& className) {
+    return std::make_shared<EntityScriptJavaImpl>(app, entity, className);
 }

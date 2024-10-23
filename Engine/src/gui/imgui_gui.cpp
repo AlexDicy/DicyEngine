@@ -46,20 +46,20 @@ void ImGuiGUI::update(const std::unique_ptr<Context>& ctx) {
     ImGui::Begin("Viewport");
     ImGui::SetWindowSize(ImVec2(800, 480), ImGuiCond_FirstUseEver);
 
-    ImVec2 viewport_size = ImGui::GetContentRegionAvail();
-    const Ref<Framebuffer> framebuffer = ctx->renderer->get_framebuffer();
-    const auto texture_id = reinterpret_cast<void*>(framebuffer->get_color_texture_id()); // NOLINT(performance-no-int-to-ptr)
-    ImGui::Image(texture_id, {viewport_size.x, viewport_size.y}, {0, 1}, {1, 0});
-    if (this->previous_viewport_size.x != viewport_size.x || this->previous_viewport_size.y != viewport_size.y) { // NOLINT(clang-diagnostic-float-equal)
-        ctx->renderer->set_viewport(0, 0, static_cast<int>(viewport_size.x), static_cast<int>(viewport_size.y));
-        this->previous_viewport_size = viewport_size;
+    ImVec2 viewportSize = ImGui::GetContentRegionAvail();
+    const Ref<Framebuffer> framebuffer = ctx->renderer->getFramebuffer();
+    const auto textureId = reinterpret_cast<void*>(framebuffer->getColorTextureId()); // NOLINT(performance-no-int-to-ptr)
+    ImGui::Image(textureId, {viewportSize.x, viewportSize.y}, {0, 1}, {1, 0});
+    if (this->previousViewportSize.x != viewportSize.x || this->previousViewportSize.y != viewportSize.y) { // NOLINT(clang-diagnostic-float-equal)
+        ctx->renderer->setViewport(0, 0, static_cast<int>(viewportSize.x), static_cast<int>(viewportSize.y));
+        this->previousViewportSize = viewportSize;
     }
     ImGui::End(); // Viewport
     ImGui::PopStyleVar(2);
 
-    static bool show_demo_window = false;
-    if (show_demo_window) {
-        ImGui::ShowDemoWindow(&show_demo_window);
+    static bool showDemoWindow = false;
+    if (showDemoWindow) {
+        ImGui::ShowDemoWindow(&showDemoWindow);
     }
 
     ImGui::Begin("Info");
@@ -68,10 +68,10 @@ void ImGuiGUI::update(const std::unique_ptr<Context>& ctx) {
         this->window->setVSync(!this->window->isVSync());
     }
     ImGui::SameLine();
-    ImGui::Checkbox("Demo Window", &show_demo_window);
+    ImGui::Checkbox("Demo Window", &showDemoWindow);
 
-    const glm::vec3& camera_position = ctx->renderer->get_camera()->get_position();
-    ImGui::Text("Camera position: %.2f, %.2f, %.2f", camera_position.x, camera_position.y, camera_position.z);
+    const glm::vec3& cameraPosition = ctx->renderer->getCamera()->getPosition();
+    ImGui::Text("Camera position: %.2f, %.2f, %.2f", cameraPosition.x, cameraPosition.y, cameraPosition.z);
     ImGui::Text("%.3f ms/frame (%.1f FPS)", 1000.0f / io->Framerate, io->Framerate);
 
     const std::vector<DE::Profiling::ProfilerResult> timings = DE::Profiling::getProfiler().getTimings();
@@ -84,8 +84,8 @@ void ImGuiGUI::update(const std::unique_ptr<Context>& ctx) {
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-    GLFWwindow* backup_current_context = glfwGetCurrentContext();
+    GLFWwindow* backupCurrentContext = glfwGetCurrentContext();
     ImGui::UpdatePlatformWindows();
     ImGui::RenderPlatformWindowsDefault();
-    glfwMakeContextCurrent(backup_current_context);
+    glfwMakeContextCurrent(backupCurrentContext);
 }

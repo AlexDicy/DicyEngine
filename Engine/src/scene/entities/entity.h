@@ -23,15 +23,15 @@ public:
         return this->registry->emplace<T>(this->entity, std::forward<Args>(args)...);
     }
 
-    const Ref<Scene>& get_scene() const {
+    const Ref<Scene>& getScene() const {
         return this->scene;
     }
 
-    const Ref<entt::registry>& get_registry() const {
+    const Ref<entt::registry>& getRegistry() const {
         return this->registry;
     }
 
-    entt::entity get_entity_id() const {
+    entt::entity getEntityId() const {
         return this->entity;
     }
 

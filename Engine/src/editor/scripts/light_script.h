@@ -3,11 +3,11 @@
 
 class LightScript final : public EntityScript {
 public:
-    explicit LightScript(const Ref<Application>& app, const Ref<Entity>& entity, const Ref<DirectionalLight>& light, const Ref<Entity>& mesh_entity);
+    explicit LightScript(const Ref<Application>& app, const Ref<Entity>& entity, const Ref<DirectionalLight>& light, const Ref<Entity>& meshEntity);
 
-    void on_update(float delta_time) override;
+    void onUpdate(float deltaTime) override;
 
 private:
     Ref<DirectionalLight> light;
-    Ref<Entity> mesh_entity;
+    Ref<Entity> meshEntity;
 };

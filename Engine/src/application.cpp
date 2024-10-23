@@ -25,11 +25,11 @@ void Application::run() {
     this->gui = std::make_unique<ImGuiGUI>(window);
     const auto ctx = std::make_unique<Context>(renderer);
 
-    this->eventDispatcher->register_global_handler<WindowCloseEvent>([this](const WindowCloseEvent&) {
+    this->eventDispatcher->registerGlobalHandler<WindowCloseEvent>([this](const WindowCloseEvent&) {
         this->running = false;
     });
-    this->eventDispatcher->register_global_handler<WindowResizeEvent>([this, &ctx](const WindowResizeEvent& event) {
-        if (event.get_width() == 0 || event.get_height() == 0) {
+    this->eventDispatcher->registerGlobalHandler<WindowResizeEvent>([this, &ctx](const WindowResizeEvent& event) {
+        if (event.getWidth() == 0 || event.getHeight() == 0) {
             this->isMinimized = true;
             return;
         }

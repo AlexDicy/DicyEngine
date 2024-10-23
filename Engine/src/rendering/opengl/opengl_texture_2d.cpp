@@ -5,14 +5,14 @@
 #include <stb_image.h>
 
 OpenGLTexture2D::OpenGLTexture2D(const std::string& path) : path(path) {
-    const bool is_hdr = path.ends_with(".hdr");
+    const bool isHDR = path.ends_with(".hdr");
     int width;
     int height;
     int channels;
 
     stbi_set_flip_vertically_on_load(true);
     void* texture;
-    if (is_hdr) {
+    if (isHDR) {
         texture = stbi_loadf(path.c_str(), &width, &height, &channels, 0);
     } else {
         texture = stbi_load(path.c_str(), &width, &height, &channels, 0);
@@ -26,13 +26,13 @@ OpenGLTexture2D::OpenGLTexture2D(const std::string& path) : path(path) {
     this->width = width;
     this->height = height;
 
-    this->create_texture_with_data(channels, width, height, texture, is_hdr);
+    this->createTextureWithData(channels, width, height, texture, isHDR);
 
     stbi_image_free(texture);
 }
 
 OpenGLTexture2D::OpenGLTexture2D(const unsigned int channels, const unsigned int width, const unsigned int height, const unsigned int bytesPerPixel, const void* data) {
-    this->create_texture_with_data(channels, width, height, data, bytesPerPixel == sizeof(float) * channels);
+    this->createTextureWithData(channels, width, height, data, bytesPerPixel == sizeof(float) * channels);
 }
 
 OpenGLTexture2D::~OpenGLTexture2D() {
@@ -49,19 +49,19 @@ void OpenGLTexture2D::bind(const uint32_t slot) const {
 #endif
 }
 
-void OpenGLTexture2D::create_texture_with_data(unsigned int channels, unsigned int width, unsigned int height, const void* data, const bool is_hdr) {
+void OpenGLTexture2D::createTextureWithData(unsigned int channels, unsigned int width, unsigned int height, const void* data, const bool isHDR) {
     this->width = width;
     this->height = height;
-    const int internal_format = is_hdr ? GL_RGB16F : channels > 3 ? GL_RGBA8 : GL_RGB8;
-    const int format = !is_hdr && channels > 3 ? GL_RGBA : GL_RGB;
-    const int type = is_hdr ? GL_FLOAT : GL_UNSIGNED_BYTE;
+    const int internalFormat = isHDR ? GL_RGB16F : channels > 3 ? GL_RGBA8 : GL_RGB8;
+    const int format = !isHDR && channels > 3 ? GL_RGBA : GL_RGB;
+    const int type = isHDR ? GL_FLOAT : GL_UNSIGNED_BYTE;
 
 #ifdef OPENGL_4_6
     glCreateTextures(GL_TEXTURE_2D, 1, &this->id);
-    glTextureStorage2D(this->id, 1, internal_format, width, height);
+    glTextureStorage2D(this->id, 1, internalFormat, width, height);
     glTextureParameteri(this->id, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTextureParameteri(this->id, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    if (is_hdr) {
+    if (isHDR) {
         glTextureParameteri(this->id, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTextureParameteri(this->id, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     }
@@ -69,10 +69,10 @@ void OpenGLTexture2D::create_texture_with_data(unsigned int channels, unsigned i
 #else
     glGenTextures(1, &this->id);
     glBindTexture(GL_TEXTURE_2D, this->id);
-    glTexImage2D(GL_TEXTURE_2D, 0, internal_format, width, height, 0, format, type, data);
+    glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, type, data);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    if (is_hdr) {
+    if (isHDR) {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     }

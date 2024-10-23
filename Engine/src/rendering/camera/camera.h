@@ -7,50 +7,50 @@
 class Camera {
 public:
     virtual ~Camera() = default;
-    explicit Camera(const glm::mat4& projection_matrix);
+    explicit Camera(const glm::mat4& projectionMatrix);
 
-    const glm::vec3& get_position() const {
+    const glm::vec3& getPosition() const {
         return this->position;
     }
 
-    float get_pitch() const {
+    float getPitch() const {
         return this->rotation.pitch;
     }
 
-    float get_yaw() const {
+    float getYaw() const {
         return this->rotation.yaw;
     }
 
-    const Rotation& get_rotation() const {
+    const Rotation& getRotation() const {
         return this->rotation;
     }
 
-    const glm::mat4& get_view_projection_matrix(const bool recalculate) {
+    const glm::mat4& getViewProjectionMatrix(const bool recalculate) {
         if (recalculate) {
-            this->update_view_matrix();
+            this->updateViewMatrix();
         }
-        return this->view_projection_matrix;
+        return this->viewProjectionMatrix;
     }
 
-    const glm::mat4& get_view_matrix() const {
-        return this->view_matrix;
+    const glm::mat4& getViewMatrix() const {
+        return this->viewMatrix;
     }
 
-    const glm::mat4& get_projection_matrix() const {
-        return this->projection_matrix;
+    const glm::mat4& getProjectionMatrix() const {
+        return this->projectionMatrix;
     }
 
-    void set_position(const glm::vec3& position);
-    void set_rotation(const Rotation& rotation);
-    void update_view_matrix();
+    void setPosition(const glm::vec3& position);
+    void setRotation(const Rotation& rotation);
+    void updateViewMatrix();
 
-    virtual void set_aspect_ratio(float aspect_ratio) = 0;
+    virtual void setAspectRatio(float aspectRatio);
 
 protected:
     glm::vec3 position = glm::vec3(0.0f);
     Rotation rotation;
 
-    glm::mat4 view_matrix;
-    glm::mat4 projection_matrix;
-    glm::mat4 view_projection_matrix;
+    glm::mat4 viewMatrix;
+    glm::mat4 projectionMatrix;
+    glm::mat4 viewProjectionMatrix;
 };

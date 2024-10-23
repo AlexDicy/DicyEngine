@@ -3,10 +3,10 @@
 
 class Event {
 public:
-    bool is_handled() const {
+    bool isHandled() const {
         return this->handled;
     }
-    void set_handled(const bool handled) {
+    void setHandled(const bool handled) {
         this->handled = handled;
     }
 
@@ -22,11 +22,11 @@ public:
     WindowResizeEvent(const unsigned int width, const unsigned int height) : width(width), height(height) {
     }
 
-    unsigned int get_width() const {
+    unsigned int getWidth() const {
         return this->width;
     }
 
-    unsigned int get_height() const {
+    unsigned int getHeight() const {
         return this->height;
     }
 };
@@ -36,22 +36,22 @@ class WindowCloseEvent : public Event {};
 class KeyPressedEvent : public Event {
     InputCode key;
     int scancode;
-    unsigned int repeat_count;
+    unsigned int repeatCount;
 
 public:
-    KeyPressedEvent(const InputCode key, const int scancode, const unsigned int repeat_count) : key(key), scancode(scancode), repeat_count(repeat_count) {
+    KeyPressedEvent(const InputCode key, const int scancode, const unsigned int repeatCount) : key(key), scancode(scancode), repeatCount(repeatCount) {
     }
 
-    InputCode get_key() const {
+    InputCode getKey() const {
         return this->key;
     }
 
-    int get_scancode() const {
+    int getScancode() const {
         return this->scancode;
     }
 
-    unsigned int get_repeat_count() const {
-        return this->repeat_count;
+    unsigned int getRepeatCount() const {
+        return this->repeatCount;
     }
 };
 
@@ -63,11 +63,11 @@ public:
     explicit KeyReleasedEvent(const InputCode key, const int scancode) : key(key), scancode(scancode) {
     }
 
-    InputCode get_key() const {
+    InputCode getKey() const {
         return this->key; // TODO: should return InputID or similar
     }
 
-    int get_scancode() const {
+    int getScancode() const {
         return this->scancode;
     }
 };
@@ -79,7 +79,7 @@ public:
     explicit CharTypedEvent(const unsigned int c) : c(c) {
     }
 
-    unsigned int get_char() const {
+    unsigned int getChar() const {
         return this->c;
     }
 };
@@ -91,7 +91,7 @@ public:
     explicit MouseButtonPressedEvent(const InputCode button) : button(button) {
     }
 
-    InputCode get_button() const {
+    InputCode getButton() const {
         return this->button;
     }
 };
@@ -103,25 +103,25 @@ public:
     explicit MouseButtonReleasedEvent(const InputCode button) : button(button) {
     }
 
-    InputCode get_button() const {
+    InputCode getButton() const {
         return this->button;
     }
 };
 
 class MouseScrolledEvent : public Event {
-    double offset_x;
-    double offset_y;
+    double offsetX;
+    double offsetY;
 
 public:
-    MouseScrolledEvent(const double offset_x, const double offset_y) : offset_x(offset_x), offset_y(offset_y) {
+    MouseScrolledEvent(const double offsetX, const double offsetY) : offsetX(offsetX), offsetY(offsetY) {
     }
 
-    double get_offset_x() const {
-        return this->offset_x;
+    double getOffsetX() const {
+        return this->offsetX;
     }
 
-    double get_offset_y() const {
-        return this->offset_y;
+    double getOffsetY() const {
+        return this->offsetY;
     }
 };
 
@@ -133,11 +133,11 @@ public:
     MouseMovedEvent(const float x, const float y) : x(x), y(y) {
     }
 
-    float get_x() const {
+    float getX() const {
         return this->x;
     }
 
-    float get_y() const {
+    float getY() const {
         return this->y;
     }
 };

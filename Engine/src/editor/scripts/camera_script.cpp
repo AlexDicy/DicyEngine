@@ -7,56 +7,56 @@
 #include "rendering/camera/perspective_camera.h"
 #include "scene/scene.h"
 
-Ref<PerspectiveCamera> get_perspective_camera(const Ref<Window>&);
-Ref<OrthographicCamera> get_orthographic_camera();
+Ref<PerspectiveCamera> getPerspectiveCamera(const Ref<Window>&);
+Ref<OrthographicCamera> getOrthographicCamera();
 
 CameraScript::CameraScript(const Ref<Application>& app, const Ref<Entity>& entity) : EntityScript(app, entity) {
     this->script = EntityScriptJava::create(app, entity, "com/dicydev/engine/scene/scripts/CameraScript");
 
     const Ref<Window>& window = app->getWindow();
     const Ref<Renderer>& renderer = app->getRenderer();
-    const Ref<Scene>& scene = entity->get_scene();
-    scene->set_camera(get_perspective_camera(window));
+    const Ref<Scene>& scene = entity->getScene();
+    scene->setCamera(getPerspectiveCamera(window));
 
-    Input::set_action("change_camera", InputCode::KEY_O);
+    Input::setAction("change_camera", InputCode::KEY_O);
 
-    Input::bind_action_pressed("change_camera", [this, renderer, window, scene] {
-        static bool camera_bool = false;
-        if (camera_bool) {
-            scene->set_camera(get_perspective_camera(window));
+    Input::bindActionPressed("change_camera", [this, renderer, window, scene] {
+        static bool cameraBool = false;
+        if (cameraBool) {
+            scene->setCamera(getPerspectiveCamera(window));
         } else {
-            scene->set_camera(get_orthographic_camera());
+            scene->setCamera(getOrthographicCamera());
         }
-        renderer->set_camera(scene->get_camera());
-        camera_bool = !camera_bool;
+        renderer->setCamera(scene->getCamera());
+        cameraBool = !cameraBool;
     });
 }
 
-void CameraScript::on_update(const float delta_time) {
+void CameraScript::onUpdate(const float deltaTime) {
     DE_PROFILE_FUNCTION();
-    this->script->on_update(delta_time);
+    this->script->onUpdate(deltaTime);
 }
 
-void CameraScript::on_spawn() {
-    this->script->on_spawn();
+void CameraScript::onSpawn() {
+    this->script->onSpawn();
 }
 
-void CameraScript::on_destroy() {
-    this->script->on_destroy();
+void CameraScript::onDestroy() {
+    this->script->onDestroy();
 }
 
-void CameraScript::on_awake() {
-    this->script->on_awake();
+void CameraScript::onAwake() {
+    this->script->onAwake();
 }
 
-void CameraScript::on_sleep() {
-    this->script->on_sleep();
+void CameraScript::onSleep() {
+    this->script->onSleep();
 }
 
-Ref<PerspectiveCamera> get_perspective_camera(const Ref<Window>& window) {
+Ref<PerspectiveCamera> getPerspectiveCamera(const Ref<Window>& window) {
     return std::make_shared<PerspectiveCamera>(58.0f, static_cast<float>(window->getWidth()) / static_cast<float>(window->getHeight()));
 }
 
-Ref<OrthographicCamera> get_orthographic_camera() {
+Ref<OrthographicCamera> getOrthographicCamera() {
     return std::make_shared<OrthographicCamera>(-1.6f, 1.6f, -0.9f, 0.9f);
 }

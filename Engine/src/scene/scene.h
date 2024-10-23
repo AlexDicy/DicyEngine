@@ -10,25 +10,25 @@ class Scene : public std::enable_shared_from_this<Scene> {
 public:
     Scene();
 
-    Ref<Entity> create_entity();
+    Ref<Entity> createEntity();
 
-    auto get_meshes() const {
+    auto getMeshes() const {
         return this->registry->view<Mesh, Transform>();
     }
 
-    auto get_point_lights() const {
+    auto getPointLights() const {
         return this->registry->view<PointLight>();
     }
 
-    auto get_scripts() const {
+    auto getScripts() const {
         return this->registry->view<Script>();
     }
 
-    const Ref<Camera>& get_camera() const {
+    const Ref<Camera>& getCamera() const {
         return this->camera;
     }
 
-    void set_camera(const Ref<Camera>& camera) {
+    void setCamera(const Ref<Camera>& camera) {
         this->camera = camera;
     }
 

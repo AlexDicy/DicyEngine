@@ -9,15 +9,15 @@ public:
 
     void bind(uint32_t) const override;
 
-    uint32_t get_width() const override {
+    uint32_t getWidth() const override {
         return this->width;
     }
 
-    uint32_t get_height() const override {
+    uint32_t getHeight() const override {
         return this->height;
     }
 
-    void create_texture_with_data(unsigned int channels, unsigned int width, unsigned int height, const void* data, bool is_hdr = false);
+    void createTextureWithData(unsigned int channels, unsigned int width, unsigned int height, const void* data, bool isHDR = false);
 
 private:
     std::string path;

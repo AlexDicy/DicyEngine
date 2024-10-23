@@ -1,8 +1,6 @@
 ﻿#include "pch/enginepch.h"
 #include "Image.h"
 
-#include "stb_image_write.h"
-
 #include <stb_image.h>
 
 Image::Image(const std::string& path) {

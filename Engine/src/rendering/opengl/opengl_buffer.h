@@ -9,10 +9,10 @@ public:
     void bind() const override;
 
     // make sure to also update the corresponding VertexArray to load the layout
-    void set_layout(const BufferLayout& layout) override {
+    void setLayout(const BufferLayout& layout) override {
         this->layout = layout;
     }
-    const BufferLayout& get_layout() const override {
+    const BufferLayout& getLayout() const override {
         return this->layout;
     }
 
@@ -27,7 +27,7 @@ public:
     ~OpenGLIndexBuffer() override;
 
     void bind() const override;
-    uint32_t get_count() const override {
+    uint32_t getCount() const override {
         return this->count;
     }
 

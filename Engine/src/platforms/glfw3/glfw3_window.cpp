@@ -10,7 +10,7 @@ Ref<Window> Window::create(const char* title, const unsigned int width, const un
 }
 
 GLFW3Window::GLFW3Window(const char* title, const unsigned int width, const unsigned int height) {
-    if (!is_glfw_initialized) {
+    if (!isGLFWInitialized) {
         if (!glfwInit()) {
             DE_ERROR("Failed to initialize GLFW");
             return;
@@ -18,7 +18,7 @@ GLFW3Window::GLFW3Window(const char* title, const unsigned int width, const unsi
         glfwSetErrorCallback([](int error, const char* description) {
             DE_ERROR("GLFW error [{0}] {1}", error, description);
         });
-        is_glfw_initialized = true;
+        isGLFWInitialized = true;
     }
 
     #ifdef DE_PLATFORM_MACOS
@@ -33,21 +33,21 @@ GLFW3Window::GLFW3Window(const char* title, const unsigned int width, const unsi
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, true);
 
     this->window = glfwCreateWindow(static_cast<int>(width), static_cast<int>(height), title, nullptr, nullptr);
-    graphic_ctx = new OpenGLContext(this->window);
-    graphic_ctx->init();
+    graphicCtx = new OpenGLContext(this->window);
+    graphicCtx->init();
 
     this->GLFW3Window::setVSync(true);
-    this->register_events();
+    this->registerEvents();
 }
 
 void GLFW3Window::update() {
     glfwPollEvents();
-    this->graphic_ctx->swap_buffers();
+    this->graphicCtx->swapBuffers();
 
-    const float current_time = static_cast<float>(glfwGetTime());
-    const float delta_time = current_time - this->last_time;
-    this->last_time = current_time;
-    this->last_frame_time = delta_time;
+    const float currentTime = static_cast<float>(glfwGetTime());
+    const float deltaTime = currentTime - this->lastTime;
+    this->lastTime = currentTime;
+    this->lastFrameTime = deltaTime;
 }
 
 void GLFW3Window::destroy() {
@@ -76,57 +76,57 @@ void GLFW3Window::setVSync(const bool vsync) {
 }
 
 float GLFW3Window::getLastFrameTime() const {
-    return this->last_frame_time;
+    return this->lastFrameTime;
 }
 
-void GLFW3Window::register_events() const {
-    static auto event_dispatcher = EventDispatcher::get();
+void GLFW3Window::registerEvents() const {
+    static auto eventDispatcher = EventDispatcher::get();
     glfwSetWindowSizeCallback(this->window, [](GLFWwindow*, int new_width, int new_height) {
-        event_dispatcher->dispatch(WindowResizeEvent(static_cast<unsigned int>(new_width), static_cast<unsigned int>(new_height)));
+        eventDispatcher->dispatch(WindowResizeEvent(static_cast<unsigned int>(new_width), static_cast<unsigned int>(new_height)));
     });
     glfwSetWindowCloseCallback(this->window, [](GLFWwindow*) {
-        event_dispatcher->dispatch(WindowCloseEvent());
+        eventDispatcher->dispatch(WindowCloseEvent());
     });
     glfwSetKeyCallback(this->window, [](GLFWwindow*, int key, int scancode, int action, int) {
         switch (action) {
             case GLFW_PRESS:
-                event_dispatcher->dispatch(KeyPressedEvent(convert_key_to_input_code(key), scancode, 0));
+                eventDispatcher->dispatch(KeyPressedEvent(convertKeyToInputCode(key), scancode, 0));
                 break;
             case GLFW_REPEAT:
-                event_dispatcher->dispatch(KeyPressedEvent(convert_key_to_input_code(key), scancode, 1));
+                eventDispatcher->dispatch(KeyPressedEvent(convertKeyToInputCode(key), scancode, 1));
                 break;
             case GLFW_RELEASE:
-                event_dispatcher->dispatch(KeyReleasedEvent(convert_key_to_input_code(key), scancode));
+                eventDispatcher->dispatch(KeyReleasedEvent(convertKeyToInputCode(key), scancode));
                 break;
             default:
                 break;
         }
     });
     glfwSetCharCallback(this->window, [](GLFWwindow*, unsigned int c) {
-        event_dispatcher->dispatch(CharTypedEvent(c));
+        eventDispatcher->dispatch(CharTypedEvent(c));
     });
     glfwSetMouseButtonCallback(this->window, [](GLFWwindow*, int button, int action, int) {
         switch (action) {
             case GLFW_PRESS:
-                event_dispatcher->dispatch(MouseButtonPressedEvent(convert_mouse_button_to_input_code(button)));
+                eventDispatcher->dispatch(MouseButtonPressedEvent(convertMouseButtonToInputCode(button)));
                 break;
             case GLFW_RELEASE:
-                event_dispatcher->dispatch(MouseButtonReleasedEvent(convert_mouse_button_to_input_code(button)));
+                eventDispatcher->dispatch(MouseButtonReleasedEvent(convertMouseButtonToInputCode(button)));
                 break;
             default:
                 break;
         }
     });
     glfwSetScrollCallback(this->window, [](GLFWwindow*, double offset_x, double offset_y) {
-        event_dispatcher->dispatch(MouseScrolledEvent(offset_x, offset_y));
+        eventDispatcher->dispatch(MouseScrolledEvent(offset_x, offset_y));
     });
     glfwSetCursorPosCallback(this->window, [](GLFWwindow*, const double x, const double y) {
-        event_dispatcher->dispatch(MouseMovedEvent(static_cast<float>(x), static_cast<float>(y)));
+        eventDispatcher->dispatch(MouseMovedEvent(static_cast<float>(x), static_cast<float>(y)));
     });
 }
 
 
-InputCode convert_key_to_input_code(int key) {
+InputCode convertKeyToInputCode(int key) {
     switch (key) {
             // @formatter:off
             // clang-format off
@@ -256,7 +256,7 @@ InputCode convert_key_to_input_code(int key) {
     }
 }
 
-InputCode convert_mouse_button_to_input_code(int button) {
+InputCode convertMouseButtonToInputCode(int button) {
     switch (button) {
             // @formatter:off
             // clang-format off

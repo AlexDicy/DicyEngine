@@ -12,25 +12,25 @@ public:
     EventDispatcher() = default;
 
     template <typename E = Event>
-    void register_global_handler(Handler<E> handler) {
-        add_global_handler(typeid(E), new Handler<E>(handler));
+    void registerGlobalHandler(Handler<E> handler) {
+        addGlobalHandler(typeid(E), new Handler<E>(handler));
     }
 
     template <typename E = Event>
-    void register_layer_handler(const unsigned int layer_index, Handler<E> handler) {
-        add_layer_handler(layer_index, typeid(E), new Handler<E>(handler));
+    void registerLayerHandler(const unsigned int layerIndex, Handler<E> handler) {
+        addLayerHandler(layerIndex, typeid(E), new Handler<E>(handler));
     }
 
     template <typename E = Event>
     void dispatch(const E &event) {
-        handle_event(typeid(E), event);
+        handleEvent(typeid(E), event);
     }
 
     static EventDispatcher *get();
 
 private:
     // hide the implementation details, solves a bunch of memory issues when vectors need to be resized
-    static void add_global_handler(const std::type_index &type_index, void *handler_ptr);
-    static void add_layer_handler(unsigned int layer_index, const std::type_index &type_index, void *handler_ptr);
-    static void handle_event(const std::type_index &type_index, const Event &event);
+    static void addGlobalHandler(const std::type_index &typeIndex, void *handlerPtr);
+    static void addLayerHandler(unsigned int layerIndex, const std::type_index &typeIndex, void *handlerPtr);
+    static void handleEvent(const std::type_index &typeIndex, const Event &event);
 };

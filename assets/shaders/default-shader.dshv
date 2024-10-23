@@ -2,18 +2,18 @@
 
 layout(location = 0) in vec3 position;
 layout(location = 1) in vec3 normal;
-layout(location = 2) in vec2 texture_coords;
+layout(location = 2) in vec2 textureCoords;
 
-uniform mat4 u_view_projection;
-uniform mat4 u_transform;
+uniform mat4 uViewProjection;
+uniform mat4 uTransform;
 
-out vec3 v_position;
-out vec3 v_normal;
-out vec2 v_texture_coords;
+out vec3 vPosition;
+out vec3 vNormal;
+out vec2 vTextureCoords;
 
 void main() {
-    gl_Position = u_view_projection * u_transform * vec4(position, 1.0);
-    v_position = position;
-    v_normal = normal;
-    v_texture_coords = texture_coords;
+    gl_Position = uViewProjection * uTransform * vec4(position, 1.0);
+    vPosition = position;
+    vNormal = normal;
+    vTextureCoords = textureCoords;
 }

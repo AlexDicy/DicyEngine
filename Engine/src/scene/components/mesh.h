@@ -4,22 +4,22 @@
 #include "scene/materials/material.h"
 
 struct Mesh {
-    Ref<VertexArray> vertex_array;
+    Ref<VertexArray> vertexArray;
     Material material;
-    glm::mat4 transformation_matrix;
+    glm::mat4 transformationMatrix;
 
-    Mesh(const Ref<Renderer>& renderer, const float* vertices, const size_t vertices_size, const uint32_t* indexes, const uint32_t indexes_count, const Material& material, const glm::mat4& transformation_matrix = glm::mat4(1.0f)) {
+    Mesh(const Ref<Renderer>& renderer, const float* vertices, const size_t verticesSize, const uint32_t* indexes, const uint32_t indexesCount, const Material& material, const glm::mat4& transformationMatrix = glm::mat4(1.0f)) {
         this->material = material;
-        this->transformation_matrix = transformation_matrix;
+        this->transformationMatrix = transformationMatrix;
 
-        const Ref<VertexBuffer> vertex_buffer = renderer->create_vertex_buffer(vertices, static_cast<uint32_t>(vertices_size));
-        vertex_buffer->set_layout({
+        const Ref<VertexBuffer> vertexBuffer = renderer->createVertexBuffer(vertices, static_cast<uint32_t>(verticesSize));
+        vertexBuffer->setLayout({
             {DataType::FLOAT3, "position"},
             {DataType::FLOAT3, "normal"},
             {DataType::FLOAT2, "texture_coords"},
         });
 
-        const Ref<IndexBuffer> index_buffer = renderer->create_index_buffer(indexes, indexes_count);
-        vertex_array = renderer->create_vertex_array(vertex_buffer, index_buffer);
+        const Ref<IndexBuffer> indexBuffer = renderer->createIndexBuffer(indexes, indexesCount);
+        vertexArray = renderer->createVertexArray(vertexBuffer, indexBuffer);
     }
 };

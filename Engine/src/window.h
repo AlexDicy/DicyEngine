@@ -15,7 +15,7 @@ public:
 
 
 #if defined(DE_PLATFORM_WINDOWS) || defined(DE_PLATFORM_MACOS)
-    typedef struct GLFWwindow GLFWwindow; // do not include 'GLFW' here, it would interfere with 'glad'
+    typedef struct GLFWwindow GLFWwindow; // NOLINT, do not include 'GLFW' here, it would interfere with 'glad'
     virtual GLFWwindow* getNativeWindow() const = 0;
 #else
     #error "Unsupported platform"

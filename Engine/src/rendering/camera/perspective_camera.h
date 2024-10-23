@@ -3,12 +3,12 @@
 
 class PerspectiveCamera : public Camera {
 public:
-    PerspectiveCamera(float fov_y, float aspect_ratio);
+    PerspectiveCamera(float fovY, float aspectRatio);
 
-    void set_aspect_ratio(float aspect_ratio) override;
+    void setAspectRatio(float aspectRatio) override;
 
-    static glm::mat4 calculate_projection_matrix(float fov_y, float aspect_ratio);
+    static glm::mat4 calculateProjectionMatrix(float fovY, float aspectRatio);
 
 private:
-    float fov_y;
+    float fovY;
 };

@@ -5,8 +5,8 @@
 #include <glad/gl.h>
 
 
-OpenGLVertexArray::OpenGLVertexArray(const Ref<VertexBuffer>& vertex_buffer, const Ref<IndexBuffer>& index_buffer) :
-    vertex_buffer(vertex_buffer), index_buffer(index_buffer) {
+OpenGLVertexArray::OpenGLVertexArray(const Ref<VertexBuffer>& vertexBuffer, const Ref<IndexBuffer>& indexBuffer) :
+    vertexBuffer(vertexBuffer), indexBuffer(indexBuffer) {
 #ifdef OPENGL_4_6
     glCreateVertexArrays(1, &this->id);
 #else
@@ -15,32 +15,32 @@ OpenGLVertexArray::OpenGLVertexArray(const Ref<VertexBuffer>& vertex_buffer, con
 
     glBindVertexArray(this->id);
     // vertex buffer
-    vertex_buffer->bind();
+    vertexBuffer->bind();
 
-    BufferLayout layout = vertex_buffer->get_layout();
-    if (layout.get_attributes().empty()) {
+    BufferLayout layout = vertexBuffer->getLayout();
+    if (layout.getAttributes().empty()) {
         DE_WARN("Trying to set VertexBuffer in a VertexArray with an empty layout");
     }
 
-    int layout_index = 0;
-    for (auto& attribute : layout.get_attributes()) {
-        glEnableVertexAttribArray(layout_index);
+    int layoutIndex = 0;
+    for (auto& attribute : layout.getAttributes()) {
+        glEnableVertexAttribArray(layoutIndex);
         // clang-format off
         glVertexAttribPointer(
-            layout_index,
-            attribute.get_datatype_count(),
-            get_opengl_type_from_datatype(attribute.type),
-            attribute.is_normalized ? GL_TRUE : GL_FALSE,
-            layout.get_size(), // NOLINT(bugprone-narrowing-conversions, cppcoreguidelines-narrowing-conversions)
+            layoutIndex,
+            attribute.getDatatypeCount(),
+            getOpenGLTypeFromDatatype(attribute.type),
+            attribute.isNormalized ? GL_TRUE : GL_FALSE,
+            layout.getSize(), // NOLINT(bugprone-narrowing-conversions, cppcoreguidelines-narrowing-conversions)
             #pragma warning(suppress: 4312)
             reinterpret_cast<const void*>(attribute.offset) // NOLINT(performance-no-int-to-ptr)
         );
         // clang-format on
-        layout_index++;
+        layoutIndex++;
     }
 
     // index buffer
-    index_buffer->bind();
+    indexBuffer->bind();
     glBindVertexArray(0);
 }
 
@@ -52,10 +52,10 @@ void OpenGLVertexArray::bind() const {
     glBindVertexArray(this->id);
 }
 
-const Ref<VertexBuffer>& OpenGLVertexArray::get_vertex_buffer() const {
-    return this->vertex_buffer;
+const Ref<VertexBuffer>& OpenGLVertexArray::getVertexBuffer() const {
+    return this->vertexBuffer;
 }
 
-const Ref<IndexBuffer>& OpenGLVertexArray::get_index_buffer() const {
-    return this->index_buffer;
+const Ref<IndexBuffer>& OpenGLVertexArray::getIndexBuffer() const {
+    return this->indexBuffer;
 }

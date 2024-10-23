@@ -11,9 +11,13 @@
 
 
     <s:Int64 x:Key="/Default/CodeStyle/CppSortIncludes/UnmatchedHeaderGroup/@EntryValue">3</s:Int64>
+	<s:String x:Key="/Default/CodeStyle/Naming/CppNaming/Abbreviations/=API/@EntryIndexedValue">API</s:String>
+	<s:String x:Key="/Default/CodeStyle/Naming/CppNaming/Abbreviations/=GL/@EntryIndexedValue">GL</s:String>
+	<s:String x:Key="/Default/CodeStyle/Naming/CppNaming/Abbreviations/=GUI/@EntryIndexedValue">GUI</s:String>
 
 	<s:String x:Key="/Default/CodeStyle/Naming/CppNaming/Abbreviations/=HDR/@EntryIndexedValue">HDR</s:String>
 	<s:String x:Key="/Default/CodeStyle/Naming/CppNaming/Abbreviations/=RGB/@EntryIndexedValue">RGB</s:String>
+	<s:String x:Key="/Default/CodeStyle/Naming/CppNaming/Abbreviations/=SH/@EntryIndexedValue">SH</s:String>
 	<s:String x:Key="/Default/CodeStyle/Naming/CppNaming/Abbreviations/=VM/@EntryIndexedValue">VM</s:String>
 	<s:String x:Key="/Default/CodeStyle/Naming/CppNaming/Abbreviations/=JVM/@EntryIndexedValue">JVM</s:String>
 	<s:String x:Key="/Default/CodeStyle/Naming/CppNaming/Abbreviations/=GLFW/@EntryIndexedValue">GLFW</s:String>

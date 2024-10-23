@@ -8,13 +8,13 @@
 
 void inputSetAction(JNIEnv* env, jobject, const jstring action, jint key) {
     const char* actionStr = env->GetStringUTFChars(action, nullptr);
-    Input::set_action(actionStr, static_cast<InputCode>(key));
+    Input::setAction(actionStr, static_cast<InputCode>(key));
     env->ReleaseStringUTFChars(action, actionStr);
 }
 
 jboolean inputIsActionPressed(JNIEnv* env, jobject, const jstring action) {
     const char* actionStr = env->GetStringUTFChars(action, nullptr);
-    const jboolean result = Input::is_action_pressed(actionStr);
+    const jboolean result = Input::isActionPressed(actionStr);
     env->ReleaseStringUTFChars(action, actionStr);
     return result;
 }
@@ -23,7 +23,7 @@ void inputBindAxis(JNIEnv* env, jobject, const jstring axis, const jobject callb
     const char* axisStr = env->GetStringUTFChars(axis, nullptr);
     const auto callbackRef = env->NewGlobalRef(callback);
 
-    Input::bind_axis(axisStr, [env, callbackRef](const float delta) {
+    Input::bindAxis(axisStr, [env, callbackRef](const float delta) {
         env->CallVoidMethod(callbackRef, env->GetMethodID(env->GetObjectClass(callbackRef), "callback", "(F)V"), delta);
     });
 
@@ -34,7 +34,7 @@ void inputBindActionPressed(JNIEnv* env, jobject, const jstring action, const jo
     const char* actionStr = env->GetStringUTFChars(action, nullptr);
     const auto callbackRef = env->NewGlobalRef(callback);
 
-    Input::bind_action_pressed(actionStr, [env, callbackRef] {
+    Input::bindActionPressed(actionStr, [env, callbackRef] {
         env->CallVoidMethod(callbackRef, env->GetMethodID(env->GetObjectClass(callbackRef), "callback", "()V"));
     });
 
@@ -45,7 +45,7 @@ void inputBindActionReleased(JNIEnv* env, jobject, const jstring action, const j
     const char* actionStr = env->GetStringUTFChars(action, nullptr);
     const auto callbackRef = env->NewGlobalRef(callback);
 
-    Input::bind_action_released(actionStr, [env, callbackRef] {
+    Input::bindActionReleased(actionStr, [env, callbackRef] {
         env->CallVoidMethod(callbackRef, env->GetMethodID(env->GetObjectClass(callbackRef), "callback", "()V"));
     });
 
@@ -53,9 +53,9 @@ void inputBindActionReleased(JNIEnv* env, jobject, const jstring action, const j
 }
 
 
-jobject nativeRegistryGetComponentBuffer(JNIEnv* env, jobject, const jlong registry, jint entity_id, jint component_id) {
+jobject nativeRegistryGetComponentBuffer(JNIEnv* env, jobject, const jlong registry, jint entityId, jint componentId) {
     const auto* registryPointer = reinterpret_cast<entt::registry*>(registry); // NOLINT(performance-no-int-to-ptr)
-    const auto entity = static_cast<entt::entity>(entity_id);
+    const auto entity = static_cast<entt::entity>(entityId);
 
     // just hard code component type to be Transform for now
     const Transform& component = registryPointer->get<Transform>(entity);
@@ -63,24 +63,24 @@ jobject nativeRegistryGetComponentBuffer(JNIEnv* env, jobject, const jlong regis
     return env->NewDirectByteBuffer(const_cast<Transform*>(&component), componentSize);
 }
 
-jobject sceneGetCamera(JNIEnv* env, const jobject scene_object) {
-    const jclass sceneClass = env->GetObjectClass(scene_object);
-    const jlong scenePointer = env->GetLongField(scene_object, env->GetFieldID(sceneClass, "pointer", "J"));
+jobject sceneGetCamera(JNIEnv* env, const jobject sceneObject) {
+    const jclass sceneClass = env->GetObjectClass(sceneObject);
+    const jlong scenePointer = env->GetLongField(sceneObject, env->GetFieldID(sceneClass, "pointer", "J"));
     const auto* scene = reinterpret_cast<Scene*>(scenePointer); // NOLINT(performance-no-int-to-ptr)
-    const jobject cameraObject = JavaClass("com/dicydev/engine/scene/camera/Camera").newInstance("(J)V", scene->get_camera().get());
+    const jobject cameraObject = JavaClass("com/dicydev/engine/scene/camera/Camera").newInstance("(J)V", scene->getCamera().get());
     return cameraObject;
 }
 
 jobject cameraGetPosition(JNIEnv* env, jobject, const jlong camera) {
     const auto* cameraPointer = reinterpret_cast<Camera*>(camera); // NOLINT(performance-no-int-to-ptr)
-    const glm::vec3& position = cameraPointer->get_position();
+    const glm::vec3& position = cameraPointer->getPosition();
     constexpr auto positionSize = sizeof(glm::vec3);
     return env->NewDirectByteBuffer(const_cast<glm::vec3*>(&position), positionSize);
 }
 
 jobject cameraGetRotation(JNIEnv* env, jobject, const jlong camera) {
     const auto* cameraPointer = reinterpret_cast<Camera*>(camera); // NOLINT(performance-no-int-to-ptr)
-    const Rotation& rotation = cameraPointer->get_rotation();
+    const Rotation& rotation = cameraPointer->getRotation();
     constexpr auto rotationSize = sizeof(Rotation);
     return env->NewDirectByteBuffer(const_cast<Rotation*>(&rotation), rotationSize);
 }

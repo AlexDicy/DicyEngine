@@ -16,50 +16,50 @@ public:
     explicit Renderer(const RenderAPI api) : api(api) {}
     virtual ~Renderer() = default;
 
-    RenderAPI get_api() const {
+    RenderAPI getAPI() const {
         return this->api;
     }
 
-    const Ref<Camera>& get_camera() {
+    const Ref<Camera>& getCamera() {
         return this->camera;
     }
 
-    void set_camera(const Ref<Camera>& camera) {
+    void setCamera(const Ref<Camera>& camera) {
         this->camera = camera;
     }
 
     virtual void init(int x, int y, uint32_t width, uint32_t height) = 0;
-    virtual void set_viewport(int x, int y, uint32_t width, uint32_t height) = 0;
-    virtual const Ref<Framebuffer>& get_framebuffer() const = 0;
+    virtual void setViewport(int x, int y, uint32_t width, uint32_t height) = 0;
+    virtual const Ref<Framebuffer>& getFramebuffer() const = 0;
 
-    virtual Ref<VertexArray> create_vertex_array(const Ref<VertexBuffer>& vertex_buffer, const Ref<IndexBuffer>& index_buffer) const = 0;
-    virtual Ref<VertexBuffer> create_vertex_buffer(const float* vertices, uint32_t size) const = 0;
-    virtual Ref<IndexBuffer> create_index_buffer(const uint32_t* indexes, uint32_t count) const = 0;
-    virtual Ref<Shader> create_shader(const std::string& vertex_path, const std::string& fragment_path) const = 0;
-    virtual Ref<Texture2D> create_texture2d(const std::string& path) const = 0;
-    virtual Ref<Texture2D> create_texture2d(unsigned int channels, unsigned int width, unsigned int height, unsigned int bytesPerPixel, const void* data) const = 0;
-    virtual Ref<TextureCube> create_texture_cube(const std::array<std::string, 6>& paths) const = 0;
-    virtual Ref<TextureCube> create_texture_cube_from_hdr(const Ref<Texture2D>& hdr_texture, const Ref<Shader>& convert_shader, uint32_t size) = 0;
-    virtual Ref<TextureCube> create_irradiance_map(const Ref<TextureCube>& texture_cube, const Ref<Shader>& irradiance_shader, uint32_t size) = 0;
+    virtual Ref<VertexArray> createVertexArray(const Ref<VertexBuffer>& vertexBuffer, const Ref<IndexBuffer>& indexBuffer) const = 0;
+    virtual Ref<VertexBuffer> createVertexBuffer(const float* vertices, uint32_t size) const = 0;
+    virtual Ref<IndexBuffer> createIndexBuffer(const uint32_t* indexes, uint32_t count) const = 0;
+    virtual Ref<Shader> createShader(const std::string& vertexPath, const std::string& fragmentPath) const = 0;
+    virtual Ref<Texture2D> createTexture2D(const std::string& path) const = 0;
+    virtual Ref<Texture2D> createTexture2D(unsigned int channels, unsigned int width, unsigned int height, unsigned int bytesPerPixel, const void* data) const = 0;
+    virtual Ref<TextureCube> createTextureCube(const std::array<std::string, 6>& paths) const = 0;
+    virtual Ref<TextureCube> createTextureCubeFromHDR(const Ref<Texture2D>& hdrTexture, const Ref<Shader>& convertShader, uint32_t size) = 0;
+    virtual Ref<TextureCube> createIrradianceMap(const Ref<TextureCube>& textureCube, const Ref<Shader>& irradianceShader, uint32_t size) = 0;
 
-    virtual void begin_frame() = 0;
-    virtual void end_frame() const = 0;
+    virtual void beginFrame() = 0;
+    virtual void endFrame() const = 0;
     virtual void clean() const = 0;
-    void set_irradiance_sh(const std::array<glm::vec3, 9>& irradiance_sh);
-    virtual void add_point_light(const PointLight& point_light) = 0;
-    virtual void draw(const Ref<VertexArray>& vertex_array, const Ref<Shader>& shader, const glm::mat4& transform, const Ref<DirectionalLight>& directional_light) const = 0;
-    virtual void draw(const Ref<VertexArray>& vertex_array, const Ref<Shader>& shader, const glm::mat4& transform, const Ref<DirectionalLight>& directional_light,
+    void setIrradianceSH(const std::array<glm::vec3, 9>& irradianceSh);
+    virtual void addPointLight(const PointLight& pointLight) = 0;
+    virtual void draw(const Ref<VertexArray>& vertexArray, const Ref<Shader>& shader, const glm::mat4& transform, const Ref<DirectionalLight>& directionalLight) const = 0;
+    virtual void draw(const Ref<VertexArray>& vertexArray, const Ref<Shader>& shader, const glm::mat4& transform, const Ref<DirectionalLight>& directionalLight,
                       const Material& material) const = 0;
-    virtual void draw_skybox(const Ref<SkyboxCube>& skybox) const = 0;
+    virtual void drawSkybox(const Ref<SkyboxCube>& skybox) const = 0;
 
 protected:
     Ref<Camera> camera;
-    glm::mat4 view_projection_matrix;
-    glm::mat4 view_matrix;
-    glm::mat4 projection_matrix;
+    glm::mat4 viewProjectionMatrix;
+    glm::mat4 viewMatrix;
+    glm::mat4 projectionMatrix;
 
-    std::array<glm::vec3, 9> irradiance_sh = std::array<glm::vec3, 9>();
-    std::vector<PointLight> point_lights = std::vector<PointLight>();
+    std::array<glm::vec3, 9> irradianceSH = std::array<glm::vec3, 9>();
+    std::vector<PointLight> pointLights = std::vector<PointLight>();
 
 private:
     RenderAPI api;

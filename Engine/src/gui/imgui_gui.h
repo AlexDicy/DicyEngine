@@ -13,5 +13,5 @@ public:
 
 private:
     ImGuiIO* io;
-    ImVec2 previous_viewport_size;
+    ImVec2 previousViewportSize;
 };

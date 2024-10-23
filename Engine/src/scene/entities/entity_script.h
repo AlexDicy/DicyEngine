@@ -7,26 +7,26 @@ public:
     explicit EntityScript(const Ref<Application>& app, const Ref<Entity>& entity);
     virtual ~EntityScript() = default;
 
-    virtual void on_update(float delta_time) {}
+    virtual void onUpdate(float deltaTime) {}
 
-    virtual void on_spawn() {}
-    virtual void on_destroy() {}
+    virtual void onSpawn() {}
+    virtual void onDestroy() {}
 
-    virtual void on_awake() {}
-    virtual void on_sleep() {}
+    virtual void onAwake() {}
+    virtual void onSleep() {}
 
     template <typename... T>
-    [[nodiscard]] bool has_component() const {
+    [[nodiscard]] bool hasComponent() const {
         return this->entity->has<T...>();
     }
 
     template <typename T>
-    [[nodiscard]] T& get_component() const {
+    [[nodiscard]] T& getComponent() const {
         return this->entity->get<T>();
     }
 
     template <typename T, typename... Args>
-    T& add_component(Args&&... args) {
+    T& addComponent(Args&&... args) {
         return this->entity->add<T>(std::forward<Args>(args)...);
     }
 

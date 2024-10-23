@@ -2,7 +2,7 @@
 #include "rendering/buffer_layout.h"
 #include "glad/gl.h"
 
-static GLenum get_opengl_type_from_datatype(DataType type) {
+static GLenum getOpenGLTypeFromDatatype(DataType type) {
     switch (type) {
         case DataType::BOOL:
             return GL_BOOL;

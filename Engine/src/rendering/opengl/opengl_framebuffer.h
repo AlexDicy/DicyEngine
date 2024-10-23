@@ -8,16 +8,16 @@ public:
 
     void bind() const override;
 
-    uint32_t get_color_texture_id() const override {
-        return this->color_texture_id;
+    uint32_t getColorTextureId() const override {
+        return this->colorTextureId;
     }
 
-    uint32_t get_depth_texture_id() const override {
-        return this->depth_texture_id;
+    uint32_t getDepthTextureId() const override {
+        return this->depthTextureId;
     }
 
 private:
     uint32_t id;
-    uint32_t color_texture_id;
-    uint32_t depth_texture_id;
+    uint32_t colorTextureId;
+    uint32_t depthTextureId;
 };

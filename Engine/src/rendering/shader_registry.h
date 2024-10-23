@@ -8,7 +8,7 @@ public:
 
     // name is usually the file path without the extension
     Ref<Shader> load(const std::string& name) {
-        Ref<Shader> shader = renderer->create_shader(name + ".dshv", name + ".dshf");
+        Ref<Shader> shader = renderer->createShader(name + ".dshv", name + ".dshf");
         this->add(name, shader);
         return shader;
     }

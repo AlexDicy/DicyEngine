@@ -47,18 +47,18 @@ void OpenGLTextureCube::bind(uint32_t slot) const {
 #endif
 }
 
-void setup_render_buffer(uint32_t& capture_framebuffer, uint32_t& capture_renderbuffer, const uint32_t size) {
-    glGenFramebuffers(1, &capture_framebuffer);
-    glGenRenderbuffers(1, &capture_renderbuffer);
-    glBindFramebuffer(GL_FRAMEBUFFER, capture_framebuffer);
-    glBindRenderbuffer(GL_RENDERBUFFER, capture_renderbuffer);
+void setupRenderBuffer(uint32_t& captureFramebuffer, uint32_t& captureRenderbuffer, const uint32_t size) {
+    glGenFramebuffers(1, &captureFramebuffer);
+    glGenRenderbuffers(1, &captureRenderbuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, captureFramebuffer);
+    glBindRenderbuffer(GL_RENDERBUFFER, captureRenderbuffer);
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, size, size);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, capture_renderbuffer);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, captureRenderbuffer);
 }
 
-void create_cube_map(uint32_t& cube_map_id, const uint32_t size) {
-    glGenTextures(1, &cube_map_id);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, cube_map_id);
+void createCubeMap(uint32_t& cubeMapId, const uint32_t size) {
+    glGenTextures(1, &cubeMapId);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMapId);
     for (unsigned int i = 0; i < 6; i++) {
         glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, size, size, 0, GL_RGB, GL_FLOAT, nullptr);
     }
@@ -69,9 +69,9 @@ void create_cube_map(uint32_t& cube_map_id, const uint32_t size) {
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 }
 
-void render_to_cubemap(const Ref<Renderer>& renderer, const Ref<Shader>& convert_shader, const Ref<Texture>& texture, const uint32_t cube_map_id) {
+void renderToCubemap(const Ref<Renderer>& renderer, const Ref<Shader>& convertShader, const Ref<Texture>& texture, const uint32_t cubeMapId) {
     const auto projection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
-    const glm::mat4 view_matrices[] = {
+    const glm::mat4 viewMatrices[] = {
         lookAt(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)), // right
         lookAt(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f)), // left
         lookAt(glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f)), // top
@@ -79,17 +79,17 @@ void render_to_cubemap(const Ref<Renderer>& renderer, const Ref<Shader>& convert
         lookAt(glm::vec3(0.0f), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)), // front
         lookAt(glm::vec3(0.0f), glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)), // back
     };
-    const SkyboxCube cube(renderer, convert_shader, texture);
+    const SkyboxCube cube(renderer, convertShader, texture);
     for (unsigned int i = 0; i < 6; i++) {
-        convert_shader->upload_uniform_mat4("u_view_projection", projection * view_matrices[i]);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, cube_map_id, 0);
+        convertShader->uploadUniformMat4("uViewProjection", projection * viewMatrices[i]);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, cubeMapId, 0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        cube.get_vertex_array()->bind();
-        glDrawElements(GL_TRIANGLES, static_cast<int>(cube.get_vertex_array()->get_index_buffer()->get_count()), GL_UNSIGNED_INT, nullptr);
+        cube.getVertexArray()->bind();
+        glDrawElements(GL_TRIANGLES, static_cast<int>(cube.getVertexArray()->getIndexBuffer()->getCount()), GL_UNSIGNED_INT, nullptr);
     }
 }
 
-Ref<CubeMap> OpenGLTextureCube::to_cubemap() const {
+Ref<CubeMap> OpenGLTextureCube::toCubemap() const {
     std::array<Image, 6> faces;
     glBindTexture(GL_TEXTURE_CUBE_MAP, this->id);
     for (int i = 0; i < 6; i++) {
@@ -99,49 +99,49 @@ Ref<CubeMap> OpenGLTextureCube::to_cubemap() const {
     return std::make_shared<CubeMap>(std::move(faces));
 }
 
-Ref<TextureCube> OpenGLTextureCube::create_from_hdr(const Ref<Renderer>& renderer, const Ref<Texture2D>& hdr_texture, const Ref<Shader>& convert_shader, const uint32_t size) {
-    uint32_t capture_framebuffer;
-    uint32_t capture_renderbuffer;
-    setup_render_buffer(capture_framebuffer, capture_renderbuffer, size);
+Ref<TextureCube> OpenGLTextureCube::createFromHDR(const Ref<Renderer>& renderer, const Ref<Texture2D>& hdrTexture, const Ref<Shader>& convertShader, const uint32_t size) {
+    uint32_t captureFramebuffer;
+    uint32_t captureRenderbuffer;
+    setupRenderBuffer(captureFramebuffer, captureRenderbuffer, size);
 
-    uint32_t cube_map_id;
-    create_cube_map(cube_map_id, size);
+    uint32_t cubeMapId;
+    createCubeMap(cubeMapId, size);
 
-    convert_shader->bind();
-    hdr_texture->bind(0);
-    convert_shader->upload_uniform_int("u_equirectangular_map", 0);
+    convertShader->bind();
+    hdrTexture->bind(0);
+    convertShader->uploadUniformInt("uEquirectangularMap", 0);
 
-    int previous_viewport[4];
-    glGetIntegerv(GL_VIEWPORT, previous_viewport);
+    int previousViewport[4];
+    glGetIntegerv(GL_VIEWPORT, previousViewport);
     glViewport(0, 0, size, size);
-    render_to_cubemap(renderer, convert_shader, hdr_texture, cube_map_id);
+    renderToCubemap(renderer, convertShader, hdrTexture, cubeMapId);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glViewport(previous_viewport[0], previous_viewport[1], previous_viewport[2], previous_viewport[3]);
-    glDeleteFramebuffers(1, &capture_framebuffer);
-    glDeleteRenderbuffers(1, &capture_renderbuffer);
-    return std::make_shared<OpenGLTextureCube>(cube_map_id, size);
+    glViewport(previousViewport[0], previousViewport[1], previousViewport[2], previousViewport[3]);
+    glDeleteFramebuffers(1, &captureFramebuffer);
+    glDeleteRenderbuffers(1, &captureRenderbuffer);
+    return std::make_shared<OpenGLTextureCube>(cubeMapId, size);
 }
 
-Ref<TextureCube> OpenGLTextureCube::create_irradiance_map(const Ref<Renderer>& renderer, const Ref<TextureCube>& texture_cube, const Ref<Shader>& irradiance_shader,
+Ref<TextureCube> OpenGLTextureCube::createIrradianceMap(const Ref<Renderer>& renderer, const Ref<TextureCube>& textureCube, const Ref<Shader>& irradianceShader,
                                                           const uint32_t size) {
-    uint32_t capture_framebuffer;
-    uint32_t capture_renderbuffer;
-    setup_render_buffer(capture_framebuffer, capture_renderbuffer, size);
+    uint32_t captureFramebuffer;
+    uint32_t captureRenderbuffer;
+    setupRenderBuffer(captureFramebuffer, captureRenderbuffer, size);
 
-    uint32_t irradiance_map_id;
-    create_cube_map(irradiance_map_id, size);
+    uint32_t irradianceMapId;
+    createCubeMap(irradianceMapId, size);
 
-    irradiance_shader->bind();
-    texture_cube->bind(0);
-    irradiance_shader->upload_uniform_int("u_environment_map", 0);
+    irradianceShader->bind();
+    textureCube->bind(0);
+    irradianceShader->uploadUniformInt("uEnvironmentMap", 0);
 
-    int previous_viewport[4];
-    glGetIntegerv(GL_VIEWPORT, previous_viewport);
+    int previousViewport[4];
+    glGetIntegerv(GL_VIEWPORT, previousViewport);
     glViewport(0, 0, size, size);
-    render_to_cubemap(renderer, irradiance_shader, texture_cube, irradiance_map_id);
+    renderToCubemap(renderer, irradianceShader, textureCube, irradianceMapId);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glViewport(previous_viewport[0], previous_viewport[1], previous_viewport[2], previous_viewport[3]);
-    glDeleteFramebuffers(1, &capture_framebuffer);
-    glDeleteRenderbuffers(1, &capture_renderbuffer);
-    return std::make_shared<OpenGLTextureCube>(irradiance_map_id, size);
+    glViewport(previousViewport[0], previousViewport[1], previousViewport[2], previousViewport[3]);
+    glDeleteFramebuffers(1, &captureFramebuffer);
+    glDeleteRenderbuffers(1, &captureRenderbuffer);
+    return std::make_shared<OpenGLTextureCube>(irradianceMapId, size);
 }

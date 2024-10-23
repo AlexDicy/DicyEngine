@@ -8,34 +8,34 @@ EventDispatcher *EventDispatcher::get() {
 
 namespace {
     using HandlerMap = std::unordered_map<std::type_index, std::vector<void *>>;
-    HandlerMap global_handlers;
-    std::vector<HandlerMap> layer_handlers;
+    HandlerMap globalHandlers;
+    std::vector<HandlerMap> layerHandlers;
 }
 
-void EventDispatcher::add_global_handler(const std::type_index &type_index, void *handler_ptr) {
-    global_handlers[type_index].push_back(handler_ptr);
+void EventDispatcher::addGlobalHandler(const std::type_index &typeIndex, void *handlerPtr) {
+    globalHandlers[typeIndex].push_back(handlerPtr);
 }
 
-void EventDispatcher::add_layer_handler(const unsigned layer_index, const std::type_index &type_index, void *handler_ptr) {
-    if (layer_index >= layer_handlers.size()) {
-        layer_handlers.resize(layer_index + 1);
+void EventDispatcher::addLayerHandler(const unsigned layerIndex, const std::type_index &typeIndex, void *handlerPtr) {
+    if (layerIndex >= layerHandlers.size()) {
+        layerHandlers.resize(layerIndex + 1);
     }
-    layer_handlers[layer_index][type_index].push_back(handler_ptr);
+    layerHandlers[layerIndex][typeIndex].push_back(handlerPtr);
 }
 
 
-void EventDispatcher::handle_event(const std::type_index &type_index, const Event &event) {
+void EventDispatcher::handleEvent(const std::type_index &typeIndex, const Event &event) {
     // global handlers
-    for (const auto &handler : global_handlers[type_index]) {
-        const auto handler_ptr = static_cast<Handler<> *>(handler);
-        (*handler_ptr)(event);
+    for (const auto &handler : globalHandlers[typeIndex]) {
+        const auto handlerPtr = static_cast<Handler<> *>(handler);
+        (*handlerPtr)(event);
     }
 
     // layer handlers
-    for (auto &layer_handler : layer_handlers) {
-        for (const auto &handler : layer_handler[type_index]) {
-            const auto handler_ptr = static_cast<Handler<> *>(handler);
-            (*handler_ptr)(event);
+    for (auto &layerHandler : layerHandlers) {
+        for (const auto &handler : layerHandler[typeIndex]) {
+            const auto handlerPtr = static_cast<Handler<> *>(handler);
+            (*handlerPtr)(event);
         }
     }
 }

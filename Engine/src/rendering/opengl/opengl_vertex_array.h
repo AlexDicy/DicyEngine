@@ -3,16 +3,16 @@
 
 class OpenGLVertexArray : public VertexArray {
 public:
-    OpenGLVertexArray(const Ref<VertexBuffer>& vertex_buffer, const Ref<IndexBuffer>& index_buffer);
+    OpenGLVertexArray(const Ref<VertexBuffer>& vertexBuffer, const Ref<IndexBuffer>& indexBuffer);
     ~OpenGLVertexArray() override;
 
     void bind() const override;
 
-    const Ref<VertexBuffer>& get_vertex_buffer() const override;
-    const Ref<IndexBuffer>& get_index_buffer() const override;
+    const Ref<VertexBuffer>& getVertexBuffer() const override;
+    const Ref<IndexBuffer>& getIndexBuffer() const override;
 
 private:
-    Ref<VertexBuffer> vertex_buffer;
-    Ref<IndexBuffer> index_buffer;
+    Ref<VertexBuffer> vertexBuffer;
+    Ref<IndexBuffer> indexBuffer;
     uint32_t id;
 };

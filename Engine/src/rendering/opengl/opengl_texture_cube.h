@@ -10,22 +10,22 @@ public:
 
     void bind(uint32_t) const override;
 
-    uint32_t get_width() const override {
+    uint32_t getWidth() const override {
         return 0;
     }
 
-    uint32_t get_height() const override {
+    uint32_t getHeight() const override {
         return 0;
     }
 
-    uint32_t get_size() const override {
+    uint32_t getSize() const override {
         return this->size;
     }
 
-    Ref<CubeMap> to_cubemap() const override;
+    Ref<CubeMap> toCubemap() const override;
 
-    static Ref<TextureCube> create_from_hdr(const Ref<Renderer>& renderer, const Ref<Texture2D>& hdr_texture, const Ref<Shader>& convert_shader, uint32_t size);
-    static Ref<TextureCube> create_irradiance_map(const Ref<Renderer>& renderer, const Ref<TextureCube>& texture_cube, const Ref<Shader>& irradiance_shader, uint32_t size);
+    static Ref<TextureCube> createFromHDR(const Ref<Renderer>& renderer, const Ref<Texture2D>& hdrTexture, const Ref<Shader>& convertShader, uint32_t size);
+    static Ref<TextureCube> createIrradianceMap(const Ref<Renderer>& renderer, const Ref<TextureCube>& textureCube, const Ref<Shader>& irradianceShader, uint32_t size);
 
 private:
     std::array<std::string, 6> paths;

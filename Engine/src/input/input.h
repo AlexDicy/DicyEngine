@@ -6,36 +6,36 @@
 
 class Input {
 public:
-    static void init(const Ref<EventDispatcher>& event_dispatcher, const Ref<Window>& window);
+    static void init(const Ref<EventDispatcher>& eventDispatcher, const Ref<Window>& window);
 
-    static void bind_action_pressed(const std::string& action, const std::function<void()>& callback) {
-        bindings_pressed[actions_mapping[action]].push_back(callback);
+    static void bindActionPressed(const std::string& action, const std::function<void()>& callback) {
+        bindingsPressed[actionsMapping[action]].push_back(callback);
     }
 
-    static void bind_action_released(const std::string& action, const std::function<void()>& callback) {
-        bindings_released[actions_mapping[action]].push_back(callback);
+    static void bindActionReleased(const std::string& action, const std::function<void()>& callback) {
+        bindingsReleased[actionsMapping[action]].push_back(callback);
     }
 
-    static void bind_axis(const std::string& axis, const std::function<void(float)>& callback) {
-        for (const auto& [keycode, scale] : axis_mapping[axis]) {
-            axis_bindings[keycode].emplace_back(callback, scale);
+    static void bindAxis(const std::string& axis, const std::function<void(float)>& callback) {
+        for (const auto& [keycode, scale] : axisMapping[axis]) {
+            axisBindings[keycode].emplace_back(callback, scale);
         }
     }
 
-    static void set_action(const std::string& action, const InputCode input_code) {
-        actions_mapping[action] = input_code;
+    static void setAction(const std::string& action, const InputCode inputCode) {
+        actionsMapping[action] = inputCode;
     }
 
-    static bool is_action_pressed(const std::string& action);
+    static bool isActionPressed(const std::string& action);
 
 private:
     // actions to keycode mapping
-    static std::unordered_map<std::string, InputCode> actions_mapping;
-    static std::unordered_map<InputCode, std::vector<std::function<void()>>> bindings_pressed;
-    static std::unordered_map<InputCode, std::vector<std::function<void()>>> bindings_released;
+    static std::unordered_map<std::string, InputCode> actionsMapping;
+    static std::unordered_map<InputCode, std::vector<std::function<void()>>> bindingsPressed;
+    static std::unordered_map<InputCode, std::vector<std::function<void()>>> bindingsReleased;
     // axis mapping (axis name, [(keycode, value)])
-    static std::unordered_map<std::string, std::unordered_map<InputCode, float>> axis_mapping;
-    static std::unordered_map<InputCode, std::vector<std::pair<std::function<void(float)>, float>>> axis_bindings;
+    static std::unordered_map<std::string, std::unordered_map<InputCode, float>> axisMapping;
+    static std::unordered_map<InputCode, std::vector<std::pair<std::function<void(float)>, float>>> axisBindings;
 
     static Ref<Window> window;
 };

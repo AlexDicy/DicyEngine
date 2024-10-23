@@ -13,6 +13,6 @@ void OpenGLContext::init() {
     DE_INFO("OpenGL Renderer version: {0}", version);
 }
 
-void OpenGLContext::swap_buffers() {
+void OpenGLContext::swapBuffers() {
     glfwSwapBuffers(this->window);
 }

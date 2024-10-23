@@ -2,7 +2,7 @@
 
 enum class DataType { BOOL, INT, INT2, INT3, INT4, FLOAT, FLOAT2, FLOAT3, FLOAT4 };
 
-static uint32_t get_datatype_size(DataType type) {
+static uint32_t getDatatypeSize(const DataType type) {
     switch (type) {
         case DataType::BOOL:
             return 1;
@@ -31,11 +31,11 @@ struct BufferAttribute {
     std::string name;
     uint32_t size;
     uint32_t offset;
-    bool is_normalized = false;
+    bool isNormalized = false;
 
-    BufferAttribute(const DataType type, std::string name) : type(type), name(std::move(name)), size(get_datatype_size(type)), offset(0) {}
+    BufferAttribute(const DataType type, std::string name) : type(type), name(std::move(name)), size(getDatatypeSize(type)), offset(0) {}
 
-    uint8_t get_datatype_count() const {
+    uint8_t getDatatypeCount() const {
         switch (this->type) {
             case DataType::BOOL:
             case DataType::INT:
@@ -63,19 +63,19 @@ public:
     BufferLayout() = default;
 
     BufferLayout(const std::initializer_list<BufferAttribute>& attributes) : attributes(attributes) {
-        uint32_t last_offset = 0;
+        uint32_t lastOffset = 0;
         for (auto& attribute : this->attributes) {
-            attribute.offset = last_offset;
-            last_offset += attribute.size;
+            attribute.offset = lastOffset;
+            lastOffset += attribute.size;
         }
-        size = last_offset;
+        size = lastOffset;
     }
 
-    const std::vector<BufferAttribute>& get_attributes() const {
+    const std::vector<BufferAttribute>& getAttributes() const {
         return this->attributes;
     }
 
-    uint32_t get_size() const {
+    uint32_t getSize() const {
         return this->size;
     }
 };

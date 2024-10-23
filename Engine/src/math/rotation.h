@@ -15,12 +15,12 @@ struct Rotation {
     Rotation() : pitch(0.0f), yaw(0.0f), roll(0.0f) {}
     Rotation(const float pitch, const float yaw, const float roll) : pitch(pitch), yaw(yaw), roll(roll) {}
 
-    glm::quat to_quaternion() const {
+    glm::quat toQuaternion() const {
         return {radians(glm::vec3(-this->pitch, this->yaw, -this->roll))};
     }
 
-    glm::vec3 to_direction() const {
-        const glm::quat quaternion = this->to_quaternion();
+    glm::vec3 toDirection() const {
+        const glm::quat quaternion = this->toQuaternion();
         return normalize(quaternion * glm::vec3(0.0f, 0.0f, 1.0f));
     }
 };

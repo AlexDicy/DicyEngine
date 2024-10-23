@@ -21,9 +21,9 @@ SkyboxCube::SkyboxCube(const Ref<Renderer>& renderer, const Ref<Shader>& shader,
         1, 2, 7, 7, 6, 1, //
         0, 3, 4, 4, 5, 0, //
     };
-    const Ref<VertexBuffer> vertex_buffer = renderer->create_vertex_buffer(vertices, sizeof(vertices));
-    vertex_buffer->set_layout({
+    const Ref<VertexBuffer> vertexBuffer = renderer->createVertexBuffer(vertices, sizeof(vertices));
+    vertexBuffer->setLayout({
         {DataType::FLOAT3, "position"},
     });
-    this->vertex_array = renderer->create_vertex_array(vertex_buffer, renderer->create_index_buffer(indexes, 36));
+    this->vertexArray = renderer->createVertexArray(vertexBuffer, renderer->createIndexBuffer(indexes, 36));
 }
