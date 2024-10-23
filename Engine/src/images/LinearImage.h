@@ -1,18 +1,15 @@
 ﻿#pragma once
 
-class LinearImage : public Image {
+class LinearImage final : public Image {
 public:
     LinearImage() = default;
     explicit LinearImage(const std::string& path);
+    LinearImage(unsigned int width, unsigned int height, const float* data, float gamma = 1.0f, float exposure = 1.0f);
 
-    void* getData() const override {
-        return data.get();
-    }
 
 private:
     static void convertRGBEtoRGB(const unsigned char* rgbe, float* rgb);
 
     float gamma;
     float exposure;
-    std::unique_ptr<float[]> data;
 };

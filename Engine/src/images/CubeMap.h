@@ -22,8 +22,6 @@ public:
     void* getPixelPointer(Face face, unsigned int x, unsigned int y) const;
     glm::vec3 getPixelDirection(Face face, unsigned int x, unsigned int y) const;
 
-    // void save_to_files(const std::string& filenamePrefix);
-
 private:
     std::array<Image, 6> faces;
     unsigned int faceSize;

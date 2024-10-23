@@ -7,6 +7,7 @@
 #include "editor/scripts/CameraScript.h"
 #include "editor/scripts/LightScript.h"
 #include "images/Image.h"
+#include "images/ImageUtils.h"
 #include "images/LinearImage.h"
 #include "rendering/skybox/SphericalHarmonics.h"
 #include "scene/models/ModelImporter.h"
@@ -30,14 +31,16 @@ SceneLayer::SceneLayer(const Ref<Application>& app) {
 
     this->shader = app->getShaderRegistry()->load("../assets/shaders/default-shader");
     Ref<Shader> skyboxShader = app->getShaderRegistry()->load("../assets/shaders/skybox-shader");
-    Ref<LinearImage> skyboxHDRImage = std::make_shared<LinearImage>("../assets/skybox/kloofendal_48d_partly_cloudy_puresky_8k.hdr");
-    Ref<Texture2D> skyboxHDR = renderer->createTexture2D(skyboxHDRImage->getChannels(), skyboxHDRImage->getWidth(), skyboxHDRImage->getHeight(),
-                                                           skyboxHDRImage->getBytesPerPixel(), skyboxHDRImage->getData());
+    Ref<LinearImage> skyboxHDR = std::make_shared<LinearImage>("../assets/skybox/kloofendal_48d_partly_cloudy_puresky_8k.hdr");
+    Ref<LinearImage> skyboxToneMapped = ImageUtils::acesFilmicTonemapping(skyboxHDR);
+    Ref<Texture2D> skyboxTexture = renderer->createTexture2D(skyboxHDR->getChannels(), skyboxHDR->getWidth(), skyboxHDR->getHeight(),
+                                                           skyboxHDR->getBytesPerPixel(), skyboxHDR->getData());
+    Ref<Texture2D> skyboxTextureToneMapped = renderer->createTexture2D(skyboxToneMapped->getChannels(), skyboxToneMapped->getWidth(), skyboxToneMapped->getHeight(),
+                                                           skyboxToneMapped->getBytesPerPixel(), skyboxToneMapped->getData());
     Ref<Shader> equirectangularToCubemapShader = app->getShaderRegistry()->load("../assets/shaders/equirectangular-to-cubemap");
-    Ref<TextureCube> skyboxTexture256 = renderer->createTextureCubeFromHDR(skyboxHDR, equirectangularToCubemapShader, 256);
-    Ref<TextureCube> skyboxTexture2048 = renderer->createTextureCubeFromHDR(skyboxHDR, equirectangularToCubemapShader, 2048);
-    Ref<CubeMap> skyboxCubeMap = skyboxTexture256->toCubemap();
-    // skybox_cube_map->save_to_files("../assets/export");
+    Ref<TextureCube> skyboxCubeTexture = renderer->createTextureCubeFromHDR(skyboxTexture, equirectangularToCubemapShader, 2048);
+    Ref<TextureCube> skyboxCubeToneMapped = renderer->createTextureCubeFromHDR(skyboxTextureToneMapped, equirectangularToCubemapShader, 256);
+    Ref<CubeMap> skyboxCubeMap = skyboxCubeToneMapped->toCubemap();
     std::vector<glm::vec3> sphericalHarmonics = SphericalHarmonics::calculateSH(skyboxCubeMap, 3, true, true);
     renderer->setIrradianceSH({
         sphericalHarmonics[0],
@@ -50,7 +53,7 @@ SceneLayer::SceneLayer(const Ref<Application>& app) {
         sphericalHarmonics[7],
         sphericalHarmonics[8],
     });
-    this->skybox = std::make_shared<SkyboxCube>(renderer, skyboxShader, skyboxTexture2048);
+    this->skybox = std::make_shared<SkyboxCube>(renderer, skyboxShader, skyboxCubeTexture);
 
     this->directionalLight = std::make_shared<DirectionalLight>(Rotation(-70, 90, 0), 2.86f);
     Ref<Entity> lightEntity = this->scene->createEntity();

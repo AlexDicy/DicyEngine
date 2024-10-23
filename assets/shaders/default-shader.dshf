@@ -76,7 +76,7 @@ vec3 calculateIrradianceSphericalHarmonics(const vec3 normal) {
     + uIrradianceSH[6] * (3.0 * normal.z * normal.z - 1.0)
     + uIrradianceSH[7] * (normal.z * normal.x)
     + uIrradianceSH[8] * (normal.x * normal.x - normal.y * normal.y);
-    return max(sh / 1000.0, 0.0);
+    return max(sh, 0.0);
 }
 
 

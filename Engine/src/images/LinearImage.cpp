@@ -47,7 +47,7 @@ LinearImage::LinearImage(const std::string& path) : Image(0, 0, 3, sizeof(float)
         return;
     }
 
-    this->data = std::make_unique<float[]>(width * height * 3);
+    this->data = std::make_unique<unsigned char[]>(width * height * this->bytesPerPixel);
 
     std::vector<unsigned char> row;
     row.reserve(width * 4); // RGBE
@@ -107,7 +107,7 @@ LinearImage::LinearImage(const std::string& path) : Image(0, 0, 3, sizeof(float)
                 }
             }
             for (unsigned int x = 0; x < width; x++) {
-                convertRGBEtoRGB(row.data() + x * 4, this->data.get() + (y * width + x) * 3);
+                convertRGBEtoRGB(row.data() + x * 4, reinterpret_cast<float*>(this->data.get()) + (y * width + x) * 3);
             }
         }
     } else {
@@ -117,14 +117,20 @@ LinearImage::LinearImage(const std::string& path) : Image(0, 0, 3, sizeof(float)
 
     // invert the image vertically
     // this doubles the memory usage, use a different approach if memory is a concern
-    auto invertedData = std::make_unique<float[]>(width * height * 3);
+    auto invertedData = std::make_unique<uint8_t[]>(width * height * this->bytesPerPixel);
     unsigned int bytesPerRow = this->bytesPerPixel * width;
     for (unsigned int y = 0; y < height; y++) {
-        float* src = this->data.get() + (height - y - 1) * width * 3;  // NOLINT(bugprone-implicit-widening-of-multiplication-result)
-        float* dst = invertedData.get() + y * width * 3;  // NOLINT(bugprone-implicit-widening-of-multiplication-result)
+        float* src = reinterpret_cast<float*>(this->data.get()) + (height - y - 1) * width * 3; // NOLINT(bugprone-implicit-widening-of-multiplication-result)
+        float* dst = reinterpret_cast<float*>(invertedData.get()) + y * width * 3; // NOLINT(bugprone-implicit-widening-of-multiplication-result)
         std::memcpy(dst, src, bytesPerRow);
     }
     this->data = std::move(invertedData);
+}
+
+LinearImage::LinearImage(const unsigned int width, const unsigned int height, const float* data, const float gamma, const float exposure) :
+    Image(width, height, 3, sizeof(float) * 3, data) {
+    this->gamma = gamma;
+    this->exposure = exposure;
 }
 
 void LinearImage::convertRGBEtoRGB(const unsigned char* rgbe, float* rgb) {
