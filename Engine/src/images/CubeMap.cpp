@@ -1,9 +1,6 @@
 ﻿#include "pch/enginepch.h"
 #include "CubeMap.h"
 
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "stb_image_write.h"
-
 
 CubeMap::CubeMap(std::array<Image, 6> faces) : faces(std::move(faces)) {
     this->faceSize = this->faces[0].getWidth(); // Assuming all faces have the same size and are square
