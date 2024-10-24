@@ -123,7 +123,8 @@ void main() {
     }
 
     // irradiance
-    totalLight += calculateIrradianceSphericalHarmonics(N);
+    // TODO: add irradiance to the total light
+    //totalLight += calculateIrradianceSphericalHarmonics(N) * (1.0 - 0.9);
 
     vec3 linearColor = vec3(totalLight * occlusion);
     linearColor = linearColor / (linearColor + vec3(1.0));
