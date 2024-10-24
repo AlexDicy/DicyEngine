@@ -11,7 +11,7 @@ JavaBridge::JavaBridge() {
 #ifdef DE_PLATFORM_WINDOWS
     const CreateJavaVM createJavaVM = loadJVMdll();
 #else
-    const auto create_java_vm = reinterpret_cast<CreateJavaVM>(JNI_CreateJavaVM);
+    const auto createJavaVM = reinterpret_cast<CreateJavaVM>(JNI_CreateJavaVM);
 #endif
 
     std::vector<std::string> arguments;
