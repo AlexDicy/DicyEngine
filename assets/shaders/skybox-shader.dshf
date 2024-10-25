@@ -2,10 +2,25 @@
 
 layout (location = 0) out vec4 color;
 
-in vec3 v_texture_coords;
+in vec3 vTextureCoords;
 
-uniform samplerCube u_skybox;
+uniform samplerCube uSkybox;
+
+
+vec3 acesFilmicTonemapping(vec3 color) {
+    float a = 2.51f;
+    float b = 0.03f;
+    float c = 2.43f;
+    float d = 0.59f;
+    float e = 0.14f;
+    return clamp((color * (a * color + b)) / (color * (c * color + d) + e), 0.0, 1.0);
+}
 
 void main() {
-    color = texture(u_skybox, v_texture_coords);
+    float exposure = 1.0;
+    vec3 hdrColor = texture(uSkybox, vTextureCoords).rgb;
+    vec3 mapped = vec3(1.0) - exp(-hdrColor * exposure);
+    mapped = acesFilmicTonemapping(mapped);
+    mapped = pow(mapped, vec3(1.0 / 2.2));
+    color = vec4(mapped, 1.0);
 }
