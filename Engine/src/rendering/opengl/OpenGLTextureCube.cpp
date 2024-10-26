@@ -148,7 +148,7 @@ Ref<TextureCube> OpenGLTextureCube::createPrefilteredCubemap(const Ref<Renderer>
         glViewport(0, 0, mipSize, mipSize);
 
         const float roughness = static_cast<float>(level) / static_cast<float>(mipLevels - 1);
-        convertShader->uploadUniformFloat("roughness", roughness);
+        convertShader->uploadUniformFloat("uRoughness", roughness);
         renderToCubemap(renderer, convertShader, textureCube, prefilteredCubemapId, level);
     }
 
