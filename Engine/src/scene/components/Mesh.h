@@ -16,7 +16,7 @@ struct Mesh {
         vertexBuffer->setLayout({
             {DataType::FLOAT3, "position"},
             {DataType::FLOAT3, "normal"},
-            {DataType::FLOAT2, "texture_coords"},
+            {DataType::FLOAT2, "textureCoords"},
         });
 
         const Ref<IndexBuffer> indexBuffer = renderer->createIndexBuffer(indexes, indexesCount);

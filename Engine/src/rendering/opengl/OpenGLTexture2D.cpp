@@ -35,6 +35,8 @@ OpenGLTexture2D::OpenGLTexture2D(const unsigned int channels, const unsigned int
     this->createTextureWithData(channels, width, height, data, bytesPerPixel == sizeof(float) * channels);
 }
 
+OpenGLTexture2D::OpenGLTexture2D(const unsigned int id, const unsigned int width, const unsigned int height) : id(id), width(width), height(height) {}
+
 OpenGLTexture2D::~OpenGLTexture2D() {
     glDeleteTextures(1, &this->id);
 }

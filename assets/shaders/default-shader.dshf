@@ -23,15 +23,21 @@ struct PointLight {
 };
 
 uniform vec3 uCameraPositionLocal;
+
 uniform Material uMaterial;
 uniform sampler2D uAlbedo;
 uniform sampler2D uOcclusionRoughnessMetallic;
+
 uniform vec3 uIrradianceSH[9];
+uniform samplerCube uPrefilteredEnvMap;
+uniform sampler2D uBRDFLUT;
+
 uniform DirectionalLight uDirectionalLight;
 uniform PointLight uPointLights[10];
 uniform int uPointLightsCount;
 
 #define PI 3.14159265359
+#define PREFILTERED_LEVELS 5
 
 #define saturate(x) clamp(x, 0.0, 1.0)
 
@@ -53,6 +59,11 @@ float geometrySchlickGGX(float NoV, float roughness) {
 // Fresnel-Schlick approximation
 vec3 fresnelSchlick(float VoH, vec3 F0) {
     return F0 + (1.0 - F0) * pow(1.0 - VoH, 5);
+}
+
+// Fresnel-Schlick approximation with roughness, Sébastien Lagarde implementation
+vec3 fresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness) {
+    return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
 }
 
 vec3 calculateLight(float NoV, float NoL, float NoH, float VoH, vec3 albedo, float metallic, float roughness2, vec3 F0, vec3 radiance) {
@@ -126,10 +137,16 @@ void main() {
     }
 
     // ambient light
-    vec3 kS = fresnelSchlick(NoV, F0);
+    vec3 kS = fresnelSchlickRoughness(max(NoV, 0.0), F0, roughness);
     vec3 kD = 1.0 - kS;
+    kD *= 1.0 - metallic;
+
     vec3 indirectDiffuse = calculateIrradianceSphericalHarmonics(N) * albedo;
-    vec3 ambient = (kD * indirectDiffuse) * occlusion;
+    vec3 R = reflect(-V, N);
+    vec3 prefilteredColor = texture(uPrefilteredEnvMap, R, roughness * (PREFILTERED_LEVELS - 1)).rgb;
+    vec2 brdf = texture(uBRDFLUT, vec2(NoV, roughness)).rg;
+    vec3 specularIBL = prefilteredColor * (kS * brdf.x + brdf.y);
+    vec3 ambient = (kD * indirectDiffuse + specularIBL) * occlusion;
 
     vec3 finalColor = ambient + totalLight;
 

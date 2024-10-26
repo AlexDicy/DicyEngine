@@ -25,7 +25,7 @@ public:
     Ref<CubeMap> toCubemap() const override;
 
     static Ref<TextureCube> createFromHDR(const Ref<Renderer>& renderer, const Ref<Texture2D>& hdrTexture, const Ref<Shader>& convertShader, uint32_t size);
-    static Ref<TextureCube> createIrradianceMap(const Ref<Renderer>& renderer, const Ref<TextureCube>& textureCube, const Ref<Shader>& irradianceShader, uint32_t size);
+    static Ref<TextureCube> createPrefilteredCubemap(const Ref<Renderer>& renderer, const Ref<TextureCube>& textureCube, const Ref<Shader>& convertShader, uint32_t size);
 
 private:
     std::array<std::string, 6> paths;

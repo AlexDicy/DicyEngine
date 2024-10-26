@@ -56,20 +56,23 @@ void setupRenderBuffer(uint32_t& captureFramebuffer, uint32_t& captureRenderbuff
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, captureRenderbuffer);
 }
 
-void createCubeMap(uint32_t& cubeMapId, const uint32_t size) {
+void createCubeMap(uint32_t& cubeMapId, const uint32_t size, const bool hasMipmaps) {
     glGenTextures(1, &cubeMapId);
     glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMapId);
     for (unsigned int i = 0; i < 6; i++) {
         glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, size, size, 0, GL_RGB, GL_FLOAT, nullptr);
     }
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, hasMipmaps ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    if (hasMipmaps) {
+        glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+    }
 }
 
-void renderToCubemap(const Ref<Renderer>& renderer, const Ref<Shader>& convertShader, const Ref<Texture>& texture, const uint32_t cubeMapId) {
+void renderToCubemap(const Ref<Renderer>& renderer, const Ref<Shader>& convertShader, const Ref<Texture>& texture, const uint32_t cubeMapId, const int mipLevel = 0) {
     const auto projection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
     const glm::mat4 viewMatrices[] = {
         lookAt(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)), // right
@@ -82,7 +85,7 @@ void renderToCubemap(const Ref<Renderer>& renderer, const Ref<Shader>& convertSh
     const SkyboxCube cube(renderer, convertShader, texture);
     for (unsigned int i = 0; i < 6; i++) {
         convertShader->uploadUniformMat4("uViewProjection", projection * viewMatrices[i]);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, cubeMapId, 0);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, cubeMapId, mipLevel);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         cube.getVertexArray()->bind();
         glDrawElements(GL_TRIANGLES, static_cast<int>(cube.getVertexArray()->getIndexBuffer()->getCount()), GL_UNSIGNED_INT, nullptr);
@@ -105,7 +108,7 @@ Ref<TextureCube> OpenGLTextureCube::createFromHDR(const Ref<Renderer>& renderer,
     setupRenderBuffer(captureFramebuffer, captureRenderbuffer, size);
 
     uint32_t cubeMapId;
-    createCubeMap(cubeMapId, size);
+    createCubeMap(cubeMapId, size, false);
 
     convertShader->bind();
     hdrTexture->bind(0);
@@ -122,26 +125,36 @@ Ref<TextureCube> OpenGLTextureCube::createFromHDR(const Ref<Renderer>& renderer,
     return std::make_shared<OpenGLTextureCube>(cubeMapId, size);
 }
 
-Ref<TextureCube> OpenGLTextureCube::createIrradianceMap(const Ref<Renderer>& renderer, const Ref<TextureCube>& textureCube, const Ref<Shader>& irradianceShader,
-                                                          const uint32_t size) {
+Ref<TextureCube> OpenGLTextureCube::createPrefilteredCubemap(const Ref<Renderer>& renderer, const Ref<TextureCube>& textureCube, const Ref<Shader>& convertShader,
+                                                             const uint32_t size) {
     uint32_t captureFramebuffer;
     uint32_t captureRenderbuffer;
     setupRenderBuffer(captureFramebuffer, captureRenderbuffer, size);
 
-    uint32_t irradianceMapId;
-    createCubeMap(irradianceMapId, size);
+    uint32_t prefilteredCubemapId;
+    createCubeMap(prefilteredCubemapId, size, true);
 
-    irradianceShader->bind();
+    convertShader->bind();
     textureCube->bind(0);
-    irradianceShader->uploadUniformInt("uEnvironmentMap", 0);
+    convertShader->uploadUniformInt("uCubemap", 0);
 
     int previousViewport[4];
     glGetIntegerv(GL_VIEWPORT, previousViewport);
-    glViewport(0, 0, size, size);
-    renderToCubemap(renderer, irradianceShader, textureCube, irradianceMapId);
+
+    constexpr int mipLevels = 5;
+    for (unsigned int level = 0; level < mipLevels; level++) {
+        const int mipSize = size * std::pow(0.5, level);
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, mipSize, mipSize);
+        glViewport(0, 0, mipSize, mipSize);
+
+        const float roughness = static_cast<float>(level) / static_cast<float>(mipLevels - 1);
+        convertShader->uploadUniformFloat("roughness", roughness);
+        renderToCubemap(renderer, convertShader, textureCube, prefilteredCubemapId, level);
+    }
+
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(previousViewport[0], previousViewport[1], previousViewport[2], previousViewport[3]);
     glDeleteFramebuffers(1, &captureFramebuffer);
     glDeleteRenderbuffers(1, &captureRenderbuffer);
-    return std::make_shared<OpenGLTextureCube>(irradianceMapId, size);
+    return std::make_shared<OpenGLTextureCube>(prefilteredCubemapId, size);
 }

@@ -33,10 +33,10 @@ SceneLayer::SceneLayer(const Ref<Application>& app) {
     Ref<Shader> skyboxShader = app->getShaderRegistry()->load("../assets/shaders/skybox-shader");
     Ref<LinearImage> skyboxHDR = std::make_shared<LinearImage>("../assets/skybox/kloofendal_48d_partly_cloudy_puresky_8k.hdr");
     Ref<LinearImage> skyboxToneMapped = ImageUtils::acesFilmicTonemapping(skyboxHDR);
-    Ref<Texture2D> skyboxTexture = renderer->createTexture2D(skyboxHDR->getChannels(), skyboxHDR->getWidth(), skyboxHDR->getHeight(),
-                                                           skyboxHDR->getBytesPerPixel(), skyboxHDR->getData());
+    Ref<Texture2D> skyboxTexture =
+        renderer->createTexture2D(skyboxHDR->getChannels(), skyboxHDR->getWidth(), skyboxHDR->getHeight(), skyboxHDR->getBytesPerPixel(), skyboxHDR->getData());
     Ref<Texture2D> skyboxTextureToneMapped = renderer->createTexture2D(skyboxToneMapped->getChannels(), skyboxToneMapped->getWidth(), skyboxToneMapped->getHeight(),
-                                                           skyboxToneMapped->getBytesPerPixel(), skyboxToneMapped->getData());
+                                                                       skyboxToneMapped->getBytesPerPixel(), skyboxToneMapped->getData());
     Ref<Shader> equirectangularToCubemapShader = app->getShaderRegistry()->load("../assets/shaders/equirectangular-to-cubemap");
     Ref<TextureCube> skyboxCubeTexture = renderer->createTextureCubeFromHDR(skyboxTexture, equirectangularToCubemapShader, 2048);
     Ref<TextureCube> skyboxCubeToneMapped = renderer->createTextureCubeFromHDR(skyboxTextureToneMapped, equirectangularToCubemapShader, 256);
@@ -53,7 +53,13 @@ SceneLayer::SceneLayer(const Ref<Application>& app) {
         sphericalHarmonics[7],
         sphericalHarmonics[8],
     });
+    Ref<Shader> prefilterCubemapShader = app->getShaderRegistry()->load("../assets/shaders/prefilter-cubemap");
+    Ref<TextureCube> prefilteredSkybox = renderer->createPrefilteredCubemap(skyboxCubeToneMapped, prefilterCubemapShader, 256);
+    renderer->setPrefilteredEnvMap(prefilteredSkybox);
     this->skybox = std::make_shared<SkyboxCube>(renderer, skyboxShader, skyboxCubeTexture);
+    Ref<Shader> brdfLUTShader = app->getShaderRegistry()->load("../assets/shaders/brdf-lut");
+    Ref<Texture2D> brdfLUT = renderer->createBRDFLUT(brdfLUTShader, 512);
+    renderer->setBRDFLUT(brdfLUT);
 
     this->directionalLight = std::make_shared<DirectionalLight>(Rotation(-70, 90, 0), 2.86f);
     Ref<Entity> lightEntity = this->scene->createEntity();
@@ -74,7 +80,7 @@ SceneLayer::SceneLayer(const Ref<Application>& app) {
         const VertexData* vertexData = model.vertices.data();
         auto vertexDataFloats = reinterpret_cast<const float*>(vertexData);
         lightMeshEntity->add<Mesh>(renderer, vertexDataFloats, model.vertices.size() * sizeof(VertexData), model.indexes.data(), model.indexes.size(), model.material,
-                                     model.transformationMatrix);
+                                   model.transformationMatrix);
         lightMeshEntity->add<Transform>(glm::vec3(0.0, 3.0f, 0.0f), Rotation(), glm::vec3(1.0f));
     }
 
@@ -87,7 +93,7 @@ SceneLayer::SceneLayer(const Ref<Application>& app) {
             auto vertexDataFloats = reinterpret_cast<const float*>(vertexData);
             unsigned char roughness = static_cast<unsigned char>(static_cast<float>(9 - x) / 9 * 255.0f);
             unsigned char metallic = static_cast<unsigned char>(static_cast<float>(9 - z) / 9 * 255.0f);
-            Material material(renderer->createTexture2D(4, 1, 1, 1, std::array<unsigned char, 4>{250, 40, 40, 255}.data()),
+            Material material(renderer->createTexture2D(4, 1, 1, 1, std::array<unsigned char, 4>{250, 0, 0, 255}.data()),
                               renderer->createTexture2D(3, 1, 1, 1, std::array<unsigned char, 3>{255, roughness, metallic}.data()));
             Ref<Entity> entity = this->scene->createEntity();
             entity->add<Mesh>(renderer, vertexDataFloats, sphereModel.vertices.size() * sizeof(VertexData), sphereModel.indexes.data(), sphereModel.indexes.size(), material,
@@ -105,8 +111,8 @@ SceneLayer::SceneLayer(const Ref<Application>& app) {
         auto vertexDataFloats = reinterpret_cast<const float*>(vertexData);
         auto material = Material(renderer->createTexture2D(4, 1, 1, 1, std::array<unsigned char, 4>{50, 50, 255, 255}.data()));
         material.ignoreLighting = true;
-        pointLightEntity->add<Mesh>(renderer, vertexDataFloats, sphereModel.vertices.size() * sizeof(VertexData), sphereModel.indexes.data(), sphereModel.indexes.size(),
-                                      material, sphereModel.transformationMatrix);
+        pointLightEntity->add<Mesh>(renderer, vertexDataFloats, sphereModel.vertices.size() * sizeof(VertexData), sphereModel.indexes.data(), sphereModel.indexes.size(), material,
+                                    sphereModel.transformationMatrix);
     }
 }
 
@@ -156,14 +162,13 @@ void SceneLayer::addEntitiesForModels(const Ref<Renderer>& renderer, const std::
 }
 
 void SceneLayer::addEntitiesForModels(const Ref<Renderer>& renderer, const std::vector<Model>& models, const glm::vec3 position, const Rotation rotation,
-                                         const glm::vec3 scale) const {
+                                      const glm::vec3 scale) const {
     for (const Model& model : models) {
         const VertexData* vertexData = model.vertices.data();
         auto vertexDataFloats = reinterpret_cast<const float*>(vertexData);
         const Material& material = model.material;
         Ref<Entity> entity = this->scene->createEntity();
-        entity->add<Mesh>(renderer, vertexDataFloats, model.vertices.size() * sizeof(VertexData), model.indexes.data(), model.indexes.size(), material,
-                          model.transformationMatrix);
+        entity->add<Mesh>(renderer, vertexDataFloats, model.vertices.size() * sizeof(VertexData), model.indexes.data(), model.indexes.size(), material, model.transformationMatrix);
         entity->add<Transform>(position, rotation, scale);
     }
 }

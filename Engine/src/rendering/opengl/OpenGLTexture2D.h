@@ -4,7 +4,8 @@
 class OpenGLTexture2D : public Texture2D {
 public:
     explicit OpenGLTexture2D(const std::string& path);
-    explicit OpenGLTexture2D(unsigned int channels, unsigned int width, unsigned int height, unsigned int bytesPerPixel, const void* data);
+    OpenGLTexture2D(unsigned int channels, unsigned int width, unsigned int height, unsigned int bytesPerPixel, const void* data);
+    OpenGLTexture2D(unsigned int id, unsigned int width, unsigned int height);
     ~OpenGLTexture2D() override;
 
     void bind(uint32_t) const override;

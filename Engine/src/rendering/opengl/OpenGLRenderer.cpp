@@ -15,6 +15,7 @@ void OpenGLRenderer::init(const int x, const int y, const uint32_t width, const 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
     glFrontFace(GL_CW);
     this->setViewport(x, y, width, height);
     unsigned char white[4] = {255, 255, 255, 255};
@@ -55,8 +56,62 @@ Ref<Texture2D> OpenGLRenderer::createTexture2D(const std::string& path) const {
     return std::make_shared<OpenGLTexture2D>(path);
 }
 
-Ref<Texture2D> OpenGLRenderer::createTexture2D(const unsigned int channels, const unsigned int width, const unsigned int height, const unsigned int bytesPerPixel, const void* data) const {
+Ref<Texture2D> OpenGLRenderer::createTexture2D(const unsigned int channels, const unsigned int width, const unsigned int height, const unsigned int bytesPerPixel,
+                                               const void* data) const {
     return std::make_shared<OpenGLTexture2D>(channels, width, height, bytesPerPixel, data);
+}
+
+Ref<Texture2D> OpenGLRenderer::createBRDFLUT(const Ref<Shader>& shader, const uint32_t size) const {
+    unsigned int textureId;
+    glGenTextures(1, &textureId);
+    glBindTexture(GL_TEXTURE_2D, textureId);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, size, size, 0, GL_RG, GL_FLOAT, nullptr);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    uint32_t captureFramebuffer;
+    uint32_t captureRenderbuffer;
+    glGenFramebuffers(1, &captureFramebuffer);
+    glGenRenderbuffers(1, &captureRenderbuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, captureFramebuffer);
+    glBindRenderbuffer(GL_RENDERBUFFER, captureRenderbuffer);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, size, size);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureId, 0);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, captureRenderbuffer);
+
+    int previousViewport[4];
+    glGetIntegerv(GL_VIEWPORT, previousViewport);
+
+    glViewport(0, 0, size, size);
+    shader->bind();
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    constexpr float vertices[] = {
+        -1.0f, -1.0f, 0.0f, 0.0f, 0.0f, //
+        1.0f,  -1.0f, 0.0f, 1.0f, 0.0f, //
+        1.0f,  1.0f,  0.0f, 1.0f, 1.0f, //
+        -1.0f, 1.0f,  0.0f, 0.0f, 1.0f, //
+    };
+    const Ref<VertexBuffer> vertexBuffer = this->createVertexBuffer(vertices, sizeof(vertices));
+    vertexBuffer->setLayout({
+        {DataType::FLOAT3, "position"},
+        {DataType::FLOAT2, "textureCoords"},
+    });
+    const uint32_t indices[] = {0, 1, 2, 2, 3, 0};
+    const Ref<IndexBuffer> indexBuffer = this->createIndexBuffer(indices, 6);
+    const Ref<VertexArray> vertexArray = this->createVertexArray(vertexBuffer, indexBuffer);
+    vertexArray->bind();
+    glDisable(GL_BLEND);
+    glDrawElements(GL_TRIANGLES, static_cast<int>(vertexArray->getIndexBuffer()->getCount()), GL_UNSIGNED_INT, nullptr);
+    glEnable(GL_BLEND);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glViewport(previousViewport[0], previousViewport[1], previousViewport[2], previousViewport[3]);
+    glDeleteFramebuffers(1, &captureFramebuffer);
+    glDeleteRenderbuffers(1, &captureRenderbuffer);
+    return std::make_shared<OpenGLTexture2D>(textureId, size, size);
 }
 
 Ref<TextureCube> OpenGLRenderer::createTextureCube(const std::array<std::string, 6>& paths) const {
@@ -67,8 +122,8 @@ Ref<TextureCube> OpenGLRenderer::createTextureCubeFromHDR(const Ref<Texture2D>& 
     return OpenGLTextureCube::createFromHDR(shared_from_this(), hdrTexture, convertShader, size);
 }
 
-Ref<TextureCube> OpenGLRenderer::createIrradianceMap(const Ref<TextureCube>& textureCube, const Ref<Shader>& irradianceShader, const uint32_t size) {
-    return OpenGLTextureCube::createIrradianceMap(shared_from_this(), textureCube, irradianceShader, size);
+Ref<TextureCube> OpenGLRenderer::createPrefilteredCubemap(const Ref<TextureCube>& textureCube, const Ref<Shader>& convertShader, const uint32_t size) {
+    return OpenGLTextureCube::createPrefilteredCubemap(shared_from_this(), textureCube, convertShader, size);
 }
 
 
@@ -115,7 +170,11 @@ void OpenGLRenderer::draw(const Ref<VertexArray>& vertexArray, const Ref<Shader>
     } else {
         this->defaultOcclusionRoughnessMetallicTexture->bind(textureSlot);
     }
-    shader->uploadUniformInt("uOcclusionRoughnessMetallic", textureSlot);
+    shader->uploadUniformInt("uOcclusionRoughnessMetallic", textureSlot++);
+    this->prefilteredEnvMap->bind(textureSlot);
+    shader->uploadUniformInt("uPrefilteredEnvMap", textureSlot++);
+    this->brdfLUT->bind(textureSlot);
+    shader->uploadUniformInt("uBRDFLUT", textureSlot);
     // irradiance spherical harmonics
     for (int i = 0; i < this->irradianceSH.size(); i++) {
         shader->uploadUniformVec3("uIrradianceSH[" + std::to_string(i) + "]", this->irradianceSH[i]);

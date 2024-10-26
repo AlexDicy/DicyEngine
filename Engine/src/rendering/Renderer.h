@@ -38,14 +38,17 @@ public:
     virtual Ref<Shader> createShader(const std::string& vertexPath, const std::string& fragmentPath) const = 0;
     virtual Ref<Texture2D> createTexture2D(const std::string& path) const = 0;
     virtual Ref<Texture2D> createTexture2D(unsigned int channels, unsigned int width, unsigned int height, unsigned int bytesPerPixel, const void* data) const = 0;
+    virtual Ref<Texture2D> createBRDFLUT(const Ref<Shader>& shader, uint32_t width) const = 0;
     virtual Ref<TextureCube> createTextureCube(const std::array<std::string, 6>& paths) const = 0;
     virtual Ref<TextureCube> createTextureCubeFromHDR(const Ref<Texture2D>& hdrTexture, const Ref<Shader>& convertShader, uint32_t size) = 0;
-    virtual Ref<TextureCube> createIrradianceMap(const Ref<TextureCube>& textureCube, const Ref<Shader>& irradianceShader, uint32_t size) = 0;
+    virtual Ref<TextureCube> createPrefilteredCubemap(const Ref<TextureCube>& textureCube, const Ref<Shader>& convertShader, uint32_t size) = 0;
 
     virtual void beginFrame() = 0;
     virtual void endFrame() const = 0;
     virtual void clean() const = 0;
     void setIrradianceSH(const std::array<glm::vec3, 9>& irradianceSh);
+    void setPrefilteredEnvMap(const Ref<TextureCube>& prefilteredEnvMap);
+    void setBRDFLUT(const Ref<Texture2D>& brdfLUT);
     virtual void addPointLight(const PointLight& pointLight) = 0;
     virtual void draw(const Ref<VertexArray>& vertexArray, const Ref<Shader>& shader, const glm::mat4& transform, const Ref<DirectionalLight>& directionalLight) const = 0;
     virtual void draw(const Ref<VertexArray>& vertexArray, const Ref<Shader>& shader, const glm::mat4& transform, const Ref<DirectionalLight>& directionalLight,
@@ -59,6 +62,8 @@ protected:
     glm::mat4 projectionMatrix;
 
     std::array<glm::vec3, 9> irradianceSH = std::array<glm::vec3, 9>();
+    Ref<TextureCube> prefilteredEnvMap;
+    Ref<Texture2D> brdfLUT;
     std::vector<PointLight> pointLights = std::vector<PointLight>();
 
 private:
