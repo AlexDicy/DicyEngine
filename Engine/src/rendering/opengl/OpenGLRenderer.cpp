@@ -183,17 +183,16 @@ void OpenGLRenderer::draw(const Ref<VertexArray>& vertexArray, const Ref<Shader>
     shader->uploadUniformInt("uMaterial.ignoreLighting", material.ignoreLighting);
     shader->uploadUniformVec3("uDirectionalLight.color", {1.0f, 1.0f, 1.0f});
     shader->uploadUniformFloat("uDirectionalLight.intensity", directionalLight->getIntensity());
-    shader->uploadUniformVec3("uDirectionalLight.direction", directionalLight->getLocalDirection(transform));
+    shader->uploadUniformVec3("uDirectionalLight.direction", directionalLight->getRotation().toDirection());
     for (size_t i = 0; i < this->pointLights.size(); i++) {
         const PointLight& pointLight = this->pointLights[i];
-        shader->uploadUniformVec3("uPointLights[" + std::to_string(i) + "].position", glm::vec3(inverse(transform) * glm::vec4(pointLight.position, 1.0f)));
+        shader->uploadUniformVec3("uPointLights[" + std::to_string(i) + "].position", pointLight.position);
         shader->uploadUniformVec3("uPointLights[" + std::to_string(i) + "].color", pointLight.color);
         shader->uploadUniformFloat("uPointLights[" + std::to_string(i) + "].intensity", pointLight.intensity);
     }
     shader->uploadUniformInt("uPointLightsCount", static_cast<int>(this->pointLights.size()));
     // camera position
-    const auto cameraPositionLocal = glm::vec3(inverse(transform) * glm::vec4(this->camera->getPosition(), 1.0f));
-    shader->uploadUniformVec3("uCameraPositionLocal", cameraPositionLocal);
+    shader->uploadUniformVec3("uCameraPosition", this->camera->getPosition());
 
     vertexArray->bind();
     glDrawElements(GL_TRIANGLES, static_cast<int>(vertexArray->getIndexBuffer()->getCount()), GL_UNSIGNED_INT, nullptr);

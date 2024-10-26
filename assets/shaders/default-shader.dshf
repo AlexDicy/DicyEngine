@@ -4,6 +4,7 @@ layout (location = 0) out vec4 color;
 
 in vec3 vPosition;
 in vec3 vNormal;
+in vec3 vNormalWorld;
 in vec2 vTextureCoords;
 
 struct Material {
@@ -22,7 +23,7 @@ struct PointLight {
     float intensity;
 };
 
-uniform vec3 uCameraPositionLocal;
+uniform vec3 uCameraPosition;
 
 uniform Material uMaterial;
 uniform sampler2D uAlbedo;
@@ -109,7 +110,7 @@ void main() {
 
     // common calculations for all lights
     vec3 N = normalize(vNormal);
-    vec3 V = normalize(uCameraPositionLocal - vPosition);
+    vec3 V = normalize(uCameraPosition - vPosition);
     float NoV = saturate(dot(N, V));
     float roughness2 = clamp(roughness * roughness, 1e-3, 1.0);
     // F0 is calculated using the IOR (index of refraction), we approximate it to 0.04 for non-metals and use the albedo for metals

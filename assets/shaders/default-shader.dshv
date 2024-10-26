@@ -1,8 +1,8 @@
 ﻿#version 330 core
 
-layout(location = 0) in vec3 position;
-layout(location = 1) in vec3 normal;
-layout(location = 2) in vec2 textureCoords;
+layout (location = 0) in vec3 position;
+layout (location = 1) in vec3 normal;
+layout (location = 2) in vec2 textureCoords;
 
 uniform mat4 uViewProjection;
 uniform mat4 uTransform;
@@ -12,8 +12,9 @@ out vec3 vNormal;
 out vec2 vTextureCoords;
 
 void main() {
-    gl_Position = uViewProjection * uTransform * vec4(position, 1.0);
-    vPosition = position;
-    vNormal = normal;
+    vec4 worldPosition = vec4(uTransform * vec4(position, 1.0));
+    gl_Position = uViewProjection * worldPosition;
+    vPosition = worldPosition.xyz;
+    vNormal = (uTransform * vec4(normal, 0.0)).xyz;
     vTextureCoords = textureCoords;
 }
