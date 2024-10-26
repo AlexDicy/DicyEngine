@@ -144,7 +144,7 @@ void main() {
 
     vec3 indirectDiffuse = calculateIrradianceSphericalHarmonics(N) * albedo;
     vec3 R = reflect(-V, N);
-    vec3 prefilteredColor = texture(uPrefilteredEnvMap, R, roughness * (PREFILTERED_LEVELS - 1)).rgb;
+    vec3 prefilteredColor = textureLod(uPrefilteredEnvMap, R, roughness * (PREFILTERED_LEVELS - 1)).rgb;
     vec2 brdf = texture(uBRDFLUT, vec2(NoV, roughness)).rg;
     vec3 specularIBL = prefilteredColor * (kS * brdf.x + brdf.y);
     vec3 ambient = (kD * indirectDiffuse + specularIBL) * occlusion;
