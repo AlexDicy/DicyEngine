@@ -17,7 +17,6 @@ private:
 
     Ref<Scene> scene;
     Ref<Entity> cameraEntity;
-    std::vector<Ref<Entity>> sphereEntities;
     Ref<Shader> shader;
     Ref<SkyboxCube> skybox;
     Ref<DirectionalLight> directionalLight;

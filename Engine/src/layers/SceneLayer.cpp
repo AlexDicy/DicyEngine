@@ -73,7 +73,7 @@ SceneLayer::SceneLayer(const Ref<Application>& app) {
     this->addEntitiesForModels(renderer, "../assets/models/fountain.glb", {-4.0f, 0.2f, 4.0f});
     this->addEntitiesForModels(renderer, "../assets/models/wooden_stool/wooden_stool_02_1k.gltf", {0.0f, 0.0f, 3.0f}, Rotation(), glm::vec3(4.0f));
     this->addEntitiesForModels(renderer, "../assets/models/covered_car/covered_car_1k.gltf", {2.5f, 0.0f, 3.0f}, Rotation(0, -15, 0));
-    this->addEntitiesForModels(renderer, "../assets/models/picnic_table/wooden_picnic_table_1k.gltf", {0.0f, 0.0f, 6.0f}, Rotation(70, -85, 0));
+    this->addEntitiesForModels(renderer, "../assets/models/picnic_table/wooden_picnic_table_1k.gltf", {0.0f, 0.0f, 6.0f}, Rotation(4, -85, 0));
 
     {
         Model model = ModelImporter::importFromFile(renderer, "../assets/models/lamp.glb")[0];
@@ -99,7 +99,6 @@ SceneLayer::SceneLayer(const Ref<Application>& app) {
             entity->add<Mesh>(renderer, vertexDataFloats, sphereModel.vertices.size() * sizeof(VertexData), sphereModel.indexes.data(), sphereModel.indexes.size(), material,
                               sphereModel.transformationMatrix);
             entity->add<Transform>(glm::vec3(xPos, 4.0f, zPos), Rotation(), glm::vec3(0.4f));
-            this->sphereEntities.push_back(entity);
         }
     }
 
@@ -154,11 +153,6 @@ void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
     for (const auto& entity : scriptsView) {
         Script& script = scriptsView.get<Script>(entity);
         script.entityScript->onUpdate(ctx->deltaTime);
-    }
-
-
-    for (const Ref<Entity>& entity : this->sphereEntities) {
-        entity->get<Transform>().rotation.pitch += 40.0f * ctx->deltaTime;
     }
 }
 
