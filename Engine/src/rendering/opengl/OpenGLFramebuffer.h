@@ -16,8 +16,17 @@ public:
         return this->depthTextureId;
     }
 
+    uint32_t getFinalColorTextureId() const override {
+        return this->finalColorTextureId;
+    }
+
+    void updateFinalColorTexture() const override;
+
 private:
     uint32_t id;
     uint32_t colorTextureId;
     uint32_t depthTextureId;
+
+    uint32_t finalBufferId;
+    uint32_t finalColorTextureId;
 };

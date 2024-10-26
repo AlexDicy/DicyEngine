@@ -128,6 +128,7 @@ Ref<TextureCube> OpenGLRenderer::createPrefilteredCubemap(const Ref<TextureCube>
 
 
 void OpenGLRenderer::beginFrame() {
+    DE_PROFILE_FUNCTION();
     this->viewProjectionMatrix = this->camera->getViewProjectionMatrix(true);
     this->viewMatrix = this->camera->getViewMatrix();
     this->projectionMatrix = this->camera->getProjectionMatrix();
@@ -139,6 +140,8 @@ void OpenGLRenderer::beginFrame() {
 }
 
 void OpenGLRenderer::endFrame() const {
+    DE_PROFILE_FUNCTION();
+    this->framebuffer->updateFinalColorTexture();
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 

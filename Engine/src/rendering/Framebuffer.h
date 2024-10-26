@@ -17,8 +17,11 @@ public:
 
     virtual uint32_t getColorTextureId() const = 0;
     virtual uint32_t getDepthTextureId() const = 0;
+    virtual uint32_t getFinalColorTextureId() const = 0;
 
-private:
+    virtual void updateFinalColorTexture() const = 0;
+
+protected:
     uint32_t width;
     uint32_t height;
 };
