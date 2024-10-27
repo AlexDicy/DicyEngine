@@ -9,7 +9,7 @@ public:
 
     void init(int x, int y, uint32_t width, uint32_t height) override;
     void setViewport(int x, int y, uint32_t width, uint32_t height) override;
-    const Ref<Framebuffer>& getFramebuffer() const override;
+    const Ref<RenderFramebuffer>& getFramebuffer() const override;
 
     Ref<VertexArray> createVertexArray(const Ref<VertexBuffer>& vertexBuffer, const Ref<IndexBuffer>& indexBuffer) const override;
     Ref<VertexBuffer> createVertexBuffer(const float* vertices, uint32_t size) const override;
@@ -32,7 +32,7 @@ public:
     void drawSkybox(const Ref<SkyboxCube>& skybox) const override;
 
 private:
-    Ref<Framebuffer> framebuffer;
+    Ref<RenderFramebuffer> framebuffer;
     Ref<OpenGLTexture2D> whitePixelTexture;
     Ref<OpenGLTexture2D> defaultOcclusionRoughnessMetallicTexture;
 };

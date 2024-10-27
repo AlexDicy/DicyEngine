@@ -2,11 +2,12 @@
 #include "OpenGLRenderer.h"
 
 #include "OpenGLBuffer.h"
-#include "OpenGLFramebuffer.h"
 #include "OpenGLShader.h"
 #include "OpenGLTexture2D.h"
 #include "OpenGLTextureCube.h"
 #include "OpenGLVertexArray.h"
+#include "framebuffer/OpenGLDepthFramebuffer.h"
+#include "framebuffer/OpenGLRenderFramebuffer.h"
 
 #include <glad/gl.h>
 #include <glm/glm.hpp>
@@ -21,6 +22,7 @@ void OpenGLRenderer::init(const int x, const int y, const uint32_t width, const 
     unsigned char white[4] = {255, 255, 255, 255};
     this->whitePixelTexture = std::make_shared<OpenGLTexture2D>(1, 1, 1, 1, white);
     this->defaultOcclusionRoughnessMetallicTexture = std::make_shared<OpenGLTexture2D>(3, 1, 1, 1, std::array<unsigned char, 3>{255, 255, 0}.data());
+    this->shadowDepthFramebuffer = std::make_shared<OpenGLDepthFramebuffer>(2048, 2048);
 }
 
 void OpenGLRenderer::setViewport(const int x, const int y, const uint32_t width, const uint32_t height) {
@@ -28,10 +30,10 @@ void OpenGLRenderer::setViewport(const int x, const int y, const uint32_t width,
     if (this->camera) {
         this->camera->setAspectRatio(static_cast<float>(width) / static_cast<float>(height));
     }
-    this->framebuffer = std::make_shared<OpenGLFramebuffer>(width, height);
+    this->framebuffer = std::make_shared<OpenGLRenderFramebuffer>(width, height);
 }
 
-const Ref<Framebuffer>& OpenGLRenderer::getFramebuffer() const {
+const Ref<RenderFramebuffer>& OpenGLRenderer::getFramebuffer() const {
     return this->framebuffer;
 }
 

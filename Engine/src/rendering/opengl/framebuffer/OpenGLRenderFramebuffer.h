@@ -1,10 +1,10 @@
 ﻿#pragma once
-#include "rendering/Framebuffer.h"
+#include "rendering/framebuffer/RenderFramebuffer.h"
 
-class OpenGLFramebuffer : public Framebuffer {
+class OpenGLRenderFramebuffer : public RenderFramebuffer {
 public:
-    OpenGLFramebuffer(uint32_t width, uint32_t height);
-    ~OpenGLFramebuffer() override;
+    OpenGLRenderFramebuffer(uint32_t width, uint32_t height);
+    ~OpenGLRenderFramebuffer() override;
 
     void bind() const override;
 

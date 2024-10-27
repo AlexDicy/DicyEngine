@@ -1,10 +1,10 @@
 ﻿#include "pch/enginepch.h"
-#include "OpenGLFramebuffer.h"
+#include "OpenGLRenderFramebuffer.h"
 
 #include "glad/gl.h"
 
 
-OpenGLFramebuffer::OpenGLFramebuffer(const uint32_t width, const uint32_t height) : Framebuffer(width, height) {
+OpenGLRenderFramebuffer::OpenGLRenderFramebuffer(const uint32_t width, const uint32_t height) : RenderFramebuffer(width, height) {
     // color texture
     glGenTextures(1, &this->colorTextureId);
     glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, this->colorTextureId);
@@ -32,17 +32,17 @@ OpenGLFramebuffer::OpenGLFramebuffer(const uint32_t width, const uint32_t height
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-OpenGLFramebuffer::~OpenGLFramebuffer() {
+OpenGLRenderFramebuffer::~OpenGLRenderFramebuffer() {
     glDeleteFramebuffers(1, &this->id);
     glDeleteTextures(1, &this->colorTextureId);
     glDeleteTextures(1, &this->depthTextureId);
 }
 
-void OpenGLFramebuffer::bind() const {
+void OpenGLRenderFramebuffer::bind() const {
     glBindFramebuffer(GL_FRAMEBUFFER, this->id);
 }
 
-void OpenGLFramebuffer::updateFinalColorTexture() const {
+void OpenGLRenderFramebuffer::updateFinalColorTexture() const {
     glBindFramebuffer(GL_READ_FRAMEBUFFER, this->id);
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, this->finalBufferId);
     glBlitFramebuffer(0, 0, static_cast<int>(this->width), static_cast<int>(this->height), 0, 0, static_cast<int>(this->width), static_cast<int>(this->height), GL_COLOR_BUFFER_BIT, GL_NEAREST);

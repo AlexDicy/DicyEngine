@@ -1,9 +1,9 @@
 ﻿#pragma once
 
-class Framebuffer {
+class RenderFramebuffer {
 public:
-    Framebuffer(const uint32_t width, const uint32_t height) : width(width), height(height) {}
-    virtual ~Framebuffer() = default;
+    RenderFramebuffer(const uint32_t width, const uint32_t height) : width(width), height(height) {}
+    virtual ~RenderFramebuffer() = default;
 
     uint32_t getWidth() const {
         return this->width;

@@ -1,9 +1,10 @@
 ﻿#pragma once
-#include "Framebuffer.h"
 #include "camera/Camera.h"
 #include "VertexArray.h"
 #include "Shader.h"
 #include "Texture.h"
+#include "framebuffer/DepthFramebuffer.h"
+#include "framebuffer/RenderFramebuffer.h"
 #include "scene/components/PointLight.h"
 #include "scene/lights/DirectionalLight.h"
 #include "scene/materials/Material.h"
@@ -30,7 +31,7 @@ public:
 
     virtual void init(int x, int y, uint32_t width, uint32_t height) = 0;
     virtual void setViewport(int x, int y, uint32_t width, uint32_t height) = 0;
-    virtual const Ref<Framebuffer>& getFramebuffer() const = 0;
+    virtual const Ref<RenderFramebuffer>& getFramebuffer() const = 0;
 
     virtual Ref<VertexArray> createVertexArray(const Ref<VertexBuffer>& vertexBuffer, const Ref<IndexBuffer>& indexBuffer) const = 0;
     virtual Ref<VertexBuffer> createVertexBuffer(const float* vertices, uint32_t size) const = 0;
@@ -61,10 +62,14 @@ protected:
     glm::mat4 viewMatrix;
     glm::mat4 projectionMatrix;
 
+    // lighting
     std::array<glm::vec3, 9> irradianceSH = std::array<glm::vec3, 9>();
     Ref<TextureCube> prefilteredEnvMap;
     Ref<Texture2D> brdfLUT;
     std::vector<PointLight> pointLights = std::vector<PointLight>();
+
+    // shadow mapping
+    Ref<DepthFramebuffer> shadowDepthFramebuffer;
 
 private:
     RenderAPI api;
