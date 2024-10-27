@@ -36,6 +36,8 @@ OpenGLRenderFramebuffer::~OpenGLRenderFramebuffer() {
     glDeleteFramebuffers(1, &this->id);
     glDeleteTextures(1, &this->colorTextureId);
     glDeleteTextures(1, &this->depthTextureId);
+    glDeleteFramebuffers(1, &this->finalBufferId);
+    glDeleteTextures(1, &this->finalColorTextureId);
 }
 
 void OpenGLRenderFramebuffer::bind() const {
