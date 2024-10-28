@@ -31,6 +31,8 @@ cd scripting/
 ---
 ### Project screenshots (from recent to older)
 
+![image](https://github.com/user-attachments/assets/11dfd240-dd9e-4545-8fcd-52e2c72175ac)
+
 ![image](https://github.com/user-attachments/assets/53a4e6a4-7f3d-4e57-a72b-20dcdc79790c)
 
 ![image](https://github.com/user-attachments/assets/3ae0ce3c-48b8-4360-9f0e-f2bcdb324066)
