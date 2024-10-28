@@ -2,7 +2,7 @@
 #include "Application.h"
 
 #include "Context.h"
-#include "gui/ImGui_GUI.h"
+#include "gui/ImGuiGUI.h"
 #include "input/Input.h"
 #include "layers/SceneLayer.h"
 #include "rendering/Renderer.h"

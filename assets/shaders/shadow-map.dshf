@@ -1,0 +1,5 @@
+﻿#version 410 core
+
+void main() {
+    // no need to do anything here
+}

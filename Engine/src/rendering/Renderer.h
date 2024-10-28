@@ -32,6 +32,7 @@ public:
     virtual void init(int x, int y, uint32_t width, uint32_t height) = 0;
     virtual void setViewport(int x, int y, uint32_t width, uint32_t height) = 0;
     virtual const Ref<RenderFramebuffer>& getFramebuffer() const = 0;
+    const Ref<DepthFramebuffer>& getShadowDepthFramebuffer() const;
 
     virtual Ref<VertexArray> createVertexArray(const Ref<VertexBuffer>& vertexBuffer, const Ref<IndexBuffer>& indexBuffer) const = 0;
     virtual Ref<VertexBuffer> createVertexBuffer(const float* vertices, uint32_t size) const = 0;
@@ -45,14 +46,18 @@ public:
     virtual Ref<TextureCube> createPrefilteredCubemap(const Ref<TextureCube>& textureCube, const Ref<Shader>& convertShader, uint32_t size) = 0;
 
     virtual void beginFrame() = 0;
+    virtual void beginShadows() const = 0;
+    virtual void endShadows() const = 0;
     virtual void endFrame() const = 0;
     virtual void clean() const = 0;
 
     void setIrradianceSH(const std::array<glm::vec3, 9>& irradianceSh);
     void setPrefilteredEnvMap(const Ref<TextureCube>& prefilteredEnvMap);
     void setBRDFLUT(const Ref<Texture2D>& brdfLUT);
+    // needs to be called before each frame
     void setDirectionalLight(const Ref<DirectionalLight>& directionalLight);
     void addPointLight(const PointLight& pointLight);
+    void setShadowMapShader(const Ref<Shader>& shadowMapShader);
 
     virtual void draw(const Ref<VertexArray>& vertexArray, const glm::mat4& transform, const Ref<Shader>& shader) const = 0;
     virtual void draw(const Ref<VertexArray>& vertexArray, const glm::mat4& transform, const Ref<Shader>& shader, const Material& material) const = 0;
@@ -70,10 +75,12 @@ protected:
     Ref<TextureCube> prefilteredEnvMap;
     Ref<Texture2D> brdfLUT;
     Ref<DirectionalLight> directionalLight;
+    glm::mat4 directionalLightViewProjection;
     std::vector<PointLight> pointLights = std::vector<PointLight>();
 
     // shadow mapping
     Ref<DepthFramebuffer> shadowDepthFramebuffer;
+    Ref<Shader> shadowMapShader;
 
 private:
     RenderAPI api;

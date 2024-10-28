@@ -19,4 +19,5 @@ private:
     Ref<Entity> cameraEntity;
     Ref<Shader> shader;
     Ref<SkyboxCube> skybox;
+    Ref<DirectionalLight> directionalLight;
 };

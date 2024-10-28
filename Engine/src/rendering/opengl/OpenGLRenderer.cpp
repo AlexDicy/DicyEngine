@@ -141,6 +141,16 @@ void OpenGLRenderer::beginFrame() {
     glDepthFunc(GL_LESS); // changed by the skybox
 }
 
+void OpenGLRenderer::beginShadows() const {
+    this->shadowDepthFramebuffer->bind();
+    glClear(GL_DEPTH_BUFFER_BIT);
+}
+
+void OpenGLRenderer::endShadows() const {
+    DE_PROFILE_FUNCTION();
+    this->framebuffer->bind();
+}
+
 void OpenGLRenderer::endFrame() const {
     DE_PROFILE_FUNCTION();
     this->framebuffer->updateFinalColorTexture();
@@ -210,4 +220,12 @@ void OpenGLRenderer::drawSkybox(const Ref<SkyboxCube>& skybox) const {
     glDepthFunc(GL_LEQUAL);
     glDisable(GL_CULL_FACE);
     glDrawElements(GL_TRIANGLES, static_cast<int>(skybox->getVertexArray()->getIndexBuffer()->getCount()), GL_UNSIGNED_INT, nullptr);
+}
+
+void OpenGLRenderer::drawForShadows(const Ref<VertexArray>& vertexArray, const glm::mat4& transform) const {
+    this->shadowMapShader->bind();
+    this->shadowMapShader->uploadUniformMat4("uViewProjection", this->directionalLightViewProjection);
+    this->shadowMapShader->uploadUniformMat4("uTransform", transform);
+    vertexArray->bind();
+    glDrawElements(GL_TRIANGLES, static_cast<int>(vertexArray->getIndexBuffer()->getCount()), GL_UNSIGNED_INT, nullptr);
 }

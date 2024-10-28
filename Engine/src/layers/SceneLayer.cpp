@@ -29,6 +29,7 @@ SceneLayer::SceneLayer(const Ref<Application>& app) {
     this->cameraEntity->add<Script>(std::make_shared<CameraScript>(app, this->cameraEntity));
 
     this->shader = app->getShaderRegistry()->load("../assets/shaders/default-shader");
+    renderer->setShadowMapShader(app->getShaderRegistry()->load("../assets/shaders/shadow-map"));
     Ref<Shader> skyboxShader = app->getShaderRegistry()->load("../assets/shaders/skybox-shader");
     Ref<LinearImage> skyboxHDR = std::make_shared<LinearImage>("../assets/skybox/kloofendal_48d_partly_cloudy_puresky_8k.hdr");
     Ref<LinearImage> skyboxToneMapped = ImageUtils::acesFilmicTonemapping(skyboxHDR);
@@ -60,11 +61,10 @@ SceneLayer::SceneLayer(const Ref<Application>& app) {
     Ref<Texture2D> brdfLUT = renderer->createBRDFLUT(brdfLUTShader, 512);
     renderer->setBRDFLUT(brdfLUT);
 
-    auto directionalLight = std::make_shared<DirectionalLight>(Rotation(-70, 90, 0), 2.86f);
-    renderer->setDirectionalLight(directionalLight);
+    this->directionalLight = std::make_shared<DirectionalLight>(Rotation(-70, 90, 0), 2.86f);
     Ref<Entity> lightEntity = this->scene->createEntity();
     Ref<Entity> lightMeshEntity = this->scene->createEntity();
-    lightEntity->add<Script>(std::make_shared<LightScript>(app, lightEntity, directionalLight, lightMeshEntity));
+    lightEntity->add<Script>(std::make_shared<LightScript>(app, lightEntity, this->directionalLight, lightMeshEntity));
     lightEntity->add<Transform>();
 
     renderer->setCamera(this->scene->getCamera());
@@ -120,6 +120,8 @@ void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
     DE_PROFILE_FUNCTION();
     ctx->renderer->beginFrame();
 
+    ctx->renderer->setDirectionalLight(this->directionalLight);
+
     // add point lights to the renderer
     const auto pointLightsView = this->scene->getPointLights();
     for (const auto& entity : pointLightsView) {
@@ -127,8 +129,22 @@ void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
         ctx->renderer->addPointLight(light);
     }
 
-    // render meshes
+    ctx->renderer->beginShadows();
+    // render meshes for shadow mapping
     const auto meshesView = this->scene->getMeshes();
+    for (const auto& entity : meshesView) {
+        const Transform& transform = meshesView.get<Transform>(entity);
+        const Mesh& mesh = meshesView.get<Mesh>(entity);
+
+        const glm::mat4 translationMat = translate(glm::mat4(1.0f), transform.position);
+        const glm::mat4 rotationMat = toMat4(transform.rotation.toQuaternion());
+        const glm::mat4 scaleMat = scale(translationMat * rotationMat, transform.scale);
+        const glm::mat4 transformMat = scaleMat * mesh.transformationMatrix;
+        ctx->renderer->drawForShadows(mesh.vertexArray, transformMat);
+    }
+    ctx->renderer->endShadows();
+
+    // render meshes
     for (const auto& entity : meshesView) {
         const Transform& transform = meshesView.get<Transform>(entity);
         const Mesh& mesh = meshesView.get<Mesh>(entity);

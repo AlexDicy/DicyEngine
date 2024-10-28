@@ -18,6 +18,12 @@ public:
         return this->rotation;
     }
 
+    const glm::mat4& getViewProjectionMatrix() const {
+        const glm::mat4 projection = glm::ortho(-20.0f, 20.0f, -20.0f, 20.0f, 0.1f, 1000.0f);
+        const glm::mat4 view = glm::lookAt(-this->rotation.toDirection() * 20.0f, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        return projection * view;
+    }
+
 private:
     Rotation rotation = Rotation();
     float intensity = 1.0f;

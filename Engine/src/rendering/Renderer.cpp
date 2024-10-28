@@ -2,6 +2,10 @@
 #include "Renderer.h"
 
 
+const Ref<DepthFramebuffer>& Renderer::getShadowDepthFramebuffer() const {
+    return this->shadowDepthFramebuffer;
+}
+
 void Renderer::setIrradianceSH(const std::array<glm::vec3, 9>& irradianceSh) {
     this->irradianceSH = irradianceSh;
 }
@@ -16,8 +20,13 @@ void Renderer::setBRDFLUT(const Ref<Texture2D>& brdfLUT) {
 
 void Renderer::setDirectionalLight(const Ref<DirectionalLight>& directionalLight) {
     this->directionalLight = directionalLight;
+    this->directionalLightViewProjection = directionalLight->getViewProjectionMatrix();
 }
 
 void Renderer::addPointLight(const PointLight& pointLight) {
     this->pointLights.push_back(pointLight);
+}
+
+void Renderer::setShadowMapShader(const Ref<Shader>& shadowMapShader) {
+    this->shadowMapShader = shadowMapShader;
 }
