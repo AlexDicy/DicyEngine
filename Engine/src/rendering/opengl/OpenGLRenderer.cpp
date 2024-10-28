@@ -26,7 +26,6 @@ void OpenGLRenderer::init(const int x, const int y, const uint32_t width, const 
 }
 
 void OpenGLRenderer::setViewport(const int x, const int y, const uint32_t width, const uint32_t height) {
-    glViewport(x, y, static_cast<int>(width), static_cast<int>(height));
     if (this->camera) {
         this->camera->setAspectRatio(static_cast<float>(width) / static_cast<float>(height));
     }
@@ -143,12 +142,14 @@ void OpenGLRenderer::beginFrame() {
 
 void OpenGLRenderer::beginShadows() const {
     this->shadowDepthFramebuffer->bind();
+    glViewport(0, 0, this->shadowDepthFramebuffer->getWidth(), this->shadowDepthFramebuffer->getHeight());
     glClear(GL_DEPTH_BUFFER_BIT);
 }
 
 void OpenGLRenderer::endShadows() const {
     DE_PROFILE_FUNCTION();
     this->framebuffer->bind();
+    glViewport(0, 0, this->framebuffer->getWidth(), this->framebuffer->getHeight());
 }
 
 void OpenGLRenderer::endFrame() const {
@@ -171,6 +172,7 @@ void OpenGLRenderer::draw(const Ref<VertexArray>& vertexArray, const glm::mat4& 
     shader->bind();
     shader->uploadUniformMat4("uViewProjection", this->viewProjectionMatrix);
     shader->uploadUniformMat4("uTransform", transform);
+    shader->uploadUniformMat4("uDirectionalLightViewProjection", this->directionalLightViewProjection);
     // texture
     int textureSlot = 0;
     material.albedo->bind(textureSlot);
@@ -184,7 +186,9 @@ void OpenGLRenderer::draw(const Ref<VertexArray>& vertexArray, const glm::mat4& 
     this->prefilteredEnvMap->bind(textureSlot);
     shader->uploadUniformInt("uPrefilteredEnvMap", textureSlot++);
     this->brdfLUT->bind(textureSlot);
-    shader->uploadUniformInt("uBRDFLUT", textureSlot);
+    shader->uploadUniformInt("uBRDFLUT", textureSlot++);
+    this->shadowDepthFramebuffer->getDepthTexture()->bind(textureSlot);
+    shader->uploadUniformInt("uShadowMap", textureSlot);
     // irradiance spherical harmonics
     for (int i = 0; i < this->irradianceSH.size(); i++) {
         shader->uploadUniformVec3("uIrradianceSH[" + std::to_string(i) + "]", this->irradianceSH[i]);

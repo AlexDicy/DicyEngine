@@ -8,11 +8,11 @@ public:
 
     void bind() const override;
 
-    uint32_t getDepthTextureId() const override {
-        return this->depthTextureId;
+    const Ref<Texture2D>& getDepthTexture() const override {
+        return this->depthTexture;
     }
 
 private:
     uint32_t id;
-    uint32_t depthTextureId;
+    Ref<Texture2D> depthTexture;
 };
