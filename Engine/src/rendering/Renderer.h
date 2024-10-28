@@ -47,13 +47,16 @@ public:
     virtual void beginFrame() = 0;
     virtual void endFrame() const = 0;
     virtual void clean() const = 0;
+
     void setIrradianceSH(const std::array<glm::vec3, 9>& irradianceSh);
     void setPrefilteredEnvMap(const Ref<TextureCube>& prefilteredEnvMap);
     void setBRDFLUT(const Ref<Texture2D>& brdfLUT);
-    virtual void addPointLight(const PointLight& pointLight) = 0;
-    virtual void draw(const Ref<VertexArray>& vertexArray, const Ref<Shader>& shader, const glm::mat4& transform, const Ref<DirectionalLight>& directionalLight) const = 0;
-    virtual void draw(const Ref<VertexArray>& vertexArray, const Ref<Shader>& shader, const glm::mat4& transform, const Ref<DirectionalLight>& directionalLight,
-                      const Material& material) const = 0;
+    void setDirectionalLight(const Ref<DirectionalLight>& directionalLight);
+    void addPointLight(const PointLight& pointLight);
+
+    virtual void draw(const Ref<VertexArray>& vertexArray, const glm::mat4& transform, const Ref<Shader>& shader) const = 0;
+    virtual void draw(const Ref<VertexArray>& vertexArray, const glm::mat4& transform, const Ref<Shader>& shader, const Material& material) const = 0;
+    virtual void drawForShadows(const Ref<VertexArray>& vertexArray, const glm::mat4& transform) const = 0;
     virtual void drawSkybox(const Ref<SkyboxCube>& skybox) const = 0;
 
 protected:
@@ -66,6 +69,7 @@ protected:
     std::array<glm::vec3, 9> irradianceSH = std::array<glm::vec3, 9>();
     Ref<TextureCube> prefilteredEnvMap;
     Ref<Texture2D> brdfLUT;
+    Ref<DirectionalLight> directionalLight;
     std::vector<PointLight> pointLights = std::vector<PointLight>();
 
     // shadow mapping

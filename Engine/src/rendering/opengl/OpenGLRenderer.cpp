@@ -153,16 +153,11 @@ void OpenGLRenderer::clean() const {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void OpenGLRenderer::addPointLight(const PointLight& pointLight) {
-    this->pointLights.push_back(pointLight);
+void OpenGLRenderer::draw(const Ref<VertexArray>& vertexArray, const glm::mat4& transform, const Ref<Shader>& shader) const {
+    this->draw(vertexArray, transform, shader, Material(this->whitePixelTexture));
 }
 
-void OpenGLRenderer::draw(const Ref<VertexArray>& vertexArray, const Ref<Shader>& shader, const glm::mat4& transform, const Ref<DirectionalLight>& directionalLight) const {
-    this->draw(vertexArray, shader, transform, directionalLight, Material(this->whitePixelTexture));
-}
-
-void OpenGLRenderer::draw(const Ref<VertexArray>& vertexArray, const Ref<Shader>& shader, const glm::mat4& transform, const Ref<DirectionalLight>& directionalLight,
-                          const Material& material) const {
+void OpenGLRenderer::draw(const Ref<VertexArray>& vertexArray, const glm::mat4& transform, const Ref<Shader>& shader, const Material& material) const {
     shader->bind();
     shader->uploadUniformMat4("uViewProjection", this->viewProjectionMatrix);
     shader->uploadUniformMat4("uTransform", transform);
@@ -187,8 +182,8 @@ void OpenGLRenderer::draw(const Ref<VertexArray>& vertexArray, const Ref<Shader>
     // lights
     shader->uploadUniformInt("uMaterial.ignoreLighting", material.ignoreLighting);
     shader->uploadUniformVec3("uDirectionalLight.color", {1.0f, 1.0f, 1.0f});
-    shader->uploadUniformFloat("uDirectionalLight.intensity", directionalLight->getIntensity());
-    shader->uploadUniformVec3("uDirectionalLight.direction", directionalLight->getRotation().toDirection());
+    shader->uploadUniformFloat("uDirectionalLight.intensity", this->directionalLight->getIntensity());
+    shader->uploadUniformVec3("uDirectionalLight.direction", this->directionalLight->getRotation().toDirection());
     for (size_t i = 0; i < this->pointLights.size(); i++) {
         const PointLight& pointLight = this->pointLights[i];
         shader->uploadUniformVec3("uPointLights[" + std::to_string(i) + "].position", pointLight.position);

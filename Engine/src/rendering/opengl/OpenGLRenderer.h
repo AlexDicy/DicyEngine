@@ -25,11 +25,10 @@ public:
     void beginFrame() override;
     void endFrame() const override;
     void clean() const override;
-    void addPointLight(const PointLight& pointLight) override;
-    void draw(const Ref<VertexArray>& vertexArray, const Ref<Shader>& shader, const glm::mat4& transform, const Ref<DirectionalLight>& directionalLight) const override;
-    void draw(const Ref<VertexArray>& vertexArray, const Ref<Shader>& shader, const glm::mat4& transform, const Ref<DirectionalLight>& directionalLight,
-              const Material& material) const override;
+    void draw(const Ref<VertexArray>& vertexArray, const glm::mat4& transform, const Ref<Shader>& shader) const override;
+    void draw(const Ref<VertexArray>& vertexArray, const glm::mat4& transform, const Ref<Shader>& shader, const Material& material) const override;
     void drawSkybox(const Ref<SkyboxCube>& skybox) const override;
+    void drawForShadows(const Ref<VertexArray>& vertexArray, const glm::mat4& transform) const override {}
 
 private:
     Ref<RenderFramebuffer> framebuffer;

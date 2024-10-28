@@ -60,10 +60,11 @@ SceneLayer::SceneLayer(const Ref<Application>& app) {
     Ref<Texture2D> brdfLUT = renderer->createBRDFLUT(brdfLUTShader, 512);
     renderer->setBRDFLUT(brdfLUT);
 
-    this->directionalLight = std::make_shared<DirectionalLight>(Rotation(-70, 90, 0), 2.86f);
+    auto directionalLight = std::make_shared<DirectionalLight>(Rotation(-70, 90, 0), 2.86f);
+    renderer->setDirectionalLight(directionalLight);
     Ref<Entity> lightEntity = this->scene->createEntity();
     Ref<Entity> lightMeshEntity = this->scene->createEntity();
-    lightEntity->add<Script>(std::make_shared<LightScript>(app, lightEntity, this->directionalLight, lightMeshEntity));
+    lightEntity->add<Script>(std::make_shared<LightScript>(app, lightEntity, directionalLight, lightMeshEntity));
     lightEntity->add<Transform>();
 
     renderer->setCamera(this->scene->getCamera());
@@ -137,9 +138,9 @@ void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
         const glm::mat4 scaleMat = scale(translationMat * rotationMat, transform.scale);
         const glm::mat4 transformMat = scaleMat * mesh.transformationMatrix;
         if (mesh.material.albedo) {
-            ctx->renderer->draw(mesh.vertexArray, this->shader, transformMat, this->directionalLight, mesh.material);
+            ctx->renderer->draw(mesh.vertexArray, transformMat, this->shader, mesh.material);
         } else {
-            ctx->renderer->draw(mesh.vertexArray, this->shader, transformMat, this->directionalLight);
+            ctx->renderer->draw(mesh.vertexArray, transformMat, this->shader);
         }
     }
 
