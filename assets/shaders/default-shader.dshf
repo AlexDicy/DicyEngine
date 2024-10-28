@@ -104,10 +104,19 @@ void main() {
 // Shadows
 //
 float getShadowForMap(sampler2D shadowMap, vec4 lightSpacePosition) {
+    const float bias = 0.0005;
     vec3 lightSpaceCoords = (lightSpacePosition.xyz / lightSpacePosition.w) * 0.5 + 0.5;
     float shadowDepth = texture(shadowMap, lightSpaceCoords.xy).r + 0.0005;
-    float shadow = lightSpaceCoords.z > shadowDepth ? 1.0 : 0.0;
-    return shadow;
+
+    float shadow = 0.0;
+    vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
+    for (int x = -1; x <= 1; x++) {
+        for (int y = -1; y <= 1; y++) {
+            float pcfDepth = texture(shadowMap, lightSpaceCoords.xy + vec2(x, y) * texelSize).r + bias;
+            shadow += lightSpaceCoords.z > pcfDepth ? 1.0 : 0.0;
+        }
+    }
+    return shadow / 9.0;
 }
 
 //
