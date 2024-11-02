@@ -19,7 +19,7 @@ jobs:
     - uses: actions/checkout@v4
       with:
         submodules: true
-    - name: Configure xmake build
-      run: xmake config -m ${{matrix.build-configuration}}
+    - name: Configure xmake build and install dependencies
+      run: xmake config -m ${{matrix.build-configuration}} -y
     - name: Build
-      run: xmake build -y
+      run: xmake build
