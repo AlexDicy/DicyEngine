@@ -1,0 +1,25 @@
+name: Build Windows
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+
+    runs-on: [self-hosted, Windows]
+    strategy:
+      fail-fast: false
+      matrix:
+        build-configuration: [debug, release]
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: true
+    - name: Configure xmake build
+      run: xmake config -m ${{matrix.build-configuration}}
+    - name: Build
+      run: xmake build -y
