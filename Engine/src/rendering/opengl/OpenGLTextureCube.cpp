@@ -5,7 +5,7 @@
 #include <stb_image.h>
 
 
-OpenGLTextureCube::OpenGLTextureCube(const std::array<std::string, 6>& paths) : paths(paths) {
+OpenGLTextureCube::OpenGLTextureCube(const std::array<std::string, 6>& paths) : TextureCube(0), paths(paths) {
     glGenTextures(1, &this->id);
     glBindTexture(GL_TEXTURE_CUBE_MAP, this->id);
 
@@ -32,7 +32,7 @@ OpenGLTextureCube::OpenGLTextureCube(const std::array<std::string, 6>& paths) : 
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 }
 
-OpenGLTextureCube::OpenGLTextureCube(const uint32_t id, const uint32_t size) : id(id), size(size) {}
+OpenGLTextureCube::OpenGLTextureCube(const uint32_t id, const uint32_t size) : TextureCube(size), id(id) {}
 
 OpenGLTextureCube::~OpenGLTextureCube() {
     glDeleteTextures(1, &this->id);
@@ -74,17 +74,9 @@ void createCubeMap(uint32_t& cubeMapId, const uint32_t size, const bool hasMipma
 
 void renderToCubemap(const Ref<Renderer>& renderer, const Ref<Shader>& convertShader, const Ref<Texture>& texture, const uint32_t cubeMapId, const int mipLevel = 0) {
     const auto projection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
-    const glm::mat4 viewMatrices[] = {
-        lookAt(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)), // right
-        lookAt(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f)), // left
-        lookAt(glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f)), // top
-        lookAt(glm::vec3(0.0f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(-1.0f, 0.0f, 0.0f)), // bottom
-        lookAt(glm::vec3(0.0f), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)), // front
-        lookAt(glm::vec3(0.0f), glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)), // back
-    };
     const SkyboxCube cube(renderer, convertShader, texture);
     for (unsigned int i = 0; i < 6; i++) {
-        convertShader->uploadUniformMat4("uViewProjection", projection * viewMatrices[i]);
+        convertShader->uploadUniformMat4("uViewProjection", projection * TextureCube::viewMatrices[i]);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, cubeMapId, mipLevel);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         cube.getVertexArray()->bind();

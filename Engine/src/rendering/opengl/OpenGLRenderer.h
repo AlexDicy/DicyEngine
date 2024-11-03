@@ -23,15 +23,18 @@ public:
     Ref<TextureCube> createPrefilteredCubemap(const Ref<TextureCube>& textureCube, const Ref<Shader>& convertShader, uint32_t size) override;
 
     void beginFrame() override;
-    void beginShadows() const override;
+    void beginDirectionalShadows() const override;
+    void beginPointLightShadows() const override;
+    void beginPointLightShadow(const PointLight& light, int lightIndex, int faceIndex) const override;
     void endShadows() const override;
     void endFrame() const override;
     void clean() const override;
 
     void draw(const Ref<VertexArray>& vertexArray, const glm::mat4& transform, const Ref<Shader>& shader) const override;
     void draw(const Ref<VertexArray>& vertexArray, const glm::mat4& transform, const Ref<Shader>& shader, const Material& material) const override;
+    void drawForDirectionalShadows(const Ref<VertexArray>& vertexArray, const glm::mat4& transform) const override;
+    void drawForPointLightShadows(const Ref<VertexArray>& vertexArray, const glm::mat4& transform) const override;
     void drawSkybox(const Ref<SkyboxCube>& skybox) const override;
-    void drawForShadows(const Ref<VertexArray>& vertexArray, const glm::mat4& transform) const override;
 
 private:
     Ref<RenderFramebuffer> framebuffer;

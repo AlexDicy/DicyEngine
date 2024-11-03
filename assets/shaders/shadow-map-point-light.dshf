@@ -1,0 +1,12 @@
+﻿#version 410 core
+
+layout (location = 0) out float distance;
+
+in vec3 vPosition;
+
+uniform vec3 uLightPosition;
+
+void main() {
+    vec3 lightToPosition = vPosition - uLightPosition;
+    distance = length(lightToPosition);
+}

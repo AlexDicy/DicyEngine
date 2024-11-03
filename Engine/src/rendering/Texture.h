@@ -5,18 +5,58 @@ class Texture {
 public:
     virtual ~Texture() = default;
 
-    virtual void bind(uint32_t) const = 0;
-
-    virtual uint32_t getWidth() const = 0;
-    virtual uint32_t getHeight() const = 0;
+    virtual void bind(unsigned int) const = 0;
 };
+
 
 class Texture2D : public Texture {
+public:
+    Texture2D(const unsigned int width, const unsigned int height) : width(width), height(height) {}
+
+    unsigned int getWidth() const {
+        return this->width;
+    }
+
+    unsigned int getHeight() const {
+        return this->height;
+    }
+
+protected:
+    unsigned int width;
+    unsigned int height;
 };
+
 
 class TextureCube : public Texture {
 public:
-    virtual uint32_t getSize() const = 0;
+    explicit TextureCube(const unsigned int size) : size(size) {}
+
+    unsigned int getSize() const {
+        return this->size;
+    }
 
     virtual Ref<CubeMap> toCubemap() const = 0;
+
+    static const glm::mat4 viewMatrices[6];
+
+protected:
+    unsigned int size;
+};
+
+
+class TextureCubeArray : public Texture {
+public:
+    TextureCubeArray(const unsigned int size, const unsigned int layersCount) : size(size), layersCount(layersCount) {}
+
+    unsigned int getSize() const {
+        return this->size;
+    }
+
+    unsigned int getLayersCount() const {
+        return this->layersCount;
+    }
+
+protected:
+    unsigned int size;
+    unsigned int layersCount;
 };

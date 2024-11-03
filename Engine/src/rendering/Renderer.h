@@ -5,6 +5,7 @@
 #include "Texture.h"
 #include "framebuffer/DepthFramebuffer.h"
 #include "framebuffer/RenderFramebuffer.h"
+#include "framebuffer/ShadowCubeArrayFramebuffer.h"
 #include "scene/components/PointLight.h"
 #include "scene/lights/DirectionalLight.h"
 #include "scene/materials/Material.h"
@@ -46,7 +47,9 @@ public:
     virtual Ref<TextureCube> createPrefilteredCubemap(const Ref<TextureCube>& textureCube, const Ref<Shader>& convertShader, uint32_t size) = 0;
 
     virtual void beginFrame() = 0;
-    virtual void beginShadows() const = 0;
+    virtual void beginDirectionalShadows() const = 0;
+    virtual void beginPointLightShadows() const = 0;
+    virtual void beginPointLightShadow(const PointLight& light, int lightIndex, int faceIndex) const = 0;
     virtual void endShadows() const = 0;
     virtual void endFrame() const = 0;
     virtual void clean() const = 0;
@@ -57,11 +60,13 @@ public:
     // needs to be called before each frame
     void setDirectionalLight(const Ref<DirectionalLight>& directionalLight);
     void addPointLight(const PointLight& pointLight);
-    void setShadowMapShader(const Ref<Shader>& shadowMapShader);
+    void setDirectionalShadowMapShader(const Ref<Shader>& shadowMapShader);
+    void setPointLightShadowMapShader(const Ref<Shader>& shader);
 
     virtual void draw(const Ref<VertexArray>& vertexArray, const glm::mat4& transform, const Ref<Shader>& shader) const = 0;
     virtual void draw(const Ref<VertexArray>& vertexArray, const glm::mat4& transform, const Ref<Shader>& shader, const Material& material) const = 0;
-    virtual void drawForShadows(const Ref<VertexArray>& vertexArray, const glm::mat4& transform) const = 0;
+    virtual void drawForDirectionalShadows(const Ref<VertexArray>& vertexArray, const glm::mat4& transform) const = 0;
+    virtual void drawForPointLightShadows(const Ref<VertexArray>& vertexArray, const glm::mat4& transform) const = 0;
     virtual void drawSkybox(const Ref<SkyboxCube>& skybox) const = 0;
 
 protected:
@@ -81,6 +86,8 @@ protected:
     // shadow mapping
     Ref<DepthFramebuffer> shadowDepthFramebuffer;
     Ref<Shader> shadowMapShader;
+    Ref<ShadowCubeArrayFramebuffer> shadowCubeArrayFramebuffer;
+    Ref<Shader> shadowCubeArrayShader;
 
 private:
     RenderAPI api;

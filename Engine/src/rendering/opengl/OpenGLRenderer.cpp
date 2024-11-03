@@ -8,6 +8,7 @@
 #include "OpenGLVertexArray.h"
 #include "framebuffer/OpenGLDepthFramebuffer.h"
 #include "framebuffer/OpenGLRenderFramebuffer.h"
+#include "framebuffer/OpenGLShadowCubeArrayFramebuffer.h"
 
 #include <glad/gl.h>
 #include <glm/glm.hpp>
@@ -23,6 +24,7 @@ void OpenGLRenderer::init(const int x, const int y, const uint32_t width, const 
     this->whitePixelTexture = std::make_shared<OpenGLTexture2D>(1, 1, 1, 1, white);
     this->defaultOcclusionRoughnessMetallicTexture = std::make_shared<OpenGLTexture2D>(3, 1, 1, 1, std::array<unsigned char, 3>{255, 255, 0}.data());
     this->shadowDepthFramebuffer = std::make_shared<OpenGLDepthFramebuffer>(2048, 2048);
+    this->shadowCubeArrayFramebuffer = std::make_shared<OpenGLShadowCubeArrayFramebuffer>(1024, 10); // TODO: do not hardcode
 }
 
 void OpenGLRenderer::setViewport(const int x, const int y, const uint32_t width, const uint32_t height) {
@@ -140,26 +142,42 @@ void OpenGLRenderer::beginFrame() {
     glDepthFunc(GL_LESS); // changed by the skybox
 }
 
-void OpenGLRenderer::beginShadows() const {
+void OpenGLRenderer::beginDirectionalShadows() const {
     this->shadowDepthFramebuffer->bind();
     glViewport(0, 0, this->shadowDepthFramebuffer->getWidth(), this->shadowDepthFramebuffer->getHeight());
     glClear(GL_DEPTH_BUFFER_BIT);
 }
 
+void OpenGLRenderer::beginPointLightShadows() const {
+    glDisable(GL_BLEND);
+}
+
+void OpenGLRenderer::beginPointLightShadow(const PointLight& light, const int lightIndex, const int faceIndex) const {
+    this->shadowCubeArrayShader->bind();
+    this->shadowCubeArrayFramebuffer->bind(lightIndex, faceIndex);
+    glViewport(0, 0, this->shadowCubeArrayFramebuffer->getSize(), this->shadowCubeArrayFramebuffer->getSize());
+    // glClearColor(FLT_MAX, FLT_MAX, FLT_MAX, FLT_MAX);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    const glm::mat4 faceView = TextureCube::viewMatrices[faceIndex];
+    const glm::mat4 projection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, light.farPlane);
+    const glm::mat4 viewProjection = projection * glm::translate(faceView, -light.position);
+    this->shadowCubeArrayShader->uploadUniformMat4("uViewProjection", viewProjection);
+    this->shadowCubeArrayShader->uploadUniformVec3("uLightPosition", light.position);
+}
+
 void OpenGLRenderer::endShadows() const {
-    DE_PROFILE_FUNCTION();
+    glEnable(GL_BLEND);
     this->framebuffer->bind();
     glViewport(0, 0, this->framebuffer->getWidth(), this->framebuffer->getHeight());
 }
 
 void OpenGLRenderer::endFrame() const {
-    DE_PROFILE_FUNCTION();
     this->framebuffer->updateFinalColorTexture();
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void OpenGLRenderer::clean() const {
-    DE_PROFILE_FUNCTION();
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
@@ -188,7 +206,9 @@ void OpenGLRenderer::draw(const Ref<VertexArray>& vertexArray, const glm::mat4& 
     this->brdfLUT->bind(textureSlot);
     shader->uploadUniformInt("uBRDFLUT", textureSlot++);
     this->shadowDepthFramebuffer->getDepthTexture()->bind(textureSlot);
-    shader->uploadUniformInt("uShadowMap", textureSlot);
+    shader->uploadUniformInt("uDirectionalShadowMap", textureSlot++);
+    this->shadowCubeArrayFramebuffer->getShadowCubeArrayTexture()->bind(textureSlot);
+    shader->uploadUniformInt("uShadowCubeArray", textureSlot);
     // irradiance spherical harmonics
     for (int i = 0; i < this->irradianceSH.size(); i++) {
         shader->uploadUniformVec3("uIrradianceSH[" + std::to_string(i) + "]", this->irradianceSH[i]);
@@ -203,6 +223,7 @@ void OpenGLRenderer::draw(const Ref<VertexArray>& vertexArray, const glm::mat4& 
         shader->uploadUniformVec3("uPointLights[" + std::to_string(i) + "].position", pointLight.position);
         shader->uploadUniformVec3("uPointLights[" + std::to_string(i) + "].color", pointLight.color);
         shader->uploadUniformFloat("uPointLights[" + std::to_string(i) + "].intensity", pointLight.intensity);
+        shader->uploadUniformFloat("uPointLights[" + std::to_string(i) + "].farPlane", pointLight.farPlane);
     }
     shader->uploadUniformInt("uPointLightsCount", static_cast<int>(this->pointLights.size()));
     // camera position
@@ -226,10 +247,17 @@ void OpenGLRenderer::drawSkybox(const Ref<SkyboxCube>& skybox) const {
     glDrawElements(GL_TRIANGLES, static_cast<int>(skybox->getVertexArray()->getIndexBuffer()->getCount()), GL_UNSIGNED_INT, nullptr);
 }
 
-void OpenGLRenderer::drawForShadows(const Ref<VertexArray>& vertexArray, const glm::mat4& transform) const {
+void OpenGLRenderer::drawForDirectionalShadows(const Ref<VertexArray>& vertexArray, const glm::mat4& transform) const {
     this->shadowMapShader->bind();
     this->shadowMapShader->uploadUniformMat4("uViewProjection", this->directionalLightViewProjection);
     this->shadowMapShader->uploadUniformMat4("uTransform", transform);
+    vertexArray->bind();
+    glDrawElements(GL_TRIANGLES, static_cast<int>(vertexArray->getIndexBuffer()->getCount()), GL_UNSIGNED_INT, nullptr);
+}
+
+void OpenGLRenderer::drawForPointLightShadows(const Ref<VertexArray>& vertexArray, const glm::mat4& transform) const {
+    // the shader is already initialized in beginPointLightShadow(s)
+    this->shadowCubeArrayShader->uploadUniformMat4("uTransform", transform);
     vertexArray->bind();
     glDrawElements(GL_TRIANGLES, static_cast<int>(vertexArray->getIndexBuffer()->getCount()), GL_UNSIGNED_INT, nullptr);
 }
