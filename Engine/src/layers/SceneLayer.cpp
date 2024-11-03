@@ -29,7 +29,8 @@ SceneLayer::SceneLayer(const Ref<Application>& app) {
     this->cameraEntity->add<Script>(std::make_shared<CameraScript>(app, this->cameraEntity));
 
     this->shader = app->getShaderRegistry()->load("../assets/shaders/default-shader");
-    renderer->setShadowMapShader(app->getShaderRegistry()->load("../assets/shaders/shadow-map"));
+    renderer->setDirectionalShadowMapShader(app->getShaderRegistry()->load("../assets/shaders/shadow-map-directional"));
+    renderer->setPointLightShadowMapShader(app->getShaderRegistry()->load("../assets/shaders/shadow-map-point-light"));
     Ref<Shader> skyboxShader = app->getShaderRegistry()->load("../assets/shaders/skybox-shader");
     Ref<LinearImage> skyboxHDR = std::make_shared<LinearImage>("../assets/skybox/kloofendal_48d_partly_cloudy_puresky_8k.hdr");
     Ref<LinearImage> skyboxToneMapped = ImageUtils::acesFilmicTonemapping(skyboxHDR);
@@ -105,7 +106,7 @@ SceneLayer::SceneLayer(const Ref<Application>& app) {
     // point lights
     for (glm::vec3 positions[] = {{1.0f, 1.0f, 1.0f}, {4.0f, 4.2f, 2.0f}}; const glm::vec3& position : positions) {
         Ref<Entity> pointLightEntity = this->scene->createEntity();
-        pointLightEntity->add<PointLight>(position, glm::vec3(0.2f, 0.2f, 1.0f), 10.0f);
+        pointLightEntity->add<PointLight>(position, glm::vec3(0.1f, 0.1f, 1.0f), 10.0f);
         pointLightEntity->add<Transform>(position, Rotation(), glm::vec3(0.1f));
         const VertexData* vertexData = sphereModel.vertices.data();
         auto vertexDataFloats = reinterpret_cast<const float*>(vertexData);
@@ -129,18 +130,29 @@ void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
         ctx->renderer->addPointLight(light);
     }
 
-    ctx->renderer->beginShadows();
     // render meshes for shadow mapping
+    ctx->renderer->beginDirectionalShadows();
     const auto meshesView = this->scene->getMeshes();
     for (const auto& entity : meshesView) {
         const Transform& transform = meshesView.get<Transform>(entity);
         const Mesh& mesh = meshesView.get<Mesh>(entity);
 
-        const glm::mat4 translationMat = translate(glm::mat4(1.0f), transform.position);
-        const glm::mat4 rotationMat = toMat4(transform.rotation.toQuaternion());
-        const glm::mat4 scaleMat = scale(translationMat * rotationMat, transform.scale);
-        const glm::mat4 transformMat = scaleMat * mesh.transformationMatrix;
-        ctx->renderer->drawForShadows(mesh.vertexArray, transformMat);
+        ctx->renderer->drawForDirectionalShadows(mesh.vertexArray, transform.getAsMatrix() * mesh.transformationMatrix);
+    }
+
+    // render meshes for point lights shadow mapping
+    ctx->renderer->beginPointLightShadows();
+    for (const auto& lightEntity : pointLightsView) {
+        PointLight& light = pointLightsView.get<PointLight>(lightEntity);
+        for (int i = 0; i < 6; i++) {
+            ctx->renderer->beginPointLightShadow(i, light, i);
+            for (const auto& entity : meshesView) {
+                const Transform& transform = meshesView.get<Transform>(entity);
+                const Mesh& mesh = meshesView.get<Mesh>(entity);
+
+                ctx->renderer->drawForPointLightShadows(mesh.vertexArray, transform.getAsMatrix() * mesh.transformationMatrix);
+            }
+        }
     }
     ctx->renderer->endShadows();
 
@@ -149,10 +161,7 @@ void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
         const Transform& transform = meshesView.get<Transform>(entity);
         const Mesh& mesh = meshesView.get<Mesh>(entity);
 
-        const glm::mat4 translationMat = translate(glm::mat4(1.0f), transform.position);
-        const glm::mat4 rotationMat = toMat4(transform.rotation.toQuaternion());
-        const glm::mat4 scaleMat = scale(translationMat * rotationMat, transform.scale);
-        const glm::mat4 transformMat = scaleMat * mesh.transformationMatrix;
+        const glm::mat4 transformMat = transform.getAsMatrix() * mesh.transformationMatrix;
         if (mesh.material.albedo) {
             ctx->renderer->draw(mesh.vertexArray, transformMat, this->shader, mesh.material);
         } else {

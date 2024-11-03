@@ -1,4 +1,4 @@
-﻿#version 330 core
+﻿#version 410 core
 
 layout (location = 0) out vec4 color;
 
@@ -22,22 +22,25 @@ struct PointLight {
     vec3 position;
     vec3 color;
     float intensity;
+    float farPlane;
 };
 
 uniform vec3 uCameraPosition;
-
+// material
 uniform Material uMaterial;
 uniform sampler2D uAlbedo;
 uniform sampler2D uOcclusionRoughnessMetallic;
-
+// environment
 uniform vec3 uIrradianceSH[9];
 uniform samplerCube uPrefilteredEnvMap;
 uniform sampler2D uBRDFLUT;
-uniform sampler2D uShadowMap;
-
+// directional light
 uniform DirectionalLight uDirectionalLight;
+uniform sampler2D uDirectionalShadowMap;
+// point lights
 uniform PointLight uPointLights[10];
 uniform int uPointLightsCount;
+uniform samplerCubeArray uPointShadowMaps;
 
 #define PI 3.14159265359
 #define PREFILTERED_LEVELS 5
@@ -45,12 +48,13 @@ uniform int uPointLightsCount;
 #define saturate(x) clamp(x, 0.0, 1.0)
 
 
-float getShadowForMap(sampler2D shadowMap, vec4 lightSpacePosition);
+float getShadow2D(sampler2D shadowMap, vec4 lightSpacePosition);
+float getShadowCubeArray(samplerCubeArray shadowMap, PointLight light, float lightIndex);
 float distributionGGX(float NoH, float roughness2);
 float geometrySchlickGGX(float NoV, float roughness);
 vec3 fresnelSchlick(float VoH, vec3 F0);
 vec3 fresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness);
-vec3 calculatePointLights(vec3 N, vec3 V, float NoV, vec3 albedo, float metallic, float roughness2, vec3 F0);
+vec3 calculatePointLightsWithShadow(vec3 N, vec3 V, float NoV, vec3 albedo, float metallic, float roughness2, vec3 F0);
 vec3 calculateAmbientLight(vec3 N, vec3 V, float NoV, vec3 albedo, float metallic, float occlusion, float roughness, vec3 F0);
 vec3 calculateLight(float NoV, float NoL, float NoH, float VoH, vec3 albedo, float metallic, float roughness2, vec3 F0, vec3 radiance);
 vec3 calculateIrradianceSphericalHarmonics(const vec3 normal);
@@ -68,7 +72,6 @@ void main() {
     float roughness = occlusionRoughnessMetallic.g;
     float metallic = occlusionRoughnessMetallic.b;
 
-    float shadow = 1.0 - getShadowForMap(uShadowMap, vDirectionalLightSpacePosition);
 
     // common calculations for all lights
     vec3 N = normalize(vNormal);
@@ -84,14 +87,17 @@ void main() {
     float NoL = saturate(dot(N, L));
     float NoH = saturate(dot(N, H));
     float VoH = saturate(dot(V, H));
+    float shadow = 1.0 - getShadow2D(uDirectionalShadowMap, vDirectionalLightSpacePosition);
     vec3 directionalLight = calculateLight(NoV, NoL, NoH, VoH, albedo, metallic, roughness2, F0, uDirectionalLight.color * uDirectionalLight.intensity);
-    vec3 totalLight = directionalLight * shadow;
+    //    vec3 totalLight = directionalLight * shadow;
+    vec3 totalLight = vec3(0.0);
 
     // point lights
-    totalLight += calculatePointLights(N, V, NoV, albedo, metallic, roughness2, F0);
+    totalLight += calculatePointLightsWithShadow(N, V, NoV, albedo, metallic, roughness2, F0);
 
     // ambient light
-    vec3 ambient = calculateAmbientLight(N, V, NoV, albedo, metallic, occlusion, roughness, F0);
+    //    vec3 ambient = calculateAmbientLight(N, V, NoV, albedo, metallic, occlusion, roughness, F0);
+    vec3 ambient = vec3(0.0);
 
     vec3 finalColor = ambient + totalLight;
 
@@ -103,7 +109,7 @@ void main() {
 //
 // Shadows
 //
-float getShadowForMap(sampler2D shadowMap, vec4 lightSpacePosition) {
+float getShadow2D(sampler2D shadowMap, vec4 lightSpacePosition) {
     const float bias = 0.0005;
     vec3 lightSpaceCoords = (lightSpacePosition.xyz / lightSpacePosition.w) * 0.5 + 0.5;
     float shadowDepth = texture(shadowMap, lightSpaceCoords.xy).r + 0.0005;
@@ -119,10 +125,32 @@ float getShadowForMap(sampler2D shadowMap, vec4 lightSpacePosition) {
     return shadow / 9.0;
 }
 
+float getShadowCubeArray(samplerCubeArray shadowMap, PointLight light, float lightIndex) {
+    vec3 lightDirection = vPosition - light.position;
+    float depth = length(lightDirection);
+
+    const float bias = 0.0005;
+    float shadow = 0.0;
+    float samples = 4.0;
+    float offset = 0.1;
+    for (float x = -offset; x < offset; x += offset / (samples * 0.5)) {
+        for (float y = -offset; y < offset; y += offset / (samples * 0.5)) {
+            for (float z = -offset; z < offset; z += offset / (samples * 0.5)) {
+                float shadowDepth = texture(shadowMap, vec4(lightDirection + vec3(x, y, z), lightIndex)).r;
+                shadowDepth *= light.farPlane; // map from [0, 1] to [0, farPlane]
+                if (depth - bias > shadowDepth) {
+                    shadow += 1.0;
+                }
+            }
+        }
+    }
+    return shadow / (samples * samples * samples);
+}
+
 //
 // Lights
 //
-vec3 calculatePointLights(vec3 N, vec3 V, float NoV, vec3 albedo, float metallic, float roughness2, vec3 F0) {
+vec3 calculatePointLightsWithShadow(vec3 N, vec3 V, float NoV, vec3 albedo, float metallic, float roughness2, vec3 F0) {
     vec3 totalLight = vec3(0.0);
     for (int i = 0; i < uPointLightsCount; i++) {
         vec3 L = normalize(uPointLights[i].position - vPosition);
@@ -133,7 +161,8 @@ vec3 calculatePointLights(vec3 N, vec3 V, float NoV, vec3 albedo, float metallic
         float distance = length(uPointLights[i].position - vPosition);
         float attenuation = 1.0 / (distance * distance);
         vec3 radiance = uPointLights[i].color * uPointLights[i].intensity * attenuation;
-        totalLight += calculateLight(NoV, NoL, NoH, VoH, albedo, metallic, roughness2, F0, radiance);
+        float shadow = 1.0 - getShadowCubeArray(uPointShadowMaps, uPointLights[i], float(i));
+        totalLight += calculateLight(NoV, NoL, NoH, VoH, albedo, metallic, roughness2, F0, radiance) * shadow;
     }
     return totalLight;
 }

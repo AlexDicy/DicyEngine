@@ -10,18 +10,6 @@ public:
 
     void bind(uint32_t) const override;
 
-    uint32_t getWidth() const override {
-        return 0;
-    }
-
-    uint32_t getHeight() const override {
-        return 0;
-    }
-
-    uint32_t getSize() const override {
-        return this->size;
-    }
-
     Ref<CubeMap> toCubemap() const override;
 
     static Ref<TextureCube> createFromHDR(const Ref<Renderer>& renderer, const Ref<Texture2D>& hdrTexture, const Ref<Shader>& convertShader, uint32_t size);
@@ -30,5 +18,4 @@ public:
 private:
     std::array<std::string, 6> paths;
     uint32_t id;
-    uint32_t size;
 };

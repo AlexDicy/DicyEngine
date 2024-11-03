@@ -27,6 +27,10 @@ void Renderer::addPointLight(const PointLight& pointLight) {
     this->pointLights.push_back(pointLight);
 }
 
-void Renderer::setShadowMapShader(const Ref<Shader>& shadowMapShader) {
+void Renderer::setDirectionalShadowMapShader(const Ref<Shader>& shadowMapShader) {
     this->shadowMapShader = shadowMapShader;
+}
+
+void Renderer::setPointLightShadowMapShader(const Ref<Shader>& shader) {
+    this->shadowCubeArrayShader = shader;
 }

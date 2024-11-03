@@ -4,7 +4,7 @@
 #include <glad/gl.h>
 #include <stb_image.h>
 
-OpenGLTexture2D::OpenGLTexture2D(const std::string& path) : path(path) {
+OpenGLTexture2D::OpenGLTexture2D(const std::string& path) : Texture2D(0, 0), path(path) {
     const bool isHDR = path.ends_with(".hdr");
     int width;
     int height;
@@ -31,11 +31,12 @@ OpenGLTexture2D::OpenGLTexture2D(const std::string& path) : path(path) {
     stbi_image_free(texture);
 }
 
-OpenGLTexture2D::OpenGLTexture2D(const unsigned int channels, const unsigned int width, const unsigned int height, const unsigned int bytesPerPixel, const void* data) {
+OpenGLTexture2D::OpenGLTexture2D(const unsigned int channels, const unsigned int width, const unsigned int height, const unsigned int bytesPerPixel, const void* data) :
+    Texture2D(width, height) {
     this->createTextureWithData(channels, width, height, data, bytesPerPixel == sizeof(float) * channels);
 }
 
-OpenGLTexture2D::OpenGLTexture2D(const unsigned int id, const unsigned int width, const unsigned int height) : id(id), width(width), height(height) {}
+OpenGLTexture2D::OpenGLTexture2D(const unsigned int id, const unsigned int width, const unsigned int height) : Texture2D(width, height), id(id) {}
 
 OpenGLTexture2D::~OpenGLTexture2D() {
     glDeleteTextures(1, &this->id);
@@ -51,7 +52,7 @@ void OpenGLTexture2D::bind(const uint32_t slot) const {
 #endif
 }
 
-void OpenGLTexture2D::createTextureWithData(unsigned int channels, unsigned int width, unsigned int height, const void* data, const bool isHDR) {
+void OpenGLTexture2D::createTextureWithData(const unsigned int channels, unsigned int width, unsigned int height, const void* data, const bool isHDR) {
     this->width = width;
     this->height = height;
     const int internalFormat = isHDR ? GL_RGB16F : channels > 3 ? GL_RGBA8 : GL_RGB8;
