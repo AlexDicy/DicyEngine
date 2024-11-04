@@ -2,9 +2,9 @@
 
 layout (location = 0) out float distance2;
 
-in vec3 vPosition;
+//in vec3 vPosition;
 
-uniform vec3 uLightPosition;
+//uniform vec3 uLightPosition;
 
 void main() {
     //vec3 lightToPosition = vPosition - uLightPosition;
