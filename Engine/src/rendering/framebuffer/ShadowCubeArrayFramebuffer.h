@@ -16,7 +16,7 @@ public:
         return this->size;
     }
 
-    virtual void bind(unsigned int layer) const = 0;
+    virtual void bind(unsigned int layer, unsigned int face) const = 0;
 
     const Ref<TextureCubeArray>& getShadowCubeArrayTexture() const {
         return this->shadowCubeTexture;

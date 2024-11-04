@@ -49,7 +49,7 @@ public:
     virtual void beginFrame() = 0;
     virtual void beginDirectionalShadows() const = 0;
     virtual void beginPointLightShadows() const = 0;
-    virtual void beginPointLightShadow(int faceIndex, const PointLight& pointLight, int lightIndex) const = 0;
+    virtual void beginPointLightShadow(const PointLight& light, int lightIndex, int faceIndex) const = 0;
     virtual void endShadows() const = 0;
     virtual void endFrame() const = 0;
     virtual void clean() const = 0;

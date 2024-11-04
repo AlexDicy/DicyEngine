@@ -151,15 +151,19 @@ void OpenGLRenderer::beginDirectionalShadows() const {
 void OpenGLRenderer::beginPointLightShadows() const {
     this->shadowCubeArrayShader->bind();
     glViewport(0, 0, this->shadowCubeArrayFramebuffer->getSize(), this->shadowCubeArrayFramebuffer->getSize());
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void OpenGLRenderer::beginPointLightShadow(const int faceIndex, const PointLight& pointLight, const int lightIndex) const {
-    this->shadowCubeArrayFramebuffer->bind(lightIndex);
-    this->shadowCubeArrayFramebuffer->getShadowCubeArrayTexture()->bind(0);
-    this->shadowCubeArrayShader->uploadUniformMat4("uViewProjection", TextureCube::viewMatrices[faceIndex]);
-    this->shadowCubeArrayShader->uploadUniformInt("uShadowCubeArray", 0);
-    this->shadowCubeArrayShader->uploadUniformInt("uLightIndex", lightIndex);
+void OpenGLRenderer::beginPointLightShadow(const PointLight& light, const int lightIndex, const int faceIndex) const {
+    this->shadowCubeArrayFramebuffer->bind(lightIndex, faceIndex);
+    // glClearColor(FLT_MAX, FLT_MAX, FLT_MAX, FLT_MAX);
+    const float red = 0.0f + (static_cast<float>(faceIndex % 6) / 10.0f) + (static_cast<float>(lightIndex) / 100.0f);
+    glClearColor(red, 0.0f, 0.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    const glm::mat4 faceView = TextureCube::viewMatrices[faceIndex];
+    const glm::mat4 projection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, light.farPlane);
+    const glm::mat4 viewProjection = projection * glm::translate(faceView, -light.position);
+    this->shadowCubeArrayShader->uploadUniformMat4("uViewProjection", viewProjection);
+    this->shadowCubeArrayShader->uploadUniformVec3("uLightPosition", light.position);
 }
 
 void OpenGLRenderer::endShadows() const {
@@ -218,7 +222,7 @@ void OpenGLRenderer::draw(const Ref<VertexArray>& vertexArray, const glm::mat4& 
         shader->uploadUniformVec3("uPointLights[" + std::to_string(i) + "].position", pointLight.position);
         shader->uploadUniformVec3("uPointLights[" + std::to_string(i) + "].color", pointLight.color);
         shader->uploadUniformFloat("uPointLights[" + std::to_string(i) + "].intensity", pointLight.intensity);
-        shader->uploadUniformFloat("uPointLights[" + std::to_string(i) + "].farPlane", 20.0f); // TODO: do not hardcode
+        shader->uploadUniformFloat("uPointLights[" + std::to_string(i) + "].farPlane", pointLight.farPlane);
     }
     shader->uploadUniformInt("uPointLightsCount", static_cast<int>(this->pointLights.size()));
     // camera position
@@ -252,6 +256,7 @@ void OpenGLRenderer::drawForDirectionalShadows(const Ref<VertexArray>& vertexArr
 
 void OpenGLRenderer::drawForPointLightShadows(const Ref<VertexArray>& vertexArray, const glm::mat4& transform) const {
     // the shader is already initialized in beginPointLightShadow(s)
+    this->shadowCubeArrayShader->bind();
     this->shadowCubeArrayShader->uploadUniformMat4("uTransform", transform);
     vertexArray->bind();
     glDrawElements(GL_TRIANGLES, static_cast<int>(vertexArray->getIndexBuffer()->getCount()), GL_UNSIGNED_INT, nullptr);

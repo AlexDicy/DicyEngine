@@ -1,14 +1,13 @@
 ﻿#version 410 core
 
-layout (location = 0) out float distance;
+layout (location = 0) out float distance2;
 
 in vec3 vPosition;
 
-uniform samplerCubeArray uShadowMapArray;
 uniform vec3 uLightPosition;
-uniform int uLightIndex;
 
 void main() {
-    vec3 lightToPosition = vPosition - uLightPosition;
-    distance = length(lightToPosition);
+    //vec3 lightToPosition = vPosition - uLightPosition;
+//    distance = length(lightToPosition);
+    distance2 = 27.0f;
 }

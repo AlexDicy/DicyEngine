@@ -83,6 +83,9 @@ OpenGLShadowCubeArrayFramebuffer::OpenGLShadowCubeArrayFramebuffer(const unsigne
     glGenFramebuffers(1, &this->id);
     glBindFramebuffer(GL_FRAMEBUFFER, this->id);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthTextureId, 0);
+    glDrawBuffer(GL_NONE);
+    glReadBuffer(GL_NONE);
+
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
@@ -91,7 +94,8 @@ OpenGLShadowCubeArrayFramebuffer::~OpenGLShadowCubeArrayFramebuffer() {
     glDeleteTextures(1, &this->depthTextureId);
 }
 
-void OpenGLShadowCubeArrayFramebuffer::bind(const unsigned int layer) const {
+void OpenGLShadowCubeArrayFramebuffer::bind(const unsigned int layer, const unsigned int face) const {
     glBindFramebuffer(GL_FRAMEBUFFER, this->id);
-    glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, this->shadowCubeTextureId, 0, static_cast<int>(layer) * 6);
+    glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, this->shadowCubeTextureId, 0, static_cast<int>(layer * 6 + face));
+    glDrawBuffer(GL_COLOR_ATTACHMENT0);
 }

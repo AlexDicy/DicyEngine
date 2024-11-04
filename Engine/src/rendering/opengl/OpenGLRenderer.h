@@ -25,7 +25,7 @@ public:
     void beginFrame() override;
     void beginDirectionalShadows() const override;
     void beginPointLightShadows() const override;
-    void beginPointLightShadow(int faceIndex, const PointLight& pointLight, int lightIndex) const override;
+    void beginPointLightShadow(const PointLight& light, int lightIndex, int faceIndex) const override;
     void endShadows() const override;
     void endFrame() const override;
     void clean() const override;

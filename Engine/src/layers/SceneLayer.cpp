@@ -142,10 +142,10 @@ void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
 
     // render meshes for point lights shadow mapping
     ctx->renderer->beginPointLightShadows();
-    for (const auto& lightEntity : pointLightsView) {
-        PointLight& light = pointLightsView.get<PointLight>(lightEntity);
-        for (int i = 0; i < 6; i++) {
-            ctx->renderer->beginPointLightShadow(i, light, i);
+    for (int i = 0; i < pointLightsView.size(); i++) {
+        PointLight& light = pointLightsView.get<PointLight>(pointLightsView.begin()[i]);
+        for (int face = 0; face < 6; face++) {
+            ctx->renderer->beginPointLightShadow(light, i, face);
             for (const auto& entity : meshesView) {
                 const Transform& transform = meshesView.get<Transform>(entity);
                 const Mesh& mesh = meshesView.get<Mesh>(entity);
