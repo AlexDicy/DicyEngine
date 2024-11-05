@@ -149,15 +149,15 @@ void OpenGLRenderer::beginDirectionalShadows() const {
 }
 
 void OpenGLRenderer::beginPointLightShadows() const {
-    this->shadowCubeArrayShader->bind();
-    glViewport(0, 0, this->shadowCubeArrayFramebuffer->getSize(), this->shadowCubeArrayFramebuffer->getSize());
+    glDisable(GL_BLEND);
 }
 
 void OpenGLRenderer::beginPointLightShadow(const PointLight& light, const int lightIndex, const int faceIndex) const {
+    this->shadowCubeArrayShader->bind();
     this->shadowCubeArrayFramebuffer->bind(lightIndex, faceIndex);
+    glViewport(0, 0, this->shadowCubeArrayFramebuffer->getSize(), this->shadowCubeArrayFramebuffer->getSize());
     // glClearColor(FLT_MAX, FLT_MAX, FLT_MAX, FLT_MAX);
-    const float red = 0.0f + (static_cast<float>(faceIndex % 6) / 10.0f) + (static_cast<float>(lightIndex) / 100.0f);
-    glClearColor(red, 0.0f, 0.0f, 1.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     const glm::mat4 faceView = TextureCube::viewMatrices[faceIndex];
     const glm::mat4 projection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, light.farPlane);
@@ -167,6 +167,7 @@ void OpenGLRenderer::beginPointLightShadow(const PointLight& light, const int li
 }
 
 void OpenGLRenderer::endShadows() const {
+    glEnable(GL_BLEND);
     this->framebuffer->bind();
     glViewport(0, 0, this->framebuffer->getWidth(), this->framebuffer->getHeight());
 }
@@ -205,7 +206,7 @@ void OpenGLRenderer::draw(const Ref<VertexArray>& vertexArray, const glm::mat4& 
     this->brdfLUT->bind(textureSlot);
     shader->uploadUniformInt("uBRDFLUT", textureSlot++);
     this->shadowDepthFramebuffer->getDepthTexture()->bind(textureSlot);
-    shader->uploadUniformInt("uPointShadowMaps", textureSlot++);
+    shader->uploadUniformInt("uDirectionalShadowMap", textureSlot++);
     this->shadowCubeArrayFramebuffer->getShadowCubeArrayTexture()->bind(textureSlot);
     shader->uploadUniformInt("uShadowCubeArray", textureSlot);
     // irradiance spherical harmonics
@@ -256,7 +257,6 @@ void OpenGLRenderer::drawForDirectionalShadows(const Ref<VertexArray>& vertexArr
 
 void OpenGLRenderer::drawForPointLightShadows(const Ref<VertexArray>& vertexArray, const glm::mat4& transform) const {
     // the shader is already initialized in beginPointLightShadow(s)
-    this->shadowCubeArrayShader->bind();
     this->shadowCubeArrayShader->uploadUniformMat4("uTransform", transform);
     vertexArray->bind();
     glDrawElements(GL_TRIANGLES, static_cast<int>(vertexArray->getIndexBuffer()->getCount()), GL_UNSIGNED_INT, nullptr);

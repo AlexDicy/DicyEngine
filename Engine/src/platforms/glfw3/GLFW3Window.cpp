@@ -31,7 +31,6 @@ GLFW3Window::GLFW3Window(const char* title, const unsigned int width, const unsi
     #endif
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, true);
-    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true); // TODO
 
     this->window = glfwCreateWindow(static_cast<int>(width), static_cast<int>(height), title, nullptr, nullptr);
     graphicCtx = new OpenGLContext(this->window);
