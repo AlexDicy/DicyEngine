@@ -42,3 +42,13 @@ void OpenGLShadowCubeArrayFramebuffer::bind(const unsigned int layer, const unsi
     glBindFramebuffer(GL_FRAMEBUFFER, this->id);
     glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, this->shadowCubeTextureId, 0, static_cast<int>(layer * 6 + face));
 }
+
+void OpenGLShadowCubeArrayFramebuffer::ensureLayersCapacity(const unsigned int layersCount) {
+    if (layersCount <= this->shadowCubeTexture->getLayersCount()) { // at the moment we only scale up
+        return;
+    }
+
+    glBindTexture(GL_TEXTURE_CUBE_MAP_ARRAY, this->shadowCubeTextureId);
+    glTexImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, 0, GL_R32F, static_cast<int>(this->size), static_cast<int>(this->size), static_cast<int>(layersCount) * 6, 0, GL_RED, GL_FLOAT, nullptr);
+    this->shadowCubeTexture->setLayersCount(layersCount);
+}

@@ -56,6 +56,10 @@ public:
         return this->layersCount;
     }
 
+    void setLayersCount(const unsigned int layersCount) {
+        this->layersCount = layersCount;
+    }
+
 protected:
     unsigned int size;
     unsigned int layersCount;

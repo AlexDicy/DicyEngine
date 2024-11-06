@@ -22,6 +22,8 @@ public:
         return this->shadowCubeTexture;
     }
 
+    virtual void ensureLayersCapacity(unsigned int layersCount) = 0;
+
 protected:
     unsigned int size;
     Ref<TextureCubeArray> shadowCubeTexture;

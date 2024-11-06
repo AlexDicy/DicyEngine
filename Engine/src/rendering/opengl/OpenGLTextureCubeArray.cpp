@@ -10,6 +10,7 @@ OpenGLTextureCubeArray::~OpenGLTextureCubeArray() {
     glDeleteTextures(1, &this->id);
 }
 
-void OpenGLTextureCubeArray::bind(unsigned int) const {
+void OpenGLTextureCubeArray::bind(const unsigned int slot) const {
+    glActiveTexture(GL_TEXTURE0 + slot);
     glBindTexture(GL_TEXTURE_CUBE_MAP_ARRAY, this->id);
 }

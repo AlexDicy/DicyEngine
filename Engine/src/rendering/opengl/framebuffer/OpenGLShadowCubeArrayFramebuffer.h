@@ -7,6 +7,8 @@ public:
 
     void bind(unsigned int layer, unsigned int face) const override;
 
+    void ensureLayersCapacity(unsigned int layersCount) override;
+
 private:
     unsigned int id;
     unsigned int depthTextureId;

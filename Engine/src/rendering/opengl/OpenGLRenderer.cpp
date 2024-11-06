@@ -24,7 +24,7 @@ void OpenGLRenderer::init(const int x, const int y, const uint32_t width, const 
     this->whitePixelTexture = std::make_shared<OpenGLTexture2D>(1, 1, 1, 1, white);
     this->defaultOcclusionRoughnessMetallicTexture = std::make_shared<OpenGLTexture2D>(3, 1, 1, 1, std::array<unsigned char, 3>{255, 255, 0}.data());
     this->shadowDepthFramebuffer = std::make_shared<OpenGLDepthFramebuffer>(2048, 2048);
-    this->shadowCubeArrayFramebuffer = std::make_shared<OpenGLShadowCubeArrayFramebuffer>(1024, 10); // TODO: do not hardcode
+    this->shadowCubeArrayFramebuffer = std::make_shared<OpenGLShadowCubeArrayFramebuffer>(1024, 0);
 }
 
 void OpenGLRenderer::setViewport(const int x, const int y, const uint32_t width, const uint32_t height) {
@@ -150,14 +150,15 @@ void OpenGLRenderer::beginDirectionalShadows() const {
 
 void OpenGLRenderer::beginPointLightShadows() const {
     glDisable(GL_BLEND);
+    this->shadowCubeArrayFramebuffer->ensureLayersCapacity(static_cast<unsigned int>(this->pointLights.size()));
 }
 
 void OpenGLRenderer::beginPointLightShadow(const PointLight& light, const int lightIndex, const int faceIndex) const {
     this->shadowCubeArrayShader->bind();
     this->shadowCubeArrayFramebuffer->bind(lightIndex, faceIndex);
     glViewport(0, 0, this->shadowCubeArrayFramebuffer->getSize(), this->shadowCubeArrayFramebuffer->getSize());
-    // glClearColor(FLT_MAX, FLT_MAX, FLT_MAX, FLT_MAX);
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClearColor(FLT_MAX, FLT_MAX, FLT_MAX, FLT_MAX);
+    // glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     const glm::mat4 faceView = TextureCube::viewMatrices[faceIndex];
     const glm::mat4 projection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, light.farPlane);
@@ -192,23 +193,23 @@ void OpenGLRenderer::draw(const Ref<VertexArray>& vertexArray, const glm::mat4& 
     shader->uploadUniformMat4("uTransform", transform);
     shader->uploadUniformMat4("uDirectionalLightViewProjection", this->directionalLightViewProjection);
     // texture
-    int textureSlot = 0;
-    material.albedo->bind(textureSlot);
-    shader->uploadUniformInt("uAlbedo", textureSlot++);
+    int texture2DSlot = 0;
+    material.albedo->bind(texture2DSlot);
+    shader->uploadUniformInt("uAlbedo", texture2DSlot++);
     if (material.occlusionRoughnessMetallic) {
-        material.occlusionRoughnessMetallic->bind(textureSlot);
+        material.occlusionRoughnessMetallic->bind(texture2DSlot);
     } else {
-        this->defaultOcclusionRoughnessMetallicTexture->bind(textureSlot);
+        this->defaultOcclusionRoughnessMetallicTexture->bind(texture2DSlot);
     }
-    shader->uploadUniformInt("uOcclusionRoughnessMetallic", textureSlot++);
-    this->prefilteredEnvMap->bind(textureSlot);
-    shader->uploadUniformInt("uPrefilteredEnvMap", textureSlot++);
-    this->brdfLUT->bind(textureSlot);
-    shader->uploadUniformInt("uBRDFLUT", textureSlot++);
-    this->shadowDepthFramebuffer->getDepthTexture()->bind(textureSlot);
-    shader->uploadUniformInt("uDirectionalShadowMap", textureSlot++);
-    this->shadowCubeArrayFramebuffer->getShadowCubeArrayTexture()->bind(textureSlot);
-    shader->uploadUniformInt("uShadowCubeArray", textureSlot);
+    shader->uploadUniformInt("uOcclusionRoughnessMetallic", texture2DSlot++);
+    this->prefilteredEnvMap->bind(0);
+    shader->uploadUniformInt("uPrefilteredEnvMap", 0);
+    this->brdfLUT->bind(texture2DSlot);
+    shader->uploadUniformInt("uBRDFLUT", texture2DSlot++);
+    this->shadowDepthFramebuffer->getDepthTexture()->bind(texture2DSlot);
+    shader->uploadUniformInt("uDirectionalShadowMap", texture2DSlot);
+    this->shadowCubeArrayFramebuffer->getShadowCubeArrayTexture()->bind(0);
+    shader->uploadUniformInt("uShadowCubeArray", 0);
     // irradiance spherical harmonics
     for (int i = 0; i < this->irradianceSH.size(); i++) {
         shader->uploadUniformVec3("uIrradianceSH[" + std::to_string(i) + "]", this->irradianceSH[i]);
