@@ -2,7 +2,6 @@
 #include "SceneLayer.h"
 
 #include <filesystem>
-#include <glm/ext/matrix_transform.hpp>
 
 #include "editor/scripts/CameraScript.h"
 #include "editor/scripts/LightScript.h"

@@ -37,7 +37,8 @@ public:
 
     virtual Ref<CubeMap> toCubemap() const = 0;
 
-    static const glm::mat4 viewMatrices[6];
+    static const glm::mat4 invertedViewMatrices[6];
+    static const glm::mat4 shadowViewMatrices[6];
 
 protected:
     unsigned int size;

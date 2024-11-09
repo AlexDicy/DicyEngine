@@ -157,10 +157,9 @@ void OpenGLRenderer::beginPointLightShadow(const PointLight& light, const int li
     this->shadowCubeArrayShader->bind();
     this->shadowCubeArrayFramebuffer->bind(lightIndex, faceIndex);
     glViewport(0, 0, this->shadowCubeArrayFramebuffer->getSize(), this->shadowCubeArrayFramebuffer->getSize());
-    glClearColor(FLT_MAX, FLT_MAX, FLT_MAX, FLT_MAX);
-    // glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    const glm::mat4 faceView = TextureCube::viewMatrices[faceIndex];
+    const glm::mat4 faceView = TextureCube::shadowViewMatrices[faceIndex];
     const glm::mat4 projection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, light.farPlane);
     const glm::mat4 viewProjection = projection * glm::translate(faceView, -light.position);
     this->shadowCubeArrayShader->uploadUniformMat4("uViewProjection", viewProjection);
