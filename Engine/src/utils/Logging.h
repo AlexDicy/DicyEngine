@@ -37,6 +37,8 @@ namespace DE::Logger {
         #define DE_INFO(...) DE::Logger::getApplicationLogger()->info(__VA_ARGS__)
         #define DE_WARN(...) DE::Logger::getApplicationLogger()->warn(__VA_ARGS__)
     #endif
+
+    #define DE_ASSERT(x, ...) { if (!(x)) { DE_ERROR(__VA_ARGS__); } }
 #else
     #define DE_TRACE(...)
     #define DE_INFO(...)

@@ -193,23 +193,23 @@ void OpenGLRenderer::draw(const Ref<VertexArray>& vertexArray, const glm::mat4& 
     shader->uploadUniformMat4("uTransform", transform);
     shader->uploadUniformMat4("uDirectionalLightViewProjection", this->directionalLightViewProjection);
     // texture
-    int texture2DSlot = 0;
-    material.albedo->bind(texture2DSlot);
-    shader->uploadUniformInt("uAlbedo", texture2DSlot++);
+    int textureSlot = 0;
+    material.albedo->bind(textureSlot);
+    shader->uploadUniformInt("uAlbedo", textureSlot++);
     if (material.occlusionRoughnessMetallic) {
-        material.occlusionRoughnessMetallic->bind(texture2DSlot);
+        material.occlusionRoughnessMetallic->bind(textureSlot);
     } else {
-        this->defaultOcclusionRoughnessMetallicTexture->bind(texture2DSlot);
+        this->defaultOcclusionRoughnessMetallicTexture->bind(textureSlot);
     }
-    shader->uploadUniformInt("uOcclusionRoughnessMetallic", texture2DSlot++);
-    this->prefilteredEnvMap->bind(0);
-    shader->uploadUniformInt("uPrefilteredEnvMap", 0);
-    this->brdfLUT->bind(texture2DSlot);
-    shader->uploadUniformInt("uBRDFLUT", texture2DSlot++);
-    this->shadowDepthFramebuffer->getDepthTexture()->bind(texture2DSlot);
-    shader->uploadUniformInt("uDirectionalShadowMap", texture2DSlot);
-    this->shadowCubeArrayFramebuffer->getShadowCubeArrayTexture()->bind(0);
-    shader->uploadUniformInt("uShadowCubeArray", 0);
+    shader->uploadUniformInt("uOcclusionRoughnessMetallic", textureSlot++);
+    this->prefilteredEnvMap->bind(textureSlot);
+    shader->uploadUniformInt("uPrefilteredEnvMap", textureSlot++);
+    this->brdfLUT->bind(textureSlot);
+    shader->uploadUniformInt("uBRDFLUT", textureSlot++);
+    this->shadowDepthFramebuffer->getDepthTexture()->bind(textureSlot);
+    shader->uploadUniformInt("uDirectionalShadowMap", textureSlot++);
+    this->shadowCubeArrayFramebuffer->getShadowCubeArrayTexture()->bind(textureSlot);
+    shader->uploadUniformInt("uPointShadowMaps", textureSlot);
     // irradiance spherical harmonics
     for (int i = 0; i < this->irradianceSH.size(); i++) {
         shader->uploadUniformVec3("uIrradianceSH[" + std::to_string(i) + "]", this->irradianceSH[i]);

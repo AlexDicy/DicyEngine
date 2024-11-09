@@ -141,30 +141,36 @@ void OpenGLShader::bind() const {
 
 void OpenGLShader::uploadUniformInt(const std::string& name, const int value) const {
     const GLint location = glGetUniformLocation(this->id, name.c_str());
+    DE_ASSERT(location >= 0, "Uniform {0} not found", name)
     glProgramUniform1i(this->id, location, value);
 }
 
 void OpenGLShader::uploadUniformFloat(const std::string& name, const float value) const {
     const GLint location = glGetUniformLocation(this->id, name.c_str());
+    DE_ASSERT(location >= 0, "Uniform {0} not found", name)
     glProgramUniform1f(this->id, location, value);
 }
 
 void OpenGLShader::uploadUniformVec3(const std::string& name, const glm::vec3& vector) const {
     const GLint location = glGetUniformLocation(this->id, name.c_str());
+    DE_ASSERT(location >= 0, "Uniform {0} not found", name)
     glProgramUniform3fv(this->id, location, 1, value_ptr(vector));
 }
 
 void OpenGLShader::uploadUniformVec4(const std::string& name, const glm::vec4& vector) const {
     const GLint location = glGetUniformLocation(this->id, name.c_str());
+    DE_ASSERT(location >= 0, "Uniform {0} not found", name)
     glProgramUniform4fv(this->id, location, 1, value_ptr(vector));
 }
 
 void OpenGLShader::uploadUniformMat3(const std::string& name, const glm::mat3& matrix) const {
     const GLint location = glGetUniformLocation(this->id, name.c_str());
+    DE_ASSERT(location >= 0, "Uniform {0} not found", name)
     glProgramUniformMatrix3fv(this->id, location, 1, GL_FALSE, value_ptr(matrix));
 }
 
 void OpenGLShader::uploadUniformMat4(const std::string& name, const glm::mat4& matrix) const {
     const GLint location = glGetUniformLocation(this->id, name.c_str());
+    DE_ASSERT(location >= 0, "Uniform {0} not found", name)
     glProgramUniformMatrix4fv(this->id, location, 1, GL_FALSE, value_ptr(matrix));
 }
