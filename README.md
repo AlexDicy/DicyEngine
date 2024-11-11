@@ -8,11 +8,11 @@ git submodule init
 git submodule update
 xmake -y
 ```
-#### Windows - Core (C++) development
+#### Visual Studio / Rider - Core (C++) development
 ```bash
 xmake project -k vsxmake
 ```
-#### macOS - Core (C++) development
+#### Xcode / CLion / CMake - Core (C++) development
 ```bash
 xmake project -k cmakelists
 ```
