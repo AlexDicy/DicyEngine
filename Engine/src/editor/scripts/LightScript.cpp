@@ -14,8 +14,8 @@ void LightScript::onUpdate(const float deltaTime) {
 
     const Rotation rotation = this->light->getRotation();
     const glm::vec3 direction = rotation.toDirection();
-    this->getComponent<Transform>().position = direction * glm::vec3(0.0f, 1.0f, 0.0f) + glm::vec3(0.0f, 4.0f, 4.0f);
-    this->getComponent<Transform>().rotation = Rotation(-rotation.pitch, rotation.yaw, -rotation.roll);
+    this->getComponent<Transform>().setPosition(direction * glm::vec3(0.0f, 1.0f, 0.0f) + glm::vec3(0.0f, 4.0f, 4.0f));
+    this->getComponent<Transform>().setRotation(Rotation(-rotation.pitch, rotation.yaw, -rotation.roll));
 
-    this->meshEntity->get<Transform>().rotation = Rotation(90 + rotation.pitch, rotation.yaw, rotation.roll);
+    this->meshEntity->get<Transform>().setRotation(Rotation(90 + rotation.pitch, rotation.yaw, rotation.roll));
 }

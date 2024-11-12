@@ -1,11 +1,8 @@
 ﻿#pragma once
 #include "math/Rotation.h"
 
-struct Transform {
-    glm::vec3 position;
-    Rotation rotation;
-    glm::vec3 scale;
-
+class Transform {
+public:
     Transform(const glm::vec3 position, const Rotation rotation, const glm::vec3 scale) : position(position), rotation(rotation), scale(scale) {}
     Transform(const glm::vec3 position, const Rotation rotation) : Transform(position, rotation, glm::vec3(1.0f)) {}
     Transform(const glm::vec3 position) : Transform(position, Rotation(), glm::vec3(1.0f)) {}
@@ -17,4 +14,21 @@ struct Transform {
         const glm::mat4 scaleMat = glm::scale(translationMat * rotationMat, this->scale);
         return scaleMat;
     }
+
+    void setPosition(const glm::vec3& position) {
+        this->position = position;
+    }
+
+    void setRotation(const Rotation& rotation) {
+        this->rotation = rotation;
+    }
+
+    void setScale(const glm::vec3& scale) {
+        this->scale = scale;
+    }
+
+private:
+    glm::vec3 position;
+    Rotation rotation;
+    glm::vec3 scale;
 };
