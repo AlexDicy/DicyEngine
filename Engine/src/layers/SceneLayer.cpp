@@ -133,7 +133,7 @@ void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
     ctx->renderer->beginDirectionalShadows();
     const auto meshesView = this->scene->getMeshes();
     for (const auto& entity : meshesView) {
-        const Transform& transform = meshesView.get<Transform>(entity);
+        Transform& transform = meshesView.get<Transform>(entity);
         const Mesh& mesh = meshesView.get<Mesh>(entity);
 
         ctx->renderer->drawForDirectionalShadows(mesh.vertexArray, transform.getAsMatrix() * mesh.transformationMatrix);
@@ -146,7 +146,7 @@ void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
         for (int face = 0; face < 6; face++) {
             ctx->renderer->beginPointLightShadow(light, i, face);
             for (const auto& entity : meshesView) {
-                const Transform& transform = meshesView.get<Transform>(entity);
+                Transform& transform = meshesView.get<Transform>(entity);
                 const Mesh& mesh = meshesView.get<Mesh>(entity);
 
                 ctx->renderer->drawForPointLightShadows(mesh.vertexArray, transform.getAsMatrix() * mesh.transformationMatrix);
@@ -157,7 +157,7 @@ void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
 
     // render meshes
     for (const auto& entity : meshesView) {
-        const Transform& transform = meshesView.get<Transform>(entity);
+        Transform& transform = meshesView.get<Transform>(entity);
         const Mesh& mesh = meshesView.get<Mesh>(entity);
 
         const glm::mat4 transformMat = transform.getAsMatrix() * mesh.transformationMatrix;
