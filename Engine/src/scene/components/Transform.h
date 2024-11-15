@@ -58,7 +58,7 @@ private:
         this->recalculateGlobal = true;
     }
 
-    // local position
+    // local space
     glm::vec3 position;
     Rotation rotation;
     glm::vec3 scale;
