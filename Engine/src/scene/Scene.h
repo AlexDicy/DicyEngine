@@ -3,7 +3,6 @@
 #include "components/Mesh.h"
 #include "components/PointLight.h"
 #include "components/Script.h"
-#include "components/Transform.h"
 #include "entt/entt.hpp"
 
 class Scene : public std::enable_shared_from_this<Scene> {

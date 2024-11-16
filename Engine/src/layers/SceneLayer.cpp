@@ -24,7 +24,7 @@ SceneLayer::SceneLayer(const Ref<Application>& app) {
 
     // camera
     this->cameraEntity = this->scene->createEntity();
-    this->cameraEntity->add<Transform>(glm::vec3(0.0f, 2.0f, 0.0f), Rotation(-15, 0, 0));
+    this->cameraEntity->setTransform(glm::vec3(0.0f, 2.0f, 0.0f), Rotation(-15, 0, 0));
     this->cameraEntity->add<Script>(std::make_shared<CameraScript>(app, this->cameraEntity));
 
     this->shader = app->getShaderRegistry()->load("../assets/shaders/default-shader");
@@ -65,7 +65,6 @@ SceneLayer::SceneLayer(const Ref<Application>& app) {
     Ref<Entity> lightEntity = this->scene->createEntity();
     Ref<Entity> lightMeshEntity = this->scene->createEntity();
     lightEntity->add<Script>(std::make_shared<LightScript>(app, lightEntity, this->directionalLight, lightMeshEntity));
-    lightEntity->add<Transform>();
 
     renderer->setCamera(this->scene->getCamera());
 
@@ -81,7 +80,7 @@ SceneLayer::SceneLayer(const Ref<Application>& app) {
         auto vertexDataFloats = reinterpret_cast<const float*>(vertexData);
         lightMeshEntity->add<Mesh>(renderer, vertexDataFloats, model.vertices.size() * sizeof(VertexData), model.indexes.data(), model.indexes.size(), model.material,
                                    model.transformationMatrix);
-        lightMeshEntity->add<Transform>(glm::vec3(0.0, 3.0f, 0.0f), Rotation(), glm::vec3(1.0f));
+        lightMeshEntity->setTransform(glm::vec3(0.0, 3.0f, 0.0f), Rotation(), glm::vec3(1.0f));
     }
 
     Model sphereModel = std::move(ModelImporter::importFromFile(renderer, "../assets/models/sphere.glb")[0]);
@@ -98,7 +97,7 @@ SceneLayer::SceneLayer(const Ref<Application>& app) {
             Ref<Entity> entity = this->scene->createEntity();
             entity->add<Mesh>(renderer, vertexDataFloats, sphereModel.vertices.size() * sizeof(VertexData), sphereModel.indexes.data(), sphereModel.indexes.size(), material,
                               sphereModel.transformationMatrix);
-            entity->add<Transform>(glm::vec3(xPos, 4.0f, zPos), Rotation(), glm::vec3(0.4f));
+            entity->setTransform(glm::vec3(xPos, 4.0f, zPos), Rotation(), glm::vec3(0.4f));
         }
     }
 
@@ -106,7 +105,7 @@ SceneLayer::SceneLayer(const Ref<Application>& app) {
     for (glm::vec3 positions[] = {{1.0f, 1.0f, 1.0f}, {4.0f, 4.2f, 2.0f}}; const glm::vec3& position : positions) {
         Ref<Entity> pointLightEntity = this->scene->createEntity();
         pointLightEntity->add<PointLight>(position, glm::vec3(0.1f, 0.1f, 1.0f), 10.0f);
-        pointLightEntity->add<Transform>(position, Rotation(), glm::vec3(0.1f));
+        pointLightEntity->setTransform(position, Rotation(), glm::vec3(0.1f));
         const VertexData* vertexData = sphereModel.vertices.data();
         auto vertexDataFloats = reinterpret_cast<const float*>(vertexData);
         auto material = Material(renderer->createTexture2D(4, 1, 1, 1, std::array<unsigned char, 4>{50, 50, 255, 255}.data()));
@@ -193,6 +192,6 @@ void SceneLayer::addEntitiesForModels(const Ref<Renderer>& renderer, const std::
         const Material& material = model.material;
         Ref<Entity> entity = this->scene->createEntity();
         entity->add<Mesh>(renderer, vertexDataFloats, model.vertices.size() * sizeof(VertexData), model.indexes.data(), model.indexes.size(), material, model.transformationMatrix);
-        entity->add<Transform>(position, rotation, scale);
+        entity->setTransform(position, rotation, scale);
     }
 }

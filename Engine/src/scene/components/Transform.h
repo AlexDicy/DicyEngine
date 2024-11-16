@@ -1,6 +1,9 @@
 ﻿#pragma once
 #include "math/Rotation.h"
 
+
+class Entity;
+
 class Transform {
 public:
     Transform(const glm::vec3 position, const Rotation rotation, const glm::vec3 scale) : position(position), rotation(rotation), scale(scale) {
@@ -29,6 +32,7 @@ public:
         this->invalidate();
     }
 
+
 private:
     glm::mat4& getLocalTransformMatrix() {
         if (this->recalculateLocal) {
@@ -44,8 +48,8 @@ private:
     glm::mat4& getGlobalTransformMatrix() {
         if (this->recalculateGlobal) {
             this->recalculateGlobal = false;
-            if (this->parent) {
-                this->globalTransformMatrix = this->parent->getAsMatrix() * this->getLocalTransformMatrix();
+            if (this->owner) {
+                // this->globalTransformMatrix = this->owner->getAsMatrix() * this->getLocalTransformMatrix();
             } else {
                 this->globalTransformMatrix = this->getLocalTransformMatrix();
             }
@@ -68,5 +72,5 @@ private:
     bool recalculateLocal = false;
     bool recalculateGlobal = false;
 
-    Transform* parent = nullptr;
+    Ref<Entity> owner;
 };
