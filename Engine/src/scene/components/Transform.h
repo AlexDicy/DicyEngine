@@ -66,18 +66,9 @@ private:
 
     glm::mat4& getGlobalTransformMatrix();
 
-    void invalidate() {
-        this->invalidateLocal();
-        this->invalidateGlobal();
-    }
-
-    void invalidateLocal() {
-        this->recalculateLocal = true;
-    }
-
-    void invalidateGlobal() {
-        this->recalculateGlobal = true;
-    }
+    void invalidate();
+    void invalidateLocal();
+    void invalidateGlobal();
 
     // local space
     glm::vec3 position;

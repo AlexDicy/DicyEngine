@@ -63,6 +63,10 @@ public:
         }
     }
 
+    std::list<Ref<Entity>>& getChildren() {
+        return this->children;
+    }
+
     const Ref<Scene>& getScene() const {
         return this->scene;
     }

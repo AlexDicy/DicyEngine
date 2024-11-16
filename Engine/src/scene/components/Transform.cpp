@@ -14,3 +14,20 @@ glm::mat4& Transform::getGlobalTransformMatrix() {
     }
     return this->globalTransformMatrix;
 }
+
+void Transform::invalidate() {
+    this->invalidateLocal();
+    this->invalidateGlobal();
+}
+
+void Transform::invalidateLocal() {
+    this->recalculateLocal = true;
+}
+
+void Transform::invalidateGlobal() {
+    this->recalculateGlobal = true;
+    // invalidate children
+    for (const Ref<Entity>& child : this->owner->getChildren()) {
+        child->getTransform()->invalidateGlobal();
+    }
+}
