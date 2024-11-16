@@ -33,5 +33,8 @@ public:
 
 private:
     Ref<entt::registry> registry;
+    // keep entities alive
+    // todo: use a better approach
+    std::list<Ref<Entity>> entities;
     Ref<Camera> camera;
 };

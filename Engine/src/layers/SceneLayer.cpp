@@ -11,6 +11,22 @@
 #include "rendering/skybox/SphericalHarmonics.h"
 #include "scene/models/ModelImporter.h"
 
+class RotatingEntityScript final : public EntityScript {
+public:
+    RotatingEntityScript(const Ref<Application>& app, const Ref<Entity>& entity) : EntityScript(app, entity) {
+        this->transform = &entity->get<Transform>();
+    }
+
+    void onUpdate(const float deltaTime) override {
+        Rotation rotation = this->transform->getRotation();
+        rotation.yaw += 5.0f * deltaTime;
+        this->transform->setRotation(rotation);
+    }
+
+private:
+    Transform* transform;
+};
+
 SceneLayer::SceneLayer(const Ref<Application>& app) {
     const Ref<Renderer>& renderer = app->getRenderer();
     this->scene = std::make_shared<Scene>();
@@ -20,7 +36,7 @@ SceneLayer::SceneLayer(const Ref<Application>& app) {
     for (Model& arrow : xyzModels) {
         arrow.material.ignoreLighting = true;
     }
-    this->addEntitiesForModels(renderer, xyzModels, {0.0f, 0.0f, 0.0f});
+    (void)this->addEntitiesForModels(renderer, xyzModels, {0.0f, 0.0f, 0.0f});
 
     // camera
     this->cameraEntity = this->scene->createEntity();
@@ -68,11 +84,15 @@ SceneLayer::SceneLayer(const Ref<Application>& app) {
 
     renderer->setCamera(this->scene->getCamera());
 
-    this->addEntitiesForModels(renderer, "../assets/models/sand_rocks/sand_rocks_small_01_1k.gltf", {0.0f, 0.0f, 3.0f});
-    this->addEntitiesForModels(renderer, "../assets/models/fountain.glb", {-4.0f, 0.2f, 4.0f});
-    this->addEntitiesForModels(renderer, "../assets/models/wooden_stool/wooden_stool_02_1k.gltf", {0.0f, 0.0f, 3.0f}, Rotation(), glm::vec3(4.0f));
+    (void)this->addEntitiesForModels(renderer, "../assets/models/fountain.glb", {-4.0f, 0.2f, 4.0f});
     this->addEntitiesForModels(renderer, "../assets/models/covered_car/covered_car_1k.gltf", {2.5f, 0.0f, 3.0f}, Rotation(0, -15, 0));
-    this->addEntitiesForModels(renderer, "../assets/models/picnic_table/wooden_picnic_table_1k.gltf", {0.0f, 0.0f, 6.0f}, Rotation(4, -85, 0));
+    Ref<Entity> parentEntity = this->addEntitiesForModels(renderer, "../assets/models/sand_rocks/sand_rocks_small_01_1k.gltf", {0.0f, 0.0f, 3.0f})[0];
+    this->addEntitiesForModels(renderer, "../assets/models/wooden_stool/wooden_stool_02_1k.gltf", {0.0f, 0.0f, 3.0f}, Rotation(), glm::vec3(4.0f))[0] //
+        ->setParent(parentEntity);
+    this->addEntitiesForModels(renderer, "../assets/models/picnic_table/wooden_picnic_table_1k.gltf", {0.0f, 0.0f, 6.0f}, Rotation(4, -85, 0))[0] //
+        ->setParent(parentEntity);
+
+    parentEntity->add<Script>(std::make_shared<RotatingEntityScript>(app, parentEntity));
 
     {
         Model model = ModelImporter::importFromFile(renderer, "../assets/models/lamp.glb")[0];
@@ -179,13 +199,15 @@ void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
     }
 }
 
-void SceneLayer::addEntitiesForModels(const Ref<Renderer>& renderer, const std::string& path, const glm::vec3 position, const Rotation rotation, const glm::vec3 scale) const {
+std::vector<Ref<Entity>> SceneLayer::addEntitiesForModels(const Ref<Renderer>& renderer, const std::string& path, const glm::vec3 position, const Rotation rotation,
+                                                          const glm::vec3 scale) const {
     const std::vector<Model> models = ModelImporter::importFromFile(renderer, path);
-    this->addEntitiesForModels(renderer, models, position, rotation, scale);
+    return this->addEntitiesForModels(renderer, models, position, rotation, scale);
 }
 
-void SceneLayer::addEntitiesForModels(const Ref<Renderer>& renderer, const std::vector<Model>& models, const glm::vec3 position, const Rotation rotation,
-                                      const glm::vec3 scale) const {
+std::vector<Ref<Entity>> SceneLayer::addEntitiesForModels(const Ref<Renderer>& renderer, const std::vector<Model>& models, const glm::vec3 position, const Rotation rotation,
+                                                          const glm::vec3 scale) const {
+    std::vector<Ref<Entity>> entities;
     for (const Model& model : models) {
         const VertexData* vertexData = model.vertices.data();
         auto vertexDataFloats = reinterpret_cast<const float*>(vertexData);
@@ -193,5 +215,7 @@ void SceneLayer::addEntitiesForModels(const Ref<Renderer>& renderer, const std::
         Ref<Entity> entity = this->scene->createEntity();
         entity->add<Mesh>(renderer, vertexDataFloats, model.vertices.size() * sizeof(VertexData), model.indexes.data(), model.indexes.size(), material, model.transformationMatrix);
         entity->setTransform(position, rotation, scale);
+        entities.push_back(entity);
     }
+    return entities;
 }

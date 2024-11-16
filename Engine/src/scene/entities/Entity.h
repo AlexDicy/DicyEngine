@@ -6,27 +6,28 @@
 class EntityScriptJavaImpl;
 class Scene;
 
-class Entity {
+class Entity : public std::enable_shared_from_this<Entity> {
     friend EntityScriptJavaImpl;
 
 public:
-    Entity(const Ref<Scene>& scene, const Ref<entt::registry>& registry, const entt::entity& entity) : scene(scene), registry(registry), entity(entity) {
+    Entity(const Ref<Scene>& scene, const Ref<entt::registry>& registry, const entt::entity& id) : scene(scene), registry(registry), id(id) {
         this->transform = &this->add<Transform>(); // every entity has a transform by default
+        this->transform->setOwner(this);
     }
 
     template <typename... T>
     [[nodiscard]] bool has() const {
-        return this->registry->all_of<T...>(this->entity);
+        return this->registry->all_of<T...>(this->id);
     }
 
     template <typename T>
     [[nodiscard]] T& get() const {
-        return this->registry->get<T>(this->entity);
+        return this->registry->get<T>(this->id);
     }
 
     template <typename T, typename... Args>
     T& add(Args&&... args) {
-        return this->registry->emplace<T>(this->entity, std::forward<Args>(args)...);
+        return this->registry->emplace<T>(this->id, std::forward<Args>(args)...);
     }
 
     Transform* getTransform() const {
@@ -39,6 +40,29 @@ public:
         this->transform->setScale(scale);
     }
 
+    bool hasParent() const {
+        return this->parent != nullptr;
+    }
+
+    Ref<Entity> getParent() const {
+        return this->parent;
+    }
+
+    void setParent(const Ref<Entity>& newParent) {
+        Ref<Entity> sharedThis = this->shared_from_this();
+        // remove from old parent, if any
+        if (this->parent) {
+            this->parent->children.remove(sharedThis);
+            this->parent->childrenById.erase(this->getEntityId());
+        }
+        this->parent = newParent;
+        // add to new parent, if any
+        if (newParent) {
+            newParent->children.push_back(sharedThis);
+            newParent->childrenById[this->getEntityId()] = sharedThis;
+        }
+    }
+
     const Ref<Scene>& getScene() const {
         return this->scene;
     }
@@ -49,16 +73,17 @@ protected:
     }
 
     entt::entity getEntityId() const {
-        return this->entity;
+        return this->id;
     }
 
 private:
     Ref<Scene> scene;
     Ref<entt::registry> registry;
-    entt::entity entity;
+    entt::entity id;
 
-    Ref<Entity> parent;
-    std::vector<Ref<Entity>> children;
+    Ref<Entity> parent = nullptr;
+    std::list<Ref<Entity>> children;
+    std::map<entt::entity, Ref<Entity>> childrenById;
 
     Transform* transform;
 };

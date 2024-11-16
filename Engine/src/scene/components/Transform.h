@@ -5,6 +5,8 @@
 class Entity;
 
 class Transform {
+    friend class Entity;
+
 public:
     Transform(const glm::vec3 position, const Rotation rotation, const glm::vec3 scale) : position(position), rotation(rotation), scale(scale) {
         this->invalidate();
@@ -32,6 +34,23 @@ public:
         this->invalidate();
     }
 
+    glm::vec3 getPosition() const {
+        return this->position;
+    }
+
+    Rotation getRotation() const {
+        return this->rotation;
+    }
+
+    glm::vec3 getScale() const {
+        return this->scale;
+    }
+
+protected:
+    void setOwner(Entity* owner) {
+        this->owner = owner;
+        this->invalidateGlobal();
+    }
 
 private:
     glm::mat4& getLocalTransformMatrix() {
@@ -45,20 +64,18 @@ private:
         return this->localTransformMatrix;
     }
 
-    glm::mat4& getGlobalTransformMatrix() {
-        if (this->recalculateGlobal) {
-            this->recalculateGlobal = false;
-            if (this->owner) {
-                // this->globalTransformMatrix = this->owner->getAsMatrix() * this->getLocalTransformMatrix();
-            } else {
-                this->globalTransformMatrix = this->getLocalTransformMatrix();
-            }
-        }
-        return this->globalTransformMatrix;
-    }
+    glm::mat4& getGlobalTransformMatrix();
 
     void invalidate() {
+        this->invalidateLocal();
+        this->invalidateGlobal();
+    }
+
+    void invalidateLocal() {
         this->recalculateLocal = true;
+    }
+
+    void invalidateGlobal() {
         this->recalculateGlobal = true;
     }
 
@@ -72,5 +89,5 @@ private:
     bool recalculateLocal = false;
     bool recalculateGlobal = false;
 
-    Ref<Entity> owner;
+    Entity* owner = nullptr;
 };
