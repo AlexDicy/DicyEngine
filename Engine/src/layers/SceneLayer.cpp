@@ -87,10 +87,18 @@ SceneLayer::SceneLayer(const Ref<Application>& app) {
     (void)this->addEntitiesForModels(renderer, "../assets/models/fountain.glb", {-4.0f, 0.2f, 4.0f});
     this->addEntitiesForModels(renderer, "../assets/models/covered_car/covered_car_1k.gltf", {2.5f, 0.0f, 3.0f}, Rotation(0, -15, 0));
     Ref<Entity> parentEntity = this->addEntitiesForModels(renderer, "../assets/models/sand_rocks/sand_rocks_small_01_1k.gltf", {0.0f, 0.0f, 3.0f})[0];
-    this->addEntitiesForModels(renderer, "../assets/models/wooden_stool/wooden_stool_02_1k.gltf", {0.0f, 0.0f, 3.0f}, Rotation(), glm::vec3(4.0f))[0] //
-        ->setParent(parentEntity);
-    this->addEntitiesForModels(renderer, "../assets/models/picnic_table/wooden_picnic_table_1k.gltf", {0.0f, 0.0f, 6.0f}, Rotation(4, -85, 0))[0] //
-        ->setParent(parentEntity);
+    Ref<Entity> emptyForStool = this->scene->createEntity();
+    emptyForStool->setTransform({0.0f, 0.0f, 0.0f}, Rotation(), glm::vec3(4.0f));
+    emptyForStool->setParent(parentEntity);
+    for (const auto& e : this->addEntitiesForModels(renderer, "../assets/models/wooden_stool/wooden_stool_02_1k.gltf", {0.0f, 0.0f, 0.0f})) {
+        e->setParent(emptyForStool);
+    }
+    Ref<Entity> emptyForTable = this->scene->createEntity();
+    emptyForTable->setTransform({0.0f, 0.0f, 3.0f}, Rotation(4, -85, 0));
+    emptyForTable->setParent(parentEntity);
+    for (const auto& e : this->addEntitiesForModels(renderer, "../assets/models/picnic_table/wooden_picnic_table_1k.gltf", {0.0f, 0.0f, 0.0f})) {
+        e->setParent(emptyForTable);
+    }
 
     parentEntity->add<Script>(std::make_shared<RotatingEntityScript>(app, parentEntity));
 
