@@ -1,6 +1,6 @@
 package com.dicydev.engine.input;
 
-// Keep in sync with input/inputcodes.h
+// Keep in sync with input/InputCodes.h
 public enum InputCode {
     INPUT_UNKNOWN(0),
     KEY_SPACE(32),

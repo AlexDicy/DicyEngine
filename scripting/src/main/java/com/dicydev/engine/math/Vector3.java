@@ -140,53 +140,57 @@ public class Vector3 {
     public float dot(Vector3 other) {
         return getX() * other.getX() + getY() * other.getY() + getZ() * other.getZ();
     }
-}
 
-
-class BufferVector3 extends Vector3 {
-    private final ByteBuffer buffer;
-    private final int offset;
 
     /**
-     * Constructs a new {@link BufferVector3} with the specified buffer and offset.
-     * <p>
-     * Use {@link Vector3#fromBuffer(ByteBuffer, int)} to create a new {@link BufferVector3}.
-     *
-     * @param buffer the buffer
-     * @param offset the offset in the buffer
+     * A {@link Vector3} implementation that reads and writes to a {@link ByteBuffer}.
+     * Used to access the engine's native memory directly.
      */
-    protected BufferVector3(ByteBuffer buffer, int offset) {
-        this.buffer = buffer;
-        this.offset = offset;
-    }
+    private static class BufferVector3 extends Vector3 {
+        private final ByteBuffer buffer;
+        private final int offset;
 
-    @Override
-    public float getX() {
-        return buffer.getFloat(offset);
-    }
+        /**
+         * Constructs a new {@link BufferVector3} with the specified buffer and offset.
+         * <p>
+         * Use {@link Vector3#fromBuffer(ByteBuffer, int)} to create a new {@link BufferVector3}.
+         *
+         * @param buffer the buffer
+         * @param offset the offset in the buffer
+         */
+        protected BufferVector3(ByteBuffer buffer, int offset) {
+            this.buffer = buffer;
+            this.offset = offset;
+        }
 
-    @Override
-    public float getY() {
-        return buffer.getFloat(offset + 4);
-    }
+        @Override
+        public float getX() {
+            return buffer.getFloat(offset);
+        }
 
-    @Override
-    public float getZ() {
-        return buffer.getFloat(offset + 8);
-    }
+        @Override
+        public float getY() {
+            return buffer.getFloat(offset + 4);
+        }
 
-    @Override
-    public void setX(float x) {
-        buffer.putFloat(offset, x);
-    }
+        @Override
+        public float getZ() {
+            return buffer.getFloat(offset + 8);
+        }
 
-    @Override
-    public void setY(float y) {
-        buffer.putFloat(offset + 4, y);
-    }
+        @Override
+        public void setX(float x) {
+            buffer.putFloat(offset, x);
+        }
 
-    @Override
-    public void setZ(float z) {
-        buffer.putFloat(offset + 8, z);
+        @Override
+        public void setY(float y) {
+            buffer.putFloat(offset + 4, y);
+        }
+
+        @Override
+        public void setZ(float z) {
+            buffer.putFloat(offset + 8, z);
+        }
     }
 }

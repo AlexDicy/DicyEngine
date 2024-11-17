@@ -19,7 +19,7 @@ public:
 
     void onUpdate(const float deltaTime) override {
         Rotation rotation = this->transform->getRotation();
-        rotation.yaw += 5.0f * deltaTime;
+        rotation.setYaw(rotation.getYaw() + 5.0f * deltaTime);
         this->transform->setRotation(rotation);
     }
 

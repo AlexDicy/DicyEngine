@@ -18,7 +18,7 @@ void Camera::setRotation(const Rotation& rotation) {
 
 void Camera::updateViewMatrix() {
     const glm::mat4 translation = translate(glm::mat4(1.0f), this->position);
-    const auto orientation = this->rotation.toQuaternion();
+    const auto orientation = this->rotation.getQuaternion();
     const glm::mat4 transform = translation * toMat4(orientation);
 
     this->viewMatrix = inverse(transform);

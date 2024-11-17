@@ -14,11 +14,11 @@ public:
     }
 
     float getPitch() const {
-        return this->rotation.pitch;
+        return this->rotation.getPitch();
     }
 
     float getYaw() const {
-        return this->rotation.yaw;
+        return this->rotation.getYaw();
     }
 
     const Rotation& getRotation() const {

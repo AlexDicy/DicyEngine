@@ -1,10 +1,12 @@
 package com.dicydev.engine.components;
 
+import com.dicydev.engine.math.Quaternion;
+import com.dicydev.engine.math.Rotation;
 import com.dicydev.engine.math.Vector3;
 
 import java.nio.ByteBuffer;
 
-// Keep in sync with scene/components/transform.h
+// Keep in sync with scene/components/Transform.h
 public class Transform extends Component {
     public Transform(ByteBuffer buffer) {
         super(buffer);
@@ -20,15 +22,15 @@ public class Transform extends Component {
         buffer.putFloat(8, position.getZ());
     }
 
-    // TODO: replace Vector3 with a Rotation class
-    public Vector3 getRotation() {
-        return Vector3.fromBuffer(buffer, 12);
+    public Rotation getRotation() {
+        return Rotation.fromBuffer(buffer, 12);
     }
 
-    public void setRotation(Vector3 rotation) {
-        buffer.putFloat(12, rotation.getX());
-        buffer.putFloat(16, rotation.getY());
-        buffer.putFloat(20, rotation.getZ());
+    public void setRotation(Rotation rotation) {
+        Rotation bufferRotation = getRotation();
+        bufferRotation.setPitch(rotation.getPitch());
+        bufferRotation.setYaw(rotation.getYaw());
+        bufferRotation.setRoll(rotation.getRoll());
     }
 
     public Vector3 getScale() {

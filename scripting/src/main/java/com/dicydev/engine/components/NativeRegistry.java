@@ -22,7 +22,7 @@ public class NativeRegistry {
 
     private static native ByteBuffer getComponentBuffer(long registryPointer, int entityId, int componentTypeId);
 
-    // Keep in sync with scene/components/component_types.h
+    // Keep in sync with scene/components/ComponentTypes.h
     static {
         componentTypeMap.put(Transform.class, 0);
     }

@@ -23,14 +23,14 @@ public class CameraScript extends EntityScript {
 
         Input.bindAxis("look_x", (float deltaX) -> {
             if (Input.isActionPressed("right_click")) {
-                transform.getRotation().addY(deltaX * sensitivity);
+                transform.getRotation().addYaw(deltaX * sensitivity);
             }
         });
 
         Input.bindAxis("look_y", (float deltaY) -> {
             if (Input.isActionPressed("right_click")) {
-                float pitch = Math.clamp(transform.getRotation().getX() + deltaY * sensitivity, -90.0f, 90.0f);
-                transform.getRotation().setX(pitch);
+                float pitch = Math.clamp(transform.getRotation().getPitch() + deltaY * sensitivity, -90.0f, 90.0f);
+                transform.getRotation().setPitch(pitch);
             }
         });
 
@@ -50,7 +50,7 @@ public class CameraScript extends EntityScript {
         // slow down
         velocity = velocity.multiply(Math.max(0.0f, 1.0f - dampingFactor * deltaTime));
         // direction
-        double yaw = Math.toRadians(transform.getRotation().getY());
+        double yaw = Math.toRadians(transform.getRotation().getYaw());
         var forward = new Vector3((float) Math.sin(yaw), 0.0f, (float) Math.cos(yaw));
         var right = new Vector3(forward.getZ(), 0.0f, -forward.getX());
 
@@ -83,6 +83,6 @@ public class CameraScript extends EntityScript {
 
         Camera camera = getScene().getCamera();
         camera.getPosition().set(position);
-        camera.getRotation().set(transform.getRotation());
+        camera.getRotation().set(transform.getRotation().getQuaternion().toAngles());
     }
 }

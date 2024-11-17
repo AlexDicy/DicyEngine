@@ -2,8 +2,11 @@
 #include "Transform.h"
 #include "scene/entities/Entity.h"
 
+#include <glm/gtx/matrix_decompose.hpp>
+
+
 glm::mat4& Transform::getGlobalTransformMatrix() {
-    if (this->recalculateGlobal) {
+    if (this->recalculateGlobal || this->rotation.needsRecalculation()) {
         this->recalculateGlobal = false;
         if (this->owner && this->owner->hasParent()) {
             const Ref<Entity>& parent = this->owner->getParent();
@@ -13,6 +16,24 @@ glm::mat4& Transform::getGlobalTransformMatrix() {
         }
     }
     return this->globalTransformMatrix;
+}
+
+void Transform::setFromMatrix(const glm::mat4& matrix) {
+    glm::vec3 scale;
+    glm::quat rotation;
+    glm::vec3 translation;
+    glm::vec3 skew;
+    glm::vec4 perspective;
+    glm::decompose(matrix, scale, rotation, translation, skew, perspective);
+
+    this->position = translation;
+    this->rotation = rotation;
+    this->scale = scale;
+    this->invalidate();
+}
+
+void Transform::multiplyByMatrix(const glm::mat4& matrix) {
+    this->setFromMatrix(this->getLocalTransformMatrix() * matrix);
 }
 
 void Transform::invalidate() {
@@ -26,8 +47,10 @@ void Transform::invalidateLocal() {
 
 void Transform::invalidateGlobal() {
     this->recalculateGlobal = true;
-    // invalidate children
-    for (const Ref<Entity>& child : this->owner->getChildren()) {
-        child->getTransform()->invalidateGlobal();
+    if (this->owner) {
+        // invalidate children
+        for (const Ref<Entity>& child : this->owner->getChildren()) {
+            child->getTransform()->invalidateGlobal();
+        }
     }
 }
