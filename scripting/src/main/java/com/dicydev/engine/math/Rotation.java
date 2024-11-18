@@ -167,9 +167,7 @@ public class Rotation {
         @Override
         public void setPitch(float pitch) {
             buffer.putFloat(offset + OFFSET_PITCH, pitch);
-            System.out.println("setPitch: " + pitch + " - shouldRecalculateQuaternion: " + shouldRecalculateQuaternion());
             setRecalculateQuaternion(true);
-            System.out.println("- shouldRecalculateQuaternion: " + shouldRecalculateQuaternion());
         }
 
         @Override
