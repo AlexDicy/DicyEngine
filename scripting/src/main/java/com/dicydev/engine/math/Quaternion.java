@@ -8,7 +8,7 @@ public class Quaternion {
     private float z;
     private float w;
 
-    private static final float EPSILON = 0.000001f;
+    protected static final float EPSILON = 0.000001f;
     protected static final int BYTES = 4 * Float.BYTES;
 
     public Quaternion() {
@@ -69,23 +69,17 @@ public class Quaternion {
     }
 
     public void setFromAngles(float pitch, float yaw, float roll) {
-        float sinZ = (float) Math.sin(roll * 0.5f);
-        float cosZ = (float) Math.cos(roll * 0.5f);
-        float sinY = (float) Math.sin(yaw * 0.5f);
-        float cosY = (float) Math.cos(yaw * 0.5f);
-        float sinX = (float) Math.sin(pitch * 0.5f);
-        float cosX = (float) Math.cos(pitch * 0.5f);
+        double cx = Math.cos(pitch * 0.5f);
+        double cy = Math.cos(yaw * 0.5f);
+        double cz = Math.cos(roll * 0.5f);
+        double sx = Math.sin(pitch * 0.5f);
+        double sy = Math.sin(yaw * 0.5f);
+        double sz = Math.sin(roll * 0.5f);
 
-        // variables used to reduce multiplication calls.
-        float cosYXcosZ = cosY * cosZ;
-        float sinYXsinZ = sinY * sinZ;
-        float cosYXsinZ = cosY * sinZ;
-        float sinYXcosZ = sinY * cosZ;
-
-        setW(cosYXcosZ * cosX - sinYXsinZ * sinX);
-        setX(cosYXcosZ * sinX + sinYXsinZ * cosX);
-        setY(sinYXcosZ * cosX + cosYXsinZ * sinX);
-        setZ(cosYXsinZ * cosX - sinYXcosZ * sinX);
+        setW((float) (cx * cy * cz + sx * sy * sz));
+        setX((float) (sx * cy * cz - cx * sy * sz));
+        setY((float) (cx * sy * cz + sx * cy * sz));
+        setZ((float) (cx * cy * sz - sx * sy * cz));
     }
 
     public Vector3 toAngles() {
