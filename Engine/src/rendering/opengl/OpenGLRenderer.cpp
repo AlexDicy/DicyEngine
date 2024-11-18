@@ -149,7 +149,6 @@ void OpenGLRenderer::beginDirectionalShadows() const {
 }
 
 void OpenGLRenderer::beginPointLightShadows() const {
-    glDisable(GL_BLEND);
     this->shadowCubeArrayFramebuffer->ensureLayersCapacity(static_cast<unsigned int>(this->pointLights.size()));
 }
 
@@ -167,7 +166,6 @@ void OpenGLRenderer::beginPointLightShadow(const PointLight& light, const int li
 }
 
 void OpenGLRenderer::endShadows() const {
-    glEnable(GL_BLEND);
     this->framebuffer->bind();
     glViewport(0, 0, this->framebuffer->getWidth(), this->framebuffer->getHeight());
 }
