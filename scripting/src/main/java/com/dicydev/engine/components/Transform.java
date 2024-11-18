@@ -34,12 +34,12 @@ public class Transform extends Component {
     }
 
     public Vector3 getScale() {
-        return Vector3.fromBuffer(buffer, 24);
+        return Vector3.fromBuffer(buffer, 44);
     }
 
     public void setScale(Vector3 scale) {
-        buffer.putFloat(24, scale.getX());
-        buffer.putFloat(28, scale.getY());
-        buffer.putFloat(32, scale.getZ());
+        buffer.putFloat(44, scale.getX());
+        buffer.putFloat(48, scale.getY());
+        buffer.putFloat(52, scale.getZ());
     }
 }
