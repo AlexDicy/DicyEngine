@@ -234,6 +234,8 @@ std::vector<Ref<Entity>> SceneLayer::addEntitiesForModels(const Ref<Renderer>& r
         auto vertexDataFloats = reinterpret_cast<const float*>(vertexData);
         const Material& material = model.material;
         Ref<Entity> entity = this->scene->createEntity();
+        this->scene->setEntityModel(entity, model);
+        entity->setPersistent(true);
         entity->add<Mesh>(renderer, vertexDataFloats, model.vertices.size() * sizeof(VertexData), model.indexes.data(), model.indexes.size(), material, model.transformationMatrix);
         entity->setTransform(position, rotation, scale);
         entities.push_back(entity);

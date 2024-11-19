@@ -4,6 +4,7 @@
 #include "components/PointLight.h"
 #include "components/Script.h"
 #include "entt/entt.hpp"
+#include "models/Model.h"
 
 class Scene : public std::enable_shared_from_this<Scene> {
     friend class SceneSerializer;
@@ -33,10 +34,19 @@ public:
         this->camera = camera;
     }
 
+    void setEntityModel(const Ref<Entity>& entity, const Model& model) {
+        entityModels[entity] = {model.path, model.meshIndex};
+    }
+
 protected:
+    std::pair<std::string, unsigned int> getEntityModelInfo(const Ref<Entity>& entity) {
+        return entityModels[entity];
+    }
+
     // keep entities alive
     // todo: use a better approach
     std::list<Ref<Entity>> entities;
+    std::map<Ref<Entity>, std::pair<std::string, unsigned int>> entityModels;
 
 private:
     Ref<entt::registry> registry;

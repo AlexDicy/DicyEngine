@@ -10,3 +10,7 @@ void EntitySerializer::serialize(Entity& entity, toml::table& out) {
     transformSerializer.serialize(*entity.getTransform(), transformTable);
     out.emplace("transform", std::move(transformTable));
 }
+
+bool EntitySerializer::shouldSerialize(const Entity& entity) {
+    return entity.persistent;
+}

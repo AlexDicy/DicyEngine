@@ -71,6 +71,10 @@ public:
         return this->scene;
     }
 
+    void setPersistent(const bool persistent) {
+        this->persistent = persistent;
+    }
+
 protected:
     const Ref<entt::registry>& getRegistry() const {
         return this->registry;
@@ -80,10 +84,11 @@ protected:
         return this->id;
     }
 
-protected:
     Ref<Scene> scene;
     Ref<entt::registry> registry;
     entt::entity id;
+    // if the entity should be serialized and saved
+    bool persistent = false;
 
     Ref<Entity> parent = nullptr;
     std::list<Ref<Entity>> children;

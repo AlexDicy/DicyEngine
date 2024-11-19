@@ -48,7 +48,7 @@ std::vector<Model> ModelImporter::importFromFile(const Ref<Renderer>& renderer, 
         for (unsigned int i = 0; i < node->mNumMeshes; i++) {
             const unsigned int meshIndex = node->mMeshes[i];
             const aiMesh* mesh = scene->mMeshes[meshIndex];
-            Model model;
+            Model model(filename, meshIndex);
             model.transformationMatrix = currentTransformation;
 
             const aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
