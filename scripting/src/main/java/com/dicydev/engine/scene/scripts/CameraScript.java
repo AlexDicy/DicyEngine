@@ -83,10 +83,7 @@ public class CameraScript extends EntityScript {
 
         Camera camera = getScene().getCamera();
         camera.getPosition().set(position);
-        Vector3 angles = transform.getRotation().getQuaternion().toAngles();
-        angles.setX((float) Math.toDegrees(angles.getX()));
-        angles.setY((float) Math.toDegrees(angles.getY()));
-        angles.setZ((float) Math.toDegrees(angles.getZ()));
+        Vector3 angles = transform.getRotation().getQuaternion().toAngles().toDegrees();
         camera.getRotation().set(angles);
     }
 }

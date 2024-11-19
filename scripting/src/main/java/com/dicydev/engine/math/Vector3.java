@@ -141,6 +141,14 @@ public class Vector3 {
         return getX() * other.getX() + getY() * other.getY() + getZ() * other.getZ();
     }
 
+    public Vector3 toDegrees() {
+        return new Vector3((float) Math.toDegrees(getX()), (float) Math.toDegrees(getY()), (float) Math.toDegrees(getZ()));
+    }
+
+    public Vector3 toRadians() {
+        return new Vector3((float) Math.toRadians(getX()), (float) Math.toRadians(getY()), (float) Math.toRadians(getZ()));
+    }
+
 
     /**
      * A {@link Vector3} implementation that reads and writes to a {@link ByteBuffer}.
