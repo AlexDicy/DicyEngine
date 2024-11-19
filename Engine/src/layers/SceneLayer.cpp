@@ -10,6 +10,9 @@
 #include "images/LinearImage.h"
 #include "rendering/skybox/SphericalHarmonics.h"
 #include "scene/models/ModelImporter.h"
+#include "serialization/SceneSerializer.h"
+
+#include <toml++/impl/table.hpp>
 
 class RotatingEntityScript final : public EntityScript {
 public:
@@ -141,6 +144,16 @@ SceneLayer::SceneLayer(const Ref<Application>& app) {
         pointLightEntity->add<Mesh>(renderer, vertexDataFloats, sphereModel.vertices.size() * sizeof(VertexData), sphereModel.indexes.data(), sphereModel.indexes.size(), material,
                                     sphereModel.transformationMatrix);
     }
+
+    Input::setAction("serialize_scene", InputCode::KEY_BACKSLASH);
+    Input::bindActionPressed("serialize_scene", [&]() {
+        SceneSerializer serializer;
+        toml::table table;
+        serializer.serialize(*this->scene, table);
+        std::ofstream file("../scene.toml");
+        file << table;
+        file.close();
+    });
 }
 
 void SceneLayer::update(const std::unique_ptr<Context>& ctx) {

@@ -3,11 +3,11 @@
 #include <entt/entt.hpp>
 
 
-class EntityScriptJavaImpl;
 class Scene;
 
 class Entity : public std::enable_shared_from_this<Entity> {
-    friend EntityScriptJavaImpl;
+    friend class EntityScriptJavaImpl;
+    friend class EntitySerializer;
 
 public:
     Entity(const Ref<Scene>& scene, const Ref<entt::registry>& registry, const entt::entity& id) : scene(scene), registry(registry), id(id) {
@@ -80,7 +80,7 @@ protected:
         return this->id;
     }
 
-private:
+protected:
     Ref<Scene> scene;
     Ref<entt::registry> registry;
     entt::entity id;

@@ -6,6 +6,8 @@
 #include "entt/entt.hpp"
 
 class Scene : public std::enable_shared_from_this<Scene> {
+    friend class SceneSerializer;
+
 public:
     Scene();
 
@@ -31,10 +33,12 @@ public:
         this->camera = camera;
     }
 
-private:
-    Ref<entt::registry> registry;
+protected:
     // keep entities alive
     // todo: use a better approach
     std::list<Ref<Entity>> entities;
+
+private:
+    Ref<entt::registry> registry;
     Ref<Camera> camera;
 };
