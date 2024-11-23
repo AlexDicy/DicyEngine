@@ -19,7 +19,7 @@ public:
     }
 
     glm::mat4 getViewProjectionMatrix() {
-        const glm::mat4 projection = glm::ortho(-20.0f, 20.0f, -20.0f, 20.0f, 0.1f, 1000.0f);
+        const glm::mat4 projection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 0.1f, 1000.0f);
         const glm::mat4 view = glm::lookAt(-this->rotation.toDirection() * 100.0f, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         return projection * view;
     }
