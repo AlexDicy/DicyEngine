@@ -14,21 +14,6 @@
 
 #include <toml++/impl/table.hpp>
 
-class RotatingEntityScript final : public EntityScript {
-public:
-    RotatingEntityScript(const Ref<Application>& app, const Ref<Entity>& entity) : EntityScript(app, entity) {
-        this->transform = &entity->get<Transform>();
-    }
-
-    void onUpdate(const float deltaTime) override {
-        Rotation rotation = this->transform->getRotation();
-        rotation.setYaw(rotation.getYaw() + 5.0f * deltaTime);
-        this->transform->setRotation(rotation);
-    }
-
-private:
-    Transform* transform;
-};
 
 SceneLayer::SceneLayer(const Ref<Application>& app) {
     const Ref<Renderer>& renderer = app->getRenderer();
@@ -42,7 +27,7 @@ SceneLayer::SceneLayer(const Ref<Application>& app) {
     (void)this->addEntitiesForModels(renderer, xyzModels, {0.0f, 0.0f, 0.0f});
 
     // camera
-    app->getEntityScriptRegistry()->registerScript<CameraScript>("CameraScript", EntityScript::ScriptType::NATIVE);
+    app->getEntityScriptRegistry()->registerScriptNative<CameraScript>("CameraScript");
     this->cameraEntity = this->scene->createEntity();
     this->cameraEntity->setTransform(glm::vec3(0.0f, 2.0f, 0.0f), Rotation(-15, 0, 0));
     this->cameraEntity->add<Script>("CameraScript", app, this->cameraEntity);
@@ -106,7 +91,8 @@ SceneLayer::SceneLayer(const Ref<Application>& app) {
         e->setParent(emptyForTable);
     }
 
-    parentEntity->add<Script>(std::make_shared<RotatingEntityScript>(app, parentEntity));
+    app->getEntityScriptRegistry()->registerScriptJava("com.dicydev.engine.scene.scripts.RotatingEntityScript");
+    parentEntity->add<Script>("com.dicydev.engine.scene.scripts.RotatingEntityScript", app, parentEntity);
 
     {
         Model model = ModelImporter::importFromFile(renderer, "../assets/models/lamp.glb")[0];
@@ -150,16 +136,16 @@ SceneLayer::SceneLayer(const Ref<Application>& app) {
 
     Input::setAction("(de)serialize_scene", InputCode::KEY_BACKSLASH);
     Input::setAction("left_ctrl", InputCode::KEY_LEFT_CONTROL);
-    Input::bindActionPressed("serialize_scene", [&]() {
+    Input::bindActionPressed("(de)serialize_scene", [&]() {
         DE_INFO("Is ctrl pressed? {}", Input::isActionPressed("left_ctrl"));
         if (Input::isActionPressed("left_ctrl")) {
+        } else {
             SceneSerializer serializer;
             toml::table table;
             serializer.serialize(*this->scene, table);
             std::ofstream file("../scene.toml");
             file << table;
             file.close();
-        } else {
         }
     });
 }

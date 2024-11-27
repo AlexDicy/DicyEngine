@@ -7,22 +7,16 @@ public:
     EntityScriptRegistry() = default;
 
     template <typename T>
-    void registerScript(const std::string& name, EntityScript::ScriptType type) {
-        if (type == EntityScript::ScriptType::NATIVE) {
-            this->scripts[name] = [](const Ref<Application>& app, const Ref<Entity>& entity) {
-                return std::make_shared<T>(app, entity);
-            };
-            return;
-        }
+    void registerScriptNative(const std::string& name) {
+        this->scripts[name] = [](const Ref<Application>& app, const Ref<Entity>& entity) {
+            return std::make_shared<T>(app, entity);
+        };
+    }
 
-        if (type == EntityScript::ScriptType::JVM) {
-            this->scripts[name] = [name](const Ref<Application>& app, const Ref<Entity>& entity) {
-                return EntityScriptJava::create(app, entity, name);
-            };
-            return;
-        }
-
-        DE_ERROR("Script type not expected");
+    void registerScriptJava(const std::string& name) {
+        this->scripts[name] = [name](const Ref<Application>& app, const Ref<Entity>& entity) {
+            return EntityScriptJava::create(app, entity, name);
+        };
     }
 
     Ref<EntityScript> createInstance(const std::string& name, const Ref<Application>& app, const Ref<Entity>& entity) const {

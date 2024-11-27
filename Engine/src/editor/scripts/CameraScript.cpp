@@ -12,7 +12,7 @@ Ref<PerspectiveCamera> getPerspectiveCamera(const Ref<Window>&);
 Ref<OrthographicCamera> getOrthographicCamera();
 
 CameraScript::CameraScript(const Ref<Application>& app, const Ref<Entity>& entity) : EntityScript(app, entity) {
-    this->script = EntityScriptJava::create(app, entity, "com/dicydev/engine/scene/scripts/CameraScript");
+    this->script = EntityScriptJava::create(app, entity, "com.dicydev.engine.scene.scripts.CameraScript");
 
     const Ref<Window>& window = app->getWindow();
     const Ref<Renderer>& renderer = app->getRenderer();

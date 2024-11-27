@@ -5,7 +5,9 @@
 class EntityScriptJavaImpl final : public EntityScriptJava {
 public:
     EntityScriptJavaImpl(const Ref<Application>& app, const Ref<Entity>& entity, const std::string& className) : EntityScriptJava(app, entity) {
-        this->javaClass = new JavaClass(className);
+        std::string javaClassName = className;
+        std::ranges::replace(javaClassName, '.', '/');
+        this->javaClass = new JavaClass(javaClassName);
 
         this->onUpdateId = this->javaClass->getMethod("onUpdate", "(F)V");
         this->onSpawnId = this->javaClass->getMethod("onSpawn", "()V");
