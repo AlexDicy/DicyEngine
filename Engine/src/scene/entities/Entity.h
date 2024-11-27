@@ -92,7 +92,7 @@ protected:
 
     Ref<Entity> parent = nullptr;
     std::list<Ref<Entity>> children;
-    std::map<entt::entity, Ref<Entity>> childrenById;
+    std::unordered_map<entt::entity, Ref<Entity>> childrenById;
 
     Transform* transform;
 };

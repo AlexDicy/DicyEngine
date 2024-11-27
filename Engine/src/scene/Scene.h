@@ -44,9 +44,8 @@ protected:
     }
 
     // keep entities alive
-    // todo: use a better approach
     std::list<Ref<Entity>> entities;
-    std::map<Ref<Entity>, std::pair<std::string, unsigned int>> entityModels;
+    std::unordered_map<Ref<Entity>, std::pair<std::string, unsigned int>> entityModels;
 
 private:
     Ref<entt::registry> registry;
