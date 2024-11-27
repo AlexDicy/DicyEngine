@@ -63,6 +63,11 @@ jobject nativeRegistryGetComponentBuffer(JNIEnv* env, jobject, const jlong regis
     return env->NewDirectByteBuffer(const_cast<Transform*>(&component), componentSize);
 }
 
+void JavaBindings::transformInvalidateGlobal(JNIEnv* env, jobject, const jobject directBuffer) {
+    auto* transform = static_cast<Transform*>(env->GetDirectBufferAddress(directBuffer));
+    transform->invalidateGlobal();
+}
+
 jobject sceneGetCamera(JNIEnv* env, const jobject sceneObject) {
     const jclass sceneClass = env->GetObjectClass(sceneObject);
     const jlong scenePointer = env->GetLongField(sceneObject, env->GetFieldID(sceneClass, "pointer", "J"));
@@ -101,6 +106,11 @@ void JavaBindings::init() {
         {const_cast<char*>("getComponentBuffer"), const_cast<char*>("(JII)Ljava/nio/ByteBuffer;"), reinterpret_cast<void*>(nativeRegistryGetComponentBuffer)},
     }};
     env->RegisterNatives(env->FindClass("com/dicydev/engine/components/NativeRegistry"), nativeRegistryMethods.data(), nativeRegistryMethods.size());
+
+    const std::array<JNINativeMethod, 1> transformMethods = {{
+        {const_cast<char*>("invalidateGlobal"), const_cast<char*>("(Ljava/nio/ByteBuffer;)V"), reinterpret_cast<void*>(transformInvalidateGlobal)},
+    }};
+    env->RegisterNatives(env->FindClass("com/dicydev/engine/components/Transform"), transformMethods.data(), transformMethods.size());
 
     const std::array<JNINativeMethod, 1> sceneMethods = {{
         {const_cast<char*>("getCamera"), const_cast<char*>("()Lcom/dicydev/engine/scene/camera/Camera;"), reinterpret_cast<void*>(sceneGetCamera)},

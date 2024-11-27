@@ -2,6 +2,8 @@ package com.dicydev.engine.math;
 
 // Keep in sync with scene/math/Rotation.h
 
+import com.dicydev.engine.components.Transform;
+
 import java.nio.ByteBuffer;
 
 /**
@@ -44,6 +46,14 @@ public class Rotation {
 
     public static Rotation fromBuffer(ByteBuffer buffer, int offset) {
         return new BufferRotation(buffer, offset);
+    }
+
+    /**
+     * When a {@link Rotation} is created from a {@link Transform} buffer, the {@link Rotation} will invalidate
+     * the transformation local and global matrices, required for updating child entities.
+     */
+    public static Rotation fromTransformBuffer(ByteBuffer buffer, int offset, Transform owner) {
+        return new BufferTransformRotation(buffer, offset, owner);
     }
 
     public float getPitch() {
@@ -136,9 +146,9 @@ public class Rotation {
         private static final int OFFSET_RECALCULATE_QUATERNION = 12 + Quaternion.BYTES;
 
         /**
-         * Constructs a new {@link Rotation.BufferRotation} with the specified buffer and offset.
+         * Constructs a new {@link BufferRotation} with the specified buffer and offset.
          * <p>
-         * Use {@link Rotation#fromBuffer(ByteBuffer, int)} to create a new {@link Rotation.BufferRotation}.
+         * Use {@link Rotation#fromBuffer(ByteBuffer, int)} to create a new {@link BufferRotation}.
          *
          * @param buffer the buffer
          * @param offset the offset in the buffer
@@ -190,6 +200,36 @@ public class Rotation {
         @Override
         protected void setRecalculateQuaternion(boolean recalculate) {
             buffer.putInt(offset + OFFSET_RECALCULATE_QUATERNION, recalculate ? 1 : 0);
+        }
+    }
+
+    /**
+     * A {@link Rotation} implementation owned by a {@link Transform} that reads and writes to a {@link ByteBuffer}.
+     * Used to access the engine's native memory directly and invalidate the transformation matrices.
+     */
+    private static class BufferTransformRotation extends BufferRotation {
+        private final Transform owner;
+
+        /**
+         * Constructs a new {@link BufferTransformRotation} with the specified buffer, offset and owning transformation.
+         * <p>
+         * Use {@link Rotation#fromTransformBuffer(ByteBuffer, int, Transform)} to create a new {@link BufferTransformRotation}.
+         *
+         * @param buffer the buffer
+         * @param offset the offset in the buffer
+         * @param owner  the transformation that owns this rotation
+         */
+        protected BufferTransformRotation(ByteBuffer buffer, int offset, Transform owner) {
+            super(buffer, offset);
+            this.owner = owner;
+        }
+
+        @Override
+        protected void setRecalculateQuaternion(boolean recalculate) {
+            super.setRecalculateQuaternion(recalculate);
+            if (recalculate) {
+                owner.invalidate();
+            }
         }
     }
 }

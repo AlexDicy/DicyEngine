@@ -23,7 +23,7 @@ public class Transform extends Component {
     }
 
     public Rotation getRotation() {
-        return Rotation.fromBuffer(buffer, 12);
+        return Rotation.fromTransformBuffer(buffer, 12, this);
     }
 
     public void setRotation(Rotation rotation) {
@@ -42,4 +42,15 @@ public class Transform extends Component {
         buffer.putFloat(48, scale.getY());
         buffer.putFloat(52, scale.getZ());
     }
+
+    public void invalidate() {
+        invalidateLocal();
+        invalidateGlobal(buffer);
+    }
+
+    public void invalidateLocal() {
+        buffer.put(184, (byte) 1);
+    }
+
+    public static native void invalidateGlobal(ByteBuffer buffer);
 }

@@ -18,13 +18,13 @@ public class Camera {
     private static native Camera getMainCamera();
 
     public Vector3 getPosition() {
-        return Vector3.fromBuffer(getPosition(pointer).order(ByteOrder.nativeOrder()), 0); // TODO: check if needed
+        return Vector3.fromBuffer(getPosition(pointer).order(ByteOrder.nativeOrder()), 0);
     }
 
     private static native ByteBuffer getPosition(long pointer);
 
     public Rotation getRotation() {
-        return Rotation.fromBuffer(getRotation(pointer).order(ByteOrder.nativeOrder()), 0); // TODO: check if needed
+        return Rotation.fromBuffer(getRotation(pointer).order(ByteOrder.nativeOrder()), 0);
     }
 
     private static native ByteBuffer getRotation(long pointer);

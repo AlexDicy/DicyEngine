@@ -7,6 +7,7 @@ class Entity;
 class Transform {
     friend class Entity;
     friend class TransformSerializer;
+    friend class JavaBindings;
 
 public:
     Transform(const glm::vec3 position, Rotation rotation, const glm::vec3 scale) : position(position), rotation(std::move(rotation)), scale(scale) {
@@ -70,6 +71,7 @@ private:
 
     glm::mat4& getGlobalTransformMatrix();
 
+protected:
     void invalidate();
     void invalidateLocal();
     void invalidateGlobal();
@@ -78,7 +80,6 @@ private:
     // Keep in sync with scripting/com.dicydev.engine.components.Transform
     //
 
-protected:
     // local space
     glm::vec3 position;
     Rotation rotation;
