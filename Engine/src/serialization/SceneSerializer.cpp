@@ -10,7 +10,7 @@ void SceneSerializer::serialize(Scene& scene, toml::table& out) {
 
     std::vector<Ref<Entity>> rootEntities;
     for (const Ref<Entity>& entity : scene.entities) {
-        // fixme: if the root entity is not persistent, children will not be serialized either
+        // fixme (or not): if the root entity is not persistent, children will not be serialized either
         if (!entity->hasParent() && EntitySerializer::shouldSerialize(*entity)) {
             rootEntities.push_back(entity);
         }
@@ -29,8 +29,10 @@ void SceneSerializer::serializeEntityWithChildren(Scene& scene, const Ref<Entity
     EntitySerializer entitySerializer;
     entitySerializer.serialize(*entity, out);
 
-    auto [path, meshIndex] = scene.getEntityModelInfo(entity);
-    out.emplace("model", toml::table({{"path", path}, {"meshIndex", meshIndex}}));
+    if (entity->has<Mesh>()) {
+        auto [path, meshIndex] = scene.getEntityModelInfo(entity);
+        out.emplace("model", toml::table({{"path", path}, {"meshIndex", meshIndex}}));
+    }
 
     toml::array childrenArray;
     for (const Ref<Entity>& child : entity->getChildren()) {

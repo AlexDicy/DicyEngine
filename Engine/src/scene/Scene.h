@@ -40,7 +40,7 @@ public:
 
 protected:
     std::pair<std::string, unsigned int> getEntityModelInfo(const Ref<Entity>& entity) {
-        return entityModels[entity];
+        return entityModels.at(entity);
     }
 
     // keep entities alive
