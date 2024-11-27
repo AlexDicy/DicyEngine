@@ -42,10 +42,10 @@ SceneLayer::SceneLayer(const Ref<Application>& app) {
     (void)this->addEntitiesForModels(renderer, xyzModels, {0.0f, 0.0f, 0.0f});
 
     // camera
-    app->getEntityScriptRegistry()->registerScript<CameraScript>("CameraScript");
+    app->getEntityScriptRegistry()->registerScript<CameraScript>("CameraScript", EntityScript::ScriptType::NATIVE);
     this->cameraEntity = this->scene->createEntity();
     this->cameraEntity->setTransform(glm::vec3(0.0f, 2.0f, 0.0f), Rotation(-15, 0, 0));
-    this->cameraEntity->add<Script>(app->getEntityScriptRegistry()->createInstance("CameraScript", app, this->cameraEntity));
+    this->cameraEntity->add<Script>("CameraScript", app, this->cameraEntity);
 
     this->shader = app->getShaderRegistry()->load("../assets/shaders/default-shader");
     renderer->setDirectionalShadowMapShader(app->getShaderRegistry()->load("../assets/shaders/shadow-map-directional"));
@@ -94,12 +94,14 @@ SceneLayer::SceneLayer(const Ref<Application>& app) {
     Ref<Entity> emptyForStool = this->scene->createEntity();
     emptyForStool->setTransform({0.0f, 0.0f, 0.0f}, Rotation(), glm::vec3(4.0f));
     emptyForStool->setParent(parentEntity);
+    emptyForStool->setPersistent(true);
     for (const auto& e : this->addEntitiesForModels(renderer, "../assets/models/wooden_stool/wooden_stool_02_1k.gltf", {0.0f, 0.0f, 0.0f})) {
         e->setParent(emptyForStool);
     }
     Ref<Entity> emptyForTable = this->scene->createEntity();
     emptyForTable->setTransform({0.0f, 0.0f, 3.0f}, Rotation(4, -85, 0));
     emptyForTable->setParent(parentEntity);
+    emptyForTable->setPersistent(true);
     for (const auto& e : this->addEntitiesForModels(renderer, "../assets/models/picnic_table/wooden_picnic_table_1k.gltf", {0.0f, 0.0f, 0.0f})) {
         e->setParent(emptyForTable);
     }
@@ -146,14 +148,19 @@ SceneLayer::SceneLayer(const Ref<Application>& app) {
                                     sphereModel.transformationMatrix);
     }
 
-    Input::setAction("serialize_scene", InputCode::KEY_BACKSLASH);
+    Input::setAction("(de)serialize_scene", InputCode::KEY_BACKSLASH);
+    Input::setAction("left_ctrl", InputCode::KEY_LEFT_CONTROL);
     Input::bindActionPressed("serialize_scene", [&]() {
-        SceneSerializer serializer;
-        toml::table table;
-        serializer.serialize(*this->scene, table);
-        std::ofstream file("../scene.toml");
-        file << table;
-        file.close();
+        DE_INFO("Is ctrl pressed? {}", Input::isActionPressed("left_ctrl"));
+        if (Input::isActionPressed("left_ctrl")) {
+            SceneSerializer serializer;
+            toml::table table;
+            serializer.serialize(*this->scene, table);
+            std::ofstream file("../scene.toml");
+            file << table;
+            file.close();
+        } else {
+        }
     });
 }
 
@@ -217,7 +224,7 @@ void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
     const auto scriptsView = this->scene->getScripts();
     for (const auto& entity : scriptsView) {
         Script& script = scriptsView.get<Script>(entity);
-        script.entityScript->onUpdate(ctx->deltaTime);
+        script.getEntityScript()->onUpdate(ctx->deltaTime);
     }
 }
 

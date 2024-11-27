@@ -5,4 +5,7 @@
 class SceneSerializer : public Serializer<Scene> {
 public:
     void serialize(Scene& scene, toml::table& out) override;
+
+private:
+    void serializeEntityWithChildren(Scene& scene, const Ref<Entity>& entity, toml::table& out);
 };

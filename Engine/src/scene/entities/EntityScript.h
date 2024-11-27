@@ -31,6 +31,12 @@ public:
         return this->entity->add<T>(std::forward<Args>(args)...);
     }
 
+    enum class ScriptType { NATIVE, JVM };
+
+    virtual ScriptType getType() const {
+        return ScriptType::NATIVE;
+    }
+
 private:
     Ref<Entity> entity;
 };

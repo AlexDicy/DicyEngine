@@ -1,6 +1,7 @@
 #include "pch/enginepch.h"
 #include "CameraScript.h"
 
+#include "Application.h"
 #include "Window.h"
 #include "input/Input.h"
 #include "rendering/camera/OrthographicCamera.h"

@@ -1,7 +1,7 @@
 #pragma once
-#include "Application.h"
 #include "scene/entities/EntityScript.h"
 
+class Application;
 class EntityScriptJavaImpl;
 
 class EntityScriptJava : public EntityScript {
@@ -9,6 +9,10 @@ class EntityScriptJava : public EntityScript {
 
 public:
     static Ref<EntityScriptJava> create(const Ref<Application>& app, const Ref<Entity>& entity, const std::string& className);
+
+    ScriptType getType() const override {
+        return ScriptType::JVM;
+    }
 
 protected:
     EntityScriptJava(const Ref<Application>& app, const Ref<Entity>& entity) : EntityScript(app, entity) {}
