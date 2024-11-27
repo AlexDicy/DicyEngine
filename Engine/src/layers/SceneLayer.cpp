@@ -42,9 +42,10 @@ SceneLayer::SceneLayer(const Ref<Application>& app) {
     (void)this->addEntitiesForModels(renderer, xyzModels, {0.0f, 0.0f, 0.0f});
 
     // camera
+    app->getEntityScriptRegistry()->registerScript<CameraScript>("CameraScript");
     this->cameraEntity = this->scene->createEntity();
     this->cameraEntity->setTransform(glm::vec3(0.0f, 2.0f, 0.0f), Rotation(-15, 0, 0));
-    this->cameraEntity->add<Script>(std::make_shared<CameraScript>(app, this->cameraEntity));
+    this->cameraEntity->add<Script>(app->getEntityScriptRegistry()->createInstance("CameraScript", app, this->cameraEntity));
 
     this->shader = app->getShaderRegistry()->load("../assets/shaders/default-shader");
     renderer->setDirectionalShadowMapShader(app->getShaderRegistry()->load("../assets/shaders/shadow-map-directional"));

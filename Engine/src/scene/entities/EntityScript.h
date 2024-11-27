@@ -1,6 +1,7 @@
 #pragma once
-#include "Application.h"
 #include "scene/entities/Entity.h"
+
+class Application;
 
 class EntityScript {
 public:

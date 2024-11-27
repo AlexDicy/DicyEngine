@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "scene/components/Transform.h"
 
 #include <entt/entt.hpp>
 

@@ -1,6 +1,6 @@
 ﻿#pragma once
-#include "Shader.h"
-#include "Renderer.h"
+#include "rendering/Shader.h"
+#include "rendering/Renderer.h"
 
 class ShaderRegistry {
 public:
@@ -18,7 +18,7 @@ public:
     }
 
     Ref<Shader> get(const std::string& name) {
-        return this->shaders[name];
+        return this->shaders.at(name);
     }
 
 private:
