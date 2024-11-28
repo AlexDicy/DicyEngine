@@ -13,6 +13,12 @@ public:
     Scene();
 
     Ref<Entity> createEntity();
+    void destroyEntity(const Ref<Entity>& entity);
+
+    // this returns a linked list, despawning a random entity is inefficient
+    std::list<Ref<Entity>> getEntities() const {
+        return this->entities;
+    }
 
     auto getMeshes() const {
         return this->registry->view<Mesh, Transform>();

@@ -9,6 +9,7 @@ class Scene;
 class Entity : public std::enable_shared_from_this<Entity> {
     friend class EntityScriptJavaImpl;
     friend class EntitySerializer;
+    friend class Scene;
 
 public:
     Entity(const Ref<Scene>& scene, const Ref<entt::registry>& registry, const entt::entity& id) : scene(scene), registry(registry), id(id) {

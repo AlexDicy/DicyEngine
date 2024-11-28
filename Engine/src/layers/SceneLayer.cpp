@@ -10,6 +10,7 @@
 #include "images/LinearImage.h"
 #include "rendering/skybox/SphericalHarmonics.h"
 #include "scene/models/ModelImporter.h"
+#include "serialization/EntitySerializer.h"
 #include "serialization/SceneSerializer.h"
 
 #include <toml++/impl/table.hpp>
@@ -146,6 +147,13 @@ SceneLayer::SceneLayer(const Ref<Application>& app) {
             std::ofstream file("../scene.toml");
             file << table;
             file.close();
+
+            // delete all entities
+            for (const auto& entity : this->scene->getEntities()) {
+                if (EntitySerializer::shouldSerialize(*entity)) {
+                    this->scene->destroyEntity(entity);
+                }
+            }
         }
     });
 }
