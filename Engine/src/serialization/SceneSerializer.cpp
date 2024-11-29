@@ -25,6 +25,7 @@ void SceneSerializer::serialize(Scene& scene, toml::table& out) {
 }
 
 
+// todo: rewrite without recursion, even though the scene should probably not be that nested in the first place
 void SceneSerializer::serializeEntityWithChildren(Scene& scene, const Ref<Entity>& entity, toml::table& out) {
     EntitySerializer entitySerializer;
     entitySerializer.serialize(*entity, out);

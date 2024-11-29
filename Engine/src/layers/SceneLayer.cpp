@@ -11,6 +11,7 @@
 #include "rendering/skybox/SphericalHarmonics.h"
 #include "scene/models/ModelImporter.h"
 #include "serialization/EntitySerializer.h"
+#include "serialization/SceneDeserializer.h"
 #include "serialization/SceneSerializer.h"
 
 #include <toml++/impl/table.hpp>
@@ -140,6 +141,8 @@ SceneLayer::SceneLayer(const Ref<Application>& app) {
     Input::bindActionPressed("(de)serialize_scene", [&]() {
         DE_INFO("Is ctrl pressed? {}", Input::isActionPressed("left_ctrl"));
         if (Input::isActionPressed("left_ctrl")) {
+            toml::table in = toml::parse_file("../scene.toml");
+            SceneDeserializer::deserialize(renderer, *this->scene, in);
         } else {
             SceneSerializer serializer;
             toml::table table;
