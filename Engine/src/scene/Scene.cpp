@@ -15,4 +15,5 @@ Ref<Entity> Scene::createEntity() {
 void Scene::destroyEntity(const Ref<Entity>& entity) {
     this->registry->destroy(entity->getEntityId());
     this->entities.remove(entity);
+    this->entityModels.erase(entity);
 }
