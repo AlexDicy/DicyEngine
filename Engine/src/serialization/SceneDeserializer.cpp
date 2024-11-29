@@ -8,19 +8,20 @@
 
 void SceneDeserializer::deserialize(const Ref<Renderer>& renderer, Scene& scene, toml::table& in) {
     const toml::array* entities = in["entities"].as_array();
-    std::stack<const toml::array*> entityStack;
-    entityStack.push(entities);
+    std::stack<std::pair<Ref<Entity>, const toml::array*>> parentEntityStack;
+    parentEntityStack.emplace(nullptr, entities);
 
     // cache models
     std::unordered_map<std::string, std::vector<Model>> models;
 
-    Ref<Entity> currentParent = nullptr;
-    while (!entityStack.empty()) {
-        const toml::array& currentEntities = *entityStack.top();
-        entityStack.pop();
+    while (!parentEntityStack.empty()) {
+        auto [currentParent, currentEntities] = parentEntityStack.top();
+        parentEntityStack.pop();
 
-        for (const toml::node& node : currentEntities) {
+        for (const toml::node& node : *currentEntities) {
             const toml::table& entityTable = *node.as_table();
+            const std::string name = entityTable["model"]["path"].value<std::string>().value_or("");
+            DE_INFO("Deserializing entity with model: {0}, parent is null? {1}", name, currentParent == nullptr);
 
             Ref<Entity> entity = scene.createEntity();
             // entityDeserializer.deserialize(*entity, entityTable);
@@ -73,10 +74,7 @@ void SceneDeserializer::deserialize(const Ref<Renderer>& renderer, Scene& scene,
 
             if (entityTable.contains("children") && !entityTable["children"].as_array()->empty()) {
                 const toml::array* children = entityTable["children"].as_array();
-                entityStack.push(children);
-                currentParent = entity;
-            } else {
-                currentParent = nullptr;
+                parentEntityStack.emplace(entity, children);
             }
         }
     }
