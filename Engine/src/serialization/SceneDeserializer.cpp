@@ -1,6 +1,7 @@
 ﻿#include "pch/enginepch.h"
 #include "SceneDeserializer.h"
 
+#include "TransformDeserializer.h"
 #include "scene/entities/Entity.h"
 #include "scene/models/ModelImporter.h"
 
@@ -20,8 +21,6 @@ void SceneDeserializer::deserialize(const Ref<Renderer>& renderer, Scene& scene,
 
         for (const toml::node& node : *currentEntities) {
             const toml::table& entityTable = *node.as_table();
-            const std::string name = entityTable["model"]["path"].value<std::string>().value_or("");
-            DE_INFO("Deserializing entity with model: {0}, parent is null? {1}", name, currentParent == nullptr);
 
             Ref<Entity> entity = scene.createEntity();
             // entityDeserializer.deserialize(*entity, entityTable);
@@ -43,26 +42,8 @@ void SceneDeserializer::deserialize(const Ref<Renderer>& renderer, Scene& scene,
 
             // transform
             if (entityTable.contains("transform")) {
-                const toml::table& transformTable = *entityTable.get_as<toml::table>("transform");
-                toml::array positionArray = *transformTable.get_as<toml::array>("position");
-                toml::array rotationArray = *transformTable.get_as<toml::array>("rotation");
-                toml::array scaleArray = *transformTable.get_as<toml::array>("scale");
-                glm::vec3 position = {
-                    positionArray[0].value<double>().value(),
-                    positionArray[1].value<double>().value(),
-                    positionArray[2].value<double>().value(),
-                };
-                glm::vec3 rotation = {
-                    rotationArray[0].value<double>().value(),
-                    rotationArray[1].value<double>().value(),
-                    rotationArray[2].value<double>().value(),
-                };
-                glm::vec3 scale = {
-                    scaleArray[0].value<double>().value(),
-                    scaleArray[1].value<double>().value(),
-                    scaleArray[2].value<double>().value(),
-                };
-                entity->setTransform(position, Rotation(rotation), scale);
+                Transform transform = TransformDeserializer::deserialize(*entityTable.get_as<toml::table>("transform"));
+                entity->setTransform(transform.getPosition(), transform.getRotation(), transform.getScale());
             }
 
             // TODO: script

@@ -1,10 +1,11 @@
 ﻿#include "pch/enginepch.h"
 #include "TransformSerializer.h"
 
+#include "RotationSerializer.h"
+
 void TransformSerializer::serialize(Transform& transform, toml::table& out) {
     out.emplace("position", toml::array{transform.getPosition().x, transform.getPosition().y, transform.getPosition().z});
-    // TODO: create a RotationSerializer
-    // TODO: euler angles or quaternions?
-    out.emplace("rotation", toml::array{transform.getRotation().getPitch(), transform.getRotation().getYaw(), transform.getRotation().getRoll()});
+    RotationSerializer rotationSerializer;
+    rotationSerializer.serialize(transform.getRotation(), out);
     out.emplace("scale", toml::array{transform.getScale().x, transform.getScale().y, transform.getScale().z});
 }
