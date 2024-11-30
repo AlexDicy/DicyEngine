@@ -11,7 +11,4 @@ public:
      * it will add all the entities to the existing scene
      */
     static void deserialize(const Ref<Renderer>& renderer, Scene& scene, toml::table& in);
-
-private:
-    static void setEntityModel(const Ref<Renderer>& renderer, Scene& scene, const Ref<Entity>& entity, const Model& model);
 };
