@@ -173,6 +173,7 @@ void OpenGLRenderer::endShadows() const {
 void OpenGLRenderer::endFrame() const {
     this->framebuffer->updateFinalColorTexture();
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glBindVertexArray(0);
 }
 
 void OpenGLRenderer::clean() const {
