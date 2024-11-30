@@ -1,7 +1,6 @@
 #include "pch/enginepch.h"
 #include "Application.h"
 
-#include "Context.h"
 #include "gui/ImGuiGUI.h"
 #include "input/Input.h"
 #include "layers/SceneLayer.h"
@@ -26,7 +25,7 @@ void Application::run() {
 
     this->window = Window::create("DicyEngine", 1920, 1080);
     this->gui = std::make_unique<ImGuiGUI>(window);
-    const auto ctx = std::make_unique<Context>(renderer);
+    const auto ctx = std::make_unique<Context>(this->shared_from_this());
 
     this->eventDispatcher->registerGlobalHandler<WindowCloseEvent>([this](const WindowCloseEvent&) {
         this->running = false;
@@ -43,7 +42,7 @@ void Application::run() {
     Input::init(this->eventDispatcher, this->window);
     this->renderer->init(0, 0, this->window->getWidth(), this->window->getHeight());
     JavaBindings::init();
-    registerLayers(this->shared_from_this());
+    registerLayers(ctx);
 
     while (this->running) {
         this->updateFrame(ctx);
@@ -66,6 +65,6 @@ void Application::updateFrame(const std::unique_ptr<Context>& ctx) const {
     this->window->update();
 }
 
-void Application::registerLayers(const Ref<Application>& app) {
-    this->layers.push_back(new SceneLayer(app));
+void Application::registerLayers(const std::unique_ptr<Context>& ctx) {
+    this->layers.push_back(new SceneLayer(ctx));
 }

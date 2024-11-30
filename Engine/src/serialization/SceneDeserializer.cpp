@@ -6,7 +6,7 @@
 
 #include <stack>
 
-void SceneDeserializer::deserialize(const Ref<Renderer>& renderer, Scene& scene, toml::table& in) {
+void SceneDeserializer::deserialize(const std::unique_ptr<Context>& ctx, Scene& scene, toml::table& in) {
     const toml::array* entities = in["entities"].as_array();
     std::stack<std::pair<Ref<Entity>, const toml::array*>> parentEntityStack;
     parentEntityStack.emplace(nullptr, entities);
@@ -22,7 +22,7 @@ void SceneDeserializer::deserialize(const Ref<Renderer>& renderer, Scene& scene,
             const toml::table& entityTable = *node.as_table();
 
             Ref<Entity> entity = scene.createEntity();
-            EntityDeserializer::deserialize(renderer, scene, entity, entityTable, models);
+            EntityDeserializer::deserialize(ctx, scene, entity, entityTable, models);
 
             // hierarchy
             if (currentParent) {

@@ -17,7 +17,8 @@
 #include <toml++/impl/table.hpp>
 
 
-SceneLayer::SceneLayer(const Ref<Application>& app) {
+SceneLayer::SceneLayer(const std::unique_ptr<Context>& ctx) {
+    const Ref<Application>& app = ctx->app;
     const Ref<Renderer>& renderer = app->getRenderer();
     this->scene = std::make_shared<Scene>();
 
@@ -142,7 +143,7 @@ SceneLayer::SceneLayer(const Ref<Application>& app) {
         DE_INFO("Is ctrl pressed? {}", Input::isActionPressed("left_ctrl"));
         if (Input::isActionPressed("left_ctrl")) {
             toml::table in = toml::parse_file("../scene.toml");
-            SceneDeserializer::deserialize(renderer, *this->scene, in);
+            SceneDeserializer::deserialize(ctx, *this->scene, in);
         } else {
             SceneSerializer serializer;
             toml::table table;

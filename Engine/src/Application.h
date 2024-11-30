@@ -1,9 +1,11 @@
 #pragma once
-#include "Layer.h"
 #include "Window.h"
-#include "gui/GUI.h"
 #include "rendering/Renderer.h"
 
+
+class GUI;
+class Context;
+class Layer;
 
 class Application : public std::enable_shared_from_this<Application> {
 public:
@@ -12,7 +14,7 @@ public:
 
     void run();
     void updateFrame(const std::unique_ptr<Context>& ctx) const;
-    void registerLayers(const Ref<Application>& app);
+    void registerLayers(const std::unique_ptr<Context>& app);
 
     const Ref<Window>& getWindow() const {
         return this->window;

@@ -23,8 +23,7 @@ public:
         try {
             return this->scripts.at(name)(app, entity);
         } catch (const std::out_of_range&) {
-            DE_ERROR("Script not found: {0}", name);
-            throw;
+            throw std::runtime_error("Script not found: " + name);
         }
     }
 

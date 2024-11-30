@@ -1,5 +1,4 @@
 ﻿#pragma once
-#include "Application.h"
 #include "Layer.h"
 #include "scene/Scene.h"
 #include "scene/lights/DirectionalLight.h"
@@ -7,7 +6,7 @@
 
 class SceneLayer : public Layer {
 public:
-    explicit SceneLayer(const Ref<Application>& app);
+    explicit SceneLayer(const std::unique_ptr<Context>& ctx);
 
     void update(const std::unique_ptr<Context>& ctx) override;
 
