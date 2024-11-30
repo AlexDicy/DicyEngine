@@ -22,7 +22,7 @@ Debugging and running the engine from Java is possible by using the `runEngine` 
 If you don't have an IDE, you can run Gradle from the command line.
 ```bash
 cd scripting/
-./gradle run :runEngine
+./gradlew run :runEngine
 # or on Windows
 .\gradlew.bat run :runEngine
 ```
