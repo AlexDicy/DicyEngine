@@ -52,7 +52,7 @@ public:
     virtual void beginPointLightShadow(const PointLight& light, int lightIndex, int faceIndex) const = 0;
     virtual void endShadows() const = 0;
     virtual void endFrame() const = 0;
-    virtual void clean() const = 0;
+    virtual void clear() const = 0;
 
     void setIrradianceSH(const std::array<glm::vec3, 9>& irradianceSh);
     void setPrefilteredEnvMap(const Ref<TextureCube>& prefilteredEnvMap);

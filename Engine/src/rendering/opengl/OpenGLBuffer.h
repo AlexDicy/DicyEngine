@@ -7,6 +7,7 @@ public:
     ~OpenGLVertexBuffer() override;
 
     void bind() const override;
+    void unbind() const override;
 
     // make sure to also update the corresponding VertexArray to load the layout
     void setLayout(const BufferLayout& layout) override {
@@ -27,6 +28,8 @@ public:
     ~OpenGLIndexBuffer() override;
 
     void bind() const override;
+    void unbind() const override;
+
     uint32_t getCount() const override {
         return this->count;
     }

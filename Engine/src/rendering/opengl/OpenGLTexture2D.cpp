@@ -23,11 +23,7 @@ OpenGLTexture2D::OpenGLTexture2D(const std::string& path) : Texture2D(0, 0), pat
         DE_ERROR("Failed to read texture file {0} - {1}", path, error);
     }
 
-    this->width = width;
-    this->height = height;
-
     this->createTextureWithData(channels, width, height, texture, isHDR);
-
     stbi_image_free(texture);
 }
 

@@ -137,7 +137,7 @@ void OpenGLRenderer::beginFrame() {
     this->projectionMatrix = this->camera->getProjectionMatrix();
     this->pointLights.clear();
     this->framebuffer->bind();
-    this->clean(); // make sure to clean the framebuffer
+    this->clear(); // make sure to clean the framebuffer
     glEnable(GL_CULL_FACE); // disabled by the skybox
     glDepthFunc(GL_LESS); // changed by the skybox
 }
@@ -176,9 +176,15 @@ void OpenGLRenderer::endFrame() const {
     glBindVertexArray(0);
 }
 
-void OpenGLRenderer::clean() const {
+void OpenGLRenderer::clear() const {
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    glUseProgram(0);
 }
 
 void OpenGLRenderer::draw(const Ref<VertexArray>& vertexArray, const glm::mat4& transform, const Ref<Shader>& shader) const {

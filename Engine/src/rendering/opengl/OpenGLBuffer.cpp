@@ -11,6 +11,7 @@ OpenGLVertexBuffer::OpenGLVertexBuffer(const float* vertices, const uint32_t siz
 #endif
     glBindBuffer(GL_ARRAY_BUFFER, this->id);
     glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 OpenGLVertexBuffer::~OpenGLVertexBuffer() {
@@ -19,6 +20,10 @@ OpenGLVertexBuffer::~OpenGLVertexBuffer() {
 
 void OpenGLVertexBuffer::bind() const {
     glBindBuffer(GL_ARRAY_BUFFER, this->id);
+}
+
+void OpenGLVertexBuffer::unbind() const {
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 
@@ -30,6 +35,7 @@ OpenGLIndexBuffer::OpenGLIndexBuffer(const uint32_t* indexes, const uint32_t cou
 #endif
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->id);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, static_cast<GLsizei>(sizeof(uint32_t) * count), indexes, GL_STATIC_DRAW);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
 OpenGLIndexBuffer::~OpenGLIndexBuffer() {
@@ -38,4 +44,8 @@ OpenGLIndexBuffer::~OpenGLIndexBuffer() {
 
 void OpenGLIndexBuffer::bind() const {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->id);
+}
+
+void OpenGLIndexBuffer::unbind() const {
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }

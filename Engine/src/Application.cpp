@@ -51,7 +51,7 @@ void Application::run() {
 
 void Application::updateFrame(const std::unique_ptr<Context>& ctx) const {
     DE::Profiling::getProfiler().clearTimings();
-    this->renderer->clean();
+    this->renderer->clear();
 
     ctx->setDeltaTime(this->window->getLastFrameTime());
 

@@ -28,7 +28,7 @@ public:
     void beginPointLightShadow(const PointLight& light, int lightIndex, int faceIndex) const override;
     void endShadows() const override;
     void endFrame() const override;
-    void clean() const override;
+    void clear() const override;
 
     void draw(const Ref<VertexArray>& vertexArray, const glm::mat4& transform, const Ref<Shader>& shader) const override;
     void draw(const Ref<VertexArray>& vertexArray, const glm::mat4& transform, const Ref<Shader>& shader, const Material& material) const override;

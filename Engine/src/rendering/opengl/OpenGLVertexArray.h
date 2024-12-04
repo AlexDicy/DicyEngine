@@ -7,6 +7,7 @@ public:
     ~OpenGLVertexArray() override;
 
     void bind() const override;
+    void unbind() const override;
 
     const Ref<VertexBuffer>& getVertexBuffer() const override;
     const Ref<IndexBuffer>& getIndexBuffer() const override;

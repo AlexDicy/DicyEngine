@@ -41,7 +41,10 @@ OpenGLVertexArray::OpenGLVertexArray(const Ref<VertexBuffer>& vertexBuffer, cons
 
     // index buffer
     indexBuffer->bind();
-    glBindVertexArray(0);
+
+    this->OpenGLVertexArray::unbind();
+    vertexBuffer->unbind();
+    indexBuffer->unbind();
 }
 
 OpenGLVertexArray::~OpenGLVertexArray() {
@@ -50,6 +53,10 @@ OpenGLVertexArray::~OpenGLVertexArray() {
 
 void OpenGLVertexArray::bind() const {
     glBindVertexArray(this->id);
+}
+
+void OpenGLVertexArray::unbind() const {
+    glBindVertexArray(0);
 }
 
 const Ref<VertexBuffer>& OpenGLVertexArray::getVertexBuffer() const {
