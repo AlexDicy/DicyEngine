@@ -40,10 +40,10 @@ std::vector<Model> ModelImporter::importFromFile(const Ref<Renderer>& renderer, 
     nodeStack.emplace(scene->mRootNode, glm::mat4(1.0f));
 
     while (!nodeStack.empty()) {
-        auto [node, parent_transformation] = nodeStack.top();
+        auto [node, parentTransformation] = nodeStack.top();
         nodeStack.pop();
 
-        glm::mat4 currentTransformation = parent_transformation * convertAiMatrixToGlm(node->mTransformation);
+        glm::mat4 currentTransformation = parentTransformation * convertAiMatrixToGlm(node->mTransformation);
 
         for (unsigned int i = 0; i < node->mNumMeshes; i++) {
             const unsigned int meshIndex = node->mMeshes[i];
@@ -125,6 +125,7 @@ Ref<Texture2D> ModelImporter::getTextureFromMaterial(const Ref<Renderer>& render
 
 unsigned char* ModelImporter::decompressTexture(const unsigned char* data, const unsigned int size, unsigned int& channels, unsigned int& width, unsigned int& height) {
     int stbiWidth, stbiHeight, stbiChannels; // not unsigned
+    stbi_set_flip_vertically_on_load(true);
     stbi_uc* texture =
         stbi_load_from_memory(data, size, &stbiWidth, &stbiHeight, &stbiChannels, 0); // NOLINT(bugprone-narrowing-conversions, cppcoreguidelines-narrowing-conversions)
 
