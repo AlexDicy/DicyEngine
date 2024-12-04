@@ -76,27 +76,6 @@ SceneLayer::SceneLayer(const std::unique_ptr<Context>& ctx) {
 
     renderer->setCamera(this->scene->getCamera());
 
-    (void)this->addEntitiesForModels(renderer, "../assets/models/fountain.glb", {-4.0f, 0.2f, 4.0f});
-    this->addEntitiesForModels(renderer, "../assets/models/covered_car/covered_car_1k.gltf", {2.5f, 0.0f, 3.0f}, Rotation(0, -15, 0));
-    Ref<Entity> parentEntity = this->addEntitiesForModels(renderer, "../assets/models/sand_rocks/sand_rocks_small_01_1k.gltf", {0.0f, 0.0f, 3.0f})[0];
-    Ref<Entity> emptyForStool = this->scene->createEntity();
-    emptyForStool->setTransform({0.0f, 0.0f, 0.0f}, Rotation(), glm::vec3(4.0f));
-    emptyForStool->setParent(parentEntity);
-    emptyForStool->setPersistent(true);
-    for (const auto& e : this->addEntitiesForModels(renderer, "../assets/models/wooden_stool/wooden_stool_02_1k.gltf", {0.0f, 0.0f, 0.0f})) {
-        e->setParent(emptyForStool);
-    }
-    Ref<Entity> emptyForTable = this->scene->createEntity();
-    emptyForTable->setTransform({0.0f, 0.0f, 3.0f}, Rotation(4, -85, 0));
-    emptyForTable->setParent(parentEntity);
-    emptyForTable->setPersistent(true);
-    for (const auto& e : this->addEntitiesForModels(renderer, "../assets/models/picnic_table/wooden_picnic_table_1k.gltf", {0.0f, 0.0f, 0.0f})) {
-        e->setParent(emptyForTable);
-    }
-
-    app->getEntityScriptRegistry()->registerScriptJava("com.dicydev.engine.scene.scripts.RotatingEntityScript");
-    parentEntity->add<Script>("com.dicydev.engine.scene.scripts.RotatingEntityScript", app, parentEntity);
-
     {
         Model model = ModelImporter::importFromFile(renderer, "../assets/models/lamp.glb")[0];
         const VertexData* vertexData = model.vertices.data();
@@ -137,29 +116,10 @@ SceneLayer::SceneLayer(const std::unique_ptr<Context>& ctx) {
                                     sphereModel.transformationMatrix);
     }
 
-    Input::setAction("(de)serialize_scene", InputCode::KEY_BACKSLASH);
-    Input::setAction("left_ctrl", InputCode::KEY_LEFT_CONTROL);
-    Input::bindActionPressed("(de)serialize_scene", [&]() {
-        DE_INFO("Is ctrl pressed? {}", Input::isActionPressed("left_ctrl"));
-        if (Input::isActionPressed("left_ctrl")) {
-            toml::table in = toml::parse_file("../scene.toml");
-            SceneDeserializer::deserialize(ctx, *this->scene, in);
-        } else {
-            SceneSerializer serializer;
-            toml::table table;
-            serializer.serialize(*this->scene, table);
-            std::ofstream file("../scene.toml");
-            file << table;
-            file.close();
+    app->getEntityScriptRegistry()->registerScriptJava("com.dicydev.engine.scene.scripts.RotatingEntityScript");
 
-            // delete all entities
-            for (const auto& entity : this->scene->getEntities()) {
-                if (EntitySerializer::shouldSerialize(*entity)) {
-                    this->scene->destroyEntity(entity);
-                }
-            }
-        }
-    });
+    toml::table in = toml::parse_file("../assets/scene.toml");
+    SceneDeserializer::deserialize(ctx, *this->scene, in);
 }
 
 void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
@@ -241,7 +201,6 @@ std::vector<Ref<Entity>> SceneLayer::addEntitiesForModels(const Ref<Renderer>& r
         const Material& material = model.material;
         Ref<Entity> entity = this->scene->createEntity();
         this->scene->setEntityModel(entity, model);
-        entity->setPersistent(true);
         entity->add<Mesh>(renderer, vertexDataFloats, model.vertices.size() * sizeof(VertexData), model.indexes.data(), model.indexes.size(), material, model.transformationMatrix);
         entity->setTransform(position, rotation, scale);
         entities.push_back(entity);
