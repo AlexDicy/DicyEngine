@@ -41,6 +41,8 @@ public:
     virtual Ref<Shader> createShader(const std::string& vertexPath, const std::string& fragmentPath) const = 0;
     virtual Ref<Texture2D> createTexture2D(const std::string& path) const = 0;
     virtual Ref<Texture2D> createTexture2D(unsigned int channels, unsigned int width, unsigned int height, unsigned int bytesPerPixel, const void* data) const = 0;
+    virtual Ref<Texture2D> createTexture2D(unsigned int channels, unsigned int width, unsigned int height, unsigned int bytesPerPixel, TextureFormat format,
+                                           const void* data) const = 0;
     virtual Ref<Texture2D> createBRDFLUT(const Ref<Shader>& shader, uint32_t width) const = 0;
     virtual Ref<TextureCube> createTextureCube(const std::array<std::string, 6>& paths) const = 0;
     virtual Ref<TextureCube> createTextureCubeFromHDR(const Ref<Texture2D>& hdrTexture, const Ref<Shader>& convertShader, uint32_t size) = 0;

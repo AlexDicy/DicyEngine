@@ -121,10 +121,12 @@ SceneLayer::SceneLayer(const std::unique_ptr<Context>& ctx) {
     app->getEntityScriptRegistry()->registerScriptJava("com.dicydev.engine.scene.scripts.RotatingEntityScript");
 
     Ref<Entity> uiEntity = this->scene->createEntity();
-    uiEntity->add<Script>(std::make_shared<UIScript>(app, uiEntity));
-    const auto uiMaterial = Material(renderer->createTexture2D(4, 1, 1, 1, std::array<unsigned char, 4>{255, 255, 255, 16 * 0}.data()));
+    Script& uiScript = uiEntity->add<Script>(std::make_shared<UIScript>(app, uiEntity));
+    const auto uiMaterial = Material(renderer->createTexture2D(4, 1, 1, 1, BGRA, std::array<unsigned char, 4>{0, 0, 0, 0}.data()));
     this->uiMesh = Plane::create(renderer, uiMaterial);
+    uiEntity->add<UITexture>(uiMaterial.albedo);
     this->uiShader = app->getShaderRegistry()->load("../assets/shaders/ui");
+    uiScript.getEntityScript()->onSpawn(); // todo: should not be called manually
 
     toml::table in = toml::parse_file("../assets/scene.toml");
     SceneDeserializer::deserialize(ctx, *this->scene, in);

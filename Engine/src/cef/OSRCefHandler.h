@@ -8,6 +8,13 @@ public:
         this->pixelBuffer.resize(static_cast<size_t>(app->getWindow()->getWidth()) * app->getWindow()->getHeight() * 4);
     }
 
+    void setTexture(const Ref<Texture2D>& texture) {
+        this->texture = texture;
+    }
+
+    //
+    // CEF overrides
+    //
     CefRefPtr<CefRenderHandler> GetRenderHandler() override {
         return this;
     }
@@ -23,12 +30,12 @@ public:
     void OnPaint(CefRefPtr<CefBrowser> browser, PaintElementType type, const RectList& dirtyRects, const void* buffer, int width, int height) override;
 
 private:
-    void updateTexture();
+    void updateTexture() const;
 
     Ref<Application> app;
+    Ref<Texture2D> texture;
     CefRefPtr<CefBrowserHost> host;
     std::vector<unsigned char> pixelBuffer;
-    std::vector<unsigned char> popupPixelBuffer;
 
     IMPLEMENT_REFCOUNTING(OSRCefHandler);
 };

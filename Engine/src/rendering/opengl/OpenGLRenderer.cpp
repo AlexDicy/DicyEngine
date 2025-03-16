@@ -2,6 +2,7 @@
 #include "OpenGLRenderer.h"
 
 #include "OpenGLBuffer.h"
+#include "OpenGLDataType.h"
 #include "OpenGLShader.h"
 #include "OpenGLTexture2D.h"
 #include "OpenGLTextureCube.h"
@@ -21,8 +22,8 @@ void OpenGLRenderer::init(const int x, const int y, const uint32_t width, const 
     glFrontFace(GL_CW);
     this->setViewport(x, y, width, height);
     unsigned char white[4] = {255, 255, 255, 255};
-    this->whitePixelTexture = std::make_shared<OpenGLTexture2D>(1, 1, 1, 1, white);
-    this->defaultOcclusionRoughnessMetallicTexture = std::make_shared<OpenGLTexture2D>(3, 1, 1, 1, std::array<unsigned char, 3>{255, 255, 0}.data());
+    this->whitePixelTexture = std::make_shared<OpenGLTexture2D>(1, 1, 1, 1, GL_RGBA, white);
+    this->defaultOcclusionRoughnessMetallicTexture = std::make_shared<OpenGLTexture2D>(3, 1, 1, 1, GL_RGB, std::array<unsigned char, 3>{255, 255, 0}.data());
     this->shadowDepthFramebuffer = std::make_shared<OpenGLDepthFramebuffer>(2048, 2048);
     this->shadowCubeArrayFramebuffer = std::make_shared<OpenGLShadowCubeArrayFramebuffer>(1024, 0);
 }
@@ -62,6 +63,12 @@ Ref<Texture2D> OpenGLRenderer::createTexture2D(const std::string& path) const {
 Ref<Texture2D> OpenGLRenderer::createTexture2D(const unsigned int channels, const unsigned int width, const unsigned int height, const unsigned int bytesPerPixel,
                                                const void* data) const {
     return std::make_shared<OpenGLTexture2D>(channels, width, height, bytesPerPixel, data);
+}
+
+Ref<Texture2D> OpenGLRenderer::createTexture2D(const unsigned int channels, const unsigned int width, const unsigned int height, const unsigned int bytesPerPixel,
+                                               const TextureFormat format, const void* data) const {
+    GLenum glFormat = getOpenGLTypeFromTextureFormat(format);
+    return std::make_shared<OpenGLTexture2D>(channels, width, height, bytesPerPixel, glFormat, data);
 }
 
 Ref<Texture2D> OpenGLRenderer::createBRDFLUT(const Ref<Shader>& shader, const uint32_t size) const {

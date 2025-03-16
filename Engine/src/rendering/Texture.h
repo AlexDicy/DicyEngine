@@ -21,6 +21,9 @@ public:
         return this->height;
     }
 
+    virtual void setRawData(const void* data) = 0;
+    virtual void resize(unsigned int width, unsigned int height) = 0;
+
 protected:
     unsigned int width;
     unsigned int height;
@@ -64,4 +67,10 @@ public:
 protected:
     unsigned int size;
     unsigned int layersCount;
+};
+
+enum TextureFormat {
+    RGB = 0,
+    RGBA = 1,
+    BGRA = 2,
 };

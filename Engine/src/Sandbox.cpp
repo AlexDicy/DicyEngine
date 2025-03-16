@@ -31,19 +31,8 @@ int main() {
         return exitCode;
     }
 
-    // Instruct CEF to not render to a window.
-    CefWindowInfo windowInfo;
-    windowInfo.SetAsWindowless(nullptr);
-
-    CefBrowserSettings browserSettings;
-
     const auto app = std::make_shared<Application>();
     app->initialize();
-
-    CefRefPtr handler(new OSRCefHandler(app));
-    // Start up the browser instance.
-    CefBrowserHost::CreateBrowser(windowInfo, handler, "https://www.google.com", browserSettings, nullptr, nullptr);
-
     app->run();
 
     // Shut down CEF.
