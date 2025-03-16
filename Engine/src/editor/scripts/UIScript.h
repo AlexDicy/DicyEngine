@@ -1,5 +1,6 @@
 #pragma once
-#include "scene/entities/EntityScriptJava.h"
+
+class OSRCefClient;
 
 class UIScript final : public EntityScript {
 public:
@@ -12,5 +13,6 @@ public:
     void onSleep() override;
 
 private:
-    Ref<EntityScriptJava> script;
+    std::string url = "https://www.google.com";
+    Ref<OSRCefClient> cefClient;
 };

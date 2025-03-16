@@ -3,6 +3,7 @@
 
 #include "Application.h"
 #include "Window.h"
+#include "cef/OSRCefClient.h"
 #include "scene/Scene.h"
 
 UIScript::UIScript(const Ref<Application>& app, const Ref<Entity>& entity) : EntityScript(app, entity) {
@@ -16,6 +17,7 @@ void UIScript::onUpdate(const float deltaTime) {
 }
 
 void UIScript::onSpawn() {
+    this->cefClient->start();
 }
 
 void UIScript::onDestroy() {
