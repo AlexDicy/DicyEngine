@@ -266,3 +266,11 @@ void OpenGLRenderer::drawForPointLightShadows(const Ref<VertexArray>& vertexArra
     vertexArray->bind();
     glDrawElements(GL_TRIANGLES, static_cast<int>(vertexArray->getIndexBuffer()->getCount()), GL_UNSIGNED_INT, nullptr);
 }
+
+void OpenGLRenderer::drawUI(const Ref<VertexArray>& vertexArray, const Ref<Shader>& shader, const Material& material) const {
+    shader->bind();
+    material.albedo->bind(0);
+    shader->uploadUniformInt("uTexture", 0);
+    vertexArray->bind();
+    glDrawElements(GL_TRIANGLES, static_cast<int>(vertexArray->getIndexBuffer()->getCount()), GL_UNSIGNED_INT, nullptr);
+}

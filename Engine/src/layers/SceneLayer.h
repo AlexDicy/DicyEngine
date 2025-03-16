@@ -2,7 +2,6 @@
 #include "Layer.h"
 #include "scene/Scene.h"
 #include "scene/lights/DirectionalLight.h"
-#include "scene/models/Model.h"
 
 class SceneLayer : public Layer {
 public:
@@ -19,4 +18,6 @@ private:
     Ref<Shader> shader;
     Ref<SkyboxCube> skybox;
     Ref<DirectionalLight> directionalLight;
+    Ref<Mesh> uiMesh;
+    Ref<Shader> uiShader;
 };

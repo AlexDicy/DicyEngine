@@ -35,6 +35,7 @@ public:
     void drawForDirectionalShadows(const Ref<VertexArray>& vertexArray, const glm::mat4& transform) const override;
     void drawForPointLightShadows(const Ref<VertexArray>& vertexArray, const glm::mat4& transform) const override;
     void drawSkybox(const Ref<SkyboxCube>& skybox) const override;
+    void drawUI(const Ref<VertexArray>& vertexArray, const Ref<Shader>& shader, const Material& material) const override;
 
 private:
     Ref<RenderFramebuffer> framebuffer;

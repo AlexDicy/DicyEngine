@@ -5,11 +5,13 @@
 
 #include "editor/scripts/CameraScript.h"
 #include "editor/scripts/LightScript.h"
+#include "editor/scripts/UIScript.h"
 #include "images/Image.h"
 #include "images/ImageUtils.h"
 #include "images/LinearImage.h"
 #include "rendering/skybox/SphericalHarmonics.h"
 #include "scene/models/ModelImporter.h"
+#include "scene/models/Plane.h"
 #include "serialization/EntitySerializer.h"
 #include "serialization/SceneDeserializer.h"
 #include "serialization/SceneSerializer.h"
@@ -118,6 +120,12 @@ SceneLayer::SceneLayer(const std::unique_ptr<Context>& ctx) {
 
     app->getEntityScriptRegistry()->registerScriptJava("com.dicydev.engine.scene.scripts.RotatingEntityScript");
 
+    Ref<Entity> uiEntity = this->scene->createEntity();
+    uiEntity->add<Script>(std::make_shared<UIScript>(app, uiEntity));
+    const auto uiMaterial = Material(renderer->createTexture2D(4, 1, 1, 1, std::array<unsigned char, 4>{255, 255, 255, 16 * 0}.data()));
+    this->uiMesh = Plane::create(renderer, uiMaterial);
+    this->uiShader = app->getShaderRegistry()->load("../assets/shaders/ui");
+
     toml::table in = toml::parse_file("../assets/scene.toml");
     SceneDeserializer::deserialize(ctx, *this->scene, in);
 }
@@ -174,8 +182,8 @@ void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
         }
     }
 
-    // render skybox
     ctx->renderer->drawSkybox(this->skybox);
+    ctx->renderer->drawUI(this->uiMesh->vertexArray, this->uiShader, this->uiMesh->material);
 
     ctx->renderer->endFrame();
 

@@ -68,6 +68,7 @@ public:
     virtual void drawForDirectionalShadows(const Ref<VertexArray>& vertexArray, const glm::mat4& transform) const = 0;
     virtual void drawForPointLightShadows(const Ref<VertexArray>& vertexArray, const glm::mat4& transform) const = 0;
     virtual void drawSkybox(const Ref<SkyboxCube>& skybox) const = 0;
+    virtual void drawUI(const Ref<VertexArray>& vertexArray, const Ref<Shader>& shader, const Material& material) const = 0;
 
 protected:
     Ref<Camera> camera;
