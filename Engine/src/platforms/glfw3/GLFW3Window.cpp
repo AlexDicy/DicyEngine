@@ -21,14 +21,14 @@ GLFW3Window::GLFW3Window(const char* title, const unsigned int width, const unsi
         isGLFWInitialized = true;
     }
 
-    #ifdef DE_PLATFORM_MACOS
+#ifdef DE_PLATFORM_MACOS
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
     glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, false);
-    #else
+#else
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-    #endif
+#endif
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, true);
 
@@ -105,20 +105,26 @@ void GLFW3Window::registerEvents() const {
     glfwSetCharCallback(this->window, [](GLFWwindow*, unsigned int c) {
         eventDispatcher->dispatch(CharTypedEvent(c));
     });
-    glfwSetMouseButtonCallback(this->window, [](GLFWwindow*, int button, int action, int) {
+    glfwSetMouseButtonCallback(this->window, [](GLFWwindow* window, int button, int action, int) {
+        double x;
+        double y;
+        glfwGetCursorPos(window, &x, &y);
         switch (action) {
             case GLFW_PRESS:
-                eventDispatcher->dispatch(MouseButtonPressedEvent(convertMouseButtonToInputCode(button)));
+                eventDispatcher->dispatch(MouseButtonPressedEvent(static_cast<float>(x), static_cast<float>(y), convertMouseButtonToInputCode(button)));
                 break;
             case GLFW_RELEASE:
-                eventDispatcher->dispatch(MouseButtonReleasedEvent(convertMouseButtonToInputCode(button)));
+                eventDispatcher->dispatch(MouseButtonReleasedEvent(static_cast<float>(x), static_cast<float>(y), convertMouseButtonToInputCode(button)));
                 break;
             default:
                 break;
         }
     });
-    glfwSetScrollCallback(this->window, [](GLFWwindow*, double offset_x, double offset_y) {
-        eventDispatcher->dispatch(MouseScrolledEvent(offset_x, offset_y));
+    glfwSetScrollCallback(this->window, [](GLFWwindow* window, double offsetX, double offsetY) {
+        double x;
+        double y;
+        glfwGetCursorPos(window, &x, &y);
+        eventDispatcher->dispatch(MouseScrolledEvent(static_cast<float>(x), static_cast<float>(y), offsetX, offsetY));
     });
     glfwSetCursorPosCallback(this->window, [](GLFWwindow*, const double x, const double y) {
         eventDispatcher->dispatch(MouseMovedEvent(static_cast<float>(x), static_cast<float>(y)));
@@ -252,7 +258,7 @@ InputCode convertKeyToInputCode(int key) {
         case GLFW_KEY_MENU: return InputCode::KEY_MENU;
         default: return InputCode::INPUT_UNKNOWN;
             // clang-format on
-        // @formatter:on
+            // @formatter:on
     }
 }
 
@@ -270,6 +276,6 @@ InputCode convertMouseButtonToInputCode(int button) {
         case GLFW_MOUSE_BUTTON_8: return InputCode::MOUSE_BUTTON_8;
         default: return InputCode::INPUT_UNKNOWN;
             // clang-format on
-        // @formatter:on
+            // @formatter:on
     }
 }

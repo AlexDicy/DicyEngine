@@ -8,16 +8,45 @@
 #include "scene/Scene.h"
 
 UIScript::UIScript(const Ref<Application>& app, const Ref<Entity>& entity) : EntityScript(app, entity) {
+    this->app = app;
     this->handler = CefRefPtr(new OSRCefHandler(app));
 }
 
 void UIScript::onSpawn() {
-    UITexture& uiTexture = this->getComponent<UITexture>();
-    this->handler->setTexture(uiTexture.texture);
+    auto& [texture] = this->getComponent<UITexture>();
+    this->handler->setTexture(texture);
     CefWindowInfo windowInfo;
     windowInfo.SetAsWindowless(nullptr);
-    CefBrowserSettings browserSettings;
+    const CefBrowserSettings browserSettings;
     CefBrowserHost::CreateBrowser(windowInfo, this->handler, this->url, browserSettings, nullptr, nullptr);
+
+    this->app->getEventDispatcher()->registerGlobalHandler<MouseMovedEvent>([this](const MouseMovedEvent& event) {
+        this->handler->sendMouseMoveEvent(event);
+    });
+
+    this->app->getEventDispatcher()->registerGlobalHandler<MouseButtonPressedEvent>([this](const MouseButtonPressedEvent& event) {
+        this->handler->sendMouseButtonPressedEvent(event);
+    });
+
+    this->app->getEventDispatcher()->registerGlobalHandler<MouseButtonReleasedEvent>([this](const MouseButtonReleasedEvent& event) {
+        this->handler->sendMouseButtonReleasedEvent(event);
+    });
+
+    this->app->getEventDispatcher()->registerGlobalHandler<MouseScrolledEvent>([this](const MouseScrolledEvent& event) {
+        this->handler->sendMouseScrolledEvent(event);
+    });
+
+    this->app->getEventDispatcher()->registerGlobalHandler<KeyPressedEvent>([this](const KeyPressedEvent& event) {
+        this->handler->sendKeyPressedEvent(event);
+    });
+
+    this->app->getEventDispatcher()->registerGlobalHandler<KeyReleasedEvent>([this](const KeyReleasedEvent& event) {
+        this->handler->sendKeyReleasedEvent(event);
+    });
+
+    this->app->getEventDispatcher()->registerGlobalHandler<CharTypedEvent>([this](const CharTypedEvent& event) {
+        this->handler->sendCharTypedEvent(event);
+    });
 }
 
 void UIScript::onUpdate(const float deltaTime) {

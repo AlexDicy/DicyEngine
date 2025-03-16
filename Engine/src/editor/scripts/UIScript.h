@@ -11,6 +11,7 @@ public:
     void onUpdate(float deltaTime) override;
 
 private:
+    Ref<Application> app;
     std::string url = "about:blank";
     CefRefPtr<OSRCefHandler> handler;
 };

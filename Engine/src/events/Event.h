@@ -19,8 +19,7 @@ class WindowResizeEvent : public Event {
     unsigned int height;
 
 public:
-    WindowResizeEvent(const unsigned int width, const unsigned int height) : width(width), height(height) {
-    }
+    WindowResizeEvent(const unsigned int width, const unsigned int height) : width(width), height(height) {}
 
     unsigned int getWidth() const {
         return this->width;
@@ -39,8 +38,7 @@ class KeyPressedEvent : public Event {
     unsigned int repeatCount;
 
 public:
-    KeyPressedEvent(const InputCode key, const int scancode, const unsigned int repeatCount) : key(key), scancode(scancode), repeatCount(repeatCount) {
-    }
+    KeyPressedEvent(const InputCode key, const int scancode, const unsigned int repeatCount) : key(key), scancode(scancode), repeatCount(repeatCount) {}
 
     InputCode getKey() const {
         return this->key;
@@ -60,8 +58,7 @@ class KeyReleasedEvent : public Event {
     int scancode;
 
 public:
-    explicit KeyReleasedEvent(const InputCode key, const int scancode) : key(key), scancode(scancode) {
-    }
+    explicit KeyReleasedEvent(const InputCode key, const int scancode) : key(key), scancode(scancode) {}
 
     InputCode getKey() const {
         return this->key; // TODO: should return InputID or similar
@@ -76,45 +73,58 @@ class CharTypedEvent : public Event {
     unsigned int c;
 
 public:
-    explicit CharTypedEvent(const unsigned int c) : c(c) {
-    }
+    explicit CharTypedEvent(const unsigned int c) : c(c) {}
 
     unsigned int getChar() const {
         return this->c;
     }
 };
 
-class MouseButtonPressedEvent : public Event {
+class MouseEvent : public Event {
+    float x;
+    float y;
+
+protected:
+    MouseEvent(const float x, const float y) : x(x), y(y) {}
+
+public:
+    float getX() const {
+        return this->x;
+    }
+
+    float getY() const {
+        return this->y;
+    }
+};
+
+class MouseButtonPressedEvent : public MouseEvent {
     InputCode button;
 
 public:
-    explicit MouseButtonPressedEvent(const InputCode button) : button(button) {
-    }
+    explicit MouseButtonPressedEvent(const float x, const float y, const InputCode button) : MouseEvent(x, y), button(button) {}
 
     InputCode getButton() const {
         return this->button;
     }
 };
 
-class MouseButtonReleasedEvent : public Event {
+class MouseButtonReleasedEvent : public MouseEvent {
     InputCode button;
 
 public:
-    explicit MouseButtonReleasedEvent(const InputCode button) : button(button) {
-    }
+    explicit MouseButtonReleasedEvent(const float x, const float y, const InputCode button) : MouseEvent(x, y), button(button) {}
 
     InputCode getButton() const {
         return this->button;
     }
 };
 
-class MouseScrolledEvent : public Event {
+class MouseScrolledEvent : public MouseEvent {
     double offsetX;
     double offsetY;
 
 public:
-    MouseScrolledEvent(const double offsetX, const double offsetY) : offsetX(offsetX), offsetY(offsetY) {
-    }
+    MouseScrolledEvent(const float x, const float y, const double offsetX, const double offsetY) : MouseEvent(x, y), offsetX(offsetX), offsetY(offsetY) {}
 
     double getOffsetX() const {
         return this->offsetX;
@@ -125,19 +135,8 @@ public:
     }
 };
 
-class MouseMovedEvent : public Event {
-    float x;
-    float y;
+class MouseMovedEvent : public MouseEvent {
 
 public:
-    MouseMovedEvent(const float x, const float y) : x(x), y(y) {
-    }
-
-    float getX() const {
-        return this->x;
-    }
-
-    float getY() const {
-        return this->y;
-    }
+    MouseMovedEvent(const float x, const float y) : MouseEvent(x, y) {}
 };

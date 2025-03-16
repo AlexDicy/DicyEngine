@@ -21,6 +21,7 @@ void Input::init(const Ref<EventDispatcher>& eventDispatcher, const Ref<Window>&
     // TODO: do not hardcode
     actionsMapping["left_click"] = InputCode::MOUSE_BUTTON_LEFT;
     actionsMapping["right_click"] = InputCode::MOUSE_BUTTON_RIGHT;
+    actionsMapping["middle_click"] = InputCode::MOUSE_BUTTON_MIDDLE;
     actionsMapping["move_forward"] = InputCode::KEY_W;
     actionsMapping["move_left"] = InputCode::KEY_A;
     actionsMapping["move_backward"] = InputCode::KEY_S;
