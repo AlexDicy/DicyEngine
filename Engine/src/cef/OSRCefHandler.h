@@ -1,8 +1,17 @@
 ﻿#pragma once
+#include "Application.h"
 #include "OSRCefApp.h"
 
 class OSRCefHandler : public CefClient, public CefRenderHandler, public CefLoadHandler {
 public:
+    explicit OSRCefHandler(const Ref<Application>& app) : app(app) {
+        this->pixelBuffer.resize(static_cast<size_t>(app->getWindow()->getWidth()) * app->getWindow()->getHeight() * 4);
+    }
+
+    CefRefPtr<CefRenderHandler> GetRenderHandler() override {
+        return this;
+    }
+
     CefRefPtr<CefLoadHandler> GetLoadHandler() override {
         return this;
     }

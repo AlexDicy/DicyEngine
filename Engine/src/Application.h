@@ -12,7 +12,8 @@ public:
     Application();
     ~Application();
 
-    void run();
+    void initialize();
+    void run() const;
     void updateFrame(const std::unique_ptr<Context>& ctx) const;
     void registerLayers(const std::unique_ptr<Context>& app);
 
@@ -49,4 +50,5 @@ private:
 
     bool running;
     bool isMinimized;
+    std::unique_ptr<Context> currentCtx;
 };

@@ -5,6 +5,7 @@
 
 void OSRCefHandler::OnLoadStart(const CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, TransitionType transitionType) {
     this->host = browser->GetHost();
+    DE_INFO("CEF Load Start: {}", frame->GetURL().ToString());
 }
 
 void OSRCefHandler::OnLoadError(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, const ErrorCode errorCode, const CefString& errorText, const CefString& failedUrl) {
@@ -12,19 +13,21 @@ void OSRCefHandler::OnLoadError(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFram
 }
 
 void OSRCefHandler::GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) {
+    DE_INFO("CEF Get View Rect ({}x{})", app->getWindow()->getWidth(), app->getWindow()->getHeight());
     rect = CefRect(0, 0, static_cast<int>(app->getWindow()->getWidth()), static_cast<int>(app->getWindow()->getHeight()));
 }
 
 void OSRCefHandler::OnPaint(CefRefPtr<CefBrowser> browser, const PaintElementType type, const RectList& dirtyRects, const void* buffer, const int width, const int height) {
-    unsigned char* targetBuffer = this->pixelBuffer.data();
+    std::vector<unsigned char>* targetBuffer = &this->pixelBuffer;
     if (type == PET_POPUP) {
-        this->popupPixelBuffer.resize(static_cast<size_t>(width) * height * 4);
-        targetBuffer = this->popupPixelBuffer.data();
+        targetBuffer = &this->popupPixelBuffer;
     }
-    std::memcpy(targetBuffer, buffer, static_cast<size_t>(width) * height * 4);
+    targetBuffer->resize(static_cast<size_t>(width) * height * 4);
+    std::memcpy(targetBuffer->data(), buffer, targetBuffer->size());
     this->updateTexture();
 }
 
 void OSRCefHandler::updateTexture() {
     DE_INFO("Updating CEF Texture");
+    
 }

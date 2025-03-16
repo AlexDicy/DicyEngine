@@ -16,7 +16,7 @@ Application::Application() {
 
 Application::~Application() = default;
 
-void Application::run() {
+void Application::initialize() {
     this->eventDispatcher.reset(EventDispatcher::get());
     this->renderer = std::make_shared<OpenGLRenderer>();
 
@@ -25,27 +25,29 @@ void Application::run() {
 
     this->window = Window::create("DicyEngine", 1920, 1080);
     this->gui = std::make_unique<ImGuiGUI>(window);
-    const auto ctx = std::make_unique<Context>(this->shared_from_this());
+    this->currentCtx = std::make_unique<Context>(this->shared_from_this());
 
     this->eventDispatcher->registerGlobalHandler<WindowCloseEvent>([this](const WindowCloseEvent&) {
         this->running = false;
     });
-    this->eventDispatcher->registerGlobalHandler<WindowResizeEvent>([this, &ctx](const WindowResizeEvent& event) {
+    this->eventDispatcher->registerGlobalHandler<WindowResizeEvent>([this](const WindowResizeEvent& event) {
         if (event.getWidth() == 0 || event.getHeight() == 0) {
             this->isMinimized = true;
             return;
         }
         this->isMinimized = false;
-        this->updateFrame(ctx); // keep drawing when user holds to resizes the window
+        this->updateFrame(this->currentCtx); // keep drawing when user holds to resizes the window
     });
 
     Input::init(this->eventDispatcher, this->window);
     this->renderer->init(0, 0, this->window->getWidth(), this->window->getHeight());
     JavaBindings::init();
-    registerLayers(ctx);
+    registerLayers(this->currentCtx);
+}
 
+void Application::run() const {
     while (this->running) {
-        this->updateFrame(ctx);
+        this->updateFrame(this->currentCtx);
     }
 }
 
