@@ -83,6 +83,13 @@ float GLFW3Window::getLastFrameTime() const {
     return this->lastFrameTime;
 }
 
+float GLFW3Window::getScalingFactor() const {
+    float scaleX;
+    float scaleY;
+    glfwGetWindowContentScale(this->window, &scaleX, &scaleY);
+    return scaleX;
+}
+
 void GLFW3Window::registerEvents() const {
     static auto eventDispatcher = EventDispatcher::get();
     glfwSetWindowSizeCallback(this->window, [](GLFWwindow*, int new_width, int new_height) {
