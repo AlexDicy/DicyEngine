@@ -3,6 +3,14 @@
 
 #include "Application.h"
 
+void OSRCefHandler::sendWindowResizeEvent(const WindowResizeEvent&) const {
+    if (this->host == nullptr) {
+        return;
+    }
+
+    this->host->WasResized();
+}
+
 void OSRCefHandler::sendMouseMoveEvent(const MouseMovedEvent& event) const {
     if (this->host == nullptr) {
         return;

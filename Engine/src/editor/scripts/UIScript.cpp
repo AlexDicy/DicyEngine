@@ -20,6 +20,10 @@ void UIScript::onSpawn() {
     const CefBrowserSettings browserSettings;
     CefBrowserHost::CreateBrowser(windowInfo, this->handler, this->url, browserSettings, nullptr, nullptr);
 
+    this->app->getEventDispatcher()->registerGlobalHandler<WindowResizeEvent>([this](const WindowResizeEvent& event) {
+        this->handler->sendWindowResizeEvent(event);
+    });
+
     this->app->getEventDispatcher()->registerGlobalHandler<MouseMovedEvent>([this](const MouseMovedEvent& event) {
         this->handler->sendMouseMoveEvent(event);
     });

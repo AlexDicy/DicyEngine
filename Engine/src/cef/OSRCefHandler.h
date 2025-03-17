@@ -16,6 +16,7 @@ public:
         return this->host;
     }
 
+    void sendWindowResizeEvent(const WindowResizeEvent& event) const;
     void sendMouseMoveEvent(const MouseMovedEvent& event) const;
     void sendMouseButtonPressedEvent(const MouseButtonPressedEvent& event) const;
     void sendMouseButtonReleasedEvent(const MouseButtonReleasedEvent& event) const;
