@@ -4,9 +4,7 @@
 
 class OSRCefHandler : public CefClient, public CefRenderHandler, public CefLoadHandler {
 public:
-    explicit OSRCefHandler(const Ref<Application>& app) : app(app) {
-        this->pixelBuffer.resize(static_cast<size_t>(app->getWindow()->getWidth()) * app->getWindow()->getHeight() * 4);
-    }
+    explicit OSRCefHandler(const Ref<Application>& app) : app(app) {}
 
     void setTexture(const Ref<Texture2D>& texture) {
         this->texture = texture;
@@ -49,7 +47,7 @@ public:
     void OnPaint(CefRefPtr<CefBrowser> browser, PaintElementType type, const RectList& dirtyRects, const void* buffer, int width, int height) override;
 
 private:
-    void updateTexture() const;
+    void updateTexture(const void* buffer, unsigned int width, unsigned int height) const;
 
     static cef_mouse_button_type_t getMouseButtonType(InputCode code);
     static uint32_t getMouseModifiers();
@@ -57,7 +55,6 @@ private:
     Ref<Application> app;
     Ref<Texture2D> texture;
     CefRefPtr<CefBrowserHost> host;
-    std::vector<unsigned char> pixelBuffer;
 
     IMPLEMENT_REFCOUNTING(OSRCefHandler);
 };

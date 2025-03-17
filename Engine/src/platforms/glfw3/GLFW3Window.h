@@ -15,6 +15,7 @@ class GLFW3Window final : public Window {
 public:
     GLFW3Window(const char *title, unsigned int width, unsigned int height);
     void destroy() override;
+    void pollEvents() override;
     void update() override;
     unsigned getWidth() const override;
     unsigned getHeight() const override;

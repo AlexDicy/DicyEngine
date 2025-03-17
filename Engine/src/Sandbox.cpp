@@ -19,7 +19,6 @@ int main() {
 
     CefSettings settings;
     settings.no_sandbox = true;
-    // settings.multi_threaded_message_loop = false;
     settings.windowless_rendering_enabled = true;
 
     // Initialize the CEF browser process. May return false if initialization

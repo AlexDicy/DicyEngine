@@ -31,6 +31,7 @@ GLFW3Window::GLFW3Window(const char* title, const unsigned int width, const unsi
 #endif
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, true);
+    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true); 
 
     this->window = glfwCreateWindow(static_cast<int>(width), static_cast<int>(height), title, nullptr, nullptr);
     graphicCtx = new OpenGLContext(this->window);
@@ -40,8 +41,11 @@ GLFW3Window::GLFW3Window(const char* title, const unsigned int width, const unsi
     this->registerEvents();
 }
 
-void GLFW3Window::update() {
+void GLFW3Window::pollEvents() {
     glfwPollEvents();
+}
+
+void GLFW3Window::update() {
     this->graphicCtx->swapBuffers();
 
     const float currentTime = static_cast<float>(glfwGetTime());

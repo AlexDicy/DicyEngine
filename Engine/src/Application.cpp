@@ -34,6 +34,7 @@ void Application::initialize() {
             return;
         }
         this->isMinimized = false;
+        this->renderer->setViewport(0, 0, event.getWidth(), event.getHeight());
         this->updateFrame(this->currentCtx); // keep drawing when user holds to resizes the window
     });
 
@@ -51,6 +52,7 @@ void Application::run() const {
 
 void Application::updateFrame(const std::unique_ptr<Context>& ctx) const {
     DE::Profiling::getProfiler().clearTimings();
+    this->window->pollEvents();
     this->renderer->clear();
 
     ctx->setDeltaTime(this->window->getLastFrameTime());

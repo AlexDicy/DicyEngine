@@ -107,16 +107,14 @@ void OSRCefHandler::GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) {
 }
 
 void OSRCefHandler::OnPaint(CefRefPtr<CefBrowser> browser, const PaintElementType type, const RectList& dirtyRects, const void* buffer, const int width, const int height) {
-    this->pixelBuffer.resize(static_cast<size_t>(width) * height * 4);
-    std::memcpy(this->pixelBuffer.data(), buffer, this->pixelBuffer.size());
-    this->updateTexture();
+    this->updateTexture(buffer, width, height);
 }
 
-void OSRCefHandler::updateTexture() const {
-    if (this->texture->getWidth() != app->getWindow()->getWidth() || this->texture->getHeight() != app->getWindow()->getHeight()) {
-        this->texture->resize(app->getWindow()->getWidth(), app->getWindow()->getHeight());
+void OSRCefHandler::updateTexture(const void* buffer, const unsigned int width, const unsigned int height) const {
+    if (this->texture->getWidth() != width || this->texture->getHeight() != height) {
+        this->texture->resize(width, height);
     }
-    this->texture->setRawData(this->pixelBuffer.data());
+    this->texture->setRawData(buffer);
 }
 
 cef_mouse_button_type_t OSRCefHandler::getMouseButtonType(const InputCode code) {
