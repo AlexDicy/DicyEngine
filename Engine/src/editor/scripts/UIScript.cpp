@@ -47,6 +47,16 @@ void UIScript::onSpawn() {
     this->app->getEventDispatcher()->registerGlobalHandler<CharTypedEvent>([this](const CharTypedEvent& event) {
         this->handler->sendCharTypedEvent(event);
     });
+
+    static bool hasFocus = false;
+    Input::setAction("focusBrowser", InputCode::KEY_F);
+    Input::bindActionPressed("focusBrowser", [this] {
+        hasFocus = !hasFocus;
+        if (this->handler->getHost() == nullptr) {
+            return;
+        }
+        this->handler->getHost()->SetFocus(hasFocus);
+    });
 }
 
 void UIScript::onUpdate(const float deltaTime) {
