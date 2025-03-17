@@ -3,7 +3,6 @@
 #include "rendering/Renderer.h"
 
 
-class GUI;
 class Context;
 class Layer;
 
@@ -40,7 +39,6 @@ public:
 private:
     Ref<Window> window;
     Ref<EventDispatcher> eventDispatcher;
-    std::unique_ptr<GUI> gui;
     Ref<Renderer> renderer;
 
     Ref<EntityScriptRegistry> entityScriptRegistry;

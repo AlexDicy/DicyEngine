@@ -21,6 +21,7 @@ public:
     }
 
     void updateFinalColorTexture() const override;
+    void copyToBuffer(uint32_t destinationId) const;
 
 private:
     uint32_t id;

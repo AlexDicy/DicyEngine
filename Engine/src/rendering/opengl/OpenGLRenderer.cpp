@@ -194,6 +194,10 @@ void OpenGLRenderer::clear() const {
     glUseProgram(0);
 }
 
+void OpenGLRenderer::drawToMainFramebuffer() const {
+    this->framebuffer->copyToBuffer(0);
+}
+
 void OpenGLRenderer::draw(const Ref<VertexArray>& vertexArray, const glm::mat4& transform, const Ref<Shader>& shader) const {
     this->draw(vertexArray, transform, shader, Material(this->whitePixelTexture));
 }

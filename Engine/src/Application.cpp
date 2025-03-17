@@ -1,7 +1,6 @@
 #include "pch/enginepch.h"
 #include "Application.h"
 
-#include "gui/ImGuiGUI.h"
 #include "input/Input.h"
 #include "layers/SceneLayer.h"
 #include "rendering/Renderer.h"
@@ -24,7 +23,6 @@ void Application::initialize() {
     this->shaderRegistry = std::make_shared<ShaderRegistry>(this->renderer);
 
     this->window = Window::create("DicyEngine", 1920, 1080);
-    this->gui = std::make_unique<ImGuiGUI>(window);
     this->currentCtx = std::make_unique<Context>(this->shared_from_this());
 
     this->eventDispatcher->registerGlobalHandler<WindowCloseEvent>([this](const WindowCloseEvent&) {
@@ -63,7 +61,7 @@ void Application::updateFrame(const std::unique_ptr<Context>& ctx) const {
         }
     }
 
-    this->gui->update(ctx);
+    this->renderer->drawToMainFramebuffer();
     this->window->update();
 }
 

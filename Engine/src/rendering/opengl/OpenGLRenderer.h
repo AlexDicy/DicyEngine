@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "OpenGLTexture2D.h"
+#include "framebuffer/OpenGLRenderFramebuffer.h"
 #include "rendering/Renderer.h"
 #include "rendering/Shader.h"
 
@@ -30,6 +31,7 @@ public:
     void endShadows() const override;
     void endFrame() const override;
     void clear() const override;
+    void drawToMainFramebuffer() const override;
 
     void draw(const Ref<VertexArray>& vertexArray, const glm::mat4& transform, const Ref<Shader>& shader) const override;
     void draw(const Ref<VertexArray>& vertexArray, const glm::mat4& transform, const Ref<Shader>& shader, const Material& material) const override;
@@ -39,7 +41,7 @@ public:
     void drawUI(const Ref<VertexArray>& vertexArray, const Ref<Shader>& shader, const Material& material) const override;
 
 private:
-    Ref<RenderFramebuffer> framebuffer;
+    Ref<OpenGLRenderFramebuffer> framebuffer;
     Ref<OpenGLTexture2D> whitePixelTexture;
     Ref<OpenGLTexture2D> defaultOcclusionRoughnessMetallicTexture;
 };

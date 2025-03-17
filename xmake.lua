@@ -4,7 +4,6 @@ add_repositories("dicy-xmake-registry https://github.com/Dicy/xmake-registry")
 
 add_requires("spdlog v1.14.1")
 add_requires("glfw 3.4")
-add_requires("imgui v1.91.1-docking", {configs = {glfw_opengl3 = true}})
 add_requires("glm 1.0.1")
 add_requires("entt v3.13.2")
 add_requires("assimp v5.4.3")
@@ -42,10 +41,10 @@ target("Engine")
         end
     end)
 
-    add_packages("spdlog", "glfw", "imgui", "glm", "entt", "assimp", "toml++", "chromium-embedded-framework")
+    add_packages("spdlog", "glfw", "glm", "entt", "assimp", "toml++", "chromium-embedded-framework")
     add_deps("glad", "stb")
 
-    add_defines("DE_IS_ENGINE", "IMGUI_IMPL_OPENGL_LOADER_CUSTOM", "GLM_ENABLE_EXPERIMENTAL", "NDEBUG")
+    add_defines("DE_IS_ENGINE", "GLM_ENABLE_EXPERIMENTAL", "NDEBUG")
     if is_mode("debug") then
         add_defines("DE_DEBUG")
     else

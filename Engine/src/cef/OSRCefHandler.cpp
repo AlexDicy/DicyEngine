@@ -59,7 +59,7 @@ void OSRCefHandler::sendKeyPressedEvent(const KeyPressedEvent& event) const {
     keyEvent.windows_key_code = event.getScancode();
     keyEvent.native_key_code = event.getScancode();
     keyEvent.type = KEYEVENT_RAWKEYDOWN;
-    // this->host->SendKeyEvent(keyEvent);
+    this->host->SendKeyEvent(keyEvent);
 }
 
 void OSRCefHandler::sendKeyReleasedEvent(const KeyReleasedEvent& event) const {
@@ -71,7 +71,7 @@ void OSRCefHandler::sendKeyReleasedEvent(const KeyReleasedEvent& event) const {
     keyEvent.windows_key_code = event.getScancode();
     keyEvent.native_key_code = event.getScancode();
     keyEvent.type = KEYEVENT_KEYUP;
-    // this->host->SendKeyEvent(keyEvent);
+    this->host->SendKeyEvent(keyEvent);
 }
 
 void OSRCefHandler::sendCharTypedEvent(const CharTypedEvent& event) const {

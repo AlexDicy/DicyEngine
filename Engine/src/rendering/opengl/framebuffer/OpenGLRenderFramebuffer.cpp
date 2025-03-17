@@ -47,5 +47,13 @@ void OpenGLRenderFramebuffer::bind() const {
 void OpenGLRenderFramebuffer::updateFinalColorTexture() const {
     glBindFramebuffer(GL_READ_FRAMEBUFFER, this->id);
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, this->finalBufferId);
-    glBlitFramebuffer(0, 0, static_cast<int>(this->width), static_cast<int>(this->height), 0, 0, static_cast<int>(this->width), static_cast<int>(this->height), GL_COLOR_BUFFER_BIT, GL_NEAREST);
+    glBlitFramebuffer(0, 0, static_cast<int>(this->width), static_cast<int>(this->height), 0, 0, static_cast<int>(this->width), static_cast<int>(this->height), GL_COLOR_BUFFER_BIT,
+                      GL_NEAREST);
+}
+
+void OpenGLRenderFramebuffer::copyToBuffer(const uint32_t destinationId) const {
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, this->finalBufferId);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, destinationId);
+    glBlitFramebuffer(0, 0, static_cast<int>(this->width), static_cast<int>(this->height), 0, 0, static_cast<int>(this->width), static_cast<int>(this->height), GL_COLOR_BUFFER_BIT,
+                      GL_NEAREST);
 }
