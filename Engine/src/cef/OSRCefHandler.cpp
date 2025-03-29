@@ -17,8 +17,8 @@ void OSRCefHandler::sendMouseMoveEvent(const MouseMovedEvent& event) const {
     }
 
     CefMouseEvent mouseEvent;
-    mouseEvent.x = static_cast<int>(event.getX());
-    mouseEvent.y = static_cast<int>(event.getY());
+    mouseEvent.x = getCoordinate(event.getX());
+    mouseEvent.y = getCoordinate(event.getY());
     mouseEvent.modifiers = getMouseModifiers();
     this->host->SendMouseMoveEvent(mouseEvent, false);
 }
@@ -29,8 +29,8 @@ void OSRCefHandler::sendMouseButtonPressedEvent(const MouseButtonPressedEvent& e
     }
 
     CefMouseEvent mouseEvent;
-    mouseEvent.x = static_cast<int>(event.getX());
-    mouseEvent.y = static_cast<int>(event.getY());
+    mouseEvent.x = getCoordinate(event.getX());
+    mouseEvent.y = getCoordinate(event.getY());
     mouseEvent.modifiers = getMouseModifiers();
     this->host->SendMouseClickEvent(mouseEvent, getMouseButtonType(event.getButton()), false, 1);
 }
@@ -41,8 +41,8 @@ void OSRCefHandler::sendMouseButtonReleasedEvent(const MouseButtonReleasedEvent&
     }
 
     CefMouseEvent mouseEvent;
-    mouseEvent.x = static_cast<int>(event.getX());
-    mouseEvent.y = static_cast<int>(event.getY());
+    mouseEvent.x = getCoordinate(event.getX());
+    mouseEvent.y = getCoordinate(event.getY());
     mouseEvent.modifiers = getMouseModifiers();
     this->host->SendMouseClickEvent(mouseEvent, getMouseButtonType(event.getButton()), true, 1);
 }
@@ -53,8 +53,8 @@ void OSRCefHandler::sendMouseScrolledEvent(const MouseScrolledEvent& event) cons
     }
 
     CefMouseEvent mouseEvent;
-    mouseEvent.x = static_cast<int>(event.getX());
-    mouseEvent.y = static_cast<int>(event.getY());
+    mouseEvent.x = getCoordinate(event.getX());
+    mouseEvent.y = getCoordinate(event.getY());
     this->host->SendMouseWheelEvent(mouseEvent, static_cast<int>(event.getOffsetX()), static_cast<int>(event.getOffsetY()));
 }
 
@@ -99,11 +99,25 @@ void OSRCefHandler::OnLoadStart(const CefRefPtr<CefBrowser> browser, CefRefPtr<C
 }
 
 void OSRCefHandler::OnLoadError(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, const ErrorCode errorCode, const CefString& errorText, const CefString& failedUrl) {
-    DE_ERROR("CEF Load Error: {}, {}, {}", static_cast<int>(errorCode), errorText.ToString(), failedUrl.ToString());
+    DE_ERROR("CEF Load error: {}, {}, {}", static_cast<int>(errorCode), errorText.ToString(), failedUrl.ToString());
+}
+
+bool OSRCefHandler::GetScreenInfo(const CefRefPtr<CefBrowser> browser, CefScreenInfo& screenInfo) {
+    CefRect viewRect;
+    GetViewRect(browser, viewRect);
+
+    screenInfo.device_scale_factor = app->getWindow()->getScalingFactor();
+    screenInfo.is_monochrome = true;
+    screenInfo.rect = viewRect;
+    screenInfo.available_rect = viewRect;
+    return true;
 }
 
 void OSRCefHandler::GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) {
-    rect = CefRect(0, 0, static_cast<int>(app->getWindow()->getWidth()), static_cast<int>(app->getWindow()->getHeight()));
+    rect.x = 0;
+    rect.y = 0;
+    rect.width = getCoordinate(app->getWindow()->getWidth());
+    rect.height = getCoordinate(app->getWindow()->getHeight());
 }
 
 void OSRCefHandler::OnPaint(CefRefPtr<CefBrowser> browser, const PaintElementType type, const RectList& dirtyRects, const void* buffer, const int width, const int height) {
@@ -115,6 +129,20 @@ void OSRCefHandler::updateTexture(const void* buffer, const unsigned int width, 
         this->texture->resize(width, height);
     }
     this->texture->setRawData(buffer);
+}
+
+int OSRCefHandler::getCoordinate(const unsigned int rawValue) const {
+    const float scaleFactor = app->getWindow()->getScalingFactor();
+    const float scaledValue = std::floor(static_cast<float>(rawValue) / scaleFactor);
+    return static_cast<int>(scaledValue);
+}
+
+int OSRCefHandler::getCoordinate(const int rawValue) const {
+    return getCoordinate(static_cast<unsigned int>(rawValue));
+}
+
+int OSRCefHandler::getCoordinate(const float rawValue) const {
+    return getCoordinate(static_cast<unsigned int>(rawValue));
 }
 
 cef_mouse_button_type_t OSRCefHandler::getMouseButtonType(const InputCode code) {

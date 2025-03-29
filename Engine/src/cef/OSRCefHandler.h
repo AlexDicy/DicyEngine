@@ -43,11 +43,16 @@ public:
     void OnLoadStart(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, TransitionType transitionType) override;
     void OnLoadError(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, ErrorCode errorCode, const CefString& errorText, const CefString& failedUrl) override;
 
+    bool GetScreenInfo(CefRefPtr<CefBrowser> browser, CefScreenInfo& screenInfo) override;
     void GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) override;
     void OnPaint(CefRefPtr<CefBrowser> browser, PaintElementType type, const RectList& dirtyRects, const void* buffer, int width, int height) override;
 
 private:
     void updateTexture(const void* buffer, unsigned int width, unsigned int height) const;
+
+    int getCoordinate(unsigned int rawValue) const;
+    int getCoordinate(int rawValue) const;
+    int getCoordinate(float rawValue) const;
 
     static cef_mouse_button_type_t getMouseButtonType(InputCode code);
     static uint32_t getMouseModifiers();
