@@ -55,7 +55,10 @@ void OSRCefHandler::sendMouseScrolledEvent(const MouseScrolledEvent& event) cons
     CefMouseEvent mouseEvent;
     mouseEvent.x = getCoordinate(event.getX());
     mouseEvent.y = getCoordinate(event.getY());
-    this->host->SendMouseWheelEvent(mouseEvent, static_cast<int>(event.getOffsetX()), static_cast<int>(event.getOffsetY()));
+    constexpr int defaultScrollDelta = 120;
+    const int deltaX = static_cast<int>(event.getOffsetX() * defaultScrollDelta);
+    const int deltaY = static_cast<int>(event.getOffsetY() * defaultScrollDelta);
+    this->host->SendMouseWheelEvent(mouseEvent, deltaX, deltaY);
 }
 
 void OSRCefHandler::sendKeyPressedEvent(const KeyPressedEvent& event) const {
