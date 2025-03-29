@@ -90,6 +90,19 @@ float GLFW3Window::getScalingFactor() const {
     return scaleX;
 }
 
+int GLFW3Window::getMonitorRefreshRate() const {
+    // TODO: this reports only the refresh rate of the primary monitor, not the one where the window is located
+    int refreshRate = 0;
+    GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+    if (monitor) {
+        const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+        if (mode) {
+            refreshRate = mode->refreshRate;
+        }
+    }
+    return refreshRate;
+}
+
 void GLFW3Window::registerEvents() const {
     static auto eventDispatcher = EventDispatcher::get();
     glfwSetWindowSizeCallback(this->window, [](GLFWwindow*, int new_width, int new_height) {

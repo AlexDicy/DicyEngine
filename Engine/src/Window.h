@@ -12,6 +12,7 @@ public:
     virtual void setVSync(bool vsync) = 0;
     virtual float getLastFrameTime() const = 0;
     virtual float getScalingFactor() const = 0;
+    virtual int getMonitorRefreshRate() const = 0;
 
     static Ref<Window> create(const char* title, unsigned int width, unsigned int height);
 

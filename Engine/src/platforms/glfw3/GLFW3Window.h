@@ -23,6 +23,7 @@ public:
     void setVSync(bool vsync) override;
     float getLastFrameTime() const override;
     float getScalingFactor() const override;
+    int getMonitorRefreshRate() const override;
 
     GLFWwindow *getNativeWindow() const override {
         return this->window;

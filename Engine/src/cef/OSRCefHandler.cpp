@@ -110,9 +110,12 @@ bool OSRCefHandler::GetScreenInfo(const CefRefPtr<CefBrowser> browser, CefScreen
     GetViewRect(browser, viewRect);
 
     screenInfo.device_scale_factor = app->getWindow()->getScalingFactor();
-    screenInfo.is_monochrome = true;
     screenInfo.rect = viewRect;
     screenInfo.available_rect = viewRect;
+    const int refreshRate = app->getWindow()->getMonitorRefreshRate();
+    if (this->host && refreshRate) {
+        this->host->SetWindowlessFrameRate(refreshRate);
+    }
     return true;
 }
 
@@ -121,6 +124,9 @@ void OSRCefHandler::GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) {
     rect.y = 0;
     rect.width = getCoordinate(app->getWindow()->getWidth());
     rect.height = getCoordinate(app->getWindow()->getHeight());
+    if (rect.width <= 0 || rect.height <= 0) {
+        rect.width = rect.height = 1;
+    }
 }
 
 void OSRCefHandler::OnPaint(CefRefPtr<CefBrowser> browser, const PaintElementType type, const RectList& dirtyRects, const void* buffer, const int width, const int height) {
