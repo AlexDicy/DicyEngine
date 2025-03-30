@@ -5,7 +5,7 @@
 
 int main() {
     const CefMainArgs mainArgs;
-    CefRefPtr<CefApp> osrApp = new OSRCefApp();
+    const CefRefPtr osrApp = new OSRCefApp();
 
     // CEF applications have multiple sub-processes (render, GPU, etc.) that share
     // the same executable. This function checks the command-line and, if this is
@@ -30,7 +30,9 @@ int main() {
         return exitCode;
     }
 
-    const auto app = std::make_shared<Application>();
+    Ref<OSRCefApp> browserApp;
+    browserApp.reset(osrApp.get());
+    const auto app = std::make_shared<Application>(browserApp);
     app->initialize();
     app->run();
 

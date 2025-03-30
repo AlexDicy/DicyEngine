@@ -7,7 +7,7 @@
 #include "rendering/opengl/OpenGLRenderer.h"
 #include "scripting/JavaBindings.h"
 
-Application::Application() {
+Application::Application(Ref<OSRCefApp> browserApp) : browserApp(browserApp) {
     Logger::init();
     this->running = true;
     this->isMinimized = false;

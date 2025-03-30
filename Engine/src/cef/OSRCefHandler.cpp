@@ -103,6 +103,7 @@ void OSRCefHandler::OnLoadStart(const CefRefPtr<CefBrowser> browser, CefRefPtr<C
 
 void OSRCefHandler::OnLoadError(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, const ErrorCode errorCode, const CefString& errorText, const CefString& failedUrl) {
     DE_ERROR("CEF Load error: {}, {}, {}", static_cast<int>(errorCode), errorText.ToString(), failedUrl.ToString());
+    frame->LoadURL("data:text/html,UI server not loaded");
 }
 
 bool OSRCefHandler::GetScreenInfo(const CefRefPtr<CefBrowser> browser, CefScreenInfo& screenInfo) {

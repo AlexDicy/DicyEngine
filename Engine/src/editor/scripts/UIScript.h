@@ -12,7 +12,7 @@ public:
 
 private:
     Ref<Application> app;
-    std::string url = "about:blank";
+    std::string url = "http://localhost:5173/";
     CefRefPtr<OSRCefHandler> handler;
 };
 

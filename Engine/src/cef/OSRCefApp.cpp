@@ -8,9 +8,7 @@ void OSRCefApp::OnBeforeCommandLineProcessing(const CefString& processType, cons
     commandLine->AppendSwitch("disable-gpu-compositing");
 }
 
-void OSRCefApp::OnContextCreated(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, CefRefPtr<CefV8Context> context) {
-    CefRefPtr<CefV8Value> object = context->GetGlobal();
-
-    CefRefPtr<CefV8Handler> handler = new FrameInfoHandler();
-    object->SetValue("register", CefV8Value::CreateFunction("register", handler), V8_PROPERTY_ATTRIBUTE_NONE);
+void OSRCefApp::OnContextCreated(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, const CefRefPtr<CefV8Context> context) {
+    const CefRefPtr<CefV8Value> object = context->GetGlobal();
+    object->SetValue("register", CefV8Value::CreateFunction("register", this->frameInfoHandler), V8_PROPERTY_ATTRIBUTE_NONE);
 }
