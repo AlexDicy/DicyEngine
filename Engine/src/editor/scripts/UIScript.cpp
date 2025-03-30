@@ -1,3 +1,4 @@
+// ReSharper disable CppTemplateArgumentsCanBeDeduced fix build on macos
 #include "pch/enginepch.h"
 #include "UIScript.h"
 
@@ -9,7 +10,7 @@
 
 UIScript::UIScript(const Ref<Application>& app, const Ref<Entity>& entity) : EntityScript(app, entity) {
     this->app = app;
-    this->handler = CefRefPtr(new OSRCefHandler(app));
+    this->handler = CefRefPtr<OSRCefHandler>(new OSRCefHandler(app));
 }
 
 void UIScript::onSpawn() {

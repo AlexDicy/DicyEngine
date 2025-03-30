@@ -32,7 +32,7 @@ public:
 
     virtual void init(int x, int y, uint32_t width, uint32_t height) = 0;
     virtual void setViewport(int x, int y, uint32_t width, uint32_t height) = 0;
-    virtual const Ref<RenderFramebuffer>& getFramebuffer() const = 0;
+    virtual Ref<RenderFramebuffer> getFramebuffer() const = 0;
     const Ref<DepthFramebuffer>& getShadowDepthFramebuffer() const;
 
     virtual Ref<VertexArray> createVertexArray(const Ref<VertexBuffer>& vertexBuffer, const Ref<IndexBuffer>& indexBuffer) const = 0;

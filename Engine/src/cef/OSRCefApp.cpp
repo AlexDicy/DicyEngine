@@ -1,5 +1,4 @@
-﻿#pragma once
-#include "OSRCefApp.h"
+﻿#include "OSRCefApp.h"
 
 #include "FrameInfoHandler.h"
 

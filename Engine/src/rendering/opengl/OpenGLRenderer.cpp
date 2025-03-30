@@ -35,7 +35,7 @@ void OpenGLRenderer::setViewport(const int x, const int y, const uint32_t width,
     this->framebuffer = std::make_shared<OpenGLRenderFramebuffer>(width, height);
 }
 
-const Ref<RenderFramebuffer>& OpenGLRenderer::getFramebuffer() const {
+Ref<RenderFramebuffer> OpenGLRenderer::getFramebuffer() const {
     return this->framebuffer;
 }
 
