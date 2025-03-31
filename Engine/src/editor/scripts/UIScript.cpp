@@ -66,6 +66,6 @@ void UIScript::onSpawn() {
 
 void UIScript::onUpdate(const float deltaTime) {
     DE_PROFILE_FUNCTION();
-    // this->app->getBrowserApp()->getFrameInfoHandler()->updateFrameInfo(deltaTime);
+    this->handler->updateFrameInfo(deltaTime);
     CefDoMessageLoopWork();
 }

@@ -23,6 +23,8 @@ public:
     void sendKeyReleasedEvent(const KeyReleasedEvent& event) const;
     void sendCharTypedEvent(const CharTypedEvent& event) const;
 
+    void updateFrameInfo(double deltaTime) const;
+
     //
     // CEF overrides
     //

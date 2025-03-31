@@ -9,7 +9,7 @@ class Layer;
 
 class Application : public std::enable_shared_from_this<Application> {
 public:
-    explicit Application(Ref<OSRCefApp> browserApp);
+    Application();
     ~Application();
 
     void initialize();
@@ -29,10 +29,6 @@ public:
         return this->renderer;
     }
 
-    const Ref<OSRCefApp>& getBrowserApp() const {
-        return this->browserApp;
-    }
-
     const Ref<EntityScriptRegistry>& getEntityScriptRegistry() const {
         return this->entityScriptRegistry;
     }
@@ -45,7 +41,6 @@ private:
     Ref<Window> window;
     Ref<EventDispatcher> eventDispatcher;
     Ref<Renderer> renderer;
-    Ref<OSRCefApp> browserApp;
 
     Ref<EntityScriptRegistry> entityScriptRegistry;
     Ref<ShaderRegistry> shaderRegistry;

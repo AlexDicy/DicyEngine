@@ -97,6 +97,18 @@ void OSRCefHandler::sendCharTypedEvent(const CharTypedEvent& event) const {
     this->host->SendKeyEvent(keyEvent);
 }
 
+void OSRCefHandler::updateFrameInfo(const double deltaTime) const {
+    if (this->host == nullptr) {
+        return;
+    }
+
+    const auto message = CefProcessMessage::Create(CefString("updateFrameInfo"));
+    const auto args = message->GetArgumentList();
+    args->SetDouble(0, deltaTime);
+
+    this->host->GetBrowser()->GetMainFrame()->SendProcessMessage(PID_RENDERER, message);
+}
+
 void OSRCefHandler::OnLoadStart(const CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, TransitionType transitionType) {
     this->host = browser->GetHost();
 }

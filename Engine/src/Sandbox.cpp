@@ -30,9 +30,7 @@ int main() {
         return exitCode;
     }
 
-    Ref<OSRCefApp> browserApp;
-    browserApp.reset(osrApp.get());
-    const auto app = std::make_shared<Application>(browserApp);
+    const auto app = std::make_shared<Application>();
     app->initialize();
     app->run();
 

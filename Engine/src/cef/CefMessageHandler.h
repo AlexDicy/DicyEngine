@@ -1,11 +1,11 @@
 ﻿#pragma once
 #include "cef_v8.h"
 
-class FrameInfoHandler : public CefV8Handler {
+class CefMessageHandler : public CefV8Handler {
     friend class OSRCefApp;
 
 protected:
-    FrameInfoHandler() = default;
+    CefMessageHandler() = default;
 
     bool Execute(const CefString& name, CefRefPtr<CefV8Value> object, const CefV8ValueList& arguments, CefRefPtr<CefV8Value>& retVal, CefString& exception) override;
     bool processMessage(const CefRefPtr<CefBrowser>& browser, const CefRefPtr<CefFrame>& frame, CefProcessId sourceProcess, const CefRefPtr<CefProcessMessage>& message);
@@ -19,5 +19,5 @@ private:
 
     std::map<std::pair<std::string, int>, std::pair<CefRefPtr<CefV8Context>, CefRefPtr<CefV8Value>>> callbacks;
 
-    IMPLEMENT_REFCOUNTING(FrameInfoHandler);
+    IMPLEMENT_REFCOUNTING(CefMessageHandler);
 };

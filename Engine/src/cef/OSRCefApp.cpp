@@ -1,6 +1,6 @@
 ﻿#include "OSRCefApp.h"
 
-#include "FrameInfoHandler.h"
+#include "CefMessageHandler.h"
 
 OSRCefApp::OSRCefApp() = default;
 
