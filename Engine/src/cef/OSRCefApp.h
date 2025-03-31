@@ -21,12 +21,8 @@ public:
 
     bool OnProcessMessageReceived(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, CefProcessId sourceProcess, CefRefPtr<CefProcessMessage> message) override;
 
-    CefRefPtr<CefMessageHandler> getFrameInfoHandler() const {
-        return frameInfoHandler;
-    }
-
 private:
-    CefRefPtr<CefMessageHandler> frameInfoHandler = new CefMessageHandler();
+    CefRefPtr<CefMessageHandler> messageHandler = new CefMessageHandler();
 
     IMPLEMENT_REFCOUNTING(OSRCefApp);
 };
