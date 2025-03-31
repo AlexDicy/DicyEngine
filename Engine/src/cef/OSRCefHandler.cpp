@@ -113,9 +113,13 @@ void OSRCefHandler::OnLoadStart(const CefRefPtr<CefBrowser> browser, CefRefPtr<C
     this->host = browser->GetHost();
 }
 
-void OSRCefHandler::OnLoadError(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, const ErrorCode errorCode, const CefString& errorText, const CefString& failedUrl) {
-    DE_ERROR("CEF Load error: {}, {}, {}", static_cast<int>(errorCode), errorText.ToString(), failedUrl.ToString());
-    frame->LoadURL("data:text/html,UI server not loaded");
+void OSRCefHandler::OnLoadError(CefRefPtr<CefBrowser> browser, const CefRefPtr<CefFrame> frame, const ErrorCode errorCode, const CefString& errorText, const CefString& failedUrl) {
+    const std::string url = failedUrl.ToString();
+    DE_ERROR("CEF Load error: {}, {}, {}", static_cast<int>(errorCode), errorText.ToString(), url);
+    if (url.starts_with("data:")) {
+        return;
+    }
+    frame->LoadURL(std::format("data:text/html,UI server error. <a href=\"javascript:window.location.href='{}'\">Reload</a>", url));
 }
 
 bool OSRCefHandler::GetScreenInfo(const CefRefPtr<CefBrowser> browser, CefScreenInfo& screenInfo) {
