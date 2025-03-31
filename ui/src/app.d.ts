@@ -10,7 +10,7 @@ declare global {
 	}
 
 	interface Window {
-		register?: Function;
+		setMessageListener: (message: string, callback: Function) => void;
 	}
 }
 
