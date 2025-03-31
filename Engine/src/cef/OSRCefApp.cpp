@@ -10,5 +10,14 @@ void OSRCefApp::OnBeforeCommandLineProcessing(const CefString& processType, cons
 
 void OSRCefApp::OnContextCreated(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, const CefRefPtr<CefV8Context> context) {
     const CefRefPtr<CefV8Value> object = context->GetGlobal();
-    object->SetValue("register", CefV8Value::CreateFunction("register", this->frameInfoHandler), V8_PROPERTY_ATTRIBUTE_NONE);
+    object->SetValue("setMessageListener", CefV8Value::CreateFunction("setMessageListener", this->frameInfoHandler), V8_PROPERTY_ATTRIBUTE_NONE);
+}
+
+void OSRCefApp::OnContextReleased(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, const CefRefPtr<CefV8Context> context) {
+    this->frameInfoHandler->releaseContext(context);
+}
+
+bool OSRCefApp::OnProcessMessageReceived(const CefRefPtr<CefBrowser> browser, const CefRefPtr<CefFrame> frame, const CefProcessId sourceProcess,
+                                         const CefRefPtr<CefProcessMessage> message) {
+    return this->frameInfoHandler->processMessage(browser, frame, sourceProcess, message);
 }
