@@ -11,6 +11,7 @@ window.setMessageListener('updateFrameInfo', (dT: number) => {
 </script>
 
 <template>
-	<pre>deltaTime: {{ deltaTime }}</pre>
-	<pre>FPS: {{ fps }}</pre>
+  <div class="m-2 p-4 bg-gray-100 rounded-lg shadow-md max-w-xs">
+    <pre>FPS: {{ fps }}</pre>
+  </div>
 </template>
