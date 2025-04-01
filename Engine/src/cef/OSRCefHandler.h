@@ -2,9 +2,10 @@
 #include "Application.h"
 #include "OSRCefApp.h"
 
-class OSRCefHandler : public CefClient, public CefRenderHandler, public CefLoadHandler {
+class OSRCefHandler : public CefClient, public CefRenderHandler, public CefLoadHandler, public CefLifeSpanHandler {
 public:
-    explicit OSRCefHandler(const Ref<Application>& app) : app(app) {}
+    explicit OSRCefHandler(const Ref<Application>& app);
+    ~OSRCefHandler() override;
 
     void setTexture(const Ref<Texture2D>& texture) {
         this->texture = texture;
@@ -13,6 +14,13 @@ public:
     const CefRefPtr<CefBrowserHost>& getHost() const {
         return this->host;
     }
+
+    bool isClosing() const {
+        return this->closing;
+    }
+
+    void showMainWindow();
+    void closeAllBrowsers(bool force);
 
     void sendWindowResizeEvent(const WindowResizeEvent& event) const;
     void sendMouseMoveEvent(const MouseMovedEvent& event) const;
@@ -36,6 +44,10 @@ public:
         return this;
     }
 
+    CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler() override {
+        return this;
+    }
+
     bool GetScreenPoint(CefRefPtr<CefBrowser> browser, const int viewX, const int viewY, int& screenX, int& screenY) override {
         screenX = viewX;
         screenY = viewY;
@@ -48,6 +60,10 @@ public:
     bool GetScreenInfo(CefRefPtr<CefBrowser> browser, CefScreenInfo& screenInfo) override;
     void GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) override;
     void OnPaint(CefRefPtr<CefBrowser> browser, PaintElementType type, const RectList& dirtyRects, const void* buffer, int width, int height) override;
+
+    bool DoClose(CefRefPtr<CefBrowser> browser) override;
+
+    static OSRCefHandler* getInstance();
 
 private:
     void updateTexture(const void* buffer, unsigned int width, unsigned int height) const;
@@ -62,6 +78,7 @@ private:
     Ref<Application> app;
     Ref<Texture2D> texture;
     CefRefPtr<CefBrowserHost> host;
+    bool closing = false;
 
     IMPLEMENT_REFCOUNTING(OSRCefHandler);
 };

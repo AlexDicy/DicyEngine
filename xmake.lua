@@ -16,7 +16,6 @@ target("Engine")
     set_languages("cxx23")
     set_rundir("$(projectdir)/Engine")
 
-    set_pcxxheader("Engine/src/pch/enginepch.h")
     add_files("Engine/src/**.cpp")
     add_headerfiles("Engine/src/**.h")
     add_includedirs(
@@ -57,6 +56,40 @@ target("Engine")
         add_defines("DE_PLATFORM_MACOS", "OPENGL_4_1")
     end
 
+    if is_os("windows") then
+        set_pcxxheader("Engine/src/pch/enginepch.h")
+        add_files("Engine/windows/*.cpp")
+    elseif is_os("macosx") then
+        set_pmxxheader("Engine/src/pch/enginepch.h")
+        add_rules("xcode.application")
+        add_files("Engine/macos/MacCEFHelper.mm")
+        add_files("Engine/macos/Info.plist")
+    end
+
+-- CEF Helper bundles for macOS
+if is_plat("macosx") then
+    local cef_helper_configs = {
+        {type = "",         suffix = "",            plist = "Helper-Info.plist"},
+        {type = "gpu",      suffix = " (GPU)",      plist = "Helper-GPU-Info.plist"},
+        {type = "plugin",   suffix = " (Plugin)",   plist = "Helper-Plugin-Info.plist"},
+        {type = "renderer", suffix = " (Renderer)", plist = "Helper-Renderer-Info.plist"}
+    }
+    for _, config in ipairs(cef_helper_configs) do
+        local helper_output = "DicyEngine CEF Helper" .. config.suffix
+        target("engine-cef-helper-" .. config.type)
+            set_kind("binary")
+            set_languages("cxx23")
+            add_rules("xcode.application")
+            set_targetdir("$(buildir)/$(plat)/$(arch)/$(mode)/Engine.app/Contents/Frameworks/")
+
+            add_frameworks("AppKit", "Cocoa", "IOSurface")
+            add_packages("chromium-embedded-framework")
+
+            set_filename(helper_output)
+            add_files("Engine/macos/MacCEFProcessHelper.cpp")
+            add_files("Engine/macos/" .. config.plist)
+    end
+end
 
 -- Dependencies
 target("glad")

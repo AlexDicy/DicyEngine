@@ -30,7 +30,6 @@ void CefMessageHandler::releaseContext(const CefRefPtr<CefV8Context>& context) {
 void CefMessageHandler::setListValue(const CefRefPtr<CefListValue>& list, const int index, const CefRefPtr<CefV8Value>& value) {
     if (value->IsArray()) {
         const CefRefPtr<CefListValue> newList = CefListValue::Create();
-        assert(value, new_list);
         list->SetList(index, newList);
     } else if (value->IsString()) {
         list->SetString(index, value->GetStringValue());

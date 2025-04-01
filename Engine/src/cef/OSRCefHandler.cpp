@@ -1,7 +1,58 @@
 ﻿#include "pch/enginepch.h"
 #include "OSRCefHandler.h"
 
+#include "include/base/cef_callback.h"
+#include "include/wrapper/cef_closure_task.h"
 #include "Application.h"
+
+OSRCefHandler* instance = nullptr;
+
+OSRCefHandler::OSRCefHandler(const Ref<Application>& app) : app(app) {
+    instance = this;
+}
+
+OSRCefHandler::~OSRCefHandler() {
+    instance = nullptr;
+}
+
+void OSRCefHandler::showMainWindow() {
+    if (!CefCurrentlyOn(TID_UI)) {
+        CefPostTask(TID_UI, base::BindOnce(&OSRCefHandler::showMainWindow, this));
+        return;
+    }
+
+    // todo:
+    // if (browser_list_.empty()) {
+        // return;
+    // }
+
+    // auto main_browser = browser_list_.front();
+
+    // if (auto browser_view = CefBrowserView::GetForBrowser(main_browser)) {
+        // Show the window using the Views framework.
+        // if (auto window = browser_view->GetWindow()) {
+            // window->Show();
+        // }
+    // } else if (is_alloy_style_) {
+        // PlatformShowWindow(main_browser);
+    // }
+}
+
+void OSRCefHandler::closeAllBrowsers(bool force) {
+    if (!CefCurrentlyOn(TID_UI)) {
+        CefPostTask(TID_UI, base::BindOnce(&OSRCefHandler::closeAllBrowsers, this, force));
+        return;
+    }
+    //TODO:
+    // if (browserList.empty()) {
+        // return;
+    // }
+
+    // auto it = browserList.begin();
+    // for (; it != browserList.end(); ++it) {
+        // (*it)->GetHost()->CloseBrowser(force);
+    // }
+}
 
 void OSRCefHandler::sendWindowResizeEvent(const WindowResizeEvent&) const {
     if (this->host == nullptr) {
@@ -148,6 +199,17 @@ void OSRCefHandler::GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) {
 
 void OSRCefHandler::OnPaint(CefRefPtr<CefBrowser> browser, const PaintElementType type, const RectList& dirtyRects, const void* buffer, const int width, const int height) {
     this->updateTexture(buffer, width, height);
+}
+
+bool OSRCefHandler::DoClose(CefRefPtr<CefBrowser> browser) {
+    std::cout << "DoClose\n";
+    // todo: check browserList
+    this->closing = true;
+    return false;
+}
+
+OSRCefHandler* OSRCefHandler::getInstance() {
+    return instance;
 }
 
 void OSRCefHandler::updateTexture(const void* buffer, const unsigned int width, const unsigned int height) const {

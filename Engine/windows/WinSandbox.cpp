@@ -5,7 +5,7 @@
 
 int main() {
     const CefMainArgs mainArgs;
-    const CefRefPtr osrApp = new OSRCefApp();
+    const CefRefPtr<CefApp> osrApp = new OSRCefApp();
 
     // CEF applications have multiple sub-processes (render, GPU, etc.) that share
     // the same executable. This function checks the command-line and, if this is
