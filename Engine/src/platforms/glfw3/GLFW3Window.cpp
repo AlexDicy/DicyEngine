@@ -11,6 +11,9 @@ Ref<Window> Window::create(const char* title, const unsigned int width, const un
 
 GLFW3Window::GLFW3Window(const char* title, const unsigned int width, const unsigned int height) {
     if (!isGLFWInitialized) {
+#ifdef DE_PLATFORM_MACOS
+        glfwInitHint(GLFW_COCOA_CHDIR_RESOURCES, false);
+#endif
         if (!glfwInit()) {
             DE_ERROR("Failed to initialize GLFW");
             return;
@@ -31,7 +34,7 @@ GLFW3Window::GLFW3Window(const char* title, const unsigned int width, const unsi
 #endif
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, true);
-    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true); 
+    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
 
     this->window = glfwCreateWindow(static_cast<int>(width), static_cast<int>(height), title, nullptr, nullptr);
     graphicCtx = new OpenGLContext(this->window);
