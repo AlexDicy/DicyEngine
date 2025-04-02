@@ -11,9 +11,10 @@ add_requires("toml++ v3.4.0")
 add_requires("chromium-embedded-framework 134.3.2")
 
 
-target("Engine")
+target("engine")
     set_kind("binary")
     set_languages("cxx23")
+    set_filename("DicyEngine")
     set_rundir("$(projectdir)/Engine")
 
     add_files("Engine/src/**.cpp")
@@ -62,25 +63,29 @@ target("Engine")
     elseif is_os("macosx") then
         set_pmxxheader("Engine/src/pch/enginepch.h")
         add_rules("xcode.application")
-        add_files("Engine/macos/MacCEFHelper.mm")
         add_files("Engine/macos/Info.plist")
+        after_build(function (target)
+            local cef_framework = target:pkg("chromium-embedded-framework"):installdir() .. "/bin/Chromium Embedded Framework.framework"
+            local destination = target:targetdir() ..  "/" .. target:basename() .. ".app/Contents/Frameworks/"
+            os.cp(cef_framework, destination)
+        end)
     end
 
 -- CEF Helper bundles for macOS
 if is_plat("macosx") then
     local cef_helper_configs = {
-        {type = "",         suffix = "",            plist = "Helper-Info.plist"},
-        {type = "gpu",      suffix = " (GPU)",      plist = "Helper-GPU-Info.plist"},
-        {type = "plugin",   suffix = " (Plugin)",   plist = "Helper-Plugin-Info.plist"},
-        {type = "renderer", suffix = " (Renderer)", plist = "Helper-Renderer-Info.plist"}
+        {target_suffix = "",          name_suffix = "",            plist = "Helper-Info.plist"},
+        {target_suffix = "-gpu",      name_suffix = " (GPU)",      plist = "Helper-GPU-Info.plist"},
+        {target_suffix = "-plugin",   name_suffix = " (Plugin)",   plist = "Helper-Plugin-Info.plist"},
+        {target_suffix = "-renderer", name_suffix = " (Renderer)", plist = "Helper-Renderer-Info.plist"}
     }
     for _, config in ipairs(cef_helper_configs) do
-        local helper_output = "DicyEngine CEF Helper" .. config.suffix
-        target("engine-cef-helper-" .. config.type)
+        local helper_output = "DicyEngine CEF Helper" .. config.name_suffix
+        target("engine-cef-helper" .. config.target_suffix)
             set_kind("binary")
             set_languages("cxx23")
             add_rules("xcode.application")
-            set_targetdir("$(buildir)/$(plat)/$(arch)/$(mode)/Engine.app/Contents/Frameworks/")
+            set_targetdir("$(buildir)/$(plat)/$(arch)/$(mode)/DicyEngine.app/Contents/Frameworks/")
 
             add_frameworks("AppKit", "Cocoa", "IOSurface")
             add_packages("chromium-embedded-framework")

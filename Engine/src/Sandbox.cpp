@@ -3,19 +3,33 @@
 #include "cef/OSRCefApp.h"
 #include "cef/OSRCefHandler.h"
 
-int main() {
+#if defined(__APPLE__)
+#include "include/wrapper/cef_library_loader.h"
+#endif
+
+int main(const int argc, char* argv[]) {
+    #if defined(__APPLE__)
+    CefScopedLibraryLoader libraryLoader;
+    if (!libraryLoader.LoadInMain()) {
+        return 1;
+    }
+    #endif
+
     const CefMainArgs mainArgs;
+
+    CefRefPtr<CefCommandLine> commandLine = CefCommandLine::CreateCommandLine();
+    commandLine->InitFromArgv(argc, argv);
+
     const CefRefPtr<CefApp> osrApp = new OSRCefApp();
 
-    // CEF applications have multiple sub-processes (render, GPU, etc.) that share
-    // the same executable. This function checks the command-line and, if this is
-    // a sub-process, executes the appropriate logic.
-    int exitCode = CefExecuteProcess(mainArgs, osrApp, nullptr);
-    if (exitCode >= 0) {
-        DE_INFO("CEF Sub-process exited with code: {}", exitCode);
+    #ifdef _WIN32
+    int subExitCode = CefExecuteProcess(mainArgs, osrApp, nullptr);
+    if (subExitCode >= 0) {
+        DE_INFO("CEF Sub-process exited with code: {}", subExitCode);
         // The sub-process has completed so return here.
-        return exitCode;
+        return subExitCode;
     }
+    #endif
 
     CefSettings settings;
     settings.no_sandbox = true;
@@ -25,7 +39,7 @@ int main() {
     // fails or if early exit is desired (for example, due to process singleton
     // relaunch behavior).
     if (!CefInitialize(mainArgs, settings, osrApp.get(), nullptr)) {
-        exitCode = CefGetExitCode();
+        int exitCode = CefGetExitCode();
         DE_INFO("CEF Browser process exited with code: {}", exitCode);
         return exitCode;
     }

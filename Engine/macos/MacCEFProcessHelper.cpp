@@ -20,14 +20,14 @@ int main(int argc, char* argv[]) {
 
     // Load the CEF framework library at runtime instead of linking directly
     // as required by the macOS sandbox implementation.
-    // CefScopedLibraryLoader library_loader; TODO:
-    // if (!library_loader.LoadInHelper()) {
-        // return 1;
-    // }
+    CefScopedLibraryLoader libraryLoader;
+    if (!libraryLoader.LoadInHelper()) {
+        return 1;
+    }
 
     // Provide CEF with command-line arguments.
-    CefMainArgs main_args(argc, argv);
+    CefMainArgs mainArgs(argc, argv);
 
     // Execute the sub-process.
-    return CefExecuteProcess(main_args, nullptr, nullptr);
+    return CefExecuteProcess(mainArgs, nullptr, nullptr);
 }

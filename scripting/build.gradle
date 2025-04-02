@@ -59,7 +59,7 @@ class EngineExec extends JavaExec {
         project.exec {
             workingDir = project.file('../')
             environment 'XMAKE_COLORTERM', 'nocolor'
-            commandLine xmakeExecutable, 'show', '-t', 'Engine'
+            commandLine xmakeExecutable, 'show', '-t', 'engine'
             standardOutput = output
         }
 
@@ -75,7 +75,12 @@ class EngineExec extends JavaExec {
                 workingDir = project.file('../Engine')
                 environment 'PATH', System.getenv('PATH') + File.pathSeparator + jdkBinPath
                 environment 'JVM_ARGS', jvmArgs
-                commandLine absolutePath
+                if (System.getProperty("os.name").toLowerCase().contains("mac")) {
+                    def filename = new File(absolutePath).name
+                    commandLine absolutePath + ".app/Contents/MacOS/" + filename
+                } else {
+                    commandLine absolutePath
+                }
             }
         } else {
             throw new GradleException("Could not find the engine executable (targetfile in 'xmake show' output is missing)")
