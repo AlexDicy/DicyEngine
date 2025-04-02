@@ -63,6 +63,7 @@ target("engine")
     elseif is_os("macosx") then
         set_pmxxheader("Engine/src/pch/enginepch.h")
         add_rules("xcode.application")
+        add_files("Engine/macos/*.mm")
         add_files("Engine/macos/Info.plist")
         after_build(function (target)
             local cef_framework = target:pkg("chromium-embedded-framework"):installdir() .. "/bin/Chromium Embedded Framework.framework"

@@ -2,18 +2,8 @@
 #include "Application.h"
 #include "cef/OSRCefApp.h"
 
-#if defined(__APPLE__)
-#include "include/wrapper/cef_library_loader.h"
-#endif
 
 int main(const int argc, char* argv[]) {
-    #if defined(__APPLE__)
-    CefScopedLibraryLoader libraryLoader;
-    if (!libraryLoader.LoadInMain()) {
-        return 1;
-    }
-    #endif
-
     const CefMainArgs mainArgs;
 
     CefRefPtr<CefCommandLine> commandLine = CefCommandLine::CreateCommandLine();
@@ -21,14 +11,12 @@ int main(const int argc, char* argv[]) {
 
     const CefRefPtr<CefApp> osrApp = new OSRCefApp();
 
-    #ifdef _WIN32
     int subExitCode = CefExecuteProcess(mainArgs, osrApp, nullptr);
     if (subExitCode >= 0) {
         DE_INFO("CEF Sub-process exited with code: {}", subExitCode);
         // The sub-process has completed so return here.
         return subExitCode;
     }
-    #endif
 
     CefSettings settings;
     settings.no_sandbox = true;
