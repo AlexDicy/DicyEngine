@@ -80,12 +80,12 @@ if is_plat("macosx") then
         {target_suffix = "-renderer", name_suffix = " (Renderer)", plist = "Helper-Renderer-Info.plist"}
     }
     for _, config in ipairs(cef_helper_configs) do
-        local helper_output = "DicyEngine CEF Helper" .. config.name_suffix
+        local helper_output = "DicyEngine Helper" .. config.name_suffix
         target("engine-cef-helper" .. config.target_suffix)
             set_kind("binary")
             set_languages("cxx23")
             add_rules("xcode.application")
-            set_targetdir("$(buildir)/$(plat)/$(arch)/$(mode)/DicyEngine.app/Contents/Frameworks/")
+            set_targetdir("$(buildir)/$(plat)/$(arch)/$(mode)/DicyEngine.app/Contents/Frameworks")
 
             add_frameworks("AppKit", "Cocoa", "IOSurface")
             add_packages("chromium-embedded-framework")
@@ -93,6 +93,12 @@ if is_plat("macosx") then
             set_filename(helper_output)
             add_files("Engine/macos/MacCEFProcessHelper.cpp")
             add_files("Engine/macos/" .. config.plist)
+            after_build(function(target)
+                local helper_dir = target:targetdir() ..  "/" .. helper_output .. ".app/Contents/"
+                local source = path.join("Engine/macos/", config.plist)
+                local destination = path.join(helper_dir, "Info.plist")
+                os.cp(source, destination)
+            end)
     end
 end
 

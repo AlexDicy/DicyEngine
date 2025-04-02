@@ -6,6 +6,16 @@ OSRCefApp::OSRCefApp() = default;
 
 void OSRCefApp::OnBeforeCommandLineProcessing(const CefString& processType, const CefRefPtr<CefCommandLine> commandLine) {
     commandLine->AppendSwitch("disable-gpu-compositing");
+    commandLine->AppendSwitchWithValue("disable-features",
+                                       "WebBluetooth,"
+#ifdef DE_PLATFORM_WINDOWS
+                                       "EnableWindowsGamingInputDataFetcher,"
+#endif
+                                       "HardwareMediaKeyHandling");
+#ifdef DE_PLATFORM_MACOS
+    commandLine->AppendSwitch("use-mock-keychain");
+    commandLine->AppendSwitch("disable-gpu"); // TODO: test without
+#endif
 }
 
 void OSRCefApp::OnContextCreated(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, const CefRefPtr<CefV8Context> context) {
