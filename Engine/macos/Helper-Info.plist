@@ -5,15 +5,15 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>DicyEngine CEF Helper</string>
+	<string>DicyEngine Helper</string>
 	<key>CFBundleExecutable</key>
-	<string>DicyEngine CEF Helper</string>
+	<string>DicyEngine Helper</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.dicydev.engine.cef.helper</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>DicyEngine CEF Helper</string>
+	<string>DicyEngine Helper</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleSignature</key>
