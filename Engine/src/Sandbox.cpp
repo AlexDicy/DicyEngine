@@ -1,7 +1,6 @@
 #include "pch/enginepch.h"
 #include "Application.h"
 #include "cef/OSRCefApp.h"
-#include "cef/OSRCefHandler.h"
 
 #if defined(__APPLE__)
 #include "include/wrapper/cef_library_loader.h"
