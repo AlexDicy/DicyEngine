@@ -14,7 +14,6 @@ void OSRCefApp::OnBeforeCommandLineProcessing(const CefString& processType, cons
                                        "HardwareMediaKeyHandling");
 #ifdef DE_PLATFORM_MACOS
     commandLine->AppendSwitch("use-mock-keychain");
-    commandLine->AppendSwitch("disable-gpu"); // TODO: test without
 #endif
 }
 
