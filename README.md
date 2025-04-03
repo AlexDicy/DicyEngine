@@ -1,3 +1,16 @@
+### DicyEngine 3D
+DicyEngine currently supports Windows and macOS.
+- 3D, PBR (Physically Based Rendering) pipeline
+- C++ and Java interoperability
+- Chromium Embedded Framework integration
+- Scene/scripts/assets deserialization
+
+---
+
+![image](https://github.com/user-attachments/assets/c599a1d1-ef22-423a-94c4-e9a67623f757)
+
+---
+
 ### Engine setup
 #### Prerequisites
 - [xmake](https://xmake.io/#/guide/installation)
@@ -27,8 +40,3 @@ cd scripting/
 .\gradlew.bat run :runEngine
 ```
 `runEngine` will build the engine executable through xmake and then run it.
-
----
-### Project screenshots (from recent to older)
-
-![image](https://github.com/user-attachments/assets/c599a1d1-ef22-423a-94c4-e9a67623f757)
