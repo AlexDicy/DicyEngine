@@ -3,7 +3,7 @@ DicyEngine currently supports Windows and macOS.
 - 3D, PBR (Physically Based Rendering) pipeline
 - C++ and Java interoperability
 - Chromium Embedded Framework integration
-- Scene/scripts/assets deserialization
+- Scene/scripts/assets serialization
 
 ---
 
