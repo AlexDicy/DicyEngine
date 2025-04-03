@@ -53,6 +53,11 @@ void UIScript::onSpawn() {
         this->handler->sendCharTypedEvent(event);
     });
 
+    this->handler->registerCallback("toggleVSync", [this](const CefRefPtr<CefListValue>&) {
+        const bool vsync = this->app->getWindow()->isVSync();
+        this->app->getWindow()->setVSync(!vsync);
+    });
+
     static bool hasFocus = false;
     Input::setAction("focusBrowser", InputCode::KEY_F);
     Input::bindActionPressed("focusBrowser", [this] {
