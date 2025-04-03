@@ -100,11 +100,11 @@ if is_plat("macosx") then
             add_files("Engine/macos/" .. config.plist)
             add_files(
                 "Engine/src/cef/OSRCefApp.cpp",
-                "Engine/src/cef/CefMessageHandler.cpp"
+                "Engine/src/cef/RendererMessageHandler.cpp"
             )
             add_headerfiles(
                 "Engine/src/cef/OSRCefApp.h",
-                "Engine/src/cef/CefMessageHandler.h"
+                "Engine/src/cef/RendererMessageHandler.h"
             )
             add_includedirs("Engine/src/cef")
 

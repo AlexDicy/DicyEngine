@@ -1,6 +1,6 @@
-﻿#include "CefMessageHandler.h"
+﻿#include "RendererMessageHandler.h"
 
-bool CefMessageHandler::Execute(const CefString& name, CefRefPtr<CefV8Value> object, const CefV8ValueList& arguments, CefRefPtr<CefV8Value>& retVal, CefString& exception) {
+bool RendererMessageHandler::Execute(const CefString& name, CefRefPtr<CefV8Value> object, const CefV8ValueList& arguments, CefRefPtr<CefV8Value>& retVal, CefString& exception) {
     if (name == "setMessageListener") {
         if (arguments.size() == 2 && arguments[0]->IsString() && arguments[1]->IsFunction()) {
             std::string messageName = arguments[0]->GetStringValue();
@@ -9,11 +9,26 @@ bool CefMessageHandler::Execute(const CefString& name, CefRefPtr<CefV8Value> obj
             this->callbacks.insert(std::make_pair(std::make_pair(messageName, browserId), std::make_pair(context, arguments[1])));
             return true;
         }
+    } else if (name == "sendMessage") {
+        if (!arguments.empty() && arguments[0]->IsString()) {
+            const CefRefPtr<CefProcessMessage> message = CefProcessMessage::Create(arguments[0]->GetStringValue());
+            const CefRefPtr<CefListValue> list = message->GetArgumentList();
+            const int size = static_cast<int>(arguments.size());
+            list->SetSize(size - 1);
+            for (int i = 1; i < size; i++) {
+                if (arguments[i]->IsValid()) {
+                    setListValue(list, i - 1, arguments[i]);
+                }
+            }
+            const CefRefPtr<CefBrowser> browser = CefV8Context::GetCurrentContext()->GetBrowser();
+            browser->GetMainFrame()->SendProcessMessage(PID_BROWSER, message);
+            return true;
+        }
     }
     return false;
 }
 
-void CefMessageHandler::releaseContext(const CefRefPtr<CefV8Context>& context) {
+void RendererMessageHandler::releaseContext(const CefRefPtr<CefV8Context>& context) {
     // Remove any JavaScript callbacks registered for the context that has been released.
     if (!this->callbacks.empty()) {
         for (auto it = this->callbacks.begin(); it != this->callbacks.end();) {
@@ -26,7 +41,7 @@ void CefMessageHandler::releaseContext(const CefRefPtr<CefV8Context>& context) {
     }
 }
 
-void CefMessageHandler::setListValue(const CefRefPtr<CefListValue>& list, const int index, const CefRefPtr<CefV8Value>& value) {
+void RendererMessageHandler::setListValue(const CefRefPtr<CefListValue>& list, const size_t index, const CefRefPtr<CefV8Value>& value) {
     if (value->IsArray()) {
         const CefRefPtr<CefListValue> newList = CefListValue::Create();
         list->SetList(index, newList);
@@ -41,22 +56,20 @@ void CefMessageHandler::setListValue(const CefRefPtr<CefListValue>& list, const 
     }
 }
 
-void CefMessageHandler::setList(const CefRefPtr<CefV8Value>& source, const CefRefPtr<CefListValue>& target) {
-    assert(source->IsArray());
-
-    const int argLength = source->GetArrayLength();
+void RendererMessageHandler::setList(const CefV8ValueList& source, const CefRefPtr<CefListValue>& target) {
+    const size_t argLength = source.size();
     if (argLength == 0) {
         return;
     }
 
     target->SetSize(argLength);
 
-    for (int i = 0; i < argLength; i++) {
-        setListValue(target, i, source->GetValue(i));
+    for (size_t i = 0; i < argLength; i++) {
+        setListValue(target, i, source[i]);
     }
 }
 
-void CefMessageHandler::setListValue(const CefRefPtr<CefV8Value>& list, const int index, const CefRefPtr<CefListValue>& value) {
+void RendererMessageHandler::setListValue(const CefRefPtr<CefV8Value>& list, const int index, const CefRefPtr<CefListValue>& value) {
     CefRefPtr<CefV8Value> newValue;
 
     switch (value->GetType(index)) {
@@ -97,7 +110,7 @@ void CefMessageHandler::setListValue(const CefRefPtr<CefV8Value>& list, const in
     }
 }
 
-void CefMessageHandler::setList(const CefRefPtr<CefListValue>& source, const CefRefPtr<CefV8Value>& target) {
+void RendererMessageHandler::setList(const CefRefPtr<CefListValue>& source, const CefRefPtr<CefV8Value>& target) {
     assert(target->IsArray());
 
     const int argLength = static_cast<int>(source->GetSize());
@@ -110,7 +123,7 @@ void CefMessageHandler::setList(const CefRefPtr<CefListValue>& source, const Cef
     }
 }
 
-bool CefMessageHandler::processMessage(const CefRefPtr<CefBrowser>& browser, const CefRefPtr<CefFrame>& frame, CefProcessId sourceProcess,
+bool RendererMessageHandler::processMessage(const CefRefPtr<CefBrowser>& browser, const CefRefPtr<CefFrame>& frame, CefProcessId sourceProcess,
                                       const CefRefPtr<CefProcessMessage>& message) {
     bool handled = false;
     const CefString& messageName = message->GetName();

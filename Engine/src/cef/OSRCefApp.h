@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "CefMessageHandler.h"
+#include "RendererMessageHandler.h"
 #include "cef_app.h"
 
 class OSRCefApp : public CefApp, public CefBrowserProcessHandler, public CefRenderProcessHandler {
@@ -22,7 +22,7 @@ public:
     bool OnProcessMessageReceived(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, CefProcessId sourceProcess, CefRefPtr<CefProcessMessage> message) override;
 
 private:
-    CefRefPtr<CefMessageHandler> messageHandler = new CefMessageHandler();
+    CefRefPtr<RendererMessageHandler> messageHandler = new RendererMessageHandler();
 
     IMPLEMENT_REFCOUNTING(OSRCefApp);
 };
