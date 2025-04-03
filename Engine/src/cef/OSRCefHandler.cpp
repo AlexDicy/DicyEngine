@@ -201,6 +201,11 @@ void OSRCefHandler::OnPaint(CefRefPtr<CefBrowser> browser, const PaintElementTyp
     this->updateTexture(buffer, width, height);
 }
 
+bool OSRCefHandler::OnProcessMessageReceived(const CefRefPtr<CefBrowser> browser, const CefRefPtr<CefFrame> frame, const CefProcessId sourceProcess,
+                                             const CefRefPtr<CefProcessMessage> message) {
+    return this->browserMessageHandler.processMessage(browser, frame, sourceProcess, message);
+}
+
 bool OSRCefHandler::DoClose(CefRefPtr<CefBrowser> browser) {
     std::cout << "DoClose\n";
     // todo: check browserList

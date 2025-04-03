@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "Application.h"
+#include "BrowserMessageHandler.h"
 #include "OSRCefApp.h"
 
 class OSRCefHandler : public CefClient, public CefRenderHandler, public CefLoadHandler, public CefLifeSpanHandler {
@@ -31,6 +32,10 @@ public:
     void sendKeyReleasedEvent(const KeyReleasedEvent& event) const;
     void sendCharTypedEvent(const CharTypedEvent& event) const;
 
+    void registerCallback(const std::string& name, const std::function<void(const CefRefPtr<CefListValue>&)>& callback) {
+        this->browserMessageHandler.registerCallback(name, callback);
+    }
+
     void updateFrameInfo(double deltaTime) const;
 
     //
@@ -61,6 +66,8 @@ public:
     void GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) override;
     void OnPaint(CefRefPtr<CefBrowser> browser, PaintElementType type, const RectList& dirtyRects, const void* buffer, int width, int height) override;
 
+    bool OnProcessMessageReceived(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, CefProcessId sourceProcess, CefRefPtr<CefProcessMessage> message) override;
+
     bool DoClose(CefRefPtr<CefBrowser> browser) override;
 
     static OSRCefHandler* getInstance();
@@ -78,6 +85,7 @@ private:
     Ref<Application> app;
     Ref<Texture2D> texture;
     CefRefPtr<CefBrowserHost> host;
+    BrowserMessageHandler browserMessageHandler = BrowserMessageHandler();
     bool closing = false;
 
     IMPLEMENT_REFCOUNTING(OSRCefHandler);
