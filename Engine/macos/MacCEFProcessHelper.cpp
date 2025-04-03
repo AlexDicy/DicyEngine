@@ -1,6 +1,8 @@
 #include "include/cef_app.h"
 #include "include/wrapper/cef_library_loader.h"
 
+#include "OSRCefApp.h"
+
 // When generating projects with CMake the CEF_USE_SANDBOX value will be defined
 // automatically. Pass -DUSE_SANDBOX=OFF to the CMake command-line to disable
 // use of the sandbox.
@@ -28,6 +30,8 @@ int main(int argc, char* argv[]) {
     // Provide CEF with command-line arguments.
     CefMainArgs mainArgs(argc, argv);
 
+    const CefRefPtr<OSRCefApp> osrApp(new OSRCefApp);
+
     // Execute the sub-process.
-    return CefExecuteProcess(mainArgs, nullptr, nullptr);
+    return CefExecuteProcess(mainArgs, osrApp.get(), nullptr);
 }

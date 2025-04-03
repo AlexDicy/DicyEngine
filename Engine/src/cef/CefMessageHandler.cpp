@@ -1,5 +1,4 @@
-﻿#include "pch/enginepch.h"
-#include "CefMessageHandler.h"
+﻿#include "CefMessageHandler.h"
 
 bool CefMessageHandler::Execute(const CefString& name, CefRefPtr<CefV8Value> object, const CefV8ValueList& arguments, CefRefPtr<CefV8Value>& retVal, CefString& exception) {
     if (name == "setMessageListener") {

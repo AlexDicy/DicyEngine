@@ -98,6 +98,16 @@ if is_plat("macosx") then
             set_filename(helper_output)
             add_files("Engine/macos/MacCEFProcessHelper.cpp")
             add_files("Engine/macos/" .. config.plist)
+            add_files(
+                "Engine/src/cef/OSRCefApp.cpp",
+                "Engine/src/cef/CefMessageHandler.cpp"
+            )
+            add_headerfiles(
+                "Engine/src/cef/OSRCefApp.h",
+                "Engine/src/cef/CefMessageHandler.h"
+            )
+            add_includedirs("Engine/src/cef")
+
             after_build(function(target)
                 local helper_dir = target:targetdir() ..  "/" .. helper_output .. ".app/Contents/"
                 local source = path.join("Engine/macos/", config.plist)
