@@ -1,6 +1,7 @@
 ﻿#include "pch/enginepch.h"
 #include "OpenGLRenderer.h"
 
+#include "DebugGroup.h"
 #include "OpenGLBuffer.h"
 #include "OpenGLDataType.h"
 #include "OpenGLShader.h"
@@ -72,6 +73,7 @@ Ref<Texture2D> OpenGLRenderer::createTexture2D(const unsigned int channels, cons
 }
 
 Ref<Texture2D> OpenGLRenderer::createBRDFLUT(const Ref<Shader>& shader, const uint32_t size) const {
+    DebugGroup group("OpenGLRenderer::createBRDFLUT");
     unsigned int textureId;
     glGenTextures(1, &textureId);
     glBindTexture(GL_TEXTURE_2D, textureId);
@@ -139,6 +141,7 @@ Ref<TextureCube> OpenGLRenderer::createPrefilteredCubemap(const Ref<TextureCube>
 
 void OpenGLRenderer::beginFrame() {
     DE_PROFILE_FUNCTION();
+    DebugGroup group("OpenGLRenderer::beginFrame");
     this->viewProjectionMatrix = this->camera->getViewProjectionMatrix(true);
     this->viewMatrix = this->camera->getViewMatrix();
     this->projectionMatrix = this->camera->getProjectionMatrix();
@@ -150,16 +153,19 @@ void OpenGLRenderer::beginFrame() {
 }
 
 void OpenGLRenderer::beginDirectionalShadows() const {
+    DebugGroup group("OpenGLRenderer::beginDirectionalShadows");
     this->shadowDepthFramebuffer->bind();
     glViewport(0, 0, this->shadowDepthFramebuffer->getWidth(), this->shadowDepthFramebuffer->getHeight());
     glClear(GL_DEPTH_BUFFER_BIT);
 }
 
 void OpenGLRenderer::beginPointLightShadows() const {
+    DebugGroup group("OpenGLRenderer::beginPointLightShadows");
     this->shadowCubeArrayFramebuffer->ensureLayersCapacity(static_cast<unsigned int>(this->pointLights.size()));
 }
 
 void OpenGLRenderer::beginPointLightShadow(const PointLight& light, const int lightIndex, const int faceIndex) const {
+    DebugGroup group("OpenGLRenderer::beginPointLightShadow");
     this->shadowCubeArrayShader->bind();
     this->shadowCubeArrayFramebuffer->bind(lightIndex, faceIndex);
     glViewport(0, 0, this->shadowCubeArrayFramebuffer->getSize(), this->shadowCubeArrayFramebuffer->getSize());
@@ -173,17 +179,20 @@ void OpenGLRenderer::beginPointLightShadow(const PointLight& light, const int li
 }
 
 void OpenGLRenderer::endShadows() const {
+    DebugGroup group("OpenGLRenderer::endShadows");
     this->framebuffer->bind();
     glViewport(0, 0, this->framebuffer->getWidth(), this->framebuffer->getHeight());
 }
 
 void OpenGLRenderer::endFrame() const {
+    DebugGroup group("OpenGLRenderer::endFrame");
     this->framebuffer->updateFinalColorTexture();
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glBindVertexArray(0);
 }
 
 void OpenGLRenderer::clear() const {
+    DebugGroup group("OpenGLRenderer::clear");
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
@@ -203,6 +212,7 @@ void OpenGLRenderer::draw(const Ref<VertexArray>& vertexArray, const glm::mat4& 
 }
 
 void OpenGLRenderer::draw(const Ref<VertexArray>& vertexArray, const glm::mat4& transform, const Ref<Shader>& shader, const Material& material) const {
+    DebugGroup group("OpenGLRenderer::draw");
     shader->bind();
     shader->uploadUniformMat4("uViewProjection", this->viewProjectionMatrix);
     shader->uploadUniformMat4("uTransform", transform);
@@ -250,6 +260,7 @@ void OpenGLRenderer::draw(const Ref<VertexArray>& vertexArray, const glm::mat4& 
 }
 
 void OpenGLRenderer::drawSkybox(const Ref<SkyboxCube>& skybox) const {
+    DebugGroup group("OpenGLRenderer::drawSkybox");
     skybox->getShader()->bind();
     // remove the translation part of the view matrix
     const auto viewMatrix = glm::mat4(glm::mat3(this->viewMatrix));
@@ -264,6 +275,7 @@ void OpenGLRenderer::drawSkybox(const Ref<SkyboxCube>& skybox) const {
 }
 
 void OpenGLRenderer::drawForDirectionalShadows(const Ref<VertexArray>& vertexArray, const glm::mat4& transform) const {
+    DebugGroup group("OpenGLRenderer::drawForDirectionalShadows");
     this->shadowMapShader->bind();
     this->shadowMapShader->uploadUniformMat4("uViewProjection", this->directionalLightViewProjection);
     this->shadowMapShader->uploadUniformMat4("uTransform", transform);
@@ -272,6 +284,7 @@ void OpenGLRenderer::drawForDirectionalShadows(const Ref<VertexArray>& vertexArr
 }
 
 void OpenGLRenderer::drawForPointLightShadows(const Ref<VertexArray>& vertexArray, const glm::mat4& transform) const {
+    DebugGroup group("OpenGLRenderer::drawForPointLightShadows");
     // the shader is already initialized in beginPointLightShadow(s)
     this->shadowCubeArrayShader->uploadUniformMat4("uTransform", transform);
     vertexArray->bind();
@@ -279,9 +292,12 @@ void OpenGLRenderer::drawForPointLightShadows(const Ref<VertexArray>& vertexArra
 }
 
 void OpenGLRenderer::drawUI(const Ref<VertexArray>& vertexArray, const Ref<Shader>& shader, const Material& material) const {
+    DebugGroup group("OpenGLRenderer::drawUI");
     shader->bind();
     material.albedo->bind(0);
     shader->uploadUniformInt("uTexture", 0);
     vertexArray->bind();
+    glDisable(GL_DEPTH_TEST);
     glDrawElements(GL_TRIANGLES, static_cast<int>(vertexArray->getIndexBuffer()->getCount()), GL_UNSIGNED_INT, nullptr);
+    glEnable(GL_DEPTH_TEST);
 }
