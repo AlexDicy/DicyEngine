@@ -22,6 +22,7 @@ void OSRCefApp::OnContextCreated(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFra
     const CefRefPtr<CefV8Value> object = context->GetGlobal();
     object->SetValue("setMessageListener", CefV8Value::CreateFunction("setMessageListener", this->messageHandler), V8_PROPERTY_ATTRIBUTE_NONE);
     object->SetValue("sendMessage", CefV8Value::CreateFunction("sendMessage", this->messageHandler), V8_PROPERTY_ATTRIBUTE_NONE);
+    object->SetValue("cefCall", CefV8Value::CreateFunction("cefCall", this->messageHandler), V8_PROPERTY_ATTRIBUTE_NONE);
 }
 
 void OSRCefApp::OnContextReleased(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, const CefRefPtr<CefV8Context> context) {

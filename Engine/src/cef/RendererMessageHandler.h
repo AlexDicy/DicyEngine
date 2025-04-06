@@ -1,8 +1,14 @@
 ﻿#pragma once
 #include "cef_v8.h"
 
+#include <unordered_map>
+
 class RendererMessageHandler : public CefV8Handler {
     friend class OSRCefApp;
+
+public:
+    static inline const std::string messageListenerName = "__messageListener";
+    static inline const std::string callName = "__call";
 
 protected:
     RendererMessageHandler() = default;
@@ -17,7 +23,27 @@ private:
     static void setList(const CefV8ValueList& source, const CefRefPtr<CefListValue>& target);
     static void setList(const CefRefPtr<CefListValue>& source, const CefRefPtr<CefV8Value>& target);
 
-    std::map<std::pair<std::string, int>, std::pair<CefRefPtr<CefV8Context>, CefRefPtr<CefV8Value>>> callbacks;
+    bool processMessageForListener(const CefRefPtr<CefBrowser>& browser, const CefRefPtr<CefProcessMessage>& message);
+
+    struct CallPromise {
+        CefRefPtr<CefV8Context> context;
+        CefRefPtr<CefV8Value> resolve;
+        CefRefPtr<CefV8Value> reject;
+    };
+
+    struct PairHash {
+        template <typename T1, typename T2>
+        std::size_t operator()(const std::pair<T1, T2>& p) const {
+            uintmax_t hash = std::hash<T1>{}(p.first);
+            hash <<= sizeof(uintmax_t) * 4;
+            hash ^= std::hash<T2>{}(p.second);
+            return std::hash<uintmax_t>{}(hash);
+        }
+    };
+
+    std::unordered_map<std::pair<std::string, int>, std::pair<CefRefPtr<CefV8Context>, CefRefPtr<CefV8Value>>, PairHash> callbacks;
+    std::unordered_map<std::pair<int, unsigned int>, CallPromise, PairHash> calls;
+    int callId = 0;
 
     IMPLEMENT_REFCOUNTING(RendererMessageHandler);
 };

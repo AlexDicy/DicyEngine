@@ -8,8 +8,15 @@ window.setMessageListener('updateFrameInfo', (dT: number) => {
   deltaTime.value = dT;
 });
 
+const message = ref('<>');
+
 function toggleVSync() {
-  window.sendMessage('toggleVSync');
+  window.call('toggleVSync')
+    .then((vsync) => message.value = 'VSync toggled to: ' + vsync)
+    .catch((e) => {
+      // message.value = 'Failed to toggle VSync';
+      message.value = e;
+    });
 }
 </script>
 
@@ -19,5 +26,6 @@ function toggleVSync() {
     <button @click="toggleVSync" class="mt-2 px-2 py-1 bg-gray-700 hover:bg-gray-800 text-gray-50 rounded shadow">
       Toggle VSync
     </button>
+    <pre>{{ message }}</pre>
   </div>
 </template>

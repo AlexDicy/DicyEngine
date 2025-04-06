@@ -153,11 +153,10 @@ void OSRCefHandler::updateFrameInfo(const double deltaTime) const {
         return;
     }
 
-    const auto message = CefProcessMessage::Create(CefString("updateFrameInfo"));
-    const auto args = message->GetArgumentList();
-    args->SetDouble(0, deltaTime);
-
-    this->host->GetBrowser()->GetMainFrame()->SendProcessMessage(PID_RENDERER, message);
+   
+    const auto args = BrowserMessageHandler::createMessage("updateFrameInfo");
+    args->appendDouble(deltaTime);
+    this->host->GetBrowser()->GetMainFrame()->SendProcessMessage(PID_RENDERER, args->getMessage());
 }
 
 void OSRCefHandler::OnLoadStart(const CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, TransitionType transitionType) {
