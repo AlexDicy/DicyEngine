@@ -16,4 +16,15 @@ window.sendMessage ??= ((message, ...args) => {
   console.log('Binding not found: sendMessage', message, args);
 });
 
+window.call = ((message, ...args) => {
+  return new Promise((resolve, reject) => {
+    window.cefCall(message, resolve, reject, args);
+  });
+});
+
+window.cefCall ??= ((name, resolve, reject) => {
+  console.log('Binding not found: cefCall', name);
+  reject(new Error('Binding not found: cefCall'));
+});
+
 app.mount('#app');

@@ -32,7 +32,7 @@ public:
     void sendKeyReleasedEvent(const KeyReleasedEvent& event) const;
     void sendCharTypedEvent(const CharTypedEvent& event) const;
 
-    void registerCallback(const std::string& name, const std::function<void(const CefRefPtr<CefListValue>&)>& callback) {
+    void registerCallback(const std::string& name, const std::function<void(const Callback&)>& callback) {
         this->browserMessageHandler.registerCallback(name, callback);
     }
 
