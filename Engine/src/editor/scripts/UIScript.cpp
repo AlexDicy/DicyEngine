@@ -53,9 +53,10 @@ void UIScript::onSpawn() {
         this->handler->sendCharTypedEvent(event);
     });
 
-    this->handler->registerCallback("toggleVSync", [this](const CefRefPtr<CefListValue>&) {
+    this->handler->registerCallback("toggleVSync", [this](const Callback& callback) {
         const bool vsync = this->app->getWindow()->isVSync();
         this->app->getWindow()->setVSync(!vsync);
+        callback.success(!vsync);
     });
 
     static bool hasFocus = false;

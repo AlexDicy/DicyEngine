@@ -1,17 +1,16 @@
 ﻿#pragma once
-#include "cef_v8.h"
+#include "ProcessMessageBuilder.h"
+
+#include <cef_v8.h>
 #include <functional>
 
-#include "utils/Common.h"
-
-
-class ProcessMessageBuilder;
+class Callback;
 
 class BrowserMessageHandler {
     friend class OSRCefHandler;
 
 public:
-    void registerCallback(const std::string& name, const std::function<void(const CefRefPtr<CefListValue>&)>& callback);
+    void registerCallback(const std::string& name, const std::function<void(const Callback& callback)>& callback);
 
 protected:
     BrowserMessageHandler() = default;
@@ -21,27 +20,23 @@ protected:
     static Ref<ProcessMessageBuilder> createMessage(const std::string& name);
 
 private:
-    std::unordered_map<std::string, std::function<void(const CefRefPtr<CefListValue>&)>> callbacks;
+    std::unordered_map<std::string, std::function<void(const Callback& callback)>> callbacks;
 };
 
-class ProcessMessageBuilder {
-    friend class BrowserMessageHandler;
+class Callback {
 public:
-    ProcessMessageBuilder(const std::string& messageType, const std::string& name) : message(CefProcessMessage::Create(messageType)) {
-        arguments = message->GetArgumentList();
-        arguments->SetString(index++, name);
-    }
+    Callback(std::string name, const int callId, const CefRefPtr<CefBrowser>& browser) : name(std::move(name)), callId(callId), browser(browser) {}
 
-    CefRefPtr<CefProcessMessage> getMessage() const {
-        return message;
-    }
-
-    void appendDouble(const double value) {
-        arguments->SetDouble(index++, value);
-    }
+    void success() const;
+    void success(bool value) const;
+    void success(const CefRefPtr<CefListValue>& arguments) const;
+    void error(const std::string& error) const;
 
 private:
-    CefRefPtr<CefProcessMessage> message;
-    CefRefPtr<CefListValue> arguments;
-    unsigned int index = 0;
+    ProcessMessageBuilder getMessageBuilder(const std::string& messageName) const;
+    void sendMessage(const ProcessMessageBuilder& builder) const;
+
+    std::string name;
+    int callId = 0;
+    CefRefPtr<CefBrowser> browser;
 };

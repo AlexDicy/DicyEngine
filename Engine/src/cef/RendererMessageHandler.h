@@ -9,6 +9,7 @@ class RendererMessageHandler : public CefV8Handler {
 public:
     static inline const std::string messageListenerName = "__messageListener";
     static inline const std::string callName = "__call";
+    static inline const std::string callErrorName = "__callError";
 
 protected:
     RendererMessageHandler() = default;
@@ -23,6 +24,8 @@ private:
     static void setList(const CefV8ValueList& source, const CefRefPtr<CefListValue>& target);
     static void setList(const CefRefPtr<CefListValue>& source, const CefRefPtr<CefV8Value>& target);
 
+    bool processMessageForCall(const CefRefPtr<CefBrowser>& browser, const CefRefPtr<CefProcessMessage>& message);
+    bool processMessageForCallError(const CefRefPtr<CefBrowser>& browser, const CefRefPtr<CefProcessMessage>& message);
     bool processMessageForListener(const CefRefPtr<CefBrowser>& browser, const CefRefPtr<CefProcessMessage>& message);
 
     struct CallPromise {
@@ -42,7 +45,7 @@ private:
     };
 
     std::unordered_map<std::pair<std::string, int>, std::pair<CefRefPtr<CefV8Context>, CefRefPtr<CefV8Value>>, PairHash> callbacks;
-    std::unordered_map<std::pair<int, unsigned int>, CallPromise, PairHash> calls;
+    std::unordered_map<std::pair<int, int>, CallPromise, PairHash> calls;
     int callId = 0;
 
     IMPLEMENT_REFCOUNTING(RendererMessageHandler);

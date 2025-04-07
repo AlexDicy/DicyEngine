@@ -15,7 +15,7 @@ function toggleVSync() {
     .then((vsync) => message.value = 'VSync toggled to: ' + vsync)
     .catch((e) => {
       // message.value = 'Failed to toggle VSync';
-      message.value = e;
+      message.value = 'Error ' + e;
     });
 }
 </script>

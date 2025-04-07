@@ -1,7 +1,6 @@
 ﻿#include "RendererMessageHandler.h"
 
-#include <limits>
-
+#include <iostream>
 
 bool RendererMessageHandler::Execute(const CefString& name, CefRefPtr<CefV8Value> object, const CefV8ValueList& arguments, CefRefPtr<CefV8Value>& retVal, CefString& exception) {
     if (name == "cefCall") {
@@ -24,11 +23,11 @@ bool RendererMessageHandler::Execute(const CefString& name, CefRefPtr<CefV8Value
             const CefRefPtr<CefListValue> list = message->GetArgumentList();
             const int size = static_cast<int>(arguments.size());
             list->SetSize(size - 2);
-            list->SetInt(0, callId);
-            list->SetString(1, arguments[0]->GetStringValue());
-            for (int i = 3; i < size; i++) {
+            list->SetString(0, arguments[0]->GetStringValue());
+            list->SetInt(1, callId);
+            for (int i = 2; i < size; i++) {
                 if (arguments[i]->IsValid()) {
-                    setListValue(list, i - 3, arguments[i]);
+                    setListValue(list, i, arguments[i]);
                 }
             }
             browser->GetMainFrame()->SendProcessMessage(PID_BROWSER, message);
@@ -169,9 +168,61 @@ bool RendererMessageHandler::processMessage(const CefRefPtr<CefBrowser>& browser
                                             const CefRefPtr<CefProcessMessage>& message) {
     const CefString& messageName = message->GetName();
     if (messageName == callName) {
-        // return processMessageForCall(browser, message);
-    } else if (messageName == messageListenerName) {
+        return processMessageForCall(browser, message);
+    }
+    if (messageName == callErrorName) {
+        return processMessageForCallError(browser, message);
+    }
+    if (messageName == messageListenerName) {
         return processMessageForListener(browser, message);
+    }
+    return false;
+}
+
+bool RendererMessageHandler::processMessageForCall(const CefRefPtr<CefBrowser>& browser, const CefRefPtr<CefProcessMessage>& message) {
+    const CefRefPtr<CefListValue> messageArguments = message->GetArgumentList();
+    const int callId = messageArguments->GetInt(1);
+
+    const auto it = this->calls.find(std::make_pair(browser->GetIdentifier(), callId));
+    if (it != this->calls.end()) {
+        const CefRefPtr<CefV8Context> context = it->second.context;
+        const CefRefPtr<CefV8Value> callback = it->second.resolve;
+
+        context->Enter();
+        CefV8ValueList callbackArguments;
+        const int size = static_cast<int>(messageArguments->GetSize());
+        const CefRefPtr<CefV8Value> args = CefV8Value::CreateArray(size);
+        setList(messageArguments, args);
+        callbackArguments.reserve(size - 2);
+        for (int i = 2; i < size; i++) {
+            callbackArguments.push_back(args->GetValue(i));
+        }
+        callback->ExecuteFunction(nullptr, callbackArguments);
+        context->Exit();
+
+        this->calls.erase(it);
+        return true;
+    }
+    return false;
+}
+
+bool RendererMessageHandler::processMessageForCallError(const CefRefPtr<CefBrowser>& browser, const CefRefPtr<CefProcessMessage>& message) {
+    const CefRefPtr<CefListValue> messageArguments = message->GetArgumentList();
+    const int callId = messageArguments->GetInt(1);
+
+    const auto it = this->calls.find(std::make_pair(browser->GetIdentifier(), callId));
+    if (it != this->calls.end()) {
+        const CefRefPtr<CefV8Context> context = it->second.context;
+        const CefRefPtr<CefV8Value> callback = it->second.reject;
+
+        context->Enter();
+        CefV8ValueList arguments;
+        arguments.push_back(CefV8Value::CreateString(messageArguments->GetString(2)));
+        callback->ExecuteFunction(nullptr, arguments);
+        context->Exit();
+
+        this->calls.erase(it);
+        return true;
     }
     return false;
 }
