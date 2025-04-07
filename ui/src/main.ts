@@ -12,10 +12,6 @@ window.setMessageListener ??= ((message, callback) => {
   console.log('Binding not found: setMessageListener', message, callback);
 });
 
-window.sendMessage ??= ((message, ...args) => {
-  console.log('Binding not found: sendMessage', message, args);
-});
-
 window.call = ((message, ...args) => {
   return new Promise((resolve, reject) => {
     window.cefCall(message, resolve, reject, args);
