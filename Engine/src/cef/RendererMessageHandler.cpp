@@ -40,21 +40,6 @@ bool RendererMessageHandler::Execute(const CefString& name, CefRefPtr<CefV8Value
             this->callbacks.insert(std::make_pair(std::make_pair(messageName, browserId), std::make_pair(context, arguments[1])));
             return true;
         }
-    } else if (name == "sendMessage") {
-        if (!arguments.empty() && arguments[0]->IsString()) {
-            const CefRefPtr<CefProcessMessage> message = CefProcessMessage::Create(arguments[0]->GetStringValue());
-            const CefRefPtr<CefListValue> list = message->GetArgumentList();
-            const int size = static_cast<int>(arguments.size());
-            list->SetSize(size - 1);
-            for (int i = 1; i < size; i++) {
-                if (arguments[i]->IsValid()) {
-                    setListValue(list, i - 1, arguments[i]);
-                }
-            }
-            const CefRefPtr<CefBrowser> browser = CefV8Context::GetCurrentContext()->GetBrowser();
-            browser->GetMainFrame()->SendProcessMessage(PID_BROWSER, message);
-            return true;
-        }
     }
     return false;
 }
