@@ -1,4 +1,5 @@
 ﻿#pragma once
+#ifdef OPENGL_4_6
 #include <glad/gl.h>
 
 class DebugGroup {
@@ -15,3 +16,12 @@ public:
 private:
     inline static unsigned int globalGroupDepth = 0;
 };
+
+#else
+
+class DebugGroup {
+public:
+    explicit DebugGroup(const std::string_view) {}
+};
+
+#endif
