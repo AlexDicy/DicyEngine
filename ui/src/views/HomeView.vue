@@ -1,31 +1,84 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
-
-const deltaTime = ref(0);
-const fps = computed(() => deltaTime.value ? (1.0 / deltaTime.value).toFixed(2) : 0);
-
-window.setMessageListener('updateFrameInfo', (dT: number) => {
-  deltaTime.value = dT;
-});
-
-const message = ref('<>');
-
-function toggleVSync() {
-  window.call('toggleVSync')
-    .then((vsync) => message.value = 'VSync toggled to: ' + vsync)
-    .catch((e) => {
-      // message.value = 'Failed to toggle VSync';
-      message.value = 'Error ' + e;
-    });
-}
+import ViewportWindow from '@/windows/ViewportWindow.vue';
+import PerformanceWindow from '@/windows/PerformanceWindow.vue';
+import Resizable from '@/components/Resizable.vue';
+import ViewportWindow2 from '@/windows/ViewportWindow2.vue';
 </script>
 
 <template>
-  <div class="m-3 px-4 py-3 bg-gray-100 rounded-lg shadow-md max-w-xs">
-    <pre>FPS: {{ fps }}</pre>
-    <button @click="toggleVSync" class="mt-2 px-2 py-1 bg-gray-700 hover:bg-gray-800 text-gray-50 rounded shadow">
-      Toggle VSync
-    </button>
-    <pre>{{ message }}</pre>
+  <div class="split-widget windows-grid">
+    <Resizable class="column" direction="horizontal" resizer-location="right" :defaultWidth="100" :minWidth="100">
+      <div class="column-contents">
+        <PerformanceWindow />
+        <ViewportWindow2 />
+        <ViewportWindow />
+      </div>
+    </Resizable>
+    <div class="column content-main">
+      <div class="column-contents">
+        <Resizable direction="vertical" resizer-location="bottom" :defaultHeight="150" :minHeight="100" class="window">
+          <PerformanceWindow />
+        </Resizable>
+        <ViewportWindow class="content-main" />
+        <Resizable direction="vertical" resizer-location="top" :defaultHeight="150" :minHeight="100" class="window">
+          <PerformanceWindow />
+        </Resizable>
+      </div>
+    </div>
+    <Resizable class="column" direction="horizontal" resizer-location="left" :defaultWidth="100" :minWidth="100">
+      <div class="column-contents">
+        <Resizable class="column" direction="vertical" resizer-location="bottom" :defaultHeight="200" :minHeight="100">
+          <PerformanceWindow />
+        </Resizable>
+        <div class="column content-main">
+          <ViewportWindow2 />
+        </div>
+        <Resizable class="column" direction="vertical" resizer-location="top" :defaultHeight="200" :minHeight="100">
+          <PerformanceWindow />
+        </Resizable>
+      </div>
+    </Resizable>
   </div>
 </template>
+
+<style scoped>
+@reference "@/assets/main.css";
+
+.windows-grid {
+  display: flex;
+  flex-direction: row;
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+}
+
+.column, .column-contents {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  contain: size style;
+}
+
+.column > * {
+  overflow: auto;
+}
+
+.column-contents {
+  flex: auto;
+}
+
+.content-main {
+  flex: auto;
+  min-width: 6rem;
+  min-height: 6rem;
+}
+
+.split-widget {
+  display: flex;
+  overflow: hidden;
+}
+
+.window {
+  @apply bg-gray-900 text-gray-50;
+}
+</style>
