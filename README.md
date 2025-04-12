@@ -7,7 +7,7 @@ DicyEngine currently supports Windows and macOS.
 
 ---
 
-![image](https://github.com/user-attachments/assets/c599a1d1-ef22-423a-94c4-e9a67623f757)
+![image](https://github.com/user-attachments/assets/b0466e5d-c6d5-4648-bcf7-a3e0c9aaa652)
 
 ---
 
