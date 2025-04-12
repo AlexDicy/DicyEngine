@@ -30,8 +30,10 @@ public:
         this->camera = camera;
     }
 
-    virtual void init(int x, int y, uint32_t width, uint32_t height) = 0;
+    virtual void init(uint32_t width, uint32_t height) = 0;
     virtual void setViewport(int x, int y, uint32_t width, uint32_t height) = 0;
+    virtual void setWindowDimensions(unsigned int width, unsigned int height) = 0;
+
     virtual Ref<RenderFramebuffer> getFramebuffer() const = 0;
     const Ref<DepthFramebuffer>& getShadowDepthFramebuffer() const;
 
@@ -78,6 +80,12 @@ protected:
     glm::mat4 viewProjectionMatrix;
     glm::mat4 viewMatrix;
     glm::mat4 projectionMatrix;
+    struct Viewport {
+        int x = 0;
+        int y = 0;
+        int width = 0;
+        int height = 0;
+    } viewport;
 
     // lighting
     std::array<glm::vec3, 9> irradianceSH = std::array<glm::vec3, 9>();

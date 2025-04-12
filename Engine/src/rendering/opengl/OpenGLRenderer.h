@@ -8,8 +8,9 @@ class OpenGLRenderer : public Renderer, public std::enable_shared_from_this<Open
 public:
     OpenGLRenderer() : Renderer(RenderAPI::OPENGL) {}
 
-    void init(int x, int y, uint32_t width, uint32_t height) override;
+    void init(uint32_t width, uint32_t height) override;
     void setViewport(int x, int y, uint32_t width, uint32_t height) override;
+    void setWindowDimensions(unsigned int width, unsigned int height) override;
     Ref<RenderFramebuffer> getFramebuffer() const override;
 
     Ref<VertexArray> createVertexArray(const Ref<VertexBuffer>& vertexBuffer, const Ref<IndexBuffer>& indexBuffer) const override;

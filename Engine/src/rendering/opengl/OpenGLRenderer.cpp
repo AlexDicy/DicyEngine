@@ -15,13 +15,14 @@
 #include <glad/gl.h>
 #include <glm/glm.hpp>
 
-void OpenGLRenderer::init(const int x, const int y, const uint32_t width, const uint32_t height) {
+void OpenGLRenderer::init(const uint32_t width, const uint32_t height) {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
     glFrontFace(GL_CW);
-    this->setViewport(x, y, width, height);
+    this->setWindowDimensions(width, height);
+    this->setViewport(0, 0, width, height);
     unsigned char white[4] = {255, 255, 255, 255};
     this->whitePixelTexture = std::make_shared<OpenGLTexture2D>(1, 1, 1, 1, GL_RGBA, white);
     this->defaultOcclusionRoughnessMetallicTexture = std::make_shared<OpenGLTexture2D>(3, 1, 1, 1, GL_RGB, std::array<unsigned char, 3>{255, 255, 0}.data());
@@ -33,6 +34,13 @@ void OpenGLRenderer::setViewport(const int x, const int y, const uint32_t width,
     if (this->camera) {
         this->camera->setAspectRatio(static_cast<float>(width) / static_cast<float>(height));
     }
+    this->viewport.x = x;
+    this->viewport.y = y;
+    this->viewport.width = static_cast<int>(width);
+    this->viewport.height = static_cast<int>(height);
+}
+
+void OpenGLRenderer::setWindowDimensions(unsigned int width, unsigned int height) {
     this->framebuffer = std::make_shared<OpenGLRenderFramebuffer>(width, height);
 }
 
@@ -181,7 +189,7 @@ void OpenGLRenderer::beginPointLightShadow(const PointLight& light, const int li
 void OpenGLRenderer::endShadows() const {
     DebugGroup group("OpenGLRenderer::endShadows");
     this->framebuffer->bind();
-    glViewport(0, 0, this->framebuffer->getWidth(), this->framebuffer->getHeight());
+    glViewport(this->viewport.x, this->viewport.y, this->viewport.width, this->viewport.height);
 }
 
 void OpenGLRenderer::endFrame() const {
@@ -298,6 +306,7 @@ void OpenGLRenderer::drawUI(const Ref<VertexArray>& vertexArray, const Ref<Shade
     shader->uploadUniformInt("uTexture", 0);
     vertexArray->bind();
     glDisable(GL_DEPTH_TEST);
+    glViewport(0, 0, this->framebuffer->getWidth(), this->framebuffer->getHeight());
     glDrawElements(GL_TRIANGLES, static_cast<int>(vertexArray->getIndexBuffer()->getCount()), GL_UNSIGNED_INT, nullptr);
     glEnable(GL_DEPTH_TEST);
 }

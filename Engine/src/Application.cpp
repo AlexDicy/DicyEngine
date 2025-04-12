@@ -34,12 +34,12 @@ void Application::initialize() {
             return;
         }
         this->isMinimized = false;
-        this->renderer->setViewport(0, 0, event.getWidth(), event.getHeight());
+        this->renderer->setWindowDimensions(event.getWidth(), event.getHeight());
         this->updateFrame(this->currentCtx); // keep drawing when user holds to resizes the window
     });
 
     Input::init(this->eventDispatcher, this->window);
-    this->renderer->init(0, 0, this->window->getWidth(), this->window->getHeight());
+    this->renderer->init(this->window->getWidth(), this->window->getHeight());
     JavaBindings::init();
     registerLayers(this->currentCtx);
 }

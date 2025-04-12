@@ -60,9 +60,11 @@ void UIScript::onSpawn() {
     });
 
     this->handler->registerCallback("viewportResize", [this](const Callback& callback) {
-        const int width = callback.getInt(0);
-        const int height = callback.getInt(1);
-        DE_INFO("Resizing viewport to {}x{}", width, height);
+        const int x = callback.getInt(0);
+        const int y = callback.getInt(1);
+        const int width = callback.getInt(2);
+        const int height = callback.getInt(3);
+        this->app->getRenderer()->setViewport(x, y, width, height);
         callback.success();
     });
 

@@ -13,7 +13,7 @@ import Resizable from '@/components/Resizable.vue';
     </Resizable>
     <div class="column content-main">
       <div class="column-contents">
-        <Resizable direction="vertical" resizer-location="bottom" :defaultHeight="150" :minHeight="100" class="window"></Resizable>
+        <Resizable direction="vertical" resizer-location="bottom" :defaultHeight="80" :minHeight="80" class="window"></Resizable>
         <ViewportWindow class="content-main" />
         <Resizable direction="vertical" resizer-location="top" :defaultHeight="40" :minHeight="40" class="window"></Resizable>
       </div>
@@ -66,6 +66,6 @@ import Resizable from '@/components/Resizable.vue';
 }
 
 .window {
-  @apply bg-gray-900 text-gray-50;
+  @apply bg-gray-950 text-gray-50 border border-gray-900;
 }
 </style>

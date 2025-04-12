@@ -4,8 +4,13 @@ import { onBeforeUnmount, onMounted, ref } from 'vue';
 const viewport = ref<HTMLElement>();
 
 const resizeObserver = new ResizeObserver((entries) => {
-  const { width, height } = entries[0].contentRect;
-  window.call('viewportResize', Math.ceil(width), Math.ceil(height));
+  const rect = viewport.value!.getBoundingClientRect(); // ResizeObserver does not provide top/left coordinates
+  const devicePixelContentBoxSize = entries[0].devicePixelContentBoxSize;
+  const width = Math.ceil(devicePixelContentBoxSize[0].inlineSize);
+  const height = Math.ceil(devicePixelContentBoxSize[0].blockSize);
+  const x = Math.floor(rect.x * window.devicePixelRatio);
+  const y = Math.floor((window.outerHeight - rect.y) * window.devicePixelRatio) - height;
+  window.call('viewportResize', x, y, width, height);
 });
 
 onMounted(() => {
