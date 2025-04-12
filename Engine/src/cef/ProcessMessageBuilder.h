@@ -1,15 +1,9 @@
 ﻿#pragma once
 #include "cef_v8.h"
 
-class ProcessMessageBuilder {
-    friend class BrowserMessageHandler;
-
+class MessageArguments {
 public:
-    ProcessMessageBuilder(const std::string& messageType, const std::string& name);
-
-    CefRefPtr<CefProcessMessage> getMessage() const {
-        return message;
-    }
+    MessageArguments();
 
     void appendBool(const bool value) {
         arguments->SetBool(index++, value);
@@ -27,10 +21,29 @@ public:
         arguments->SetString(index++, value);
     }
 
-    void appendArguments(const CefRefPtr<CefListValue>& args);
+    void appendArguments(const MessageArguments& args) {
+       arguments->SetList(index++, args.arguments);
+    }
+
+    void appendEachArgument(const MessageArguments& args);
+
+protected:
+    explicit MessageArguments(bool initializeArguments);
+
+    unsigned int index = 0;
+    CefRefPtr<CefListValue> arguments;
+};
+
+class ProcessMessageBuilder : public MessageArguments {
+    friend class BrowserMessageHandler;
+
+public:
+    ProcessMessageBuilder(const std::string& messageType, const std::string& name);
+
+    CefRefPtr<CefProcessMessage> getMessage() const {
+        return message;
+    }
 
 private:
     CefRefPtr<CefProcessMessage> message;
-    CefRefPtr<CefListValue> arguments;
-    unsigned int index = 0;
 };

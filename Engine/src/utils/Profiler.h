@@ -16,15 +16,17 @@ namespace DE::Profiling {
         }
 
         const std::vector<ProfilerResult>& getTimings() {
-            return this->timings;
+            return this->lastTimings;
         }
 
         void clearTimings() {
-            this->timings.clear();
+            this->lastTimings = this->timings;
+            this->timings = {};
         }
 
     private:
         std::vector<ProfilerResult> timings;
+        std::vector<ProfilerResult> lastTimings;
     };
 
     extern Profiler profiler;
@@ -57,8 +59,8 @@ namespace DE::Profiling {
 #if defined(DE_DEBUG)
     #if defined(__GNUC__)
         #define DE_PROFILER_FN_SIG __PRETTY_FUNCTION__
-    #elif defined(_MSC_VER)
-        #define DE_PROFILER_FN_SIG __FUNCSIG__
+    // #elif defined(_MSC_VER)
+        // #define DE_PROFILER_FN_SIG __FUNCSIG__
     #else
         #define DE_PROFILER_FN_SIG __FUNCTION__
     #endif

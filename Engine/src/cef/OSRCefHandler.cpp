@@ -152,10 +152,27 @@ void OSRCefHandler::updateFrameInfo(const double deltaTime) const {
     if (this->host == nullptr) {
         return;
     }
-
-   
+    DE_PROFILE_FUNCTION();
     const auto args = BrowserMessageHandler::createMessage("updateFrameInfo");
     args->appendDouble(deltaTime);
+    this->host->GetBrowser()->GetMainFrame()->SendProcessMessage(PID_RENDERER, args->getMessage());
+}
+
+void OSRCefHandler::updateProfilingInfo() const {
+    if (this->host == nullptr) {
+        return;
+    }
+    DE_PROFILE_FUNCTION();
+    const std::vector<DE::Profiling::ProfilerResult> timings = DE::Profiling::getProfiler().getTimings();
+    const auto args = BrowserMessageHandler::createMessage("updateProfilingInfo");
+    MessageArguments list;
+    for (const auto& [name, duration] : timings) {
+        MessageArguments timing;
+        timing.appendString(name);
+        timing.appendDouble(duration);
+        list.appendArguments(timing);
+    }
+    args->appendArguments(list);
     this->host->GetBrowser()->GetMainFrame()->SendProcessMessage(PID_RENDERER, args->getMessage());
 }
 

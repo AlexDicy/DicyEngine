@@ -4,4 +4,9 @@ html, body, #app {
     margin: 0;
     height: 100%;
     width: 100%;
+    user-select: none;
+}
+
+.window-contents {
+    @apply p-2;
 }

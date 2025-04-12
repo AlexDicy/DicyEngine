@@ -30,7 +30,7 @@ public:
 
     void success() const;
     void success(bool value) const;
-    void success(const CefRefPtr<CefListValue>& arguments) const;
+    void success(const MessageArguments& arguments) const;
     void error(const std::string& error) const;
 
     int getInt(int index) const;

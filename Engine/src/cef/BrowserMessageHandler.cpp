@@ -39,9 +39,9 @@ void Callback::success(const bool value) const {
     this->sendMessage(builder);
 }
 
-void Callback::success(const CefRefPtr<CefListValue>& arguments) const {
+void Callback::success(const MessageArguments& arguments) const {
     auto builder = this->getMessageBuilder(RendererMessageHandler::callName);
-    builder.appendArguments(arguments);
+    builder.appendEachArgument(arguments);
     this->sendMessage(builder);
 }
 

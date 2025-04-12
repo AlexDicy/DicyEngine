@@ -37,6 +37,7 @@ public:
     }
 
     void updateFrameInfo(double deltaTime) const;
+    void updateProfilingInfo() const;
 
     //
     // CEF overrides

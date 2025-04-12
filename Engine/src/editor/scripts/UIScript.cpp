@@ -82,5 +82,6 @@ void UIScript::onSpawn() {
 void UIScript::onUpdate(const float deltaTime) {
     DE_PROFILE_FUNCTION();
     this->handler->updateFrameInfo(deltaTime);
+    this->handler->updateProfilingInfo();
     CefDoMessageLoopWork();
 }

@@ -6,7 +6,7 @@ import Resizable from '@/components/Resizable.vue';
 
 <template>
   <div class="split-widget windows-grid">
-    <Resizable class="column window" direction="horizontal" resizer-location="right" :defaultWidth="200" :minWidth="100">
+    <Resizable class="column window" direction="horizontal" resizer-location="right" :defaultWidth="360" :minWidth="100">
       <div class="column-contents">
         <PerformanceWindow />
       </div>
@@ -18,7 +18,7 @@ import Resizable from '@/components/Resizable.vue';
         <Resizable direction="vertical" resizer-location="top" :defaultHeight="40" :minHeight="40" class="window"></Resizable>
       </div>
     </div>
-    <Resizable class="column window" direction="horizontal" resizer-location="left" :defaultWidth="200" :minWidth="100">
+    <Resizable class="column window" direction="horizontal" resizer-location="left" :defaultWidth="0" :minWidth="0">
       <div class="column-contents">
         <Resizable class="column" direction="vertical" resizer-location="bottom" :defaultHeight="200" :minHeight="100"></Resizable>
         <div class="column content-main"></div>
