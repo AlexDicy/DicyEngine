@@ -5,7 +5,7 @@
 bool RendererMessageHandler::Execute(const CefString& name, CefRefPtr<CefV8Value> object, const CefV8ValueList& arguments, CefRefPtr<CefV8Value>& retVal, CefString& exception) {
     if (name == "cefCall") {
         // call(functionName, onSuccess, onError, args...)
-        if (arguments.size() > 2 && arguments[0]->IsString() && arguments[1]->IsFunction() && arguments[2]->IsFunction()) {
+        if (arguments.size() > 3 && arguments[0]->IsString() && arguments[1]->IsFunction() && arguments[2]->IsFunction() && arguments[3]->IsArray()) {
             const CefRefPtr<CefV8Context> context = CefV8Context::GetCurrentContext();
             CallPromise promise;
             promise.context = context;
@@ -25,11 +25,12 @@ bool RendererMessageHandler::Execute(const CefString& name, CefRefPtr<CefV8Value
             list->SetSize(size - 2);
             list->SetString(0, arguments[0]->GetStringValue());
             list->SetInt(1, callId);
-            for (int i = 2; i < size; i++) {
-                if (arguments[i]->IsValid()) {
-                    setListValue(list, i, arguments[i]);
-                }
+            const CefRefPtr<CefListValue> args = CefListValue::Create();
+            for (int i = 0; i < size; i++) {
+                setListValue(args, i, arguments[3]->GetValue(i));
             }
+            list->SetList(2, args);
+
             browser->GetMainFrame()->SendProcessMessage(PID_BROWSER, message);
         }
     } else if (name == "setMessageListener") {

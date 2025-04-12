@@ -59,6 +59,13 @@ void UIScript::onSpawn() {
         callback.success(!vsync);
     });
 
+    this->handler->registerCallback("viewportResize", [this](const Callback& callback) {
+        const int width = callback.getInt(0);
+        const int height = callback.getInt(1);
+        DE_INFO("Resizing viewport to {}x{}", width, height);
+        callback.success();
+    });
+
     static bool hasFocus = false;
     Input::setAction("focusBrowser", InputCode::KEY_F);
     Input::bindActionPressed("focusBrowser", [this] {
