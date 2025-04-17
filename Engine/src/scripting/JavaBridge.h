@@ -13,6 +13,8 @@ public:
         return getInstance()->env;
     }
 
+    jclass getClass(const char* className) const;
+
 private:
     JavaVM* jvm;
     JNIEnv* env;

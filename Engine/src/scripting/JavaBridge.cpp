@@ -1,10 +1,18 @@
 ﻿#include "pch/enginepch.h"
 #include "JavaBridge.h"
 
+#include <filesystem>
+
 
 Ref<JavaBridge> JavaBridge::getInstance() {
     static auto instance = std::make_shared<JavaBridge>();
     return instance;
+}
+
+jclass JavaBridge::getClass(const char* className) const {
+    const jclass javaClass = env->FindClass(className);
+    DE_ASSERT(javaClass != nullptr, "Failed to find Java class: {0}", className)
+    return javaClass;
 }
 
 JavaBridge::JavaBridge() {
@@ -14,8 +22,11 @@ JavaBridge::JavaBridge() {
     const auto createJavaVM = reinterpret_cast<CreateJavaVM>(JNI_CreateJavaVM);
 #endif
 
+    std::string path = "../scripting/build/classes/java/main/";
+    DE_ASSERT(std::filesystem::is_directory(path), "Java classes missing from: {0} make sure to run gradle build.", path)
+
     std::vector<std::string> arguments;
-    arguments.emplace_back("-Djava.class.path=../scripting/build/classes/java/main/");
+    arguments.emplace_back(std::format("-Djava.class.path={}", path));
     arguments.emplace_back("-DXcheck:jni:pedantic");
     arguments.emplace_back("--enable-preview");
 
@@ -70,7 +81,7 @@ JavaClass::JavaClass(const std::string& className) {
     // const jclass local_java_class = env->FindClass(class_name.c_str());
     // this->java_class = static_cast<jclass>(env->NewGlobalRef(local_java_class));
     // env->DeleteLocalRef(local_java_class);
-    this->javaClass = env->FindClass(className.c_str());
+    this->javaClass = JavaBridge::getInstance()->getClass(className.c_str());
 }
 
 jmethodID JavaClass::getMethod(const char* methodName, const char* signature) const {

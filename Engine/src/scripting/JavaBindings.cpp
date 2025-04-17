@@ -91,6 +91,7 @@ jobject cameraGetRotation(JNIEnv* env, jobject, const jlong camera) {
 }
 
 void JavaBindings::init() {
+    const Ref<JavaBridge> bridge = JavaBridge::getInstance();
     JNIEnv* env = JavaBridge::getEnv();
 
     const std::array<JNINativeMethod, 5> inputMethods = {{
@@ -100,26 +101,26 @@ void JavaBindings::init() {
         {const_cast<char*>("bindActionPressed"), const_cast<char*>("(Ljava/lang/String;Lcom/dicydev/engine/input/InputActionCallback;)V"), reinterpret_cast<void*>(inputBindActionPressed)},
         {const_cast<char*>("bindActionReleased"), const_cast<char*>("(Ljava/lang/String;Lcom/dicydev/engine/input/InputActionCallback;)V"), reinterpret_cast<void*>(inputBindActionReleased)},
     }};
-    env->RegisterNatives(env->FindClass("com/dicydev/engine/input/Input"), inputMethods.data(), inputMethods.size());
+    env->RegisterNatives(bridge->getClass("com/dicydev/engine/input/Input"), inputMethods.data(), inputMethods.size());
 
     const std::array<JNINativeMethod, 1> nativeRegistryMethods = {{
         {const_cast<char*>("getComponentBuffer"), const_cast<char*>("(JII)Ljava/nio/ByteBuffer;"), reinterpret_cast<void*>(nativeRegistryGetComponentBuffer)},
     }};
-    env->RegisterNatives(env->FindClass("com/dicydev/engine/components/NativeRegistry"), nativeRegistryMethods.data(), nativeRegistryMethods.size());
+    env->RegisterNatives(bridge->getClass("com/dicydev/engine/components/NativeRegistry"), nativeRegistryMethods.data(), nativeRegistryMethods.size());
 
     const std::array<JNINativeMethod, 1> transformMethods = {{
         {const_cast<char*>("invalidateGlobal"), const_cast<char*>("(Ljava/nio/ByteBuffer;)V"), reinterpret_cast<void*>(transformInvalidateGlobal)},
     }};
-    env->RegisterNatives(env->FindClass("com/dicydev/engine/components/Transform"), transformMethods.data(), transformMethods.size());
+    env->RegisterNatives(bridge->getClass("com/dicydev/engine/components/Transform"), transformMethods.data(), transformMethods.size());
 
     const std::array<JNINativeMethod, 1> sceneMethods = {{
         {const_cast<char*>("getCamera"), const_cast<char*>("()Lcom/dicydev/engine/scene/camera/Camera;"), reinterpret_cast<void*>(sceneGetCamera)},
     }};
-    env->RegisterNatives(env->FindClass("com/dicydev/engine/scene/Scene"), sceneMethods.data(), sceneMethods.size());
+    env->RegisterNatives(bridge->getClass("com/dicydev/engine/scene/Scene"), sceneMethods.data(), sceneMethods.size());
 
     const std::array<JNINativeMethod, 2> cameraMethods = {{
         {const_cast<char*>("getPosition"), const_cast<char*>("(J)Ljava/nio/ByteBuffer;"), reinterpret_cast<void*>(cameraGetPosition)},
         {const_cast<char*>("getRotation"), const_cast<char*>("(J)Ljava/nio/ByteBuffer;"), reinterpret_cast<void*>(cameraGetRotation)},
     }};
-    env->RegisterNatives(env->FindClass("com/dicydev/engine/scene/camera/Camera"), cameraMethods.data(), cameraMethods.size());
+    env->RegisterNatives(bridge->getClass("com/dicydev/engine/scene/camera/Camera"), cameraMethods.data(), cameraMethods.size());
 }
