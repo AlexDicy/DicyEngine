@@ -40,3 +40,11 @@ cd scripting/
 .\gradlew.bat run :runEngine
 ```
 `runEngine` will build the engine executable through xmake and then run it.
+
+#### Running the Editor's UI
+This will start a local server for the UI with HMR.
+Eventually the UI will be built statically.
+```bash
+cd ui/
+npm run dev
+```
