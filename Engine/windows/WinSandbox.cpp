@@ -1,6 +1,8 @@
 #include "pch/enginepch.h"
 #include "Application.h"
 #include "cef/OSRCefApp.h"
+#include <iostream>
+#include <filesystem>
 
 
 int main(const int argc, char* argv[]) {
@@ -21,6 +23,11 @@ int main(const int argc, char* argv[]) {
     CefSettings settings;
     settings.no_sandbox = true;
     settings.windowless_rendering_enabled = true;
+	// Setting up CEF root_cache_path
+    std::filesystem::path exePath = std::filesystem::current_path();
+    std::filesystem::path cachePath = exePath / "cache";
+    std::filesystem::create_directories(cachePath);
+    CefString(&settings.root_cache_path).FromString(cachePath.string());
 
     // Initialize the CEF browser process. May return false if initialization
     // fails or if early exit is desired (for example, due to process singleton
