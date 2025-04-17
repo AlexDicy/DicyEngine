@@ -8,7 +8,7 @@ add_requires("glm 1.0.1")
 add_requires("entt v3.13.2")
 add_requires("assimp v5.4.3")
 add_requires("toml++ v3.4.0")
-add_requires("chromium-embedded-framework 134.3.2")
+add_requires("chromium-embedded-framework 135.0.21")
 
 
 target("engine")
