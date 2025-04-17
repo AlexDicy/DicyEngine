@@ -13,8 +13,7 @@ vsxmake20*/*
 # macOS
 .DS_Store
 
-imgui.ini
-
+# scripting - java
 scripting/.gradle
 scripting/**/build/
 scripting/!src/**/build/
@@ -24,3 +23,6 @@ scripting/.gradletasknamecache
 scripting/.project
 scripting/.classpath
 hs_err_pid*.log
+
+# chromium
+.cache/

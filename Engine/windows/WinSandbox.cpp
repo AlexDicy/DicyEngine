@@ -23,18 +23,14 @@ int main(const int argc, char* argv[]) {
     CefSettings settings;
     settings.no_sandbox = true;
     settings.windowless_rendering_enabled = true;
-	// Setting up CEF root_cache_path
-    std::filesystem::path exePath = std::filesystem::current_path();
-    std::filesystem::path cachePath = exePath / "cache";
-    std::filesystem::create_directories(cachePath);
-    CefString(&settings.root_cache_path).FromString(cachePath.string());
+    CefString(&settings.root_cache_path) = std::filesystem::current_path() / ".." / ".cache";
 
     // Initialize the CEF browser process. May return false if initialization
     // fails or if early exit is desired (for example, due to process singleton
     // relaunch behavior).
     if (!CefInitialize(mainArgs, settings, osrApp.get(), nullptr)) {
         int exitCode = CefGetExitCode();
-        DE_INFO("CEF Browser process exited with code: {}", exitCode);
+        std::cout << "CEF Browser process exited with code: " << exitCode << '\n';
         return exitCode;
     }
 
