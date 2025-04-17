@@ -14,7 +14,7 @@ DicyEngine currently supports Windows and macOS.
 ### Engine setup
 #### Prerequisites
 - [xmake](https://xmake.io/#/guide/installation)
-- [JDK 23](https://www.oracle.com/java/technologies/downloads/#java23)
+- [JDK 23](https://www.oracle.com/java/technologies/javase/jdk23-archive-downloads.html)
 
 ```bash
 git submodule init
