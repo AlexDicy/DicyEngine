@@ -30,6 +30,22 @@ public:
     }
 };
 
+class WindowFramebufferResizeEvent : public Event {
+    int width;
+    int height;
+
+public:
+    WindowFramebufferResizeEvent(const int width, const int height) : width(width), height(height) {}
+
+    int getWidth() const {
+        return this->width;
+    }
+
+    int getHeight() const {
+        return this->height;
+    }
+};
+
 class WindowCloseEvent : public Event {};
 
 class KeyPressedEvent : public Event {

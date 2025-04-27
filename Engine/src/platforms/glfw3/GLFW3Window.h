@@ -17,8 +17,10 @@ public:
     void destroy() override;
     void pollEvents() override;
     void update() override;
-    unsigned getWidth() const override;
-    unsigned getHeight() const override;
+    unsigned int getWidth() const override;
+    unsigned int getHeight() const override;
+    int getFramebufferWidth() const override;
+    int getFramebufferHeight() const override;
     bool isVSync() const override;
     void setVSync(bool vsync) override;
     float getLastFrameTime() const override;

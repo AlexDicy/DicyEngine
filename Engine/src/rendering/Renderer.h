@@ -32,7 +32,7 @@ public:
 
     virtual void init(uint32_t width, uint32_t height) = 0;
     virtual void setViewport(int x, int y, uint32_t width, uint32_t height) = 0;
-    virtual void setWindowDimensions(unsigned int width, unsigned int height) = 0;
+    virtual void setFramebufferDimensions(unsigned int width, unsigned int height) = 0;
 
     virtual Ref<RenderFramebuffer> getFramebuffer() const = 0;
     const Ref<DepthFramebuffer>& getShadowDepthFramebuffer() const;

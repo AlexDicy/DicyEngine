@@ -60,11 +60,11 @@ void UIScript::onSpawn() {
     });
 
     this->handler->registerCallback("viewportResize", [this](const Callback& callback) {
-        const unsigned int windowHeight = this->app->getWindow()->getHeight();
+        const unsigned int framebufferHeight = this->app->getWindow()->getFramebufferHeight();
         const int width = callback.getInt(2);
         const int height = callback.getInt(3);
         const int x = callback.getInt(0);
-        const int y = static_cast<int>(windowHeight - callback.getInt(1) - height);
+        const int y = static_cast<int>(framebufferHeight - callback.getInt(1) - height);
         this->app->getRenderer()->setViewport(x, y, width, height);
         callback.success();
     });

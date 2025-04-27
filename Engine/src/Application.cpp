@@ -29,17 +29,15 @@ void Application::initialize() {
         this->running = false;
     });
     this->eventDispatcher->registerGlobalHandler<WindowResizeEvent>([this](const WindowResizeEvent& event) {
-        if (event.getWidth() == 0 || event.getHeight() == 0) {
-            this->isMinimized = true;
-            return;
-        }
-        this->isMinimized = false;
-        this->renderer->setWindowDimensions(event.getWidth(), event.getHeight());
+        this->isMinimized = event.getWidth() == 0 || event.getHeight() == 0;
+    });
+    this->eventDispatcher->registerGlobalHandler<WindowFramebufferResizeEvent>([this](const WindowFramebufferResizeEvent& event) {
+        this->renderer->setFramebufferDimensions(event.getWidth(), event.getHeight());
         this->updateFrame(this->currentCtx); // keep drawing when user holds to resizes the window
     });
 
     Input::init(this->eventDispatcher, this->window);
-    this->renderer->init(this->window->getWidth(), this->window->getHeight());
+    this->renderer->init(this->window->getFramebufferWidth(), this->window->getFramebufferHeight());
     JavaBindings::init();
     registerLayers(this->currentCtx);
 }

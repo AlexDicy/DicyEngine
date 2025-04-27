@@ -8,6 +8,8 @@ public:
     virtual void update() = 0;
     virtual unsigned int getWidth() const = 0;
     virtual unsigned int getHeight() const = 0;
+    virtual int getFramebufferHeight() const = 0;
+    virtual int getFramebufferWidth() const = 0;
     virtual bool isVSync() const = 0;
     virtual void setVSync(bool vsync) = 0;
     virtual float getLastFrameTime() const = 0;

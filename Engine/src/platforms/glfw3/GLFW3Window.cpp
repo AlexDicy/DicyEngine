@@ -27,7 +27,7 @@ GLFW3Window::GLFW3Window(const char* title, const unsigned int width, const unsi
 #ifdef DE_PLATFORM_MACOS
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
-    glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, false);
+    glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, true);
 #else
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
@@ -73,6 +73,18 @@ unsigned int GLFW3Window::getHeight() const {
     return static_cast<unsigned int>(height);
 }
 
+int GLFW3Window::getFramebufferWidth() const {
+    int width, height;
+    glfwGetFramebufferSize(this->window, &width, &height);
+    return width;
+}
+
+int GLFW3Window::getFramebufferHeight() const {
+    int width, height;
+    glfwGetFramebufferSize(this->window, &width, &height);
+    return height;
+}
+
 bool GLFW3Window::isVSync() const {
     return this->vsync;
 }
@@ -110,6 +122,9 @@ void GLFW3Window::registerEvents() const {
     static auto eventDispatcher = EventDispatcher::get();
     glfwSetWindowSizeCallback(this->window, [](GLFWwindow*, int new_width, int new_height) {
         eventDispatcher->dispatch(WindowResizeEvent(static_cast<unsigned int>(new_width), static_cast<unsigned int>(new_height)));
+    });
+    glfwSetFramebufferSizeCallback(this->window, [](GLFWwindow *, const int newWidth, const int newHeight) {
+        eventDispatcher->dispatch(WindowFramebufferResizeEvent(newWidth, newHeight));
     });
     glfwSetWindowCloseCallback(this->window, [](GLFWwindow*) {
         eventDispatcher->dispatch(WindowCloseEvent());

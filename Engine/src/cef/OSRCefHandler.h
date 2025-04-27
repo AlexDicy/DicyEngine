@@ -79,6 +79,7 @@ private:
     int getCoordinate(unsigned int rawValue) const;
     int getCoordinate(int rawValue) const;
     int getCoordinate(float rawValue) const;
+    int getMouseCoordinate(float rawValue) const;
 
     static cef_mouse_button_type_t getMouseButtonType(InputCode code);
     static uint32_t getMouseModifiers();

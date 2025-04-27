@@ -68,8 +68,8 @@ void OSRCefHandler::sendMouseMoveEvent(const MouseMovedEvent& event) const {
     }
 
     CefMouseEvent mouseEvent;
-    mouseEvent.x = getCoordinate(event.getX());
-    mouseEvent.y = getCoordinate(event.getY());
+    mouseEvent.x = getMouseCoordinate(event.getX());
+    mouseEvent.y = getMouseCoordinate(event.getY());
     mouseEvent.modifiers = getMouseModifiers();
     this->host->SendMouseMoveEvent(mouseEvent, false);
 }
@@ -80,8 +80,8 @@ void OSRCefHandler::sendMouseButtonPressedEvent(const MouseButtonPressedEvent& e
     }
 
     CefMouseEvent mouseEvent;
-    mouseEvent.x = getCoordinate(event.getX());
-    mouseEvent.y = getCoordinate(event.getY());
+    mouseEvent.x = getMouseCoordinate(event.getX());
+    mouseEvent.y = getMouseCoordinate(event.getY());
     mouseEvent.modifiers = getMouseModifiers();
     this->host->SendMouseClickEvent(mouseEvent, getMouseButtonType(event.getButton()), false, 1);
 }
@@ -92,8 +92,8 @@ void OSRCefHandler::sendMouseButtonReleasedEvent(const MouseButtonReleasedEvent&
     }
 
     CefMouseEvent mouseEvent;
-    mouseEvent.x = getCoordinate(event.getX());
-    mouseEvent.y = getCoordinate(event.getY());
+    mouseEvent.x = getMouseCoordinate(event.getX());
+    mouseEvent.y = getMouseCoordinate(event.getY());
     mouseEvent.modifiers = getMouseModifiers();
     this->host->SendMouseClickEvent(mouseEvent, getMouseButtonType(event.getButton()), true, 1);
 }
@@ -104,8 +104,8 @@ void OSRCefHandler::sendMouseScrolledEvent(const MouseScrolledEvent& event) cons
     }
 
     CefMouseEvent mouseEvent;
-    mouseEvent.x = getCoordinate(event.getX());
-    mouseEvent.y = getCoordinate(event.getY());
+    mouseEvent.x = getMouseCoordinate(event.getX());
+    mouseEvent.y = getMouseCoordinate(event.getY());
     constexpr int defaultScrollDelta = 120;
     const int deltaX = static_cast<int>(event.getOffsetX() * defaultScrollDelta);
     const int deltaY = static_cast<int>(event.getOffsetY() * defaultScrollDelta);
@@ -206,8 +206,8 @@ bool OSRCefHandler::GetScreenInfo(const CefRefPtr<CefBrowser> browser, CefScreen
 void OSRCefHandler::GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) {
     rect.x = 0;
     rect.y = 0;
-    rect.width = getCoordinate(app->getWindow()->getWidth());
-    rect.height = getCoordinate(app->getWindow()->getHeight());
+    rect.width = getCoordinate(app->getWindow()->getFramebufferWidth());
+    rect.height = getCoordinate(app->getWindow()->getFramebufferHeight());
     if (rect.width <= 0 || rect.height <= 0) {
         rect.width = rect.height = 1;
     }
@@ -252,6 +252,14 @@ int OSRCefHandler::getCoordinate(const int rawValue) const {
 
 int OSRCefHandler::getCoordinate(const float rawValue) const {
     return getCoordinate(static_cast<unsigned int>(rawValue));
+}
+
+int OSRCefHandler::getMouseCoordinate(const float rawValue) const {
+#ifdef DE_PLATFORM_MACOS
+    return static_cast<int>(rawValue);
+#else
+    return getCoordinate(rawValue);
+#endif
 }
 
 cef_mouse_button_type_t OSRCefHandler::getMouseButtonType(const InputCode code) {

@@ -21,7 +21,7 @@ void OpenGLRenderer::init(const uint32_t width, const uint32_t height) {
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
     glFrontFace(GL_CW);
-    this->setWindowDimensions(width, height);
+    this->setFramebufferDimensions(width, height);
     this->setViewport(0, 0, width, height);
     unsigned char white[4] = {255, 255, 255, 255};
     this->whitePixelTexture = std::make_shared<OpenGLTexture2D>(1, 1, 1, 1, GL_RGBA, white);
@@ -40,7 +40,7 @@ void OpenGLRenderer::setViewport(const int x, const int y, const uint32_t width,
     this->viewport.height = static_cast<int>(height);
 }
 
-void OpenGLRenderer::setWindowDimensions(unsigned int width, unsigned int height) {
+void OpenGLRenderer::setFramebufferDimensions(unsigned int width, unsigned int height) {
     this->framebuffer = std::make_shared<OpenGLRenderFramebuffer>(width, height);
 }
 
