@@ -2,6 +2,7 @@
 import ViewportWindow from '@/windows/ViewportWindow.vue';
 import PerformanceWindow from '@/windows/PerformanceWindow.vue';
 import Resizable from '@/components/Resizable.vue';
+import SceneTreeWindow from '@/windows/SceneTreeWindow.vue';
 </script>
 
 <template>
@@ -18,11 +19,14 @@ import Resizable from '@/components/Resizable.vue';
         <Resizable direction="vertical" resizer-location="top" :defaultHeight="40" :minHeight="40" class="window"></Resizable>
       </div>
     </div>
-    <Resizable class="column window" direction="horizontal" resizer-location="left" :defaultWidth="0" :minWidth="0">
+    <Resizable class="column window" direction="horizontal" resizer-location="left" :defaultWidth="300" :minWidth="100">
       <div class="column-contents">
-        <Resizable class="column" direction="vertical" resizer-location="bottom" :defaultHeight="200" :minHeight="100"></Resizable>
+        <Resizable class="column" direction="vertical" resizer-location="bottom" :defaultHeight="320" :minHeight="100">
+          <div class="column-contents">
+            <SceneTreeWindow />
+          </div>
+        </Resizable>
         <div class="column content-main"></div>
-        <Resizable class="column" direction="vertical" resizer-location="top" :defaultHeight="200" :minHeight="100"></Resizable>
       </div>
     </Resizable>
   </div>
