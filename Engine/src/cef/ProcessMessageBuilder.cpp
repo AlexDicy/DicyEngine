@@ -1,9 +1,15 @@
 ﻿#include "pch/enginepch.h"
 #include "ProcessMessageBuilder.h"
 
-MessageArguments::MessageArguments() : MessageArguments(true) {}
+MessageDictionary::MessageDictionary() : dictionary(CefDictionaryValue::Create()) {}
 
-MessageArguments::MessageArguments(const bool initializeArguments) {
+void MessageDictionary::setList(const std::string& key, const MessageList& value) const {
+    dictionary->SetList(key, value.arguments);
+}
+
+MessageList::MessageList() : MessageList(true) {}
+
+MessageList::MessageList(const bool initializeArguments) {
     if (initializeArguments) {
         this->arguments = CefListValue::Create();
     }
@@ -16,6 +22,8 @@ void MessageArguments::appendEachArgument(const MessageArguments& args) {
         this->arguments->SetValue(this->index++, args.arguments->GetValue(i));
     }
 }
+
+MessageArguments::MessageArguments(const bool initializeArguments) : MessageList(initializeArguments) {}
 
 ProcessMessageBuilder::ProcessMessageBuilder(const std::string& messageType, const std::string& name) : MessageArguments(false), message(CefProcessMessage::Create(messageType)) {
     this->arguments = message->GetArgumentList();

@@ -69,6 +69,17 @@ void UIScript::onSpawn() {
         callback.success();
     });
 
+    this->handler->registerCallback("getSceneTree", [this](const Callback& callback) {
+        MessageList entityList;
+        for (const auto& entity : this->entity->getScene()->getEntities()) {
+            if (entity->hasParent()) {
+                continue;
+            }
+            entityList.appendDictionary(createEntityDictionary(entity));
+        }
+        callback.success(entityList);
+    });
+
     static bool hasFocus = false;
     Input::setAction("focusBrowser", InputCode::KEY_F);
     Input::bindActionPressed("focusBrowser", [this] {
@@ -83,7 +94,21 @@ void UIScript::onSpawn() {
 void UIScript::onUpdate(const float deltaTime) {
     DE_PROFILE_FUNCTION();
     this->handler->updateFrameInfo(deltaTime);
-    this->handler->updateSceneTree(this->entity->getScene()->getEntities());
     this->handler->updateProfilingInfo();
     CefDoMessageLoopWork();
+}
+
+MessageDictionary UIScript::createEntityDictionary(const Ref<Entity>& entity) {
+    MessageDictionary dictionary;
+    dictionary.setInt("id", static_cast<int>(entity->getEntityId()));
+    dictionary.setString("type", "Entity");
+    dictionary.setString("name", entity->getName());
+    if (!entity->getChildren().empty()) {
+        MessageArguments children;
+        for (const auto& child : entity->getChildren()) {
+            children.appendDictionary(createEntityDictionary(child));
+        }
+        dictionary.setList("children", children);
+    }
+    return dictionary;
 }

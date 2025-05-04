@@ -39,6 +39,12 @@ void Callback::success(const bool value) const {
     this->sendMessage(builder);
 }
 
+void Callback::success(const MessageList& list) const {
+    auto builder = this->getMessageBuilder(RendererMessageHandler::callName);
+    builder.appendList(list);
+    this->sendMessage(builder);
+}
+
 void Callback::success(const MessageArguments& arguments) const {
     auto builder = this->getMessageBuilder(RendererMessageHandler::callName);
     builder.appendEachArgument(arguments);

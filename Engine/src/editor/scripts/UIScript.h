@@ -11,6 +11,8 @@ public:
     void onUpdate(float deltaTime) override;
 
 private:
+    static MessageDictionary createEntityDictionary(const Ref<Entity>& entity);
+
     Ref<Application> app;
     std::string url = "http://localhost:5173/";
     CefRefPtr<OSRCefHandler> handler;

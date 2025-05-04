@@ -158,40 +158,6 @@ void OSRCefHandler::updateFrameInfo(const double deltaTime) const {
     this->host->GetBrowser()->GetMainFrame()->SendProcessMessage(PID_RENDERER, args->getMessage());
 }
 
-CefRefPtr<CefDictionaryValue> OSRCefHandler::createEntityDictionary(const Ref<Entity>& entity) {
-    CefRefPtr<CefDictionaryValue> dict = CefDictionaryValue::Create();
-    CefDictionaryValue::Create();
-    dict->SetInt("id", static_cast<int>(entity->getEntityId()));
-    dict->SetString("type", "Entity");
-    dict->SetString("name", entity->getName());
-    if (!entity->getChildren().empty()) {
-        const CefRefPtr<CefListValue> children = CefListValue::Create();
-        int index = 0;
-        for (const auto& child : entity->getChildren()) {
-            children->SetDictionary(index++, createEntityDictionary(child));
-        }
-        dict->SetList("children", children);
-    }
-    return dict;
-}
-
-void OSRCefHandler::updateSceneTree(const std::list<Ref<Entity>>& list) const {
-    if (this->host == nullptr) {
-        return;
-    }
-    DE_PROFILE_FUNCTION();
-    const auto args = BrowserMessageHandler::createMessage("updateSceneTree");
-    MessageArguments entityList;
-    for (const auto& entity : list) {
-        if (entity->hasParent()) {
-            continue;
-        }
-        entityList.appendDictionary(createEntityDictionary(entity));
-    }
-    args->appendArguments(entityList);
-    this->host->GetBrowser()->GetMainFrame()->SendProcessMessage(PID_RENDERER, args->getMessage());
-}
-
 void OSRCefHandler::updateProfilingInfo() const {
     if (this->host == nullptr) {
         return;
@@ -199,14 +165,14 @@ void OSRCefHandler::updateProfilingInfo() const {
     DE_PROFILE_FUNCTION();
     const std::vector<DE::Profiling::ProfilerResult> timings = DE::Profiling::getProfiler().getTimings();
     const auto args = BrowserMessageHandler::createMessage("updateProfilingInfo");
-    MessageArguments list;
+    MessageList list;
     for (const auto& [name, duration] : timings) {
-        MessageArguments timing;
+        MessageList timing;
         timing.appendString(name);
         timing.appendDouble(duration);
-        list.appendArguments(timing);
+        list.appendList(timing);
     }
-    args->appendArguments(list);
+    args->appendList(list);
     this->host->GetBrowser()->GetMainFrame()->SendProcessMessage(PID_RENDERER, args->getMessage());
 }
 

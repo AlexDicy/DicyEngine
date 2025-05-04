@@ -30,6 +30,7 @@ public:
 
     void success() const;
     void success(bool value) const;
+    void success(const MessageList& list) const;
     void success(const MessageArguments& arguments) const;
     void error(const std::string& error) const;
 

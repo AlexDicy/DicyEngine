@@ -1,14 +1,16 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import SceneEntityNode, { type EntityNode } from '@/components/SceneEntityNode.vue';
+import useRepeatingCall from '@/composables/useRepeatingCall.ts';
 
 const tree = ref<EntityNode[]>([]);
 const selectedId = ref(0);
 
-window.setMessageListener('updateSceneTree', (newTree: EntityNode[]) => {
-  tree.value = newTree;
-});
-
+useRepeatingCall(() => {
+  window.call('getSceneTree').then((newTree: EntityNode[]) => {
+    tree.value = newTree;
+  });
+}, 1000);
 </script>
 
 <template>

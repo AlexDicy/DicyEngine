@@ -1,9 +1,44 @@
 ﻿#pragma once
 #include "cef_v8.h"
 
-class MessageArguments {
+class MessageDictionary {
+    friend class MessageList;
+
 public:
-    MessageArguments();
+    MessageDictionary();
+
+    void setBool(const std::string& key, const bool value) const {
+        dictionary->SetBool(key, value);
+    }
+
+    void setInt(const std::string& key, const int value) const {
+        dictionary->SetInt(key, value);
+    }
+
+    void setDouble(const std::string& key, const double value) const {
+        dictionary->SetDouble(key, value);
+    }
+
+    void setString(const std::string& key, const std::string& value) const {
+        dictionary->SetString(key, value);
+    }
+
+    void setList(const std::string& key, const MessageList& value) const;
+
+    void setDictionary(const std::string& key, const MessageDictionary& value) const {
+        dictionary->SetDictionary(key, value.dictionary);
+    }
+
+protected:
+    CefRefPtr<CefDictionaryValue> dictionary;
+};
+
+class MessageList {
+    friend class MessageDictionary;
+    friend class MessageArguments;
+
+public:
+    MessageList();
 
     void appendBool(const bool value) {
         arguments->SetBool(index++, value);
@@ -21,21 +56,29 @@ public:
         arguments->SetString(index++, value);
     }
 
-    void appendArguments(const MessageArguments& args) {
+    void appendList(const MessageList& args) {
         arguments->SetList(index++, args.arguments);
     }
 
-    void appendDictionary(const CefRefPtr<CefDictionaryValue>& dict) {
-        arguments->SetDictionary(index++, dict);
+    void appendDictionary(const MessageDictionary& dictionary) {
+        arguments->SetDictionary(index++, dictionary.dictionary);
     }
+
+protected:
+    explicit MessageList(bool initializeArguments);
+
+    unsigned int index = 0;
+    CefRefPtr<CefListValue> arguments;
+};
+
+class MessageArguments : public MessageList {
+public:
+    MessageArguments() : MessageList(true) {}
 
     void appendEachArgument(const MessageArguments& args);
 
 protected:
     explicit MessageArguments(bool initializeArguments);
-
-    unsigned int index = 0;
-    CefRefPtr<CefListValue> arguments;
 };
 
 class ProcessMessageBuilder : public MessageArguments {
