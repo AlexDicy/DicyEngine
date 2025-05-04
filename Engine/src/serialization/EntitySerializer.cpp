@@ -16,6 +16,8 @@ std::string scriptTypeToString(const EntityScript::ScriptType type) {
 }
 
 void EntitySerializer::serialize(Entity& entity, toml::table& out) {
+    out.emplace("name", entity.getName());
+
     TransformSerializer transformSerializer;
     toml::table transformTable;
     transformSerializer.serialize(*entity.getTransform(), transformTable);

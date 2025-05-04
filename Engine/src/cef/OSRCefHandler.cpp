@@ -163,7 +163,7 @@ CefRefPtr<CefDictionaryValue> OSRCefHandler::createEntityDictionary(const Ref<En
     CefDictionaryValue::Create();
     dict->SetInt("id", static_cast<int>(entity->getEntityId()));
     dict->SetString("type", "Entity");
-    dict->SetString("name", std::to_string(static_cast<unsigned int>(entity->getEntityId())));
+    dict->SetString("name", entity->getName());
     if (!entity->getChildren().empty()) {
         const CefRefPtr<CefListValue> children = CefListValue::Create();
         int index = 0;

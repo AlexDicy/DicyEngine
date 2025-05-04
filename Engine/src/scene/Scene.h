@@ -13,6 +13,8 @@ public:
     Scene();
 
     Ref<Entity> createEntity();
+    Ref<Entity> createEntity(const std::string& name);
+
     void destroyEntity(const Ref<Entity>& entity);
 
     // this returns a linked list, despawning a random entity is inefficient
@@ -54,6 +56,8 @@ protected:
     std::unordered_map<Ref<Entity>, std::pair<std::string, unsigned int>> entityModels;
 
 private:
+    Ref<Entity> createEntityWithId(const std::string& name, entt::entity id);
+
     Ref<entt::registry> registry;
     Ref<Camera> camera;
 };

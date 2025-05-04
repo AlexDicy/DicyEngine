@@ -21,7 +21,12 @@ void SceneDeserializer::deserialize(const std::unique_ptr<Context>& ctx, Scene& 
         for (const toml::node& node : *currentEntities) {
             const toml::table& entityTable = *node.as_table();
 
-            Ref<Entity> entity = scene.createEntity();
+            Ref<Entity> entity;
+            if (entityTable.contains("name")) {
+                entity = scene.createEntity(entityTable["name"].value<std::string>().value());
+            } else {
+                entity = scene.createEntity();
+            }
             EntityDeserializer::deserialize(ctx, scene, entity, entityTable, models);
 
             // hierarchy

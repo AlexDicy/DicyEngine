@@ -12,7 +12,7 @@ class Entity : public std::enable_shared_from_this<Entity> {
     friend class Scene;
 
 public:
-    Entity(const Ref<Scene>& scene, const Ref<entt::registry>& registry, const entt::entity& id) : scene(scene), registry(registry), id(id) {
+    Entity(const Ref<Scene>& scene, const Ref<entt::registry>& registry, const entt::entity& id, const std::string& name) : scene(scene), registry(registry), id(id), name(name) {
         this->transform = &this->add<Transform>(); // every entity has a transform by default
         this->transform->setOwner(this);
     }
@@ -81,6 +81,10 @@ public:
         return this->id;
     }
 
+    const std::string& getName() const {
+        return this->name;
+    }
+
 protected:
     const Ref<entt::registry>& getRegistry() const {
         return this->registry;
@@ -89,6 +93,7 @@ protected:
     Ref<Scene> scene;
     Ref<entt::registry> registry;
     entt::entity id;
+    std::string name;
     // if the entity should be serialized and saved
     bool persistent = false;
 

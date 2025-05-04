@@ -7,7 +7,16 @@ Scene::Scene() {
 
 Ref<Entity> Scene::createEntity() {
     entt::entity id = this->registry->create();
-    auto entity = std::make_shared<Entity>(this->shared_from_this(), this->registry, id);
+    const std::string name = std::format("Entity ({})", static_cast<unsigned int>(id));
+    return this->createEntityWithId(name, id);
+}
+
+Ref<Entity> Scene::createEntity(const std::string& name) {
+    return this->createEntityWithId(name, this->registry->create());
+}
+
+Ref<Entity> Scene::createEntityWithId(const std::string& name, entt::entity id) {
+    auto entity = std::make_shared<Entity>(this->shared_from_this(), this->registry, id, name);
     this->entities.push_back(entity);
     return entity;
 }
