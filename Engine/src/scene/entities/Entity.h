@@ -77,13 +77,13 @@ public:
         this->persistent = persistent;
     }
 
+    entt::entity getEntityId() const {
+        return this->id;
+    }
+
 protected:
     const Ref<entt::registry>& getRegistry() const {
         return this->registry;
-    }
-
-    entt::entity getEntityId() const {
-        return this->id;
     }
 
     Ref<Scene> scene;

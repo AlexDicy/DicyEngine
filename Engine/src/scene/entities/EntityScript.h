@@ -37,6 +37,6 @@ public:
         return ScriptType::NATIVE;
     }
 
-private:
+protected:
     Ref<Entity> entity;
 };

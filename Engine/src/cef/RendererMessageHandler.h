@@ -23,6 +23,7 @@ private:
     static void setListValue(const CefRefPtr<CefV8Value>& list, int index, const CefRefPtr<CefListValue>& value);
     static void setList(const CefV8ValueList& source, const CefRefPtr<CefListValue>& target);
     static void setList(const CefRefPtr<CefListValue>& source, const CefRefPtr<CefV8Value>& target);
+    static CefRefPtr<CefV8Value> getV8Value(const CefRefPtr<CefValue>& value);
 
     bool processMessageForCall(const CefRefPtr<CefBrowser>& browser, const CefRefPtr<CefProcessMessage>& message);
     bool processMessageForCallError(const CefRefPtr<CefBrowser>& browser, const CefRefPtr<CefProcessMessage>& message);

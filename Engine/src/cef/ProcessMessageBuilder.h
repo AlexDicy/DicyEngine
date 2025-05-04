@@ -22,7 +22,11 @@ public:
     }
 
     void appendArguments(const MessageArguments& args) {
-       arguments->SetList(index++, args.arguments);
+        arguments->SetList(index++, args.arguments);
+    }
+
+    void appendDictionary(const CefRefPtr<CefDictionaryValue>& dict) {
+        arguments->SetDictionary(index++, dict);
     }
 
     void appendEachArgument(const MessageArguments& args);

@@ -37,6 +37,7 @@ public:
     }
 
     void updateFrameInfo(double deltaTime) const;
+    void updateSceneTree(const std::list<Ref<Entity>>& list) const;
     void updateProfilingInfo() const;
 
     //
@@ -80,6 +81,8 @@ private:
     int getCoordinate(int rawValue) const;
     int getCoordinate(float rawValue) const;
     int getMouseCoordinate(float rawValue) const;
+
+    static CefRefPtr<CefDictionaryValue> createEntityDictionary(const Ref<Entity>& entity);
 
     static cef_mouse_button_type_t getMouseButtonType(InputCode code);
     static uint32_t getMouseModifiers();

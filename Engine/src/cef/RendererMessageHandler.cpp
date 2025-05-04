@@ -97,44 +97,7 @@ void RendererMessageHandler::setList(const CefV8ValueList& source, const CefRefP
 }
 
 void RendererMessageHandler::setListValue(const CefRefPtr<CefV8Value>& list, const int index, const CefRefPtr<CefListValue>& value) {
-    CefRefPtr<CefV8Value> newValue;
-
-    switch (value->GetType(index)) {
-        case VTYPE_LIST:
-            {
-                const CefRefPtr<CefListValue> subList = value->GetList(index);
-                newValue = CefV8Value::CreateArray(static_cast<int>(subList->GetSize()));
-                setList(subList, newValue);
-            }
-            break;
-        case VTYPE_BOOL:
-            newValue = CefV8Value::CreateBool(value->GetBool(index));
-            break;
-        case VTYPE_DOUBLE:
-            newValue = CefV8Value::CreateDouble(value->GetDouble(index));
-            break;
-        case VTYPE_INT:
-            newValue = CefV8Value::CreateInt(value->GetInt(index));
-            break;
-        case VTYPE_STRING:
-            newValue = CefV8Value::CreateString(value->GetString(index));
-            break;
-        case VTYPE_INVALID:
-        case VTYPE_NULL:
-            newValue = CefV8Value::CreateNull();
-            break;
-        case VTYPE_BINARY:
-        case VTYPE_DICTIONARY:
-        case VTYPE_NUM_VALUES:
-            newValue = CefV8Value::CreateString(CefString("[unrecognized type]"));
-            break;
-    }
-
-    if (newValue.get()) {
-        list->SetValue(index, newValue);
-    } else {
-        list->SetValue(index, CefV8Value::CreateNull());
-    }
+    list->SetValue(index, getV8Value(value->GetValue(index)));
 }
 
 void RendererMessageHandler::setList(const CefRefPtr<CefListValue>& source, const CefRefPtr<CefV8Value>& target) {
@@ -148,6 +111,58 @@ void RendererMessageHandler::setList(const CefRefPtr<CefListValue>& source, cons
     for (int i = 0; i < argLength; i++) {
         setListValue(target, i, source);
     }
+}
+
+CefRefPtr<CefV8Value> RendererMessageHandler::getV8Value(const CefRefPtr<CefValue>& value) {
+    CefRefPtr<CefV8Value> newValue;
+
+    switch (value->GetType()) {
+        case VTYPE_LIST:
+            {
+                const CefRefPtr<CefListValue> subList = value->GetList();
+                newValue = CefV8Value::CreateArray(static_cast<int>(subList->GetSize()));
+                setList(subList, newValue);
+            }
+            break;
+        case VTYPE_BOOL:
+            newValue = CefV8Value::CreateBool(value->GetBool());
+            break;
+        case VTYPE_DOUBLE:
+            newValue = CefV8Value::CreateDouble(value->GetDouble());
+            break;
+        case VTYPE_INT:
+            newValue = CefV8Value::CreateInt(value->GetInt());
+            break;
+        case VTYPE_STRING:
+            newValue = CefV8Value::CreateString(value->GetString());
+            break;
+        case VTYPE_DICTIONARY:
+            {
+                const CefRefPtr<CefDictionaryValue> dict = value->GetDictionary();
+                newValue = CefV8Value::CreateObject(nullptr, nullptr);
+                CefDictionaryValue::KeyList keys;
+                dict->GetKeys(keys);
+                for (const auto& key : keys) {
+                    const CefRefPtr<CefValue> subValue = dict->GetValue(key);
+                    const CefRefPtr<CefV8Value> subV8Value = getV8Value(subValue);
+                    newValue->SetValue(key, subV8Value, V8_PROPERTY_ATTRIBUTE_NONE);
+                }
+                break;
+            }
+        case VTYPE_INVALID:
+        case VTYPE_NULL:
+            newValue = CefV8Value::CreateNull();
+            break;
+        case VTYPE_BINARY:
+        case VTYPE_NUM_VALUES:
+            newValue = CefV8Value::CreateString(CefString("[unrecognized type]"));
+            break;
+    }
+
+    if (newValue.get()) {
+        return newValue;
+    }
+    return CefV8Value::CreateNull();
 }
 
 bool RendererMessageHandler::processMessage(const CefRefPtr<CefBrowser>& browser, const CefRefPtr<CefFrame>& frame, CefProcessId sourceProcess,
