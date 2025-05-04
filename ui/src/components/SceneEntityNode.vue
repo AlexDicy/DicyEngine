@@ -21,13 +21,13 @@ const isSelected = computed(() => props.selectedId === props.node.id);
 
 <template>
   <div class="text-sm">
-    <div class="flex items-center cursor-pointer" :class="{'bg-gray-800': isSelected}" @click="onSelect(props.node.id)">
-      <span class="text-gray-400 material-symbols-rounded" :class="{invisible: !hasChildren}"
+    <div class="entity" :class="{active: isSelected}" @click="onSelect(props.node.id)">
+      <span class="entity-expand-icon material-symbols-rounded" :class="{invisible: !hasChildren}"
             @click="showChildren = !showChildren">
         {{ showChildren ? 'keyboard_arrow_down' : 'chevron_right' }}
       </span>
-      <span class="text-gray-500 font-mono text-xs">{{ props.node.type.charAt(0) }}</span>
-      <span class="text-gray-400">&nbsp;{{ props.node.name }}</span>
+      <span class="entity-icon">{{ props.node.type.charAt(0) }}</span>
+      <span class="entity-name">&nbsp;{{ props.node.name }}</span>
     </div>
     <div v-if="hasChildren && showChildren" class="ml-4">
       <SceneEntityNode v-for="child of props.node.children" :node="child" :selected-id="props.selectedId"
@@ -35,3 +35,41 @@ const isSelected = computed(() => props.selectedId === props.node.id);
     </div>
   </div>
 </template>
+
+<style scoped>
+@reference "@/assets/main.css";
+
+.entity {
+  @apply flex items-center cursor-pointer;
+}
+
+.entity.active {
+  @apply bg-gray-800;
+}
+
+.entity-expand-icon {
+  @apply text-gray-400;
+}
+
+.entity-icon {
+  @apply text-gray-500 font-mono text-xs;
+}
+
+.entity-name {
+  @apply text-gray-400;
+}
+
+.active {
+  & > .entity-expand-icon {
+    @apply text-gray-300;
+  }
+
+  & > .entity-icon {
+    @apply text-gray-400;
+  }
+
+  & > .entity-name {
+    @apply text-gray-50;
+  }
+}
+</style>
