@@ -12,6 +12,10 @@ html, body, #app {
     font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
 }
 
+.window-title {
+    @apply bg-slate-800 p-2 sticky top-0 text-slate-50 font-light text-sm;
+}
+
 .window-contents {
     @apply p-2;
 }

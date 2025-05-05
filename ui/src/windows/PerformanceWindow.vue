@@ -112,6 +112,7 @@ onMounted(() => {
 </script>
 
 <template>
+  <div class="window-title">Performance</div>
   <div class="window-contents">
     <pre>FPS: {{ fps }}</pre>
     <button @click="toggleVSync" class="mt-2 px-2 py-1 bg-gray-700 hover:bg-gray-800 text-gray-50 rounded shadow">
