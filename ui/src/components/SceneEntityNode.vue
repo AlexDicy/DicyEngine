@@ -28,7 +28,6 @@ const isSelected = computed(() => props.selectedId === props.node.id);
         {{ showChildren ? 'keyboard_arrow_down' : 'chevron_right' }}
       </div>
       <div class="entity-icon material-symbols-rounded">deployed_code</div>
-<!--      <span class="entity-icon">{{ props.node.type.charAt(0) }}</span>-->
       <div class="entity-name">&nbsp;{{ props.node.name }}</div>
     </div>
     <div v-if="hasChildren && showChildren">
