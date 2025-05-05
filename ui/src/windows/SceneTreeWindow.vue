@@ -15,7 +15,7 @@ useRepeatingCall(() => {
 
 <template>
   <div class="window-title">Scene entities</div>
-  <div class="window-contents">
-    <SceneEntityNode v-for="node in tree" :node="node" :selected-id="selectedId" :on-select="id => selectedId = id" />
+  <div class="window-contents-no-margin">
+    <SceneEntityNode v-for="node in tree" :node="node" :selected-id="selectedId" :on-select="id => selectedId = id" :depth="0" />
   </div>
 </template>

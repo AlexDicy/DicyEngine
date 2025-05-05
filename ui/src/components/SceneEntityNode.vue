@@ -12,6 +12,7 @@ const props = defineProps<{
   node: EntityNode;
   selectedId: number;
   onSelect: (id: number) => void;
+  depth: number;
 }>();
 
 const hasChildren = computed(() => !!props.node.children?.length);
@@ -21,17 +22,18 @@ const isSelected = computed(() => props.selectedId === props.node.id);
 
 <template>
   <div class="text-sm">
-    <div class="entity" :class="{active: isSelected}" @click="onSelect(props.node.id)">
-      <span class="entity-expand-icon material-symbols-rounded" :class="{invisible: !hasChildren}"
-            @click="showChildren = !showChildren">
+    <div class="entity" :class="{active: isSelected}" :style="{ paddingLeft: `${props.depth}rem` }" @click="onSelect(props.node.id)">
+      <div class="entity-expand-icon material-symbols-rounded" :class="{invisible: !hasChildren}"
+            @click.stop="showChildren = !showChildren">
         {{ showChildren ? 'keyboard_arrow_down' : 'chevron_right' }}
-      </span>
-      <span class="entity-icon">{{ props.node.type.charAt(0) }}</span>
-      <span class="entity-name">&nbsp;{{ props.node.name }}</span>
+      </div>
+      <div class="entity-icon material-symbols-rounded">deployed_code</div>
+<!--      <span class="entity-icon">{{ props.node.type.charAt(0) }}</span>-->
+      <div class="entity-name">&nbsp;{{ props.node.name }}</div>
     </div>
-    <div v-if="hasChildren && showChildren" class="ml-4">
+    <div v-if="hasChildren && showChildren">
       <SceneEntityNode v-for="child of props.node.children" :node="child" :selected-id="props.selectedId"
-                       :on-select="onSelect" />
+                       :on-select="onSelect" :depth="props.depth + 1" :key="child.id" />
     </div>
   </div>
 </template>
@@ -40,7 +42,7 @@ const isSelected = computed(() => props.selectedId === props.node.id);
 @reference "@/assets/main.css";
 
 .entity {
-  @apply flex items-center cursor-pointer;
+  @apply flex items-center cursor-pointer py-0.5;
 }
 
 .entity.active {
@@ -48,15 +50,15 @@ const isSelected = computed(() => props.selectedId === props.node.id);
 }
 
 .entity-expand-icon {
-  @apply text-gray-400;
+  @apply text-gray-400 text-xl/1;
 }
 
 .entity-icon {
-  @apply text-gray-500 font-mono text-xs;
+  @apply text-gray-500 text-sm/1;
 }
 
 .entity-name {
-  @apply text-gray-400;
+  @apply text-gray-400 pb-0.5;
 }
 
 .active {
