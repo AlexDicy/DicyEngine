@@ -5,6 +5,7 @@
 
 
 class Input {
+    friend class GLFW3Window;
 public:
     static void init(const Ref<EventDispatcher>& eventDispatcher, const Ref<Window>& window);
 
@@ -38,4 +39,8 @@ private:
     static std::unordered_map<InputCode, std::vector<std::pair<std::function<void(float)>, float>>> axisBindings;
 
     static Ref<Window> window;
+
+protected:
+    /// Mapping between InputCode and Windows key codes.
+    static int getWindowsKeyCode(InputCode code);
 };

@@ -123,29 +123,36 @@ void GLFW3Window::registerEvents() const {
     glfwSetWindowSizeCallback(this->window, [](GLFWwindow*, int new_width, int new_height) {
         eventDispatcher->dispatch(WindowResizeEvent(static_cast<unsigned int>(new_width), static_cast<unsigned int>(new_height)));
     });
-    glfwSetFramebufferSizeCallback(this->window, [](GLFWwindow *, const int newWidth, const int newHeight) {
+    glfwSetFramebufferSizeCallback(this->window, [](GLFWwindow*, const int newWidth, const int newHeight) {
         eventDispatcher->dispatch(WindowFramebufferResizeEvent(newWidth, newHeight));
     });
     glfwSetWindowCloseCallback(this->window, [](GLFWwindow*) {
         eventDispatcher->dispatch(WindowCloseEvent());
     });
-    glfwSetKeyCallback(this->window, [](GLFWwindow*, int key, int scancode, int action, int) {
+    glfwSetKeyCallback(this->window, [](GLFWwindow*, const int key, const int scancode, const int action, const int modifiers) {
+        const KeyEventModifiers eventModifiers = {
+            .ctrl = (modifiers & GLFW_MOD_CONTROL) != 0, //
+            .shift = (modifiers & GLFW_MOD_SHIFT) != 0, //
+            .alt = (modifiers & GLFW_MOD_ALT) != 0, //
+            .super = (modifiers & GLFW_MOD_SUPER) != 0, //
+        };
+        const int hostKey = Input::getWindowsKeyCode(static_cast<InputCode>(key));
         switch (action) {
             case GLFW_PRESS:
-                eventDispatcher->dispatch(KeyPressedEvent(convertKeyToInputCode(key), scancode, 0));
+                eventDispatcher->dispatch(KeyPressedEvent(convertKeyToInputCode(key), hostKey, scancode, eventModifiers, 0));
                 break;
             case GLFW_REPEAT:
-                eventDispatcher->dispatch(KeyPressedEvent(convertKeyToInputCode(key), scancode, 1));
+                eventDispatcher->dispatch(KeyPressedEvent(convertKeyToInputCode(key), hostKey, scancode, eventModifiers, 1));
                 break;
             case GLFW_RELEASE:
-                eventDispatcher->dispatch(KeyReleasedEvent(convertKeyToInputCode(key), scancode));
+                eventDispatcher->dispatch(KeyReleasedEvent(convertKeyToInputCode(key), hostKey, scancode, eventModifiers));
                 break;
             default:
                 break;
         }
     });
-    glfwSetCharCallback(this->window, [](GLFWwindow*, unsigned int c) {
-        eventDispatcher->dispatch(CharTypedEvent(c));
+    glfwSetCharCallback(this->window, [](GLFWwindow*, const unsigned int character) {
+        eventDispatcher->dispatch(CharTypedEvent(character));
     });
     glfwSetMouseButtonCallback(this->window, [](GLFWwindow* window, int button, int action, int) {
         double x;

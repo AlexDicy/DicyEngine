@@ -81,8 +81,7 @@ private:
     int getCoordinate(float rawValue) const;
     int getMouseCoordinate(float rawValue) const;
 
-    static MessageDictionary createEntityDictionary(const Ref<Entity>& entity);
-
+    static uint32_t getKeyModifiers(const KeyEvent& event);
     static cef_mouse_button_type_t getMouseButtonType(InputCode code);
     static uint32_t getMouseModifiers();
 

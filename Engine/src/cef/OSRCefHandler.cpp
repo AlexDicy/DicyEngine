@@ -118,8 +118,9 @@ void OSRCefHandler::sendKeyPressedEvent(const KeyPressedEvent& event) const {
     }
 
     CefKeyEvent keyEvent;
-    keyEvent.windows_key_code = event.getScancode();
+    keyEvent.windows_key_code = event.getHostKey();
     keyEvent.native_key_code = event.getScancode();
+    keyEvent.modifiers = getKeyModifiers(event);
     keyEvent.type = KEYEVENT_RAWKEYDOWN;
     this->host->SendKeyEvent(keyEvent);
 }
@@ -130,8 +131,9 @@ void OSRCefHandler::sendKeyReleasedEvent(const KeyReleasedEvent& event) const {
     }
 
     CefKeyEvent keyEvent;
-    keyEvent.windows_key_code = event.getScancode();
+    keyEvent.windows_key_code = event.getHostKey();
     keyEvent.native_key_code = event.getScancode();
+    keyEvent.modifiers = getKeyModifiers(event);
     keyEvent.type = KEYEVENT_KEYUP;
     this->host->SendKeyEvent(keyEvent);
 }
@@ -142,8 +144,8 @@ void OSRCefHandler::sendCharTypedEvent(const CharTypedEvent& event) const {
     }
 
     CefKeyEvent keyEvent;
-    keyEvent.character = event.getChar();
-    keyEvent.windows_key_code = event.getChar();
+    keyEvent.character = static_cast<char16_t>(event.getChar());
+    keyEvent.windows_key_code = static_cast<char16_t>(event.getChar());
     keyEvent.type = KEYEVENT_CHAR;
     this->host->SendKeyEvent(keyEvent);
 }
@@ -260,6 +262,23 @@ int OSRCefHandler::getMouseCoordinate(const float rawValue) const {
 #else
     return getCoordinate(rawValue);
 #endif
+}
+
+uint32_t OSRCefHandler::getKeyModifiers(const KeyEvent& event) {
+    uint32_t modifiers = 0;
+    if (event.isShift()) {
+        modifiers |= EVENTFLAG_SHIFT_DOWN;
+    }
+    if (event.isCtrl()) {
+        modifiers |= EVENTFLAG_CONTROL_DOWN;
+    }
+    if (event.isAlt()) {
+        modifiers |= EVENTFLAG_ALT_DOWN;
+    }
+    if (event.isSuper()) {
+        modifiers |= EVENTFLAG_COMMAND_DOWN;
+    }
+    return modifiers;
 }
 
 cef_mouse_button_type_t OSRCefHandler::getMouseButtonType(const InputCode code) {

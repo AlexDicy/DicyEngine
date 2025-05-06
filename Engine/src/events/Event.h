@@ -48,51 +48,77 @@ public:
 
 class WindowCloseEvent : public Event {};
 
-class KeyPressedEvent : public Event {
+struct KeyEventModifiers {
+    bool ctrl;
+    bool shift;
+    bool alt;
+    bool super;
+};
+
+class KeyEvent : public Event {
     InputCode key;
+    int hostKey;
     int scancode;
-    unsigned int repeatCount;
+    KeyEventModifiers modifiers;
 
 public:
-    KeyPressedEvent(const InputCode key, const int scancode, const unsigned int repeatCount) : key(key), scancode(scancode), repeatCount(repeatCount) {}
+    KeyEvent(const InputCode key, const int hostKey, const int scancode, const KeyEventModifiers& modifiers) :
+        key(key), hostKey(hostKey), scancode(scancode), modifiers(modifiers) {}
 
     InputCode getKey() const {
         return this->key;
     }
 
+    int getHostKey() const {
+        return this->hostKey;
+    }
+
     int getScancode() const {
         return this->scancode;
     }
+
+    bool isCtrl() const {
+        return this->modifiers.ctrl;
+    }
+
+    bool isShift() const {
+        return this->modifiers.shift;
+    }
+
+    bool isAlt() const {
+        return this->modifiers.alt;
+    }
+
+    bool isSuper() const {
+        return this->modifiers.super;
+    }
+};
+
+class KeyPressedEvent : public KeyEvent {
+    unsigned int repeatCount;
+
+public:
+    KeyPressedEvent(const InputCode key, const int hostKey, const int scancode, const KeyEventModifiers& modifiers, const unsigned int repeatCount) :
+        KeyEvent(key, hostKey, scancode, modifiers), repeatCount(repeatCount) {}
 
     unsigned int getRepeatCount() const {
         return this->repeatCount;
     }
 };
 
-class KeyReleasedEvent : public Event {
-    InputCode key;
-    int scancode;
-
+class KeyReleasedEvent : public KeyEvent {
 public:
-    explicit KeyReleasedEvent(const InputCode key, const int scancode) : key(key), scancode(scancode) {}
-
-    InputCode getKey() const {
-        return this->key; // TODO: should return InputID or similar
-    }
-
-    int getScancode() const {
-        return this->scancode;
-    }
+    KeyReleasedEvent(const InputCode key, const int hostKey, const int scancode, const KeyEventModifiers& modifiers) : KeyEvent(key, hostKey, scancode, modifiers) {}
 };
 
 class CharTypedEvent : public Event {
-    unsigned int c;
+    unsigned int character;
 
 public:
-    explicit CharTypedEvent(const unsigned int c) : c(c) {}
+    explicit CharTypedEvent(const unsigned int character) : character(character) {}
 
     unsigned int getChar() const {
-        return this->c;
+        return this->character;
     }
 };
 
