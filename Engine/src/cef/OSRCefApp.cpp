@@ -9,7 +9,7 @@ void OSRCefApp::OnBeforeCommandLineProcessing(const CefString& processType, cons
     commandLine->AppendSwitch("disable-gpu-compositing");
     commandLine->AppendSwitch("hide-crash-restore-bubble");
     commandLine->AppendSwitchWithValue("disable-features",
-                                       "WebBluetooth,"
+                                       "WebBluetooth,WebUSB,"
 #ifdef DE_PLATFORM_WINDOWS
                                        "EnableWindowsGamingInputDataFetcher,"
 #endif
