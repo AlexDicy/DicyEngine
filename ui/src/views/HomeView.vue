@@ -14,12 +14,12 @@ import SceneTreeWindow from '@/windows/SceneTreeWindow.vue';
     </Resizable>
     <div class="column content-main">
       <div class="column-contents">
-        <Resizable direction="vertical" resizer-location="bottom" :defaultHeight="80" :minHeight="80" class="window"></Resizable>
+        <Resizable direction="vertical" resizer-location="bottom" :defaultHeight="16" :minHeight="16" class="window"></Resizable>
         <ViewportWindow class="content-main" />
-        <Resizable direction="vertical" resizer-location="top" :defaultHeight="40" :minHeight="40" class="window"></Resizable>
+        <Resizable direction="vertical" resizer-location="top" :defaultHeight="16" :minHeight="16" class="window"></Resizable>
       </div>
     </div>
-    <Resizable class="column window" direction="horizontal" resizer-location="left" :defaultWidth="300" :minWidth="100">
+    <Resizable class="column window" direction="horizontal" resizer-location="left" :defaultWidth="200" :minWidth="100">
       <div class="column-contents">
         <Resizable class="column" direction="vertical" resizer-location="bottom" :defaultHeight="320" :minHeight="100">
           <div class="column-contents">
