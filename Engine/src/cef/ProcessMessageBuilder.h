@@ -1,6 +1,8 @@
 ﻿#pragma once
 #include "cef_v8.h"
 
+class MessageList;
+
 class MessageDictionary {
     friend class MessageList;
 
