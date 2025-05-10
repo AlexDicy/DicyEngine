@@ -238,7 +238,6 @@ OSRCefHandler* OSRCefHandler::getInstance() {
 }
 
 void OSRCefHandler::updateTexture(const void* buffer, const unsigned int width, const unsigned int height) const {
-    DE_PROFILE_FUNCTION();
     if (this->texture->getWidth() != width || this->texture->getHeight() != height) {
         this->texture->resize(width, height);
     }
@@ -273,6 +272,7 @@ void OSRCefHandler::queueTaskForMainThread(const std::function<void()>& task) {
 }
 
 void OSRCefHandler::processMainThreadTasks() {
+    DE_PROFILE_FUNCTION();
     std::queue<std::function<void()>> tasks;
     {
         std::lock_guard lock(this->taskQueueMutex);
