@@ -3,10 +3,12 @@
 #include "UIScript.h"
 
 #include <cef_app.h>
+#include <wrapper/cef_library_loader.h>
 
 #include "Application.h"
 #include "cef/OSRCefHandler.h"
 #include "scene/Scene.h"
+
 
 UIScript::UIScript(const Ref<Application>& app, const Ref<Entity>& entity) : EntityScript(app, entity) {
     this->app = app;
@@ -16,6 +18,21 @@ UIScript::UIScript(const Ref<Application>& app, const Ref<Entity>& entity) : Ent
 void UIScript::onSpawn() {
     auto& [texture] = this->getComponent<UITexture>();
     this->handler->setTexture(texture);
+
+    {
+        this->cefThread = std::thread([this] {
+            this->runCefThread();
+        });
+        std::unique_lock<std::mutex> lock(this->initMutex);
+        this->initCondition.wait(lock, [this] {
+            return this->initializeCefReturned;
+        });
+    }
+
+    if (!this->cefStarted) {
+        DE_ERROR("[UIScript] Failed to start CEF");
+    }
+
     CefWindowInfo windowInfo;
     windowInfo.SetAsWindowless(nullptr);
     const CefBrowserSettings browserSettings;
@@ -95,7 +112,41 @@ void UIScript::onUpdate(const float deltaTime) {
     DE_PROFILE_FUNCTION();
     this->handler->updateFrameInfo(deltaTime);
     this->handler->updateProfilingInfo();
-    // CefDoMessageLoopWork();
+}
+
+bool UIScript::initializeCef() {
+    CefMainArgs mainArgs; // TODO: (argc, argv) on macos
+    CefRefPtr<CefCommandLine> commandLine = CefCommandLine::CreateCommandLine();
+    // commandLine->InitFromArgv(argc, argv); TODO
+    CefSettings settings;
+    settings.no_sandbox = true;
+    settings.windowless_rendering_enabled = true;
+    CefRefPtr<OSRCefApp> osrApp(new OSRCefApp);
+    this->cefStarted = CefInitialize(mainArgs, settings, osrApp.get(), nullptr);
+    if (!this->cefStarted) {
+        DE_ERROR("Failed to initialize CEF, exit code: {}", CefGetExitCode());
+    }
+    {
+        std::lock_guard<std::mutex> lock(this->initMutex);
+        this->initializeCefReturned = true;
+    }
+    this->initCondition.notify_one();
+    return this->cefStarted;
+}
+
+void UIScript::runCefThread() {
+#ifdef DE_PLATFORM_MACOS
+    if (CefScopedLibraryLoader libraryLoader; !libraryLoader.LoadInMain()) {
+        DE_ERROR("Failed to load CEF libraries");
+        return;
+    }
+#endif
+
+    if (!this->initializeCef()) {
+        return;
+    }
+    CefRunMessageLoop();
+    CefShutdown();
 }
 
 MessageDictionary UIScript::createEntityDictionary(const Ref<Entity>& entity) {

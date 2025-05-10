@@ -3,9 +3,6 @@
 #import <Cocoa/Cocoa.h>
 
 #include "include/cef_application_mac.h"
-#include "include/cef_command_line.h"
-#include "include/wrapper/cef_helpers.h"
-#include "include/wrapper/cef_library_loader.h"
 #include "Application.h"
 #include "cef/OSRCefApp.h"
 #include "cef/OSRCefHandler.h"
@@ -129,16 +126,6 @@
 
 // Entry point function for the browser process.
 int main(int argc, char* argv[]) {
-  // Load the CEF framework library at runtime instead of linking directly
-  // as required by the macOS sandbox implementation.
-  CefScopedLibraryLoader libraryLoader;
-  if (!libraryLoader.LoadInMain()) {
-    return 1;
-  }
-
-  // Provide CEF with command-line arguments.
-  CefMainArgs mainArgs(argc, argv);
-
   @autoreleasepool {
     // Initialize the SimpleApplication instance.
     [SimpleApplication sharedApplication];
@@ -147,33 +134,6 @@ int main(int argc, char* argv[]) {
     // will not be a SimpleApplication, but will instead be an NSApplication.
     // This is undesirable and we must enforce that this doesn't happen.
     CHECK([NSApp isKindOfClass:[SimpleApplication class]]);
-
-    // Parse command-line arguments for use in this method.
-    CefRefPtr<CefCommandLine> commandLine = CefCommandLine::CreateCommandLine();
-    commandLine->InitFromArgv(argc, argv);
-
-    // Specify CEF global settings here.
-    CefSettings settings;
-
-    // When generating projects with CMake the CEF_USE_SANDBOX value will be
-    // defined automatically. Pass -DUSE_SANDBOX=OFF to the CMake command-line
-    // to disable use of the sandbox.
-#if !defined(CEF_USE_SANDBOX)
-    settings.no_sandbox = true;
-#endif
-    settings.windowless_rendering_enabled = true;
-
-    // OSRCefApp implements application-level callbacks for the browser process.
-    // It will create the first browser instance in OnContextInitialized() after
-    // CEF has initialized.
-    CefRefPtr<OSRCefApp> osrApp(new OSRCefApp);
-
-    // Initialize the CEF browser process. May return false if initialization
-    // fails or if early exit is desired (for example, due to process singleton
-    // relaunch behavior).
-    if (!CefInitialize(mainArgs, settings, osrApp.get(), nullptr)) {
-      return CefGetExitCode();
-    }
 
     // Create the application delegate.
     SimpleAppDelegate* delegate = [[SimpleAppDelegate alloc] init];
@@ -188,9 +148,6 @@ int main(int argc, char* argv[]) {
     const auto app = std::make_shared<Application>();
     app->initialize();
     app->run();
-
-    // Shut down CEF.
-    CefShutdown();
 
     // Release the delegate.
 #if !__has_feature(objc_arc)
