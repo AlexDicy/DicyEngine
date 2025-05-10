@@ -22,6 +22,7 @@ int main(const int argc, char* argv[]) {
 
     CefSettings settings;
     settings.no_sandbox = true;
+    settings.multi_threaded_message_loop = true;
     settings.windowless_rendering_enabled = true;
     CefString(&settings.root_cache_path) = std::filesystem::current_path() / ".." / ".cache";
 

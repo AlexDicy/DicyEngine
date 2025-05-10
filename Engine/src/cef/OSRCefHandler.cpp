@@ -236,10 +236,10 @@ OSRCefHandler* OSRCefHandler::getInstance() {
 }
 
 void OSRCefHandler::updateTexture(const void* buffer, const unsigned int width, const unsigned int height) const {
-    if (this->texture->getWidth() != width || this->texture->getHeight() != height) {
-        this->texture->resize(width, height);
-    }
-    this->texture->setRawData(buffer);
+    // if (this->texture->getWidth() != width || this->texture->getHeight() != height) {
+        // this->texture->resize(width, height);
+    // }
+    // this->texture->setRawData(buffer);
 }
 
 int OSRCefHandler::getCoordinate(const unsigned int rawValue) const {
