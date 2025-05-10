@@ -216,7 +216,9 @@ void OSRCefHandler::GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) {
 }
 
 void OSRCefHandler::OnPaint(CefRefPtr<CefBrowser> browser, const PaintElementType type, const RectList& dirtyRects, const void* buffer, const int width, const int height) {
-    this->updateTexture(buffer, width, height);
+    this->queueTaskForMainThread([this, buffer, width, height] {
+        this->updateTexture(buffer, width, height);
+    });
 }
 
 bool OSRCefHandler::OnProcessMessageReceived(const CefRefPtr<CefBrowser> browser, const CefRefPtr<CefFrame> frame, const CefProcessId sourceProcess,
@@ -236,10 +238,11 @@ OSRCefHandler* OSRCefHandler::getInstance() {
 }
 
 void OSRCefHandler::updateTexture(const void* buffer, const unsigned int width, const unsigned int height) const {
-    // if (this->texture->getWidth() != width || this->texture->getHeight() != height) {
-        // this->texture->resize(width, height);
-    // }
-    // this->texture->setRawData(buffer);
+    DE_PROFILE_FUNCTION();
+    if (this->texture->getWidth() != width || this->texture->getHeight() != height) {
+        this->texture->resize(width, height);
+    }
+    this->texture->setRawData(buffer);
 }
 
 int OSRCefHandler::getCoordinate(const unsigned int rawValue) const {
