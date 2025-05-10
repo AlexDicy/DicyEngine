@@ -20,26 +20,8 @@ int main(const int argc, char* argv[]) {
         return subExitCode;
     }
 
-    CefSettings settings;
-    settings.no_sandbox = true;
-    settings.multi_threaded_message_loop = true;
-    settings.windowless_rendering_enabled = true;
-    CefString(&settings.root_cache_path) = std::filesystem::current_path() / ".." / ".cache";
-
-    // Initialize the CEF browser process. May return false if initialization
-    // fails or if early exit is desired (for example, due to process singleton
-    // relaunch behavior).
-    if (!CefInitialize(mainArgs, settings, osrApp.get(), nullptr)) {
-        int exitCode = CefGetExitCode();
-        std::cout << "CEF Browser process exited with code: " << exitCode << '\n';
-        return exitCode;
-    }
-
     const auto app = std::make_shared<Application>();
     app->initialize();
     app->run();
-
-    // Shut down CEF.
-    CefShutdown();
     return 0;
 }
