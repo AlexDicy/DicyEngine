@@ -3,7 +3,9 @@
 #include "UIScript.h"
 
 #include <cef_app.h>
+#ifdef DE_PLATFORM_MACOS
 #include <wrapper/cef_library_loader.h>
+#endif
 
 #include "Application.h"
 #include "cef/OSRCefHandler.h"
