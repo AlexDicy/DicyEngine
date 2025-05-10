@@ -21,10 +21,6 @@ private:
     CefRefPtr<OSRCefHandler> handler;
 
     std::thread cefThread;
-    std::mutex initMutex;
-    std::condition_variable initCondition;
-    bool initializeCefReturned = false;
-    bool cefStarted = false;
 };
 
 struct UITexture {

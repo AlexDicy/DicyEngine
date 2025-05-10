@@ -4,7 +4,7 @@
 
 #include <cef_app.h>
 #ifdef DE_PLATFORM_MACOS
-#include <wrapper/cef_library_loader.h>
+    #include <wrapper/cef_library_loader.h>
 #endif
 
 #include "Application.h"
@@ -21,24 +21,9 @@ void UIScript::onSpawn() {
     auto& [texture] = this->getComponent<UITexture>();
     this->handler->setTexture(texture);
 
-    {
-        this->cefThread = std::thread([this] {
-            this->runCefThread();
-        });
-        std::unique_lock<std::mutex> lock(this->initMutex);
-        this->initCondition.wait(lock, [this] {
-            return this->initializeCefReturned;
-        });
-    }
-
-    if (!this->cefStarted) {
-        DE_ERROR("[UIScript] Failed to start CEF");
-    }
-
-    CefWindowInfo windowInfo;
-    windowInfo.SetAsWindowless(nullptr);
-    const CefBrowserSettings browserSettings;
-    CefBrowserHost::CreateBrowser(windowInfo, this->handler, this->url, browserSettings, nullptr, nullptr);
+    this->cefThread = std::thread([this] {
+        this->runCefThread();
+    });
 
     this->app->getEventDispatcher()->registerGlobalHandler<WindowResizeEvent>([this](const WindowResizeEvent& event) {
         this->handler->sendWindowResizeEvent(event);
@@ -124,16 +109,11 @@ bool UIScript::initializeCef() {
     settings.no_sandbox = true;
     settings.windowless_rendering_enabled = true;
     CefRefPtr<OSRCefApp> osrApp(new OSRCefApp);
-    this->cefStarted = CefInitialize(mainArgs, settings, osrApp.get(), nullptr);
-    if (!this->cefStarted) {
+    if (!CefInitialize(mainArgs, settings, osrApp.get(), nullptr)) {
         DE_ERROR("Failed to initialize CEF, exit code: {}", CefGetExitCode());
+        return false;
     }
-    {
-        std::lock_guard<std::mutex> lock(this->initMutex);
-        this->initializeCefReturned = true;
-    }
-    this->initCondition.notify_one();
-    return this->cefStarted;
+    return true;
 }
 
 void UIScript::runCefThread() {
@@ -147,6 +127,12 @@ void UIScript::runCefThread() {
     if (!this->initializeCef()) {
         return;
     }
+
+    CefWindowInfo windowInfo;
+    windowInfo.SetAsWindowless(nullptr);
+    const CefBrowserSettings browserSettings;
+    CefBrowserHost::CreateBrowser(windowInfo, this->handler, this->url, browserSettings, nullptr, nullptr);
+
     CefRunMessageLoop();
     CefShutdown();
 }
