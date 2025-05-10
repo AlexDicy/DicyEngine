@@ -23,18 +23,18 @@ void OSRCefHandler::showMainWindow() {
 
     // todo:
     // if (browser_list_.empty()) {
-        // return;
+    // return;
     // }
 
     // auto main_browser = browser_list_.front();
 
     // if (auto browser_view = CefBrowserView::GetForBrowser(main_browser)) {
-        // Show the window using the Views framework.
-        // if (auto window = browser_view->GetWindow()) {
-            // window->Show();
-        // }
+    // Show the window using the Views framework.
+    // if (auto window = browser_view->GetWindow()) {
+    // window->Show();
+    // }
     // } else if (is_alloy_style_) {
-        // PlatformShowWindow(main_browser);
+    // PlatformShowWindow(main_browser);
     // }
 }
 
@@ -43,14 +43,14 @@ void OSRCefHandler::closeAllBrowsers(bool force) {
         CefPostTask(TID_UI, base::BindOnce(&OSRCefHandler::closeAllBrowsers, this, force));
         return;
     }
-    //TODO:
-    // if (browserList.empty()) {
-        // return;
+    // TODO:
+    //  if (browserList.empty()) {
+    //  return;
     // }
 
     // auto it = browserList.begin();
     // for (; it != browserList.end(); ++it) {
-        // (*it)->GetHost()->CloseBrowser(force);
+    // (*it)->GetHost()->CloseBrowser(force);
     // }
 }
 
@@ -221,7 +221,7 @@ void OSRCefHandler::OnPaint(CefRefPtr<CefBrowser> browser, const PaintElementTyp
 
 bool OSRCefHandler::OnProcessMessageReceived(const CefRefPtr<CefBrowser> browser, const CefRefPtr<CefFrame> frame, const CefProcessId sourceProcess,
                                              const CefRefPtr<CefProcessMessage> message) {
-    return this->browserMessageHandler.processMessage(browser, frame, sourceProcess, message);
+    return this->browserMessageHandler.processMessage(this, browser, frame, sourceProcess, message);
 }
 
 bool OSRCefHandler::DoClose(CefRefPtr<CefBrowser> browser) {
@@ -262,6 +262,25 @@ int OSRCefHandler::getMouseCoordinate(const float rawValue) const {
 #else
     return getCoordinate(rawValue);
 #endif
+}
+
+void OSRCefHandler::queueTaskForMainThread(const std::function<void()>& task) {
+    std::lock_guard lock(this->taskQueueMutex);
+    this->mainThreadTasks.push(task);
+}
+
+void OSRCefHandler::processMainThreadTasks() {
+    std::queue<std::function<void()>> tasks;
+    {
+        std::lock_guard lock(this->taskQueueMutex);
+        std::swap(tasks, this->mainThreadTasks);
+    }
+
+    while (!tasks.empty()) {
+        const std::function<void()>& task = tasks.front();
+        task();
+        tasks.pop();
+    }
 }
 
 uint32_t OSRCefHandler::getKeyModifiers(const KeyEvent& event) {

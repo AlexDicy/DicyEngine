@@ -3,8 +3,12 @@
 #include "BrowserMessageHandler.h"
 #include "OSRCefApp.h"
 
+#include <queue>
+
 class OSRCefHandler : public CefClient, public CefRenderHandler, public CefLoadHandler, public CefLifeSpanHandler {
 public:
+    friend class BrowserMessageHandler;
+
     explicit OSRCefHandler(const Ref<Application>& app);
     ~OSRCefHandler() override;
 
@@ -38,6 +42,8 @@ public:
 
     void updateFrameInfo(double deltaTime) const;
     void updateProfilingInfo() const;
+
+    void processMainThreadTasks();
 
     //
     // CEF overrides
@@ -81,6 +87,8 @@ private:
     int getCoordinate(float rawValue) const;
     int getMouseCoordinate(float rawValue) const;
 
+    void queueTaskForMainThread(const std::function<void()>& task);
+
     static uint32_t getKeyModifiers(const KeyEvent& event);
     static cef_mouse_button_type_t getMouseButtonType(InputCode code);
     static uint32_t getMouseModifiers();
@@ -90,6 +98,9 @@ private:
     CefRefPtr<CefBrowserHost> host;
     BrowserMessageHandler browserMessageHandler = BrowserMessageHandler();
     bool closing = false;
+
+    std::queue<std::function<void()>> mainThreadTasks;
+    std::mutex taskQueueMutex;
 
     IMPLEMENT_REFCOUNTING(OSRCefHandler);
 };
