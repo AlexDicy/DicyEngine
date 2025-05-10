@@ -5,6 +5,7 @@
 #include <functional>
 
 class Callback;
+class OSRCefHandler;
 
 class BrowserMessageHandler {
     friend class OSRCefHandler;
