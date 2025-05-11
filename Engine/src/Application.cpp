@@ -7,7 +7,7 @@
 #include "rendering/opengl/OpenGLRenderer.h"
 #include "scripting/JavaBindings.h"
 
-Application::Application() {
+Application::Application(const int argc, char* argv[]) : argc(argc), argv(argv) {
     Logger::init();
     this->running = true;
     this->isMinimized = false;

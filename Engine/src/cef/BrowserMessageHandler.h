@@ -5,6 +5,7 @@
 #include <functional>
 
 class Callback;
+class OSRCefHandler;
 
 class BrowserMessageHandler {
     friend class OSRCefHandler;
@@ -15,7 +16,8 @@ public:
 protected:
     BrowserMessageHandler() = default;
 
-    bool processMessage(const CefRefPtr<CefBrowser>& browser, const CefRefPtr<CefFrame>& frame, CefProcessId sourceProcess, const CefRefPtr<CefProcessMessage>& message);
+    bool processMessage(OSRCefHandler* handler, const CefRefPtr<CefBrowser>& browser, const CefRefPtr<CefFrame>& frame, CefProcessId sourceProcess,
+                        const CefRefPtr<CefProcessMessage>& message);
 
     static Ref<ProcessMessageBuilder> createMessage(const std::string& name);
 

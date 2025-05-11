@@ -1,26 +1,30 @@
 ﻿#include "pch/enginepch.h"
 #include "BrowserMessageHandler.h"
+
+#include "OSRCefHandler.h"
 #include "RendererMessageHandler.h"
 
 void BrowserMessageHandler::registerCallback(const std::string& name, const std::function<void(const Callback& callback)>& callback) {
     callbacks[name] = callback;
 }
 
-bool BrowserMessageHandler::processMessage(const CefRefPtr<CefBrowser>& browser, const CefRefPtr<CefFrame>& frame, CefProcessId sourceProcess,
+bool BrowserMessageHandler::processMessage(OSRCefHandler* handler, const CefRefPtr<CefBrowser>& browser, const CefRefPtr<CefFrame>& frame, CefProcessId sourceProcess,
                                            const CefRefPtr<CefProcessMessage>& message) {
     if (message->GetName() == RendererMessageHandler::callName) {
         const CefRefPtr<CefListValue> arguments = message->GetArgumentList();
         const std::string name = arguments->GetString(0);
         const int callId = arguments->GetInt(1);
-        const CefRefPtr<CefListValue> args = arguments->GetList(2);
 
         const auto it = this->callbacks.find(name);
         if (it != this->callbacks.end()) {
-            const Callback callback(name, callId, browser, args);
-            it->second(callback);
+            handler->queueTaskForMainThread([name, callId, browser, it, arguments] {
+                const Callback callback(name, callId, browser, arguments->GetList(2));
+                it->second(callback);
+            });
             return true;
         }
-        Callback(name, callId, browser, args).error("No callback registered for message: " + name);
+        const Callback errorCallback(name, callId, browser, arguments->GetList(2));
+        errorCallback.error("No callback registered for message: " + name);
     }
     return false;
 }
