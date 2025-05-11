@@ -7,10 +7,6 @@
 
 int main(const int argc, char* argv[]) {
     const CefMainArgs mainArgs;
-
-    CefRefPtr<CefCommandLine> commandLine = CefCommandLine::CreateCommandLine();
-    commandLine->InitFromArgv(argc, argv);
-
     const CefRefPtr<CefApp> osrApp = new OSRCefApp();
 
     int subExitCode = CefExecuteProcess(mainArgs, osrApp, nullptr);

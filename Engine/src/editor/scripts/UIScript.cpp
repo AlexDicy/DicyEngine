@@ -108,8 +108,6 @@ bool UIScript::initializeCef() const {
 #else
     const CefMainArgs mainArgs;
 #endif
-    const CefRefPtr<CefCommandLine> commandLine = CefCommandLine::CreateCommandLine();
-    commandLine->InitFromArgv(this->app->getArgc(), this->app->getArgv());
     CefSettings settings;
     settings.no_sandbox = true;
     settings.windowless_rendering_enabled = true;
