@@ -103,7 +103,11 @@ void UIScript::onUpdate(const float deltaTime) {
 }
 
 bool UIScript::initializeCef() const {
+#ifdef DE_PLATFORM_MACOS
     const CefMainArgs mainArgs(this->app->getArgc(), this->app->getArgv());
+#else
+    const CefMainArgs mainArgs;
+#endif
     const CefRefPtr<CefCommandLine> commandLine = CefCommandLine::CreateCommandLine();
     commandLine->InitFromArgv(this->app->getArgc(), this->app->getArgv());
     CefSettings settings;
