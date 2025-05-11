@@ -44,6 +44,7 @@ public:
     void updateProfilingInfo() const;
 
     void processMainThreadTasks();
+    void updateTextureIfNeeded();
 
     //
     // CEF overrides
@@ -80,7 +81,7 @@ public:
     static OSRCefHandler* getInstance();
 
 private:
-    void updateTexture(const void* buffer, unsigned int width, unsigned int height) const;
+    void updateTexture(unsigned int width, unsigned int height) const;
 
     int getCoordinate(unsigned int rawValue) const;
     int getCoordinate(int rawValue) const;
@@ -94,6 +95,14 @@ private:
     static uint32_t getMouseModifiers();
 
     Ref<Application> app;
+    struct {
+        byte* buffer = nullptr;
+        unsigned int bufferSize = 0;
+        unsigned int width = 0;
+        unsigned int height = 0;
+        bool needsUpdate = false;
+    } textureInfo;
+    std::mutex textureInfoMutex;
     Ref<Texture2D> texture;
     CefRefPtr<CefBrowserHost> host;
     BrowserMessageHandler browserMessageHandler = BrowserMessageHandler();

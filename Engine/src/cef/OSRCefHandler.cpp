@@ -216,9 +216,17 @@ void OSRCefHandler::GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) {
 }
 
 void OSRCefHandler::OnPaint(CefRefPtr<CefBrowser> browser, const PaintElementType type, const RectList& dirtyRects, const void* buffer, const int width, const int height) {
-    this->queueTaskForMainThread([this, buffer, width, height] {
-        this->updateTexture(buffer, width, height);
-    });
+    const unsigned int bufferSize = width * height * 4;
+    if (bufferSize != this->textureInfo.bufferSize) {
+        delete[] this->textureInfo.buffer;
+        this->textureInfo.buffer = new byte[bufferSize];
+        this->textureInfo.bufferSize = bufferSize;
+    }
+    std::memcpy(this->textureInfo.buffer, buffer, bufferSize);
+    std::lock_guard lock(this->textureInfoMutex);
+    this->textureInfo.needsUpdate = true;
+    this->textureInfo.width = width;
+    this->textureInfo.height = height;
 }
 
 bool OSRCefHandler::OnProcessMessageReceived(const CefRefPtr<CefBrowser> browser, const CefRefPtr<CefFrame> frame, const CefProcessId sourceProcess,
@@ -237,11 +245,11 @@ OSRCefHandler* OSRCefHandler::getInstance() {
     return instance;
 }
 
-void OSRCefHandler::updateTexture(const void* buffer, const unsigned int width, const unsigned int height) const {
+void OSRCefHandler::updateTexture(const unsigned int width, const unsigned int height) const {
     if (this->texture->getWidth() != width || this->texture->getHeight() != height) {
         this->texture->resize(width, height);
     }
-    this->texture->setRawData(buffer);
+    this->texture->setRawData(this->textureInfo.buffer);
 }
 
 int OSRCefHandler::getCoordinate(const unsigned int rawValue) const {
@@ -283,6 +291,14 @@ void OSRCefHandler::processMainThreadTasks() {
         const std::function<void()>& task = tasks.front();
         task();
         tasks.pop();
+    }
+}
+
+void OSRCefHandler::updateTextureIfNeeded() {
+    if (this->textureInfo.needsUpdate) {
+        std::lock_guard lock(this->textureInfoMutex);
+        this->textureInfo.needsUpdate = false;
+        this->updateTexture(this->textureInfo.width, this->textureInfo.height);
     }
 }
 
