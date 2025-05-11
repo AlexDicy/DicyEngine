@@ -219,7 +219,7 @@ void OSRCefHandler::OnPaint(CefRefPtr<CefBrowser> browser, const PaintElementTyp
     const unsigned int bufferSize = width * height * 4;
     if (bufferSize != this->textureInfo.bufferSize) {
         delete[] this->textureInfo.buffer;
-        this->textureInfo.buffer = new byte[bufferSize];
+        this->textureInfo.buffer = new uint8_t[bufferSize];
         this->textureInfo.bufferSize = bufferSize;
     }
     std::memcpy(this->textureInfo.buffer, buffer, bufferSize);

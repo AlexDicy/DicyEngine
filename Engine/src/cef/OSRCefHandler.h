@@ -96,7 +96,7 @@ private:
 
     Ref<Application> app;
     struct {
-        byte* buffer = nullptr;
+        uint8_t* buffer = nullptr;
         unsigned int bufferSize = 0;
         unsigned int width = 0;
         unsigned int height = 0;
