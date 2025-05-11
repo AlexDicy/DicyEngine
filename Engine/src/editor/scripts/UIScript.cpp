@@ -102,14 +102,14 @@ void UIScript::onUpdate(const float deltaTime) {
     this->handler->updateProfilingInfo();
 }
 
-bool UIScript::initializeCef() {
-    CefMainArgs mainArgs; // TODO: (argc, argv) on macos
-    CefRefPtr<CefCommandLine> commandLine = CefCommandLine::CreateCommandLine();
-    // commandLine->InitFromArgv(argc, argv); TODO
+bool UIScript::initializeCef() const {
+    const CefMainArgs mainArgs(this->app->getArgc(), this->app->getArgv());
+    const CefRefPtr<CefCommandLine> commandLine = CefCommandLine::CreateCommandLine();
+    commandLine->InitFromArgv(this->app->getArgc(), this->app->getArgv());
     CefSettings settings;
     settings.no_sandbox = true;
     settings.windowless_rendering_enabled = true;
-    CefRefPtr<OSRCefApp> osrApp(new OSRCefApp);
+    const CefRefPtr<OSRCefApp> osrApp(new OSRCefApp);
     if (!CefInitialize(mainArgs, settings, osrApp.get(), nullptr)) {
         DE_ERROR("Failed to initialize CEF, exit code: {}", CefGetExitCode());
         return false;
@@ -117,7 +117,7 @@ bool UIScript::initializeCef() {
     return true;
 }
 
-void UIScript::runCefThread() {
+void UIScript::runCefThread() const {
 #ifdef DE_PLATFORM_MACOS
     if (CefScopedLibraryLoader libraryLoader; !libraryLoader.LoadInMain()) {
         DE_ERROR("Failed to load CEF libraries");

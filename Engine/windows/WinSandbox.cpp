@@ -20,7 +20,7 @@ int main(const int argc, char* argv[]) {
         return subExitCode;
     }
 
-    const auto app = std::make_shared<Application>();
+    const auto app = std::make_shared<Application>(argc, argv);
     app->initialize();
     app->run();
     return 0;

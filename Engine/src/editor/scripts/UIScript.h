@@ -13,8 +13,8 @@ public:
 private:
     static MessageDictionary createEntityDictionary(const Ref<Entity>& entity);
 
-    bool initializeCef();
-    void runCefThread();
+    bool initializeCef() const;
+    void runCefThread() const;
 
     Ref<Application> app;
     std::string url = "http://localhost:5173/";

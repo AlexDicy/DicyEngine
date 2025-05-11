@@ -145,7 +145,7 @@ int main(int argc, char* argv[]) {
                             waitUntilDone:NO];
 
 
-    const auto app = std::make_shared<Application>();
+    const auto app = std::make_shared<Application>(argc, argv);
     app->initialize();
     app->run();
 
