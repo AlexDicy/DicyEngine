@@ -216,6 +216,7 @@ void OSRCefHandler::GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) {
 }
 
 void OSRCefHandler::OnPaint(CefRefPtr<CefBrowser> browser, const PaintElementType type, const RectList& dirtyRects, const void* buffer, const int width, const int height) {
+    std::lock_guard lock(this->textureInfoMutex);
     const unsigned int bufferSize = width * height * 4;
     if (bufferSize != this->textureInfo.bufferSize) {
         delete[] this->textureInfo.buffer;
@@ -223,7 +224,6 @@ void OSRCefHandler::OnPaint(CefRefPtr<CefBrowser> browser, const PaintElementTyp
         this->textureInfo.bufferSize = bufferSize;
     }
     std::memcpy(this->textureInfo.buffer, buffer, bufferSize);
-    std::lock_guard lock(this->textureInfoMutex);
     this->textureInfo.needsUpdate = true;
     this->textureInfo.width = width;
     this->textureInfo.height = height;
@@ -243,13 +243,6 @@ bool OSRCefHandler::DoClose(CefRefPtr<CefBrowser> browser) {
 
 OSRCefHandler* OSRCefHandler::getInstance() {
     return instance;
-}
-
-void OSRCefHandler::updateTexture(const unsigned int width, const unsigned int height) const {
-    if (this->texture->getWidth() != width || this->texture->getHeight() != height) {
-        this->texture->resize(width, height);
-    }
-    this->texture->setRawData(this->textureInfo.buffer);
 }
 
 int OSRCefHandler::getCoordinate(const unsigned int rawValue) const {
@@ -298,7 +291,7 @@ void OSRCefHandler::updateTextureIfNeeded() {
     if (this->textureInfo.needsUpdate) {
         std::lock_guard lock(this->textureInfoMutex);
         this->textureInfo.needsUpdate = false;
-        this->updateTexture(this->textureInfo.width, this->textureInfo.height);
+        this->texture->setRawData(this->textureInfo.width, this->textureInfo.height, this->textureInfo.buffer);
     }
 }
 

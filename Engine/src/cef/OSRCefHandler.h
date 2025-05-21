@@ -81,8 +81,6 @@ public:
     static OSRCefHandler* getInstance();
 
 private:
-    void updateTexture(unsigned int width, unsigned int height) const;
-
     int getCoordinate(unsigned int rawValue) const;
     int getCoordinate(int rawValue) const;
     int getCoordinate(float rawValue) const;

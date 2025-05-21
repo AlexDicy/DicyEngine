@@ -54,16 +54,39 @@ void OpenGLTexture2D::bind(const uint32_t slot) const {
 #endif
 }
 
-void OpenGLTexture2D::setRawData(const void* data) {
-#ifdef OPENGL_4_6
-    glTextureSubImage2D(this->id, 0, 0, 0, this->width, this->height, this->format, this->type, data);
-#else
+void OpenGLTexture2D::setRawData(const unsigned int newWidth, const unsigned int newHeight, const void* data) {
+    if (!this->pboInfo[0].id || !this->pboInfo[1].id) {
+        this->initializePBO();
+    }
+
+    this->currentPBO = (this->currentPBO + 1) % 2;
+    const auto& currentInfo = this->pboInfo[this->currentPBO];
+    auto& nextInfo = this->pboInfo[(this->currentPBO + 1) % 2];
+    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, currentInfo.id);
+
     glBindTexture(GL_TEXTURE_2D, this->id);
-    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, this->width, this->height, this->format, this->type, data);
-#endif
+    if (this->width != currentInfo.width || this->height != currentInfo.height) {
+        this->resize(currentInfo.width, currentInfo.height);
+    }
+    // update the texture from the PBO
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, currentInfo.width, currentInfo.height, this->format, this->type, nullptr);
+
+    const unsigned int size = newWidth * newHeight * 4;
+    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, nextInfo.id);
+    glBufferData(GL_PIXEL_UNPACK_BUFFER, size, nullptr, GL_STREAM_DRAW);
+    // map the buffer to get a pointer to its memory
+    void* pbo = glMapBuffer(GL_PIXEL_UNPACK_BUFFER, GL_WRITE_ONLY);
+    if (pbo) {
+        std::memcpy(pbo, data, size);
+        nextInfo.width = newWidth;
+        nextInfo.height = newHeight;
+        glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER);
+    }
+
+    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 }
 
-void OpenGLTexture2D::resize(const unsigned width, const unsigned height) {
+void OpenGLTexture2D::resize(const unsigned int width, const unsigned int height) {
     this->width = width;
     this->height = height;
 
@@ -93,4 +116,14 @@ void OpenGLTexture2D::createTextureWithData(const unsigned int channels, const u
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     }
+}
+
+void OpenGLTexture2D::initializePBO() {
+    for (auto& pbo : this->pboInfo) {
+        glGenBuffers(1, &pbo.id);
+        const unsigned int size = this->width * this->height * 4;
+        glBindBuffer(GL_PIXEL_UNPACK_BUFFER, pbo.id);
+        glBufferData(GL_PIXEL_UNPACK_BUFFER, size, nullptr, GL_STREAM_DRAW);
+    }
+    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 }

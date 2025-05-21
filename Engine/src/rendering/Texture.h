@@ -21,7 +21,7 @@ public:
         return this->height;
     }
 
-    virtual void setRawData(const void* data) = 0;
+    virtual void setRawData(unsigned int width, unsigned int height, const void* data) = 0;
     virtual void resize(unsigned int width, unsigned int height) = 0;
 
 protected:
