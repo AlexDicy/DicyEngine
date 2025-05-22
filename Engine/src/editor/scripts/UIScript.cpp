@@ -102,7 +102,9 @@ void UIScript::onSpawn() {
 void UIScript::onUpdate(const float deltaTime) {
     DE_PROFILE_FUNCTION();
     this->handler->processMainThreadTasks();
+#ifdef DE_PLATFORM_WINDOWS
     this->handler->updateTextureIfNeeded();
+#endif
     this->handler->updateFrameInfo(deltaTime);
     this->handler->updateProfilingInfo();
 #ifdef DE_PLATFORM_MACOS

@@ -44,7 +44,10 @@ public:
     void updateProfilingInfo() const;
 
     void processMainThreadTasks();
+
+#ifdef DE_PLATFORM_WINDOWS
     void updateTextureIfNeeded();
+#endif
 
     //
     // CEF overrides
@@ -93,6 +96,7 @@ private:
     static uint32_t getMouseModifiers();
 
     Ref<Application> app;
+#ifdef DE_PLATFORM_WINDOWS
     struct {
         uint8_t* buffer = nullptr;
         unsigned int bufferSize = 0;
@@ -101,6 +105,7 @@ private:
         bool needsUpdate = false;
     } textureInfo;
     std::mutex textureInfoMutex;
+#endif
     Ref<Texture2D> texture;
     CefRefPtr<CefBrowserHost> host;
     BrowserMessageHandler browserMessageHandler = BrowserMessageHandler();
