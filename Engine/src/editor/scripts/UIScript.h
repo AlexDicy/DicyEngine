@@ -14,13 +14,14 @@ private:
     static MessageDictionary createEntityDictionary(const Ref<Entity>& entity);
 
     bool initializeCef() const;
-    void runCefThread() const;
+    void runCef() const;
 
     Ref<Application> app;
     std::string url = "http://localhost:5173/";
     CefRefPtr<OSRCefHandler> handler;
-
+#ifdef DE_PLATFORM_WINDOWS
     std::thread cefThread;
+#endif
 };
 
 struct UITexture {

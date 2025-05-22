@@ -21,9 +21,13 @@ void UIScript::onSpawn() {
     auto& [texture] = this->getComponent<UITexture>();
     this->handler->setTexture(texture);
 
+#ifdef DE_PLATFORM_WINDOWS
     this->cefThread = std::thread([this] {
-        this->runCefThread();
+        this->runCef();
     });
+#else
+    this->runCef();
+#endif
 
     this->app->getEventDispatcher()->registerGlobalHandler<WindowResizeEvent>([this](const WindowResizeEvent& event) {
         this->handler->sendWindowResizeEvent(event);
@@ -101,6 +105,9 @@ void UIScript::onUpdate(const float deltaTime) {
     this->handler->updateTextureIfNeeded();
     this->handler->updateFrameInfo(deltaTime);
     this->handler->updateProfilingInfo();
+#ifdef DE_PLATFORM_MACOS
+    CefDoMessageLoopWork();
+#endif
 }
 
 bool UIScript::initializeCef() const {
@@ -120,7 +127,7 @@ bool UIScript::initializeCef() const {
     return true;
 }
 
-void UIScript::runCefThread() const {
+void UIScript::runCef() const {
 #ifdef DE_PLATFORM_MACOS
     if (CefScopedLibraryLoader libraryLoader; !libraryLoader.LoadInMain()) {
         DE_ERROR("Failed to load CEF libraries");
@@ -137,8 +144,10 @@ void UIScript::runCefThread() const {
     const CefBrowserSettings browserSettings;
     CefBrowserHost::CreateBrowser(windowInfo, this->handler, this->url, browserSettings, nullptr, nullptr);
 
+#ifdef DE_PLATFORM_WINDOWS // main message loop can run on a separate thread on Windows
     CefRunMessageLoop();
     CefShutdown();
+#endif
 }
 
 MessageDictionary UIScript::createEntityDictionary(const Ref<Entity>& entity) {
