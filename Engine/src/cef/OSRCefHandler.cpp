@@ -43,15 +43,10 @@ void OSRCefHandler::closeAllBrowsers(bool force) {
         CefPostTask(TID_UI, base::BindOnce(&OSRCefHandler::closeAllBrowsers, this, force));
         return;
     }
-    // TODO:
-    //  if (browserList.empty()) {
-    //  return;
-    // }
-
-    // auto it = browserList.begin();
-    // for (; it != browserList.end(); ++it) {
-    // (*it)->GetHost()->CloseBrowser(force);
-    // }
+    if (this->host == nullptr) {
+        return;
+    }
+    this->host->CloseBrowser(force);
 }
 
 void OSRCefHandler::sendWindowResizeEvent(const WindowResizeEvent&) const {
