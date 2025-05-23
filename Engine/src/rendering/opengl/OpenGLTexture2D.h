@@ -28,10 +28,5 @@ private:
     int format;
     int type;
 
-    struct {
-        unsigned int id = 0;
-        unsigned int width = 0;
-        unsigned int height = 0;
-    } pboInfo[2];
-    int currentPBO = 0;
+    unsigned int pbo = 0;
 };
