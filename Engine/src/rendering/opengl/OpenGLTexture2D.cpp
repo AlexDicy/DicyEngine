@@ -54,21 +54,18 @@ void OpenGLTexture2D::bind(const uint32_t slot) const {
 #endif
 }
 
-void OpenGLTexture2D::setRawData(const unsigned int newWidth, const unsigned int newHeight, const void* data) {
+void OpenGLTexture2D::setRawData(const void* data, const unsigned int size) {
+    DE_ASSERT(this->width * this->height * 4 >= size, "Buffer size is too large: {0}", size)
     if (!this->pbo) {
         this->initializePBO();
     }
 
-    const unsigned int size = newWidth * newHeight * 4;
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, this->pbo);
     glBufferData(GL_PIXEL_UNPACK_BUFFER, size, nullptr, GL_STREAM_DRAW);
     // map the buffer to get a pointer to its memory
     if (void* ptr = glMapBuffer(GL_PIXEL_UNPACK_BUFFER, GL_WRITE_ONLY)) {
         std::memcpy(ptr, data, size);
         glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER);
-    }
-    if (this->width != newWidth || this->height != newHeight) {
-        this->resize(newWidth, newHeight);
     }
     glBindTexture(GL_TEXTURE_2D, this->id);
     // update the texture from the PBO. This will be asynchronous until the texture is used

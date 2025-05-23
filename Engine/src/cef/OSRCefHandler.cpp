@@ -211,9 +211,9 @@ void OSRCefHandler::GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) {
 }
 
 void OSRCefHandler::OnPaint(CefRefPtr<CefBrowser> browser, const PaintElementType type, const RectList& dirtyRects, const void* buffer, const int width, const int height) {
+    const unsigned int bufferSize = width * height * 4;
 #ifdef DE_PLATFORM_WINDOWS
     std::lock_guard lock(this->textureInfoMutex);
-    const unsigned int bufferSize = width * height * 4;
     if (bufferSize != this->textureInfo.bufferSize) {
         delete[] this->textureInfo.buffer;
         this->textureInfo.buffer = new uint8_t[bufferSize];
@@ -224,7 +224,10 @@ void OSRCefHandler::OnPaint(CefRefPtr<CefBrowser> browser, const PaintElementTyp
     this->textureInfo.width = width;
     this->textureInfo.height = height;
 #else
-    this->texture->setRawData(width, height, buffer);
+    if (this->texture->getWidth() != static_cast<unsigned int>(width) || this->texture->getHeight() != static_cast<unsigned int>(height)) {
+        this->texture->resize(width, height);
+    }
+    this->texture->setRawData(buffer, bufferSize);
 #endif
 }
 
@@ -288,11 +291,16 @@ void OSRCefHandler::processMainThreadTasks() {
 
 #ifdef DE_PLATFORM_WINDOWS
 void OSRCefHandler::updateTextureIfNeeded() {
-    if (this->textureInfo.needsUpdate) {
-        std::lock_guard lock(this->textureInfoMutex);
-        this->textureInfo.needsUpdate = false;
-        this->texture->setRawData(this->textureInfo.width, this->textureInfo.height, this->textureInfo.buffer);
+    if (!this->textureInfo.needsUpdate) {
+        return;
     }
+
+    std::lock_guard lock(this->textureInfoMutex);
+    this->textureInfo.needsUpdate = false;
+    if (this->texture->getWidth() != this->textureInfo.width || this->texture->getHeight() != this->textureInfo.height) {
+        this->texture->resize(this->textureInfo.width, this->textureInfo.height);
+    }
+    this->texture->setRawData(this->textureInfo.buffer, this->textureInfo.bufferSize);
 }
 #endif
 

@@ -11,7 +11,7 @@ public:
 
     void bind(uint32_t) const override;
 
-    void setRawData(unsigned int newWidth, unsigned int newHeight, const void* data) override;
+    void setRawData(const void* data, unsigned int size) override;
     void resize(unsigned int width, unsigned int height) override;
 
     void createTextureWithData(unsigned int channels, unsigned int width, unsigned int height, bool isHDR, const void* data);
