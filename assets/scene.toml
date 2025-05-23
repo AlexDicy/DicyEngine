@@ -1,1 +1,187 @@
-entities = []
+[[entities]]
+name = "Fountain (A)"
+children = []
+
+    [entities.model]
+    meshIndex = 2
+    path = '../assets/models/fountain.glb'
+
+    [entities.transform]
+    position = [ -4.0, 0.20000000298023224, 4.0 ]
+    rotation = [ 0.0, 0.0, 0.0, 1.0 ]
+    scale = [ 1.0, 1.0, 1.0 ]
+
+[[entities]]
+name = "Fountain (B)"
+children = []
+
+    [entities.model]
+    meshIndex = 1
+    path = '../assets/models/fountain.glb'
+
+    [entities.transform]
+    position = [ -4.0, 0.20000000298023224, 4.0 ]
+    rotation = [ 0.0, 0.0, 0.0, 1.0 ]
+    scale = [ 1.0, 1.0, 1.0 ]
+
+[[entities]]
+name = "Fountain (C)"
+children = []
+
+    [entities.model]
+    meshIndex = 0
+    path = '../assets/models/fountain.glb'
+
+    [entities.transform]
+    position = [ -4.0, 0.20000000298023224, 4.0 ]
+    rotation = [ 0.0, 0.0, 0.0, 1.0 ]
+    scale = [ 1.0, 1.0, 1.0 ]
+
+[[entities]]
+name = "Car wheel (1)"
+children = []
+
+    [entities.model]
+    meshIndex = 4
+    path = '../assets/models/covered_car/covered_car_1k.gltf'
+
+    [entities.transform]
+    position = [ 2.5, 0.0, 3.0 ]
+    rotation = [ -0.0, -0.13052619993686676, -0.0, 0.9914448857307434 ]
+    scale = [ 1.0, 1.0, 1.0 ]
+
+[[entities]]
+name = "Car wheel (2)"
+children = []
+
+    [entities.model]
+    meshIndex = 3
+    path = '../assets/models/covered_car/covered_car_1k.gltf'
+
+    [entities.transform]
+    position = [ 2.5, 0.0, 3.0 ]
+    rotation = [ -0.0, -0.13052619993686676, -0.0, 0.9914448857307434 ]
+    scale = [ 1.0, 1.0, 1.0 ]
+
+[[entities]]
+name = "Car wheel (3)"
+children = []
+
+    [entities.model]
+    meshIndex = 2
+    path = '../assets/models/covered_car/covered_car_1k.gltf'
+
+    [entities.transform]
+    position = [ 2.5, 0.0, 3.0 ]
+    rotation = [ -0.0, -0.13052619993686676, -0.0, 0.9914448857307434 ]
+    scale = [ 1.0, 1.0, 1.0 ]
+
+[[entities]]
+name = "Car wheel (4)"
+children = []
+
+    [entities.model]
+    meshIndex = 1
+    path = '../assets/models/covered_car/covered_car_1k.gltf'
+
+    [entities.transform]
+    position = [ 2.5, 0.0, 3.0 ]
+    rotation = [ -0.0, -0.13052619993686676, -0.0, 0.9914448857307434 ]
+    scale = [ 1.0, 1.0, 1.0 ]
+
+[[entities]]
+name = "Covered Car"
+children = []
+
+    [entities.model]
+    meshIndex = 0
+    path = '../assets/models/covered_car/covered_car_1k.gltf'
+
+    [entities.transform]
+    position = [ 2.5, 0.0, 3.0 ]
+    rotation = [ -0.0, -0.13052619993686676, -0.0, 0.9914448857307434 ]
+    scale = [ 1.0, 1.0, 1.0 ]
+
+[[entities]]
+name = "Rotating Rocks"
+
+    [entities.model]
+    meshIndex = 0
+    path = '../assets/models/sand_rocks/sand_rocks_small_01_1k.gltf'
+
+    [entities.script]
+    name = 'com.dicydev.engine.scene.scripts.RotatingEntityScript'
+    type = 'JVM'
+
+    [entities.transform]
+    position = [ 0.0, 0.0, 3.0 ]
+    rotation = [ 0.0, 0.4291035532951355, 0.0, 0.90325528383255 ]
+    scale = [ 1.0, 1.0, 1.0 ]
+
+    [[entities.children]]
+    name = "Wooden Stool"
+
+        [entities.children.transform]
+        position = [ 0.0, 0.0, 0.0 ]
+        rotation = [ 0.0, 0.0, 0.0, 1.0 ]
+        scale = [ 4.0, 4.0, 4.0 ]
+
+        [[entities.children.children]]
+        name = "Wooden Stool (A)"
+        children = []
+
+            [entities.children.children.model]
+            meshIndex = 0
+            path = '../assets/models/wooden_stool/wooden_stool_02_1k.gltf'
+
+            [entities.children.children.transform]
+            position = [ 0.0, 0.0, 0.0 ]
+            rotation = [ 0.0, 0.0, 0.0, 1.0 ]
+            scale = [ 1.0, 1.0, 1.0 ]
+
+        [[entities.children.children]]
+        name = "Wooden Stool (B)"
+        children = []
+
+            [entities.children.children.model]
+            meshIndex = 1
+            path = '../assets/models/wooden_stool/wooden_stool_02_1k.gltf'
+
+            [entities.children.children.transform]
+            position = [ 0.0, 0.0, 0.0 ]
+            rotation = [ 0.0, 0.0, 0.0, 1.0 ]
+            scale = [ 1.0, 1.0, 1.0 ]
+
+    [[entities.children]]
+    name = "Picnic Table"
+
+        [entities.children.transform]
+        position = [ 0.0, 0.0, 3.0 ]
+        rotation = [ -0.02573060616850853, -0.675178587436676, -0.023577755317091942, 0.7368282079696655 ]
+        scale = [ 1.0, 1.0, 1.0 ]
+
+        [[entities.children.children]]
+        name = "Wooden Picnic Table"
+        children = []
+
+            [entities.children.children.model]
+            meshIndex = 0
+            path = '../assets/models/picnic_table/wooden_picnic_table_1k.gltf'
+
+            [entities.children.children.transform]
+            position = [ 0.0, 0.0, 0.0 ]
+            rotation = [ 0.0, 0.0, 0.0, 1.0 ]
+            scale = [ 1.0, 1.0, 1.0 ]
+
+        [[entities.children.children]]
+        name = "Wooden Picnic Table (2)"
+        children = []
+
+            [entities.children.children.model]
+            meshIndex = 1
+            path = '../assets/models/picnic_table/wooden_picnic_table_1k.gltf'
+
+            [entities.children.children.transform]
+            position = [ 0.0, 0.0, 0.0 ]
+            rotation = [ 0.0, 0.0, 0.0, 1.0 ]
+            scale = [ 1.0, 1.0, 1.0 ]
