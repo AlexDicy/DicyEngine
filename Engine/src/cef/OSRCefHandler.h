@@ -3,8 +3,12 @@
 #include "BrowserMessageHandler.h"
 #include "OSRCefApp.h"
 
+#include <queue>
+
 class OSRCefHandler : public CefClient, public CefRenderHandler, public CefLoadHandler, public CefLifeSpanHandler {
 public:
+    friend class BrowserMessageHandler;
+
     explicit OSRCefHandler(const Ref<Application>& app);
     ~OSRCefHandler() override;
 
@@ -38,6 +42,12 @@ public:
 
     void updateFrameInfo(double deltaTime) const;
     void updateProfilingInfo() const;
+
+    void processMainThreadTasks();
+
+#ifdef DE_PLATFORM_WINDOWS
+    void updateTextureIfNeeded();
+#endif
 
     //
     // CEF overrides
@@ -74,22 +84,35 @@ public:
     static OSRCefHandler* getInstance();
 
 private:
-    void updateTexture(const void* buffer, unsigned int width, unsigned int height) const;
-
     int getCoordinate(unsigned int rawValue) const;
     int getCoordinate(int rawValue) const;
     int getCoordinate(float rawValue) const;
     int getMouseCoordinate(float rawValue) const;
+
+    void queueTaskForMainThread(const std::function<void()>& task);
 
     static uint32_t getKeyModifiers(const KeyEvent& event);
     static cef_mouse_button_type_t getMouseButtonType(InputCode code);
     static uint32_t getMouseModifiers();
 
     Ref<Application> app;
+#ifdef DE_PLATFORM_WINDOWS
+    struct {
+        uint8_t* buffer = nullptr;
+        unsigned int bufferSize = 0;
+        unsigned int width = 0;
+        unsigned int height = 0;
+        bool needsUpdate = false;
+    } textureInfo;
+    std::mutex textureInfoMutex;
+#endif
     Ref<Texture2D> texture;
     CefRefPtr<CefBrowserHost> host;
     BrowserMessageHandler browserMessageHandler = BrowserMessageHandler();
     bool closing = false;
+
+    std::queue<std::function<void()>> mainThreadTasks;
+    std::mutex taskQueueMutex;
 
     IMPLEMENT_REFCOUNTING(OSRCefHandler);
 };

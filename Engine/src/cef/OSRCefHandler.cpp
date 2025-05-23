@@ -23,18 +23,18 @@ void OSRCefHandler::showMainWindow() {
 
     // todo:
     // if (browser_list_.empty()) {
-        // return;
+    // return;
     // }
 
     // auto main_browser = browser_list_.front();
 
     // if (auto browser_view = CefBrowserView::GetForBrowser(main_browser)) {
-        // Show the window using the Views framework.
-        // if (auto window = browser_view->GetWindow()) {
-            // window->Show();
-        // }
+    // Show the window using the Views framework.
+    // if (auto window = browser_view->GetWindow()) {
+    // window->Show();
+    // }
     // } else if (is_alloy_style_) {
-        // PlatformShowWindow(main_browser);
+    // PlatformShowWindow(main_browser);
     // }
 }
 
@@ -43,15 +43,10 @@ void OSRCefHandler::closeAllBrowsers(bool force) {
         CefPostTask(TID_UI, base::BindOnce(&OSRCefHandler::closeAllBrowsers, this, force));
         return;
     }
-    //TODO:
-    // if (browserList.empty()) {
-        // return;
-    // }
-
-    // auto it = browserList.begin();
-    // for (; it != browserList.end(); ++it) {
-        // (*it)->GetHost()->CloseBrowser(force);
-    // }
+    if (this->host == nullptr) {
+        return;
+    }
+    this->host->CloseBrowser(force);
 }
 
 void OSRCefHandler::sendWindowResizeEvent(const WindowResizeEvent&) const {
@@ -216,12 +211,29 @@ void OSRCefHandler::GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) {
 }
 
 void OSRCefHandler::OnPaint(CefRefPtr<CefBrowser> browser, const PaintElementType type, const RectList& dirtyRects, const void* buffer, const int width, const int height) {
-    this->updateTexture(buffer, width, height);
+    const unsigned int bufferSize = width * height * 4;
+#ifdef DE_PLATFORM_WINDOWS
+    std::lock_guard lock(this->textureInfoMutex);
+    if (bufferSize != this->textureInfo.bufferSize) {
+        delete[] this->textureInfo.buffer;
+        this->textureInfo.buffer = new uint8_t[bufferSize];
+        this->textureInfo.bufferSize = bufferSize;
+    }
+    std::memcpy(this->textureInfo.buffer, buffer, bufferSize);
+    this->textureInfo.needsUpdate = true;
+    this->textureInfo.width = width;
+    this->textureInfo.height = height;
+#else
+    if (this->texture->getWidth() != static_cast<unsigned int>(width) || this->texture->getHeight() != static_cast<unsigned int>(height)) {
+        this->texture->resize(width, height);
+    }
+    this->texture->setRawData(buffer, bufferSize);
+#endif
 }
 
 bool OSRCefHandler::OnProcessMessageReceived(const CefRefPtr<CefBrowser> browser, const CefRefPtr<CefFrame> frame, const CefProcessId sourceProcess,
                                              const CefRefPtr<CefProcessMessage> message) {
-    return this->browserMessageHandler.processMessage(browser, frame, sourceProcess, message);
+    return this->browserMessageHandler.processMessage(this, browser, frame, sourceProcess, message);
 }
 
 bool OSRCefHandler::DoClose(CefRefPtr<CefBrowser> browser) {
@@ -233,13 +245,6 @@ bool OSRCefHandler::DoClose(CefRefPtr<CefBrowser> browser) {
 
 OSRCefHandler* OSRCefHandler::getInstance() {
     return instance;
-}
-
-void OSRCefHandler::updateTexture(const void* buffer, const unsigned int width, const unsigned int height) const {
-    if (this->texture->getWidth() != width || this->texture->getHeight() != height) {
-        this->texture->resize(width, height);
-    }
-    this->texture->setRawData(buffer);
 }
 
 int OSRCefHandler::getCoordinate(const unsigned int rawValue) const {
@@ -263,6 +268,41 @@ int OSRCefHandler::getMouseCoordinate(const float rawValue) const {
     return getCoordinate(rawValue);
 #endif
 }
+
+void OSRCefHandler::queueTaskForMainThread(const std::function<void()>& task) {
+    std::lock_guard lock(this->taskQueueMutex);
+    this->mainThreadTasks.push(task);
+}
+
+void OSRCefHandler::processMainThreadTasks() {
+    DE_PROFILE_FUNCTION();
+    std::queue<std::function<void()>> tasks;
+    {
+        std::lock_guard lock(this->taskQueueMutex);
+        std::swap(tasks, this->mainThreadTasks);
+    }
+
+    while (!tasks.empty()) {
+        const std::function<void()>& task = tasks.front();
+        task();
+        tasks.pop();
+    }
+}
+
+#ifdef DE_PLATFORM_WINDOWS
+void OSRCefHandler::updateTextureIfNeeded() {
+    if (!this->textureInfo.needsUpdate) {
+        return;
+    }
+
+    std::lock_guard lock(this->textureInfoMutex);
+    this->textureInfo.needsUpdate = false;
+    if (this->texture->getWidth() != this->textureInfo.width || this->texture->getHeight() != this->textureInfo.height) {
+        this->texture->resize(this->textureInfo.width, this->textureInfo.height);
+    }
+    this->texture->setRawData(this->textureInfo.buffer, this->textureInfo.bufferSize);
+}
+#endif
 
 uint32_t OSRCefHandler::getKeyModifiers(const KeyEvent& event) {
     uint32_t modifiers = 0;

@@ -54,16 +54,26 @@ void OpenGLTexture2D::bind(const uint32_t slot) const {
 #endif
 }
 
-void OpenGLTexture2D::setRawData(const void* data) {
-#ifdef OPENGL_4_6
-    glTextureSubImage2D(this->id, 0, 0, 0, this->width, this->height, this->format, this->type, data);
-#else
+void OpenGLTexture2D::setRawData(const void* data, const unsigned int size) {
+    DE_ASSERT(this->width * this->height * 4 >= size, "Buffer size is too large: {0}", size)
+    if (!this->pbo) {
+        this->initializePBO();
+    }
+
+    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, this->pbo);
+    glBufferData(GL_PIXEL_UNPACK_BUFFER, size, nullptr, GL_STREAM_DRAW);
+    // map the buffer to get a pointer to its memory
+    if (void* ptr = glMapBuffer(GL_PIXEL_UNPACK_BUFFER, GL_WRITE_ONLY)) {
+        std::memcpy(ptr, data, size);
+        glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER);
+    }
     glBindTexture(GL_TEXTURE_2D, this->id);
-    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, this->width, this->height, this->format, this->type, data);
-#endif
+    // update the texture from the PBO. This will be asynchronous until the texture is used
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, this->width, this->height, this->format, this->type, nullptr);
+    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 }
 
-void OpenGLTexture2D::resize(const unsigned width, const unsigned height) {
+void OpenGLTexture2D::resize(const unsigned int width, const unsigned int height) {
     this->width = width;
     this->height = height;
 
@@ -93,4 +103,12 @@ void OpenGLTexture2D::createTextureWithData(const unsigned int channels, const u
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     }
+}
+
+void OpenGLTexture2D::initializePBO() {
+    glGenBuffers(1, &this->pbo);
+    const unsigned int size = this->width * this->height * 4;
+    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, this->pbo);
+    glBufferData(GL_PIXEL_UNPACK_BUFFER, size, nullptr, GL_STREAM_DRAW);
+    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 }

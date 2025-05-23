@@ -11,13 +11,15 @@ public:
 
     void bind(uint32_t) const override;
 
-    void setRawData(const void* data) override;
-    void resize(unsigned width, unsigned height) override;
+    void setRawData(const void* data, unsigned int size) override;
+    void resize(unsigned int width, unsigned int height) override;
 
     void createTextureWithData(unsigned int channels, unsigned int width, unsigned int height, bool isHDR, const void* data);
     void createTextureWithData(unsigned int channels, unsigned int width, unsigned int height, bool isHDR, int format, const void* data);
 
 private:
+    void initializePBO();
+
     std::string path;
     uint32_t id;
 
@@ -25,4 +27,6 @@ private:
     int internalFormat;
     int format;
     int type;
+
+    unsigned int pbo = 0;
 };

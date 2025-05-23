@@ -3,10 +3,14 @@
 #include "UIScript.h"
 
 #include <cef_app.h>
+#ifdef DE_PLATFORM_MACOS
+    #include <wrapper/cef_library_loader.h>
+#endif
 
 #include "Application.h"
 #include "cef/OSRCefHandler.h"
 #include "scene/Scene.h"
+
 
 UIScript::UIScript(const Ref<Application>& app, const Ref<Entity>& entity) : EntityScript(app, entity) {
     this->app = app;
@@ -16,10 +20,14 @@ UIScript::UIScript(const Ref<Application>& app, const Ref<Entity>& entity) : Ent
 void UIScript::onSpawn() {
     auto& [texture] = this->getComponent<UITexture>();
     this->handler->setTexture(texture);
-    CefWindowInfo windowInfo;
-    windowInfo.SetAsWindowless(nullptr);
-    const CefBrowserSettings browserSettings;
-    CefBrowserHost::CreateBrowser(windowInfo, this->handler, this->url, browserSettings, nullptr, nullptr);
+
+#ifdef DE_PLATFORM_WINDOWS
+    this->cefThread = std::thread([this] {
+        this->runCef();
+    });
+#else
+    this->runCef();
+#endif
 
     this->app->getEventDispatcher()->registerGlobalHandler<WindowResizeEvent>([this](const WindowResizeEvent& event) {
         this->handler->sendWindowResizeEvent(event);
@@ -93,9 +101,55 @@ void UIScript::onSpawn() {
 
 void UIScript::onUpdate(const float deltaTime) {
     DE_PROFILE_FUNCTION();
+    this->handler->processMainThreadTasks();
+#ifdef DE_PLATFORM_WINDOWS
+    this->handler->updateTextureIfNeeded();
+#endif
     this->handler->updateFrameInfo(deltaTime);
     this->handler->updateProfilingInfo();
+#ifdef DE_PLATFORM_MACOS
     CefDoMessageLoopWork();
+#endif
+}
+
+bool UIScript::initializeCef() const {
+#ifdef DE_PLATFORM_MACOS
+    const CefMainArgs mainArgs(this->app->getArgc(), this->app->getArgv());
+#else
+    const CefMainArgs mainArgs;
+#endif
+    CefSettings settings;
+    settings.no_sandbox = true;
+    settings.windowless_rendering_enabled = true;
+    const CefRefPtr<OSRCefApp> osrApp(new OSRCefApp);
+    if (!CefInitialize(mainArgs, settings, osrApp.get(), nullptr)) {
+        DE_ERROR("Failed to initialize CEF, exit code: {}", CefGetExitCode());
+        return false;
+    }
+    return true;
+}
+
+void UIScript::runCef() const {
+#ifdef DE_PLATFORM_MACOS
+    if (CefScopedLibraryLoader libraryLoader; !libraryLoader.LoadInMain()) {
+        DE_ERROR("Failed to load CEF libraries");
+        return;
+    }
+#endif
+
+    if (!this->initializeCef()) {
+        return;
+    }
+
+    CefWindowInfo windowInfo;
+    windowInfo.SetAsWindowless(nullptr);
+    const CefBrowserSettings browserSettings;
+    CefBrowserHost::CreateBrowser(windowInfo, this->handler, this->url, browserSettings, nullptr, nullptr);
+
+#ifdef DE_PLATFORM_WINDOWS // main message loop can run on a separate thread on Windows
+    CefRunMessageLoop();
+    CefShutdown();
+#endif
 }
 
 MessageDictionary UIScript::createEntityDictionary(const Ref<Entity>& entity) {

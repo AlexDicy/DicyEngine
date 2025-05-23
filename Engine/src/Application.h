@@ -9,13 +9,21 @@ class Layer;
 
 class Application : public std::enable_shared_from_this<Application> {
 public:
-    Application();
+    Application(int argc, char* argv[]);
     ~Application();
 
     void initialize();
     void run() const;
     void updateFrame(const std::unique_ptr<Context>& ctx) const;
     void registerLayers(const std::unique_ptr<Context>& app);
+
+    int getArgc() const {
+        return this->argc;
+    }
+
+    char** getArgv() const {
+        return this->argv;
+    }
 
     const Ref<Window>& getWindow() const {
         return this->window;
@@ -38,6 +46,9 @@ public:
     }
 
 private:
+    int argc;
+    char** argv;
+
     Ref<Window> window;
     Ref<EventDispatcher> eventDispatcher;
     Ref<Renderer> renderer;
