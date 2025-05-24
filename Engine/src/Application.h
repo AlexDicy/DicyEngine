@@ -1,9 +1,9 @@
 #pragma once
 #include "Window.h"
+#include "physics/Physics.h"
 #include "rendering/Renderer.h"
 
 
-class OSRCefApp;
 class Context;
 class Layer;
 
@@ -15,7 +15,7 @@ public:
     void initialize();
     void run() const;
     void updateFrame(const std::unique_ptr<Context>& ctx) const;
-    void registerLayers(const std::unique_ptr<Context>& app);
+    void registerLayers(const std::unique_ptr<Context>& ctx);
 
     int getArgc() const {
         return this->argc;
@@ -51,6 +51,7 @@ private:
 
     Ref<Window> window;
     Ref<EventDispatcher> eventDispatcher;
+    Ref<Physics> physics;
     Ref<Renderer> renderer;
 
     Ref<EntityScriptRegistry> entityScriptRegistry;

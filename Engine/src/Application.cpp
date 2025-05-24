@@ -3,6 +3,7 @@
 
 #include "input/Input.h"
 #include "layers/SceneLayer.h"
+#include "physics/jolt/JoltPhysics.h"
 #include "rendering/Renderer.h"
 #include "rendering/opengl/OpenGLRenderer.h"
 #include "scripting/JavaBindings.h"
@@ -17,6 +18,7 @@ Application::~Application() = default;
 
 void Application::initialize() {
     this->eventDispatcher.reset(EventDispatcher::get());
+    this->physics = std::make_shared<JoltPhysics>();
     this->renderer = std::make_shared<OpenGLRenderer>();
 
     this->entityScriptRegistry = std::make_shared<EntityScriptRegistry>();
@@ -37,6 +39,7 @@ void Application::initialize() {
     });
 
     Input::init(this->eventDispatcher, this->window);
+    this->physics->init();
     this->renderer->init(this->window->getFramebufferWidth(), this->window->getFramebufferHeight());
     JavaBindings::init();
     registerLayers(this->currentCtx);
