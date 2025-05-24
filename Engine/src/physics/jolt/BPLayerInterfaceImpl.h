@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "Layers.h"
+#include "JoltLayers.h"
 
 #include <Jolt/Jolt.h>
 #include <Jolt/Physics/Collision/BroadPhase/BroadPhase.h>
@@ -10,7 +10,7 @@ public:
     BPLayerInterfaceImpl();
 
     JPH::uint GetNumBroadPhaseLayers() const override {
-        return BroadPhaseLayers::NUM_LAYERS;
+        return JoltBroadPhaseLayers::NUM_LAYERS;
     }
 
     JPH::BroadPhaseLayer GetBroadPhaseLayer(const JPH::ObjectLayer inLayer) const override {
@@ -18,10 +18,10 @@ public:
         return objectToBroadPhase[inLayer];
     }
 
-#if defined(JPH_EXTERNAL_PROFILE) || defined(JPH_PROFILE_ENABLED)
+    #if defined(JPH_EXTERNAL_PROFILE) || defined(JPH_PROFILE_ENABLED)
     const char* GetBroadPhaseLayerName(JPH::BroadPhaseLayer inLayer) const override;
-#endif
+    #endif
 
 private:
-    JPH::BroadPhaseLayer objectToBroadPhase[Layers::NUM_LAYERS];
+    JPH::BroadPhaseLayer objectToBroadPhase[JoltLayers::NUM_LAYERS];
 };

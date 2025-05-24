@@ -34,6 +34,10 @@ public:
         return this->registry->view<Script>();
     }
 
+    auto getRigidBodies() const {
+        return this->registry->view<RigidBody, Transform>();
+    }
+
     const Ref<Camera>& getCamera() const {
         return this->camera;
     }

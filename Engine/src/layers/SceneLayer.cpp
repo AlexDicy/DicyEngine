@@ -12,9 +12,7 @@
 #include "rendering/skybox/SphericalHarmonics.h"
 #include "scene/models/ModelImporter.h"
 #include "scene/models/Plane.h"
-#include "serialization/EntitySerializer.h"
 #include "serialization/SceneDeserializer.h"
-#include "serialization/SceneSerializer.h"
 
 #include <toml++/impl/table.hpp>
 
@@ -104,6 +102,8 @@ SceneLayer::SceneLayer(const std::unique_ptr<Context>& ctx) {
             entity->add<Mesh>(renderer, vertexDataFloats, sphereModel.vertices.size() * sizeof(VertexData), sphereModel.indexes.data(), sphereModel.indexes.size(), material,
                               sphereModel.transformationMatrix);
             entity->setTransform(glm::vec3(xPos, 4.0f, zPos), Rotation(), glm::vec3(0.4f));
+            PhysicsShape shape;
+            entity->add<RigidBody>(ctx->physics, shape, *entity->getTransform(), PhysicsLayer::MOVING);
         }
     }
 
@@ -132,6 +132,19 @@ SceneLayer::SceneLayer(const std::unique_ptr<Context>& ctx) {
 
     toml::table in = toml::parse_file("../assets/scene.toml");
     SceneDeserializer::deserialize(ctx, *this->scene, in);
+
+    Input::setAction("play", InputCode::KEY_P);
+    Input::bindActionPressed("play", [this, &ctx] {
+        this->play(ctx);
+    });
+}
+
+void SceneLayer::play(const std::unique_ptr<Context>& ctx) {
+    const auto rigidBodiesView = this->scene->getRigidBodies();
+    for (const auto& entity : rigidBodiesView) {
+        RigidBody& rigidBody = rigidBodiesView.get<RigidBody>(entity);
+        ctx->physics->addBody(rigidBody.physicsBody);
+    }
 }
 
 void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
@@ -140,6 +153,14 @@ void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
     for (const auto& entity : scriptsView) {
         Script& script = scriptsView.get<Script>(entity);
         script.getEntityScript()->onUpdate(ctx->deltaTime);
+    }
+
+    ctx->physics->update(ctx->deltaTime, 1); // TODO: calculate steps based on delta time
+    const auto rigidBodiesView = this->scene->getRigidBodies();
+    for (const auto& entity : rigidBodiesView) {
+        RigidBody& rigidBody = rigidBodiesView.get<RigidBody>(entity);
+        Transform& transform = rigidBodiesView.get<Transform>(entity);
+        ctx->physics->syncTransform(rigidBody.physicsBody, transform);
     }
 
     ctx->renderer->beginFrame();

@@ -49,6 +49,11 @@ void Application::run() const {
     while (this->running) {
         this->updateFrame(this->currentCtx);
     }
+
+    for (const auto& layer : layers) {
+        // TODO: should be called by the editor
+        layer->stop(this->currentCtx);
+    }
 }
 
 void Application::updateFrame(const std::unique_ptr<Context>& ctx) const {

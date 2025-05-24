@@ -7,11 +7,12 @@ class Context {
 
 public:
     const Ref<Application>& app;
+    const Ref<Physics>& physics;
     const Ref<Renderer>& renderer;
 
     const float& deltaTime = _deltaTime;
 
-    explicit Context(const Ref<Application>& app) : app(app), renderer(app->getRenderer()) {}
+    explicit Context(const Ref<Application>& app) : app(app), physics(app->getPhysics()), renderer(app->getRenderer()) {}
 
 protected:
     void setDeltaTime(const float& deltaTime) {

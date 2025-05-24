@@ -1,5 +1,7 @@
 ﻿#pragma once
-#include "Layers.h"
+#include "JoltLayers.h"
+
+#include <Jolt/Physics/Collision/BroadPhase/BroadPhaseLayer.h>
 
 /// class that determines if an object layer can collide with a broadphase layer
 class ObjectVsBroadPhaseLayerFilterImpl final : public JPH::ObjectVsBroadPhaseLayerFilter {

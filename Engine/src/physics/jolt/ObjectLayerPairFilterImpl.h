@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "Layers.h"
+#include "JoltLayers.h"
 
 /// class that determines if two object layers can collide
 class ObjectLayerPairFilterImpl : public JPH::ObjectLayerPairFilter {

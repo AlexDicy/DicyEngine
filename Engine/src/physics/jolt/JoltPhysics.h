@@ -13,12 +13,18 @@ public:
     void init() override;
     void update(float deltaTime, int steps) override;
 
+    Ref<PhysicsBody> createBody(const PhysicsShape& shape, const Transform& transform, const PhysicsLayer& layer) override;
+    void addBody(const Ref<PhysicsBody>& body) override;
+
+    void syncTransform(const Ref<PhysicsBody>& body, Transform& transform) override;
+
 private:
     BPLayerInterfaceImpl broadPhaseLayerInterface;
     ObjectVsBroadPhaseLayerFilterImpl objectVsBroadphaseLayerFilter;
     ObjectLayerPairFilterImpl objectVsObjectLayerFilter;
 
     JPH::PhysicsSystem physicsSystem;
+    JPH::BodyInterface* bodyInterface;
 
     JPH::TempAllocatorImpl* tempAllocator = nullptr;
     JPH::JobSystemThreadPool* jobSystem = nullptr;

@@ -28,3 +28,4 @@
 #include "rendering/camera/Camera.h"
 #include "scene/components/Mesh.h"
 #include "scene/components/Transform.h"
+#include "scene/components/RigidBody.h"

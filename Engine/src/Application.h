@@ -33,6 +33,10 @@ public:
         return this->eventDispatcher;
     }
 
+    const Ref<Physics>& getPhysics() const {
+        return this->physics;
+    }
+
     const Ref<Renderer>& getRenderer() const {
         return this->renderer;
     }
