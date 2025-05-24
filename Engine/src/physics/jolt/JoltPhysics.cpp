@@ -17,15 +17,14 @@ void JoltPhysics::init() {
     JPH::RegisterDefaultAllocator();
     JPH::Factory::sInstance = new JPH::Factory();
     JPH::RegisterTypes();
-    JPH::TempAllocatorImpl tempAllocator(static_cast<size_t>(10) * 1024 * 1024); // 10 MB
-    JPH::JobSystemThreadPool jobSystem(JPH::cMaxPhysicsJobs, JPH::cMaxPhysicsBarriers, static_cast<int>(std::thread::hardware_concurrency()) - 1);
+
+    this->tempAllocator = new JPH::TempAllocatorImpl(static_cast<size_t>(10) * 1024 * 1024); // 10 MB
+    this->jobSystem = new JPH::JobSystemThreadPool(JPH::cMaxPhysicsJobs, JPH::cMaxPhysicsBarriers, static_cast<int>(std::thread::hardware_concurrency()) - 1);
 
     constexpr JPH::uint maxBodies = 65536;
     constexpr JPH::uint numBodyMutexes = 0; // use default
     constexpr JPH::uint maxBodyPairs = 65536;
     constexpr JPH::uint maxContactConstraints = 10240;
-
-    JPH::PhysicsSystem physicsSystem;
     physicsSystem.Init(maxBodies, numBodyMutexes, maxBodyPairs, maxContactConstraints, broadPhaseLayerInterface, objectVsBroadphaseLayerFilter, objectVsObjectLayerFilter);
 
     // todo: probably remove test code
@@ -60,7 +59,7 @@ void JoltPhysics::init() {
         const int cCollisionSteps = 1;
 
         // Step the world
-        physicsSystem.Update(cDeltaTime, cCollisionSteps, &tempAllocator, &jobSystem);
+        physicsSystem.Update(cDeltaTime, cCollisionSteps, tempAllocator, jobSystem);
     }
 
     bodyInterface.RemoveBody(sphereId);
@@ -78,4 +77,8 @@ void JoltPhysics::init() {
     // Destroy the factory
     delete JPH::Factory::sInstance;
     JPH::Factory::sInstance = nullptr;
+}
+
+void JoltPhysics::update(const float deltaTime, const int steps) {
+    physicsSystem.Update(deltaTime, steps, tempAllocator, jobSystem);
 }
