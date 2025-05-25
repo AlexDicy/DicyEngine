@@ -1,3 +1,3 @@
-[submodule "Engine/libs/glad"]
-	path = Engine/libs/glad
+[submodule "engine/libs/glad"]
+	path = engine/libs/glad
 	url = https://github.com/Dicy/engine-glad

@@ -15,14 +15,14 @@ target("engine")
     set_kind("binary")
     set_languages("cxx23")
     set_basename("DicyEngine")
-    set_rundir("$(projectdir)/Engine")
+    set_rundir("$(projectdir)/engine")
 
-    add_files("Engine/src/**.cpp")
-    add_headerfiles("Engine/src/**.h")
+    add_files("engine/src/**.cpp")
+    add_headerfiles("engine/src/**.h")
     add_includedirs(
-        "Engine/src",
-        "Engine/libs/glad/include",
-        "Engine/libs/stb"
+        "engine/src",
+        "engine/libs/glad/include",
+        "engine/libs/stb"
     )
     on_load(function (target)
         import("xmake_utils")
@@ -58,17 +58,17 @@ target("engine")
     end
 
     if is_os("windows") then
-        set_pcxxheader("Engine/src/pch/enginepch.h")
-        add_files("Engine/windows/*.cpp")
+        set_pcxxheader("engine/src/pch/enginepch.h")
+        add_files("engine/windows/*.cpp")
         after_build(function (target)
             local cef_framework = path.join(target:pkg("chromium-embedded-framework"):installdir(), "bin", "*")
             os.cp(cef_framework, target:targetdir())
         end)
     elseif is_os("macosx") then
-        set_pmxxheader("Engine/src/pch/enginepch.h")
+        set_pmxxheader("engine/src/pch/enginepch.h")
         add_rules("xcode.application")
-        add_files("Engine/macos/*.mm")
-        add_files("Engine/macos/Info.plist")
+        add_files("engine/macos/*.mm")
+        add_files("engine/macos/Info.plist")
         after_build(function (target)
             local cef_framework = target:pkg("chromium-embedded-framework"):installdir() .. "/bin/Chromium Embedded Framework.framework"
             local destination = target:targetdir() ..  "/" .. target:basename() .. ".app/Contents/Frameworks/"
@@ -96,21 +96,21 @@ if is_plat("macosx") then
             add_packages("chromium-embedded-framework")
 
             set_filename(helper_output)
-            add_files("Engine/macos/MacCEFProcessHelper.cpp")
-            add_files("Engine/macos/" .. config.plist)
+            add_files("engine/macos/MacCEFProcessHelper.cpp")
+            add_files("engine/macos/" .. config.plist)
             add_files(
-                "Engine/src/cef/OSRCefApp.cpp",
-                "Engine/src/cef/RendererMessageHandler.cpp"
+                "engine/src/cef/OSRCefApp.cpp",
+                "engine/src/cef/RendererMessageHandler.cpp"
             )
             add_headerfiles(
-                "Engine/src/cef/OSRCefApp.h",
-                "Engine/src/cef/RendererMessageHandler.h"
+                "engine/src/cef/OSRCefApp.h",
+                "engine/src/cef/RendererMessageHandler.h"
             )
-            add_includedirs("Engine/src/cef")
+            add_includedirs("engine/src/cef")
 
             after_build(function(target)
                 local helper_dir = target:targetdir() ..  "/" .. helper_output .. ".app/Contents/"
-                local source = path.join("Engine/macos/", config.plist)
+                local source = path.join("engine/macos/", config.plist)
                 local destination = path.join(helper_dir, "Info.plist")
                 os.cp(source, destination)
             end)
@@ -123,8 +123,8 @@ target("glad")
     set_languages("c17")
     set_runtimes("static")
 
-    add_files("Engine/libs/glad/src/gl.c")
-    add_includedirs("Engine/libs/glad/include")
+    add_files("engine/libs/glad/src/gl.c")
+    add_includedirs("engine/libs/glad/include")
 
 
 target("stb")
@@ -132,5 +132,5 @@ target("stb")
     set_languages("cxx17")
     set_runtimes("static")
 
-    add_files("Engine/libs/stb/**.cpp")
-    add_includedirs("Engine/libs/stb")
+    add_files("engine/libs/stb/**.cpp")
+    add_includedirs("engine/libs/stb")
