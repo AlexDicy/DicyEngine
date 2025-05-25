@@ -103,7 +103,7 @@ SceneLayer::SceneLayer(const std::unique_ptr<Context>& ctx) {
                               sphereModel.transformationMatrix);
             entity->setTransform(glm::vec3(xPos, 4.0f, zPos), Rotation(), glm::vec3(0.4f));
             PhysicsShape shape;
-            entity->add<RigidBody>(ctx->physics, shape, *entity->getTransform(), PhysicsLayer::MOVING);
+            entity->add<RigidBody>(shape, PhysicsLayer::MOVING);
         }
     }
 
@@ -143,7 +143,12 @@ void SceneLayer::play(const std::unique_ptr<Context>& ctx) {
     const auto rigidBodiesView = this->scene->getRigidBodies();
     for (const auto& entity : rigidBodiesView) {
         RigidBody& rigidBody = rigidBodiesView.get<RigidBody>(entity);
-        ctx->physics->addBody(rigidBody.physicsBody);
+        if (rigidBody.isInitialized()) {
+            continue;
+        }
+        Transform& transform = rigidBodiesView.get<Transform>(entity);
+        rigidBody.initializeBody(ctx->physics, transform);
+        ctx->physics->addBody(rigidBody.getPhysicsBody());
     }
 }
 
@@ -159,8 +164,11 @@ void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
     const auto rigidBodiesView = this->scene->getRigidBodies();
     for (const auto& entity : rigidBodiesView) {
         RigidBody& rigidBody = rigidBodiesView.get<RigidBody>(entity);
+        if (!rigidBody.isInitialized()) {
+            continue;
+        }
         Transform& transform = rigidBodiesView.get<Transform>(entity);
-        ctx->physics->syncTransform(rigidBody.physicsBody, transform);
+        ctx->physics->syncTransform(rigidBody.getPhysicsBody(), transform);
     }
 
     ctx->renderer->beginFrame();
