@@ -102,10 +102,14 @@ SceneLayer::SceneLayer(const std::unique_ptr<Context>& ctx) {
             entity->add<Mesh>(renderer, vertexDataFloats, sphereModel.vertices.size() * sizeof(VertexData), sphereModel.indexes.data(), sphereModel.indexes.size(), material,
                               sphereModel.transformationMatrix);
             entity->setTransform(glm::vec3(xPos, 4.0f, zPos), Rotation(), glm::vec3(0.4f));
-            PhysicsShape shape;
-            entity->add<RigidBody>(shape, PhysicsLayer::MOVING);
+            entity->add<RigidBody>(new SphereShape(0.5f), PhysicsLayer::MOVING);
         }
     }
+
+    // invisible floor
+    Ref<Entity> floor = this->scene->createEntity("Floor");
+    floor->setTransform(glm::vec3(0.0f), Rotation(), glm::vec3(1.0f));
+    floor->add<RigidBody>(new BoxShape(glm::vec3(5.0f, 0.1f, 5.0f)), PhysicsLayer::NON_MOVING);
 
     // point lights
     for (glm::vec3 positions[] = {{1.0f, 1.0f, 1.0f}, {4.0f, 4.2f, 2.0f}}; const glm::vec3& position : positions) {

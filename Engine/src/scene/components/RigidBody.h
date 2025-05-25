@@ -6,7 +6,7 @@
 
 class RigidBody {
 public:
-    RigidBody(const PhysicsShape& shape, const PhysicsLayer& layer) : shape(shape), layer(layer) {}
+    RigidBody(const PhysicsShape* shape, const PhysicsLayer& layer) : shape(shape), layer(layer) {}
 
     void initializeBody(const Ref<Physics>& physics, Transform& transform) {
         if (this->isInitialized()) {
@@ -24,7 +24,7 @@ public:
     }
 
 private:
-    PhysicsShape shape;
+    const PhysicsShape* shape;
     PhysicsLayer layer;
 
     Ref<PhysicsBody> physicsBody = nullptr;

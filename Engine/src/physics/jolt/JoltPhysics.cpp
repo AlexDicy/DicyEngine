@@ -2,6 +2,8 @@
 #include "JoltPhysics.h"
 
 #include "JoltPhysicsBody.h"
+#include "physics/shapes/BoxShape.h"
+#include "physics/shapes/SphereShape.h"
 
 #include <Jolt/Jolt.h>
 #include <Jolt/RegisterTypes.h>
@@ -30,15 +32,7 @@ void JoltPhysics::init() {
     physicsSystem.Init(maxBodies, numBodyMutexes, maxBodyPairs, maxContactConstraints, broadPhaseLayerInterface, objectVsBroadphaseLayerFilter, objectVsObjectLayerFilter);
 
     bodyInterface = &physicsSystem.GetBodyInterface();
-    // todo: probably remove test code
-    JPH::BoxShapeSettings floorShapeSettings(JPH::Vec3(100.0f, 1.0f, 100.0f));
-    floorShapeSettings
-        .SetEmbedded(); // A ref counted object on the stack (base class RefTarget) should be marked as such to prevent it from being freed when its reference count goes to 0.
-    JPH::ShapeSettings::ShapeResult floorShapeResult = floorShapeSettings.Create();
-    JPH::ShapeRefC floorShape = floorShapeResult.Get();
-    JPH::BodyCreationSettings floorSettings(floorShape, JPH::RVec3(0.0, -1.0, 0.0), JPH::Quat::sIdentity(), JPH::EMotionType::Static, JoltLayers::NON_MOVING);
-    bodyInterface->CreateAndAddBody(floorSettings, JPH::EActivation::DontActivate);
-    JPH::BodyCreationSettings sphereSettings(new JPH::SphereShape(0.5f), JPH::RVec3(0.0, 2.0, 0.0), JPH::Quat::sIdentity(), JPH::EMotionType::Dynamic, JoltLayers::MOVING);
+    // todo: use the following code
 
     // bodyInterface.RemoveBody(sphereId);
     //
@@ -64,12 +58,12 @@ void JoltPhysics::update(const float deltaTime, const int steps) {
     // << velocity.GetY() << ", " << velocity.GetZ() << ")" << std::endl;
 }
 
-Ref<PhysicsBody> JoltPhysics::createBody(const PhysicsShape& shape, Transform& transform, const PhysicsLayer& layer) {
+Ref<PhysicsBody> JoltPhysics::createBody(const PhysicsShape* shape, Transform& transform, const PhysicsLayer& layer) {
     const JPH::RVec3 position(transform.getPosition().x, transform.getPosition().y, transform.getPosition().z);
     const glm::quat rotation = transform.getRotation().getQuaternion();
     const JPH::Quat joltRotation(rotation.x, rotation.y, rotation.z, rotation.w);
-    JPH::BodyCreationSettings sphereSettings(new JPH::SphereShape(0.5f), position, joltRotation, JoltLayers::getJoltMotionType(layer), JoltLayers::getJoltLayer(layer));
-    sphereSettings.mRestitution = 1.0f;
+    const JPH::Shape* joltShape = createJoltShape(shape);
+    const JPH::BodyCreationSettings sphereSettings(joltShape, position, joltRotation, JoltLayers::getJoltMotionType(layer), JoltLayers::getJoltLayer(layer));
     JPH::BodyID sphereId = bodyInterface->CreateBody(sphereSettings)->GetID();
     return std::make_shared<JoltPhysicsBody>(sphereId);
 }
@@ -86,4 +80,22 @@ void JoltPhysics::syncTransform(const Ref<PhysicsBody>& body, Transform& transfo
     bodyInterface->GetPositionAndRotation(joltBody->getId(), position, rotation);
     transform.setPosition(glm::vec3(position.GetX(), position.GetY(), position.GetZ()));
     transform.setRotation(Rotation(glm::quat(rotation.GetX(), rotation.GetY(), rotation.GetZ(), rotation.GetW())));
+}
+
+JPH::Shape* JoltPhysics::createJoltShape(const PhysicsShape* shape) {
+    switch (shape->getType()) {
+        case ShapeType::SPHERE:
+            {
+                const auto sphereShape = dynamic_cast<const SphereShape*>(shape);
+                return new JPH::SphereShape(sphereShape->getRadius());
+            }
+        case ShapeType::BOX:
+            {
+                const auto boxShape = dynamic_cast<const BoxShape*>(shape);
+                const glm::vec3& dimensions = boxShape->getDimensions();
+                return new JPH::BoxShape(JPH::Vec3(dimensions.x * 0.5f, dimensions.y * 0.5f, dimensions.z * 0.5f));
+            }
+    }
+    DE_ASSERT(false, "Unsupported shape type")
+    return nullptr;
 }

@@ -26,6 +26,14 @@
 #include "registries/EntityScriptRegistry.h"
 #include "registries/ShaderRegistry.h"
 #include "rendering/camera/Camera.h"
+
+#include "physics/Physics.h"
+#include "physics/shapes/BoxShape.h"
+#include "physics/shapes/SphereShape.h"
+
 #include "scene/components/Mesh.h"
-#include "scene/components/Transform.h"
+#include "scene/components/PointLight.h"
 #include "scene/components/RigidBody.h"
+#include "scene/components/Script.h"
+#include "scene/components/Transform.h"
+#include "scene/Scene.h"
