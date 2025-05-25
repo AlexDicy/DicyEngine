@@ -39,8 +39,6 @@ void JoltPhysics::init() {
     JPH::BodyCreationSettings floorSettings(floorShape, JPH::RVec3(0.0, -1.0, 0.0), JPH::Quat::sIdentity(), JPH::EMotionType::Static, JoltLayers::NON_MOVING);
     bodyInterface->CreateAndAddBody(floorSettings, JPH::EActivation::DontActivate);
     JPH::BodyCreationSettings sphereSettings(new JPH::SphereShape(0.5f), JPH::RVec3(0.0, 2.0, 0.0), JPH::Quat::sIdentity(), JPH::EMotionType::Dynamic, JoltLayers::MOVING);
-    JPH::BodyID sphereId = bodyInterface->CreateAndAddBody(sphereSettings, JPH::EActivation::Activate);
-    bodyInterface->SetLinearVelocity(sphereId, JPH::Vec3(0.0f, -5.0f, 0.0f));
 
     // bodyInterface.RemoveBody(sphereId);
     //
@@ -66,8 +64,12 @@ void JoltPhysics::update(const float deltaTime, const int steps) {
     // << velocity.GetY() << ", " << velocity.GetZ() << ")" << std::endl;
 }
 
-Ref<PhysicsBody> JoltPhysics::createBody(const PhysicsShape& shape, const Transform& transform, const PhysicsLayer& layer) {
-    JPH::BodyCreationSettings sphereSettings(new JPH::SphereShape(0.5f), JPH::RVec3(0.0, 2.0, 0.0), JPH::Quat::sIdentity(), JPH::EMotionType::Dynamic, JoltLayers::MOVING);
+Ref<PhysicsBody> JoltPhysics::createBody(const PhysicsShape& shape, Transform& transform, const PhysicsLayer& layer) {
+    const JPH::RVec3 position(transform.getPosition().x, transform.getPosition().y, transform.getPosition().z);
+    const glm::quat rotation = transform.getRotation().getQuaternion();
+    const JPH::Quat joltRotation(rotation.x, rotation.y, rotation.z, rotation.w);
+    JPH::BodyCreationSettings sphereSettings(new JPH::SphereShape(0.5f), position, joltRotation, JoltLayers::getJoltMotionType(layer), JoltLayers::getJoltLayer(layer));
+    sphereSettings.mRestitution = 1.0f;
     JPH::BodyID sphereId = bodyInterface->CreateBody(sphereSettings)->GetID();
     return std::make_shared<JoltPhysicsBody>(sphereId);
 }

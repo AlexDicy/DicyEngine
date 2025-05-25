@@ -7,6 +7,6 @@
 struct RigidBody {
     Ref<PhysicsBody> physicsBody;
 
-    RigidBody(const Ref<Physics>& physics, const PhysicsShape& shape, const Transform& transform, const PhysicsLayer layer) :
+    RigidBody(const Ref<Physics>& physics, const PhysicsShape& shape, Transform& transform, const PhysicsLayer layer) :
         physicsBody(physics->createBody(shape, transform, layer)) {}
 };
