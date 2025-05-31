@@ -1,6 +1,8 @@
 ﻿#pragma once
 #include "rendering/framebuffer/RenderFramebuffer.h"
 
+#include <glad/gl.h>
+
 class OpenGLRenderFramebuffer : public RenderFramebuffer {
 public:
     OpenGLRenderFramebuffer(uint32_t width, uint32_t height);
@@ -16,18 +18,20 @@ public:
         return this->depthTextureId;
     }
 
-    uint32_t getFinalColorTextureId() const override {
-        return this->finalColorTextureId;
-    }
+    int getMousePickingValue(int x, int y) const override;
 
-    void updateFinalColorTexture() const override;
-    void copyToBuffer(uint32_t destinationId) const;
+    void clear() const override;
+    void updateMousePicking() const override;
+
+    void copyToBuffer(uint32_t destinationId, GLenum sourceAttachment = GL_COLOR_ATTACHMENT0) const;
 
 private:
     uint32_t id;
     uint32_t colorTextureId;
+    uint32_t mousePickingTextureId;
     uint32_t depthTextureId;
 
-    uint32_t finalBufferId;
-    uint32_t finalColorTextureId;
+    // non-multisampled for pixel reading
+    uint32_t mousePickingBufferId;
+    uint32_t finalMousePickingTextureId;
 };

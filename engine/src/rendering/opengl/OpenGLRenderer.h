@@ -9,7 +9,6 @@ public:
     OpenGLRenderer() : Renderer(RenderAPI::OPENGL) {}
 
     void init(uint32_t width, uint32_t height) override;
-    void setViewport(int x, int y, uint32_t width, uint32_t height) override;
     void setFramebufferDimensions(unsigned int width, unsigned int height) override;
     Ref<RenderFramebuffer> getFramebuffer() const override;
 

@@ -141,6 +141,17 @@ SceneLayer::SceneLayer(const std::unique_ptr<Context>& ctx) {
     Input::bindActionPressed("play", [this, &ctx] {
         this->play(ctx);
     });
+
+    app->getEventDispatcher()->registerGlobalHandler<MouseMovedEvent>([this, &renderer](const MouseMovedEvent& event) {
+        const auto& [x, y, width, height] = renderer->getViewport();
+        const int mouseX = static_cast<int>(event.getX());
+        const int mouseY = static_cast<int>(event.getY());
+        if (mouseX < x || mouseX >= x + width || mouseY < y || mouseY >= y + height) {
+            return; // mouse is outside the viewport
+        }
+        const int entityId = renderer->getFramebuffer()->getMousePickingValue(mouseX, mouseY);
+        DE_INFO("Viewport mouse: {} x {}, Entity: {}", event.getX(), event.getY(), entityId);
+    });
 }
 
 void SceneLayer::play(const std::unique_ptr<Context>& ctx) {
@@ -224,6 +235,7 @@ void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
             ctx->renderer->draw(mesh.vertexArray, transformMat, this->shader);
         }
     }
+    ctx->renderer->endMeshes();
 
     ctx->renderer->drawSkybox(this->skybox);
     ctx->renderer->drawUI(this->uiMesh->vertexArray, this->uiShader, this->uiMesh->material);

@@ -17,9 +17,11 @@ public:
 
     virtual uint32_t getColorTextureId() const = 0;
     virtual uint32_t getDepthTextureId() const = 0;
-    virtual uint32_t getFinalColorTextureId() const = 0;
 
-    virtual void updateFinalColorTexture() const = 0;
+    virtual int getMousePickingValue(int x, int y) const = 0;
+
+    virtual void clear() const = 0;
+    virtual void updateMousePicking() const = 0;
 
 protected:
     uint32_t width;

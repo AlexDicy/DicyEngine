@@ -22,6 +22,13 @@ public:
         return this->api;
     }
 
+    struct Viewport {
+        int x = 0;
+        int y = 0;
+        int width = 0;
+        int height = 0;
+    };
+
     const Ref<Camera>& getCamera() {
         return this->camera;
     }
@@ -31,8 +38,12 @@ public:
     }
 
     virtual void init(uint32_t width, uint32_t height) = 0;
-    virtual void setViewport(int x, int y, uint32_t width, uint32_t height) = 0;
     virtual void setFramebufferDimensions(unsigned int width, unsigned int height) = 0;
+    void setViewport(int x, int y, uint32_t width, uint32_t height);
+
+    const Viewport& getViewport() const {
+        return this->viewport;
+    }
 
     virtual Ref<RenderFramebuffer> getFramebuffer() const = 0;
     const Ref<DepthFramebuffer>& getShadowDepthFramebuffer() const;
@@ -55,6 +66,7 @@ public:
     virtual void beginPointLightShadows() const = 0;
     virtual void beginPointLightShadow(const PointLight& light, int lightIndex, int faceIndex) const = 0;
     virtual void endShadows() const = 0;
+    void endMeshes() const;
     virtual void endFrame() const = 0;
     virtual void clear() const = 0;
     virtual void drawToMainFramebuffer() const = 0;
@@ -80,12 +92,7 @@ protected:
     glm::mat4 viewProjectionMatrix;
     glm::mat4 viewMatrix;
     glm::mat4 projectionMatrix;
-    struct Viewport {
-        int x = 0;
-        int y = 0;
-        int width = 0;
-        int height = 0;
-    } viewport;
+    Viewport viewport;
 
     // lighting
     std::array<glm::vec3, 9> irradianceSH = std::array<glm::vec3, 9>();

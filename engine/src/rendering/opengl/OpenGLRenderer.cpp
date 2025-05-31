@@ -30,16 +30,6 @@ void OpenGLRenderer::init(const uint32_t width, const uint32_t height) {
     this->shadowCubeArrayFramebuffer = std::make_shared<OpenGLShadowCubeArrayFramebuffer>(1024, 0);
 }
 
-void OpenGLRenderer::setViewport(const int x, const int y, const uint32_t width, const uint32_t height) {
-    if (this->camera) {
-        this->camera->setAspectRatio(static_cast<float>(width) / static_cast<float>(height));
-    }
-    this->viewport.x = x;
-    this->viewport.y = y;
-    this->viewport.width = static_cast<int>(width);
-    this->viewport.height = static_cast<int>(height);
-}
-
 void OpenGLRenderer::setFramebufferDimensions(unsigned int width, unsigned int height) {
     this->framebuffer = std::make_shared<OpenGLRenderFramebuffer>(width, height);
 }
@@ -131,7 +121,7 @@ Ref<Texture2D> OpenGLRenderer::createBRDFLUT(const Ref<Shader>& shader, const ui
     glViewport(previousViewport[0], previousViewport[1], previousViewport[2], previousViewport[3]);
     glDeleteFramebuffers(1, &captureFramebuffer);
     glDeleteRenderbuffers(1, &captureRenderbuffer);
-    return std::make_shared<OpenGLTexture2D>(textureId, size, size);
+    return std::make_shared<OpenGLTexture2D>(textureId, size, size, GL_RG16F, GL_RG, GL_FLOAT);
 }
 
 Ref<TextureCube> OpenGLRenderer::createTextureCube(const std::array<std::string, 6>& paths) const {
@@ -194,15 +184,13 @@ void OpenGLRenderer::endShadows() const {
 
 void OpenGLRenderer::endFrame() const {
     DebugGroup group("OpenGLRenderer::endFrame");
-    this->framebuffer->updateFinalColorTexture();
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glBindVertexArray(0);
 }
 
 void OpenGLRenderer::clear() const {
     DebugGroup group("OpenGLRenderer::clear");
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    this->framebuffer->clear();
     glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
     glBindTexture(GL_TEXTURE_2D, 0);
     glBindVertexArray(0);
