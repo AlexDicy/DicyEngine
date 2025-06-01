@@ -22,7 +22,7 @@ const isSelected = computed(() => props.selectedId === props.node.id);
 
 watch(() => isSelected.value, (selected) => {
   if (selected) {
-    entityRef.value?.scrollIntoViewIfNeeded({ block: 'center' });
+    entityRef.value?.scrollIntoViewIfNeeded(true);
   }
 });
 </script>

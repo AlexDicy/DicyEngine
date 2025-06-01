@@ -9,7 +9,7 @@ declare global {
 
   interface HTMLElement {
     // This method is not standard but supported in Chrome
-    scrollIntoViewIfNeeded: (options?: ScrollIntoViewOptions) => void;
+    scrollIntoViewIfNeeded: (centerIfNeeded?: boolean) => void;
   }
 }
 
