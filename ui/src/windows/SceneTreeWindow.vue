@@ -15,11 +15,16 @@ useRepeatingCall(() => {
 window.setMessageListener('updateSelectedEntity', (entityId: number) => {
   selectedId.value = entityId;
 });
+
+function onSelect(id: number) {
+  selectedId.value = id;
+  window.call('selectEntity', id);
+}
 </script>
 
 <template>
   <div class="window-title">Scene entities</div>
   <div class="window-contents-no-margin">
-    <SceneEntityNode v-for="node in tree" :node="node" :selected-id="selectedId" :on-select="id => selectedId = id" :depth="0" />
+    <SceneEntityNode v-for="node in tree" :node="node" :selected-id="selectedId" :on-select="onSelect" :depth="0" />
   </div>
 </template>

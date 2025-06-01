@@ -4,6 +4,8 @@
 #include "cef/OSRCefHandler.h"
 
 class UIScript final : public EntityScript {
+    friend class EditorScript;
+
 public:
     explicit UIScript(const Ref<Application>& app, const Ref<Entity>& entity);
 
@@ -11,7 +13,10 @@ public:
     void onUpdate(float deltaTime) override;
 
 protected:
-    friend class EditorScript;
+    void registerCallback(const std::string& name, const std::function<void(const Callback&)>& callback) const {
+        this->handler->registerCallback(name, callback);
+    }
+
     void updateSelectedEntity(int entityId) const;
 
 private:
