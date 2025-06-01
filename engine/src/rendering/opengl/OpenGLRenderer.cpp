@@ -288,6 +288,10 @@ void OpenGLRenderer::drawForPointLightShadows(const Ref<VertexArray>& vertexArra
     glDrawElements(GL_TRIANGLES, static_cast<int>(vertexArray->getIndexBuffer()->getCount()), GL_UNSIGNED_INT, nullptr);
 }
 
+void OpenGLRenderer::drawSelectedMeshOutline(const Ref<VertexArray>& vertexArray, const glm::mat4& transform, const Ref<Shader>& shader) const {
+    
+}
+
 void OpenGLRenderer::drawUI(const Ref<VertexArray>& vertexArray, const Ref<Shader>& shader, const Material& material) const {
     DebugGroup group("OpenGLRenderer::drawUI");
     shader->bind();

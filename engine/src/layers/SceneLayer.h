@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "Layer.h"
+#include "editor/scripts/EditorScript.h"
 #include "scene/Scene.h"
 #include "scene/lights/DirectionalLight.h"
 
@@ -24,4 +25,6 @@ private:
     Ref<DirectionalLight> directionalLight;
     Ref<Mesh> uiMesh;
     Ref<Shader> uiShader;
+    Ref<EditorScript> editorScript;
+    Ref<Shader> selectedEntityShared;
 };

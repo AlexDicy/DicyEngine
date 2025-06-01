@@ -18,12 +18,13 @@ EditorScript::EditorScript(const Ref<Application>& app, const Ref<Entity>& entit
         }
 
         const int entityId = app->getRenderer()->getFramebuffer()->getMousePickingValue(mouseX, mouseY);
+        this->selectedEntityId = entityId;
         this->uiScript->updateSelectedEntity(entityId);
     });
 
     this->uiScript->registerCallback("selectEntity", [this](const Callback& callback) {
         const int entityId = callback.getInt(0);
-        DE_INFO("Selecting entity with ID: {} from UI", entityId);
+        this->selectedEntityId = entityId;
         callback.success();
     });
 }

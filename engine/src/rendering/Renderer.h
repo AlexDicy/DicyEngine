@@ -66,6 +66,8 @@ public:
     virtual void beginPointLightShadows() const = 0;
     virtual void beginPointLightShadow(const PointLight& light, int lightIndex, int faceIndex) const = 0;
     virtual void endShadows() const = 0;
+    void beginSelectedMesh() const {}
+    void endSelectedMesh() const {}
     void endMeshes() const;
     virtual void endFrame() const = 0;
     virtual void clear() const = 0;
@@ -84,6 +86,7 @@ public:
     virtual void draw(unsigned int entityId, const Ref<VertexArray>& vertexArray, const glm::mat4& transform, const Ref<Shader>& shader, const Material& material) const = 0;
     virtual void drawForDirectionalShadows(const Ref<VertexArray>& vertexArray, const glm::mat4& transform) const = 0;
     virtual void drawForPointLightShadows(const Ref<VertexArray>& vertexArray, const glm::mat4& transform) const = 0;
+    virtual void drawSelectedMeshOutline(const Ref<VertexArray>& vertexArray, const glm::mat4& transform, const Ref<Shader>& shader) const = 0;
     virtual void drawSkybox(const Ref<SkyboxCube>& skybox) const = 0;
     virtual void drawUI(const Ref<VertexArray>& vertexArray, const Ref<Shader>& shader, const Material& material) const = 0;
 

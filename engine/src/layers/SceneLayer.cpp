@@ -4,7 +4,6 @@
 #include <filesystem>
 
 #include "editor/scripts/CameraScript.h"
-#include "editor/scripts/EditorScript.h"
 #include "editor/scripts/LightScript.h"
 #include "editor/scripts/UIScript.h"
 #include "images/Image.h"
@@ -136,7 +135,8 @@ SceneLayer::SceneLayer(const std::unique_ptr<Context>& ctx) {
     uiScript.getEntityScript()->onSpawn(); // todo: should not be called manually
 
     Ref<Entity> editorEntity = this->scene->createEntity("Editor");
-    editorEntity->add<Script>(std::make_shared<EditorScript>(app, editorEntity, std::static_pointer_cast<UIScript>(uiScript.getEntityScript())));
+    this->editorScript = std::make_shared<EditorScript>(app, editorEntity, std::static_pointer_cast<UIScript>(uiScript.getEntityScript()));
+    editorEntity->add<Script>(editorScript);
 
     toml::table in = toml::parse_file("../assets/scene.toml");
     SceneDeserializer::deserialize(ctx, *this->scene, in);
@@ -216,16 +216,28 @@ void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
     }
     ctx->renderer->endShadows();
 
+    const int selectedEntity = this->editorScript->getSelectedEntityId();
+
     // render meshes
     for (const auto& entity : meshesView) {
         Transform& transform = meshesView.get<Transform>(entity);
         const Mesh& mesh = meshesView.get<Mesh>(entity);
+
+        const bool isSelected = selectedEntity >= 0 && static_cast<unsigned int>(selectedEntity) == entt::to_integral(entity);
+        if (isSelected) {
+            ctx->renderer->beginSelectedMesh();
+        }
 
         const glm::mat4 transformMat = transform.getAsMatrix() * mesh.transformationMatrix;
         if (mesh.material.albedo) {
             ctx->renderer->draw(entt::to_integral(entity), mesh.vertexArray, transformMat, this->shader, mesh.material);
         } else {
             ctx->renderer->draw(entt::to_integral(entity), mesh.vertexArray, transformMat, this->shader);
+        }
+
+        if (isSelected) {
+            ctx->renderer->drawSelectedMeshOutline(mesh.vertexArray, transformMat, this->selectedEntityShared);
+            ctx->renderer->endSelectedMesh();
         }
     }
     ctx->renderer->endMeshes();
