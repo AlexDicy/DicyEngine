@@ -4,10 +4,9 @@ layout (location = 0) out vec4 color;
 
 in vec2 vTextureCoords;
 
-uniform usampler2DMS uStencilTexture;
+uniform usampler2D uDataTexture;
 
 void main() {
-    ivec2 coords = ivec2(gl_FragCoord.xy);
-    float stencil = texelFetch(uStencilTexture, coords, 0).r;
-    color = vec4(stencil, stencil, stencil, 1.0);
+    float stencil = texture(uDataTexture, vTextureCoords, 0).r;
+    color = vec4(stencil);
 }

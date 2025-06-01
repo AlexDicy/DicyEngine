@@ -8,6 +8,7 @@
 #include "OpenGLTexture2D.h"
 #include "OpenGLTextureCube.h"
 #include "OpenGLVertexArray.h"
+#include "framebuffer/OpenGLDataFramebuffer.h"
 #include "framebuffer/OpenGLDepthFramebuffer.h"
 #include "framebuffer/OpenGLRenderFramebuffer.h"
 #include "framebuffer/OpenGLShadowCubeArrayFramebuffer.h"
@@ -32,6 +33,7 @@ void OpenGLRenderer::init(const uint32_t width, const uint32_t height) {
 
 void OpenGLRenderer::setFramebufferDimensions(unsigned int width, unsigned int height) {
     this->framebuffer = std::make_shared<OpenGLRenderFramebuffer>(width, height);
+    this->dataFramebuffer = std::make_shared<OpenGLDataFramebuffer>(width, height);
 }
 
 Ref<RenderFramebuffer> OpenGLRenderer::getFramebuffer() const {
@@ -192,6 +194,7 @@ void OpenGLRenderer::endFrame() const {
 void OpenGLRenderer::clear() const {
     DebugGroup group("OpenGLRenderer::clear");
     this->framebuffer->clear();
+    this->dataFramebuffer->clear();
     glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
     glBindTexture(GL_TEXTURE_2D, 0);
     glBindVertexArray(0);
@@ -207,14 +210,10 @@ void OpenGLRenderer::drawToMainFramebuffer() const {
 
 void OpenGLRenderer::enableStencilWriting() const {
     glEnable(GL_STENCIL_TEST);
-    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-    glStencilFunc(GL_ALWAYS, 1, 0xFF);
-    glStencilMask(0xFF);
 }
 
 void OpenGLRenderer::disableStencilWriting() const {
     glDisable(GL_STENCIL_TEST);
-    glStencilMask(0x00);
 }
 
 
@@ -307,28 +306,25 @@ void OpenGLRenderer::drawForPointLightShadows(const Ref<VertexArray>& vertexArra
 
 void OpenGLRenderer::drawSelectedMeshOutline(const Ref<VertexArray>& vertexArray, const glm::mat4& transform, const Ref<Shader>& outlineShader) const {
     DebugGroup group("OpenGLRenderer::drawSelectedMeshOutline");
-    glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
-    glStencilMask(0x00);
-    // glDisable(GL_DEPTH_TEST);
+    this->dataFramebuffer->bind();
     outlineShader->bind();
     outlineShader->uploadUniformMat4("uViewProjection", this->viewProjectionMatrix);
     outlineShader->uploadUniformMat4("uTransform", transform);
     vertexArray->bind();
     glDrawElements(GL_TRIANGLES, static_cast<int>(vertexArray->getIndexBuffer()->getCount()), GL_UNSIGNED_INT, nullptr);
+    this->framebuffer->bind();
 }
 
 void OpenGLRenderer::drawEditorOverlays(const Ref<VertexArray>& vertexArray, const Ref<Shader>& shader) const {
     DebugGroup group("OpenGLRenderer::drawEditorOverlays");
     shader->bind();
-    this->framebuffer->getCustomStencilTexture()->bind(0);
-    shader->uploadUniformInt("uStencilTexture", 0);
+    this->dataFramebuffer->getDataTexture()->bind(0);
+    shader->uploadUniformInt("uDataTexture", 0);
     vertexArray->bind();
     glDisable(GL_DEPTH_TEST);
-    glDepthMask(GL_FALSE); // TODO: check if needed
-    // glViewport(0, 0, this->framebuffer->getWidth(), this->framebuffer->getHeight()); // TODO: check if needed
+    glViewport(0, 0, this->framebuffer->getWidth(), this->framebuffer->getHeight());
     glDrawElements(GL_TRIANGLES, static_cast<int>(vertexArray->getIndexBuffer()->getCount()), GL_UNSIGNED_INT, nullptr);
     glEnable(GL_DEPTH_TEST);
-    glDepthMask(GL_TRUE); // TODO: check if needed
 }
 
 void OpenGLRenderer::drawUI(const Ref<VertexArray>& vertexArray, const Ref<Shader>& shader, const Material& material) const {

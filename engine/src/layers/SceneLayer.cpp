@@ -37,7 +37,7 @@ SceneLayer::SceneLayer(const std::unique_ptr<Context>& ctx) {
     this->cameraEntity->add<Script>("CameraScript", app, this->cameraEntity);
 
     this->shader = app->getShaderRegistry()->load("../assets/shaders/default-shader");
-    this->selectedEntityShader = app->getShaderRegistry()->load("../assets/shaders/editor-outline-shader");
+    this->stencilShader = app->getShaderRegistry()->load("../assets/shaders/stencil-shader");
     this->editorOverlaysShader = app->getShaderRegistry()->load("../assets/shaders/editor-overlays-shader");
     renderer->setDirectionalShadowMapShader(app->getShaderRegistry()->load("../assets/shaders/shadow-map-directional"));
     renderer->setPointLightShadowMapShader(app->getShaderRegistry()->load("../assets/shaders/shadow-map-point-light"));
@@ -231,10 +231,6 @@ void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
         const bool isSelected = selectedEntity >= 0 && std::cmp_equal(selectedEntity, entityId);
         const int stencil = isSelected ? 0x01 : 0x00;
 
-        if (isSelected) {
-            ctx->renderer->beginSelectedMesh();
-        }
-
         const glm::mat4 transformMat = transform.getAsMatrix() * mesh.transformationMatrix;
         if (mesh.material.albedo) {
             ctx->renderer->draw(entityId, mesh.vertexArray, transformMat, this->shader, stencil, mesh.material);
@@ -243,15 +239,16 @@ void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
         }
 
         if (isSelected) {
-            const glm::mat4 scaledTransformMat = glm::scale(transformMat, glm::vec3(1.2f));
-            ctx->renderer->drawSelectedMeshOutline(mesh.vertexArray, scaledTransformMat, this->selectedEntityShader);
+            ctx->renderer->beginSelectedMesh();
+            // const glm::mat4 scaledTransformMat = glm::scale(transformMat, glm::vec3(1.2f));
+            ctx->renderer->drawSelectedMeshOutline(mesh.vertexArray, transformMat, this->stencilShader);
             ctx->renderer->endSelectedMesh();
         }
     }
     ctx->renderer->endMeshes();
 
     ctx->renderer->drawSkybox(this->skybox);
-    // ctx->renderer->drawEditorOverlays(this->editorOverlaysMesh->vertexArray, this->editorOverlaysShader);
+    ctx->renderer->drawEditorOverlays(this->editorOverlaysMesh->vertexArray, this->editorOverlaysShader);
     ctx->renderer->drawUI(this->uiMesh->vertexArray, this->uiShader, this->uiMesh->material);
 
     ctx->renderer->endFrame();

@@ -20,8 +20,8 @@ OpenGLRenderFramebuffer::OpenGLRenderFramebuffer(const uint32_t width, const uin
     glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, this->mousePickingTextureId);
     glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 4, GL_R32I, static_cast<int>(width), static_cast<int>(height), true);
     // depth texture
-    glGenTextures(1, &this->depthTextureId);
-    glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, this->depthTextureId);
+    glGenTextures(1, &this->depthStencilTextureId);
+    glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, this->depthStencilTextureId);
     glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 4, GL_DEPTH24_STENCIL8, static_cast<int>(width), static_cast<int>(height), true);
     // framebuffer
     glGenFramebuffers(1, &this->id);
@@ -29,7 +29,7 @@ OpenGLRenderFramebuffer::OpenGLRenderFramebuffer(const uint32_t width, const uin
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, this->colorTextureId, 0);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D_MULTISAMPLE, this->customStencilTextureId, 0);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D_MULTISAMPLE, this->mousePickingTextureId, 0);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D_MULTISAMPLE, this->depthTextureId, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D_MULTISAMPLE, this->depthStencilTextureId, 0);
     constexpr GLenum drawBuffers[3] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2};
     glDrawBuffers(3, drawBuffers);
 
@@ -78,7 +78,7 @@ OpenGLRenderFramebuffer::~OpenGLRenderFramebuffer() {
     glDeleteFramebuffers(1, &this->id);
     glDeleteTextures(1, &this->colorTextureId);
     glDeleteTextures(1, &this->mousePickingTextureId);
-    glDeleteTextures(1, &this->depthTextureId);
+    glDeleteTextures(1, &this->depthStencilTextureId);
     glDeleteFramebuffers(1, &this->renderedBufferId);
     glDeleteTextures(1, &this->renderedMousePickingTextureId);
 }
@@ -115,7 +115,8 @@ void OpenGLRenderFramebuffer::copyDepthAndStencilTextures() const {
     // glBindFramebuffer(GL_DRAW_FRAMEBUFFER, this->renderedBufferId);
     // glReadBuffer(GL_DEPTH_ATTACHMENT);
     // glDrawBuffer(GL_DEPTH_ATTACHMENT);
-    // glBlitFramebuffer(0, 0, static_cast<int>(this->width), static_cast<int>(this->height), 0, 0, static_cast<int>(this->width), static_cast<int>(this->height), GL_DEPTH_BUFFER_BIT,
+    // glBlitFramebuffer(0, 0, static_cast<int>(this->width), static_cast<int>(this->height), 0, 0, static_cast<int>(this->width), static_cast<int>(this->height),
+    // GL_DEPTH_BUFFER_BIT,
     //                   GL_NEAREST);
     // // copy stencil texture
     // glReadBuffer(GL_STENCIL_ATTACHMENT);

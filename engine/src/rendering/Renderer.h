@@ -3,6 +3,7 @@
 #include "VertexArray.h"
 #include "Shader.h"
 #include "Texture.h"
+#include "framebuffer/DataFramebuffer.h"
 #include "framebuffer/DepthFramebuffer.h"
 #include "framebuffer/RenderFramebuffer.h"
 #include "framebuffer/ShadowCubeArrayFramebuffer.h"
@@ -115,6 +116,8 @@ protected:
     Ref<Shader> shadowMapShader;
     Ref<ShadowCubeArrayFramebuffer> shadowCubeArrayFramebuffer;
     Ref<Shader> shadowCubeArrayShader;
+
+    Ref<DataFramebuffer> dataFramebuffer;
 
 private:
     RenderAPI api;

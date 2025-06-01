@@ -29,7 +29,7 @@ private:
     uint32_t colorTextureId;
     uint32_t customStencilTextureId;
     uint32_t mousePickingTextureId;
-    uint32_t depthTextureId;
+    uint32_t depthStencilTextureId;
     Ref<Texture2D> customStencilTexture;
 
     // rendered, non-multisampled for pixel reading

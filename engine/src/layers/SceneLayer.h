@@ -26,7 +26,7 @@ private:
     Ref<Mesh> uiMesh;
     Ref<Shader> uiShader;
     Ref<EditorScript> editorScript;
-    Ref<Shader> selectedEntityShader;
+    Ref<Shader> stencilShader;
     Ref<Mesh> editorOverlaysMesh;
     Ref<Shader> editorOverlaysShader;
 };

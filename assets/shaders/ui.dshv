@@ -7,6 +7,6 @@ layout (location = 2) in vec2 textureCoords;
 out vec2 vTextureCoords;
 
 void main() {
-    vTextureCoords = textureCoords;
+    vTextureCoords = vec2(textureCoords.x, 1.0 - textureCoords.y);
     gl_Position = vec4(position.xy, -1.0, 1.0);
 }
