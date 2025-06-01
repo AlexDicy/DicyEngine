@@ -229,20 +229,16 @@ void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
 
         const unsigned int entityId = entt::to_integral(entity);
         const bool isSelected = selectedEntity >= 0 && std::cmp_equal(selectedEntity, entityId);
-        const int stencil = isSelected ? 0x01 : 0x00;
 
         const glm::mat4 transformMat = transform.getAsMatrix() * mesh.transformationMatrix;
         if (mesh.material.albedo) {
-            ctx->renderer->draw(entityId, mesh.vertexArray, transformMat, this->shader, stencil, mesh.material);
+            ctx->renderer->draw(entityId, mesh.vertexArray, transformMat, this->shader, mesh.material);
         } else {
-            ctx->renderer->draw(entityId, mesh.vertexArray, transformMat, this->shader, stencil);
+            ctx->renderer->draw(entityId, mesh.vertexArray, transformMat, this->shader);
         }
 
         if (isSelected) {
-            ctx->renderer->beginSelectedMesh();
-            // const glm::mat4 scaledTransformMat = glm::scale(transformMat, glm::vec3(1.2f));
             ctx->renderer->drawSelectedMeshOutline(mesh.vertexArray, transformMat, this->stencilShader);
-            ctx->renderer->endSelectedMesh();
         }
     }
     ctx->renderer->endMeshes();

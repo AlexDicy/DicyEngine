@@ -16,17 +16,8 @@ const Ref<DepthFramebuffer>& Renderer::getShadowDepthFramebuffer() const {
     return this->shadowDepthFramebuffer;
 }
 
-void Renderer::beginSelectedMesh() const {
-    this->enableStencilWriting();
-}
-
-void Renderer::endSelectedMesh() const {
-    this->disableStencilWriting();
-}
-
 void Renderer::endMeshes() const {
     this->getFramebuffer()->saveMousePicking();
-    this->getFramebuffer()->saveDepthStencil();
 }
 
 void Renderer::setIrradianceSH(const std::array<glm::vec3, 9>& irradianceSh) {

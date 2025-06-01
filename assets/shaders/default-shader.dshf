@@ -2,9 +2,8 @@
 #define EDITOR
 
 layout (location = 0) out vec4 color;
-layout (location = 1) out int stencil;
 #ifdef EDITOR
-layout (location = 2) out int entityId;
+layout (location = 1) out int entityId;
 #endif
 
 in vec3 vPosition;
@@ -33,7 +32,6 @@ struct PointLight {
 #ifdef EDITOR
 uniform int uEntityId;
 #endif
-uniform int uStencil;
 uniform vec3 uCameraPosition;
 // material
 uniform Material uMaterial;
@@ -73,7 +71,6 @@ void main() {
     // set id for editor mouse picking
     entityId = uEntityId;
     #endif
-    stencil = uStencil;
 
     vec4 linearAlbedo = texture(uAlbedo, vTextureCoords);
     if (uMaterial.ignoreLighting) {

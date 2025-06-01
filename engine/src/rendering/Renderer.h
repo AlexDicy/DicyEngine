@@ -67,15 +67,10 @@ public:
     virtual void beginPointLightShadows() const = 0;
     virtual void beginPointLightShadow(const PointLight& light, int lightIndex, int faceIndex) const = 0;
     virtual void endShadows() const = 0;
-    void beginSelectedMesh() const;
-    void endSelectedMesh() const;
     void endMeshes() const;
     virtual void endFrame() const = 0;
     virtual void clear() const = 0;
     virtual void drawToMainFramebuffer() const = 0;
-
-    virtual void enableStencilWriting() const = 0;
-    virtual void disableStencilWriting() const = 0;
 
     void setIrradianceSH(const std::array<glm::vec3, 9>& irradianceSh);
     void setPrefilteredEnvMap(const Ref<TextureCube>& prefilteredEnvMap);
@@ -86,9 +81,8 @@ public:
     void setDirectionalShadowMapShader(const Ref<Shader>& shadowMapShader);
     void setPointLightShadowMapShader(const Ref<Shader>& shader);
 
-    virtual void draw(unsigned int entityId, const Ref<VertexArray>& vertexArray, const glm::mat4& transform, const Ref<Shader>& shader, int stencil) const = 0;
-    virtual void draw(unsigned int entityId, const Ref<VertexArray>& vertexArray, const glm::mat4& transform, const Ref<Shader>& shader, int stencil,
-                      const Material& material) const = 0;
+    virtual void draw(unsigned int entityId, const Ref<VertexArray>& vertexArray, const glm::mat4& transform, const Ref<Shader>& shader) const = 0;
+    virtual void draw(unsigned int entityId, const Ref<VertexArray>& vertexArray, const glm::mat4& transform, const Ref<Shader>& shader, const Material& material) const = 0;
     virtual void drawForDirectionalShadows(const Ref<VertexArray>& vertexArray, const glm::mat4& transform) const = 0;
     virtual void drawForPointLightShadows(const Ref<VertexArray>& vertexArray, const glm::mat4& transform) const = 0;
     virtual void drawSelectedMeshOutline(const Ref<VertexArray>& vertexArray, const glm::mat4& transform, const Ref<Shader>& outlineShader) const = 0;
