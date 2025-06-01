@@ -4,13 +4,17 @@ import SceneEntityNode, { type EntityNode } from '@/components/SceneEntityNode.v
 import useRepeatingCall from '@/composables/useRepeatingCall.ts';
 
 const tree = ref<EntityNode[]>([]);
-const selectedId = ref(0);
+const selectedId = ref(-1);
 
 useRepeatingCall(() => {
   window.call('getSceneTree').then((newTree: EntityNode[]) => {
     tree.value = newTree;
   });
 }, 1000);
+
+window.setMessageListener('updateSelectedEntity', (entityId: number) => {
+  selectedId.value = entityId;
+});
 </script>
 
 <template>

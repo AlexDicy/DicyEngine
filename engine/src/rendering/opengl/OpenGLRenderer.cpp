@@ -203,13 +203,14 @@ void OpenGLRenderer::drawToMainFramebuffer() const {
     this->framebuffer->copyToBuffer(0);
 }
 
-void OpenGLRenderer::draw(const Ref<VertexArray>& vertexArray, const glm::mat4& transform, const Ref<Shader>& shader) const {
-    this->draw(vertexArray, transform, shader, Material(this->whitePixelTexture));
+void OpenGLRenderer::draw(const unsigned int entityId, const Ref<VertexArray>& vertexArray, const glm::mat4& transform, const Ref<Shader>& shader) const {
+    this->draw(entityId, vertexArray, transform, shader, Material(this->whitePixelTexture));
 }
 
-void OpenGLRenderer::draw(const Ref<VertexArray>& vertexArray, const glm::mat4& transform, const Ref<Shader>& shader, const Material& material) const {
+void OpenGLRenderer::draw(const unsigned int entityId, const Ref<VertexArray>& vertexArray, const glm::mat4& transform, const Ref<Shader>& shader, const Material& material) const {
     DebugGroup group("OpenGLRenderer::draw");
     shader->bind();
+    shader->uploadUniformInt("uEntityId", static_cast<int>(entityId));
     shader->uploadUniformMat4("uViewProjection", this->viewProjectionMatrix);
     shader->uploadUniformMat4("uTransform", transform);
     shader->uploadUniformMat4("uDirectionalLightViewProjection", this->directionalLightViewProjection);

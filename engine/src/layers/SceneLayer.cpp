@@ -4,6 +4,7 @@
 #include <filesystem>
 
 #include "editor/scripts/CameraScript.h"
+#include "editor/scripts/EditorScript.h"
 #include "editor/scripts/LightScript.h"
 #include "editor/scripts/UIScript.h"
 #include "images/Image.h"
@@ -134,23 +135,15 @@ SceneLayer::SceneLayer(const std::unique_ptr<Context>& ctx) {
     this->uiShader = app->getShaderRegistry()->load("../assets/shaders/ui");
     uiScript.getEntityScript()->onSpawn(); // todo: should not be called manually
 
+    Ref<Entity> editorEntity = this->scene->createEntity("Editor");
+    editorEntity->add<Script>(std::make_shared<EditorScript>(app, editorEntity, std::static_pointer_cast<UIScript>(uiScript.getEntityScript())));
+
     toml::table in = toml::parse_file("../assets/scene.toml");
     SceneDeserializer::deserialize(ctx, *this->scene, in);
 
     Input::setAction("play", InputCode::KEY_P);
     Input::bindActionPressed("play", [this, &ctx] {
         this->play(ctx);
-    });
-
-    app->getEventDispatcher()->registerGlobalHandler<MouseMovedEvent>([this, &renderer](const MouseMovedEvent& event) {
-        const auto& [x, y, width, height] = renderer->getViewport();
-        const int mouseX = static_cast<int>(event.getX());
-        const int mouseY = static_cast<int>(event.getY());
-        if (mouseX < x || mouseX >= x + width || mouseY < y || mouseY >= y + height) {
-            return; // mouse is outside the viewport
-        }
-        const int entityId = renderer->getFramebuffer()->getMousePickingValue(mouseX, mouseY);
-        DE_INFO("Viewport mouse: {} x {}, Entity: {}", event.getX(), event.getY(), entityId);
     });
 }
 
@@ -230,9 +223,9 @@ void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
 
         const glm::mat4 transformMat = transform.getAsMatrix() * mesh.transformationMatrix;
         if (mesh.material.albedo) {
-            ctx->renderer->draw(mesh.vertexArray, transformMat, this->shader, mesh.material);
+            ctx->renderer->draw(entt::to_integral(entity), mesh.vertexArray, transformMat, this->shader, mesh.material);
         } else {
-            ctx->renderer->draw(mesh.vertexArray, transformMat, this->shader);
+            ctx->renderer->draw(entt::to_integral(entity), mesh.vertexArray, transformMat, this->shader);
         }
     }
     ctx->renderer->endMeshes();

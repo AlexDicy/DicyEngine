@@ -80,8 +80,8 @@ public:
     void setDirectionalShadowMapShader(const Ref<Shader>& shadowMapShader);
     void setPointLightShadowMapShader(const Ref<Shader>& shader);
 
-    virtual void draw(const Ref<VertexArray>& vertexArray, const glm::mat4& transform, const Ref<Shader>& shader) const = 0;
-    virtual void draw(const Ref<VertexArray>& vertexArray, const glm::mat4& transform, const Ref<Shader>& shader, const Material& material) const = 0;
+    virtual void draw(unsigned int entityId, const Ref<VertexArray>& vertexArray, const glm::mat4& transform, const Ref<Shader>& shader) const = 0;
+    virtual void draw(unsigned int entityId, const Ref<VertexArray>& vertexArray, const glm::mat4& transform, const Ref<Shader>& shader, const Material& material) const = 0;
     virtual void drawForDirectionalShadows(const Ref<VertexArray>& vertexArray, const glm::mat4& transform) const = 0;
     virtual void drawForPointLightShadows(const Ref<VertexArray>& vertexArray, const glm::mat4& transform) const = 0;
     virtual void drawSkybox(const Ref<SkyboxCube>& skybox) const = 0;

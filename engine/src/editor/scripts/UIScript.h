@@ -10,6 +10,10 @@ public:
     void onSpawn() override;
     void onUpdate(float deltaTime) override;
 
+protected:
+    friend class EditorScript;
+    void updateSelectedEntity(int entityId) const;
+
 private:
     static MessageDictionary createEntityDictionary(const Ref<Entity>& entity);
 
