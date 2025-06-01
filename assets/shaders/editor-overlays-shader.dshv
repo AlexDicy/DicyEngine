@@ -1,0 +1,11 @@
+﻿#version 410 core
+
+layout (location = 0) in vec3 position;
+layout (location = 2) in vec2 textureCoords;
+
+out vec2 vTextureCoords;
+
+void main() {
+    vTextureCoords = textureCoords;
+    gl_Position = vec4(position.xy, -1.0, 1.0);
+}

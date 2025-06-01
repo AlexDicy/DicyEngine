@@ -1,0 +1,20 @@
+﻿#version 410 core
+
+layout (location = 0) in vec3 position;
+layout (location = 1) in vec3 normal;
+
+uniform mat4 uViewProjection;
+uniform mat4 uTransform;
+
+out vec3 vPosition;
+out vec3 vNormal;
+
+void main() {
+    vec4 worldPosition = vec4(uTransform * vec4(position, 1.0));
+    gl_Position = uViewProjection * worldPosition;
+    // make sure that the outline is always visible after depth testing by setting gl_Position.w to 1.0
+//    vec4 clipSpacePosition = uViewProjection * worldPosition;
+//    gl_Position = vec4(clipSpacePosition.xy, 0.0, clipSpacePosition.w);
+    vPosition = worldPosition.xyz;
+    vNormal = (uTransform * vec4(normal, 0.0)).xyz;
+}

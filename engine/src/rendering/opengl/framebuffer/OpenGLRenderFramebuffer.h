@@ -10,28 +10,29 @@ public:
 
     void bind() const override;
 
-    uint32_t getColorTextureId() const override {
-        return this->colorTextureId;
-    }
-
-    uint32_t getDepthTextureId() const override {
-        return this->depthTextureId;
+    const Ref<Texture2D>& getCustomStencilTexture() const override {
+        return this->customStencilTexture;
     }
 
     int getMousePickingValue(int x, int y) const override;
 
     void clear() const override;
-    void updateMousePicking() const override;
+    void saveMousePicking() const override;
+    void saveDepthStencil() const override;
 
-    void copyToBuffer(uint32_t destinationId, GLenum sourceAttachment = GL_COLOR_ATTACHMENT0) const;
+    void copyColorToBuffer(uint32_t destinationId, GLenum sourceAttachment = GL_COLOR_ATTACHMENT0) const;
+    void copyDepthAndStencilTextures() const;
 
 private:
+    // in-progress framebuffer, multisampled
     uint32_t id;
     uint32_t colorTextureId;
+    uint32_t customStencilTextureId;
     uint32_t mousePickingTextureId;
     uint32_t depthTextureId;
+    Ref<Texture2D> customStencilTexture;
 
-    // non-multisampled for pixel reading
-    uint32_t mousePickingBufferId;
-    uint32_t finalMousePickingTextureId;
+    // rendered, non-multisampled for pixel reading
+    uint32_t renderedBufferId;
+    uint32_t renderedMousePickingTextureId;
 };

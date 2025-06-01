@@ -148,6 +148,7 @@ void OpenGLRenderer::beginFrame() {
     this->clear(); // make sure to clean the framebuffer
     glEnable(GL_CULL_FACE); // disabled by the skybox
     glDepthFunc(GL_LESS); // changed by the skybox
+    glStencilMask(0x00);
 }
 
 void OpenGLRenderer::beginDirectionalShadows() const {
@@ -200,17 +201,33 @@ void OpenGLRenderer::clear() const {
 }
 
 void OpenGLRenderer::drawToMainFramebuffer() const {
-    this->framebuffer->copyToBuffer(0);
+    this->framebuffer->copyColorToBuffer(0);
 }
 
-void OpenGLRenderer::draw(const unsigned int entityId, const Ref<VertexArray>& vertexArray, const glm::mat4& transform, const Ref<Shader>& shader) const {
-    this->draw(entityId, vertexArray, transform, shader, Material(this->whitePixelTexture));
+
+void OpenGLRenderer::enableStencilWriting() const {
+    glEnable(GL_STENCIL_TEST);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+    glStencilFunc(GL_ALWAYS, 1, 0xFF);
+    glStencilMask(0xFF);
 }
 
-void OpenGLRenderer::draw(const unsigned int entityId, const Ref<VertexArray>& vertexArray, const glm::mat4& transform, const Ref<Shader>& shader, const Material& material) const {
+void OpenGLRenderer::disableStencilWriting() const {
+    glDisable(GL_STENCIL_TEST);
+    glStencilMask(0x00);
+}
+
+
+void OpenGLRenderer::draw(const unsigned int entityId, const Ref<VertexArray>& vertexArray, const glm::mat4& transform, const Ref<Shader>& shader, const int stencil) const {
+    this->draw(entityId, vertexArray, transform, shader, stencil, Material(this->whitePixelTexture));
+}
+
+void OpenGLRenderer::draw(const unsigned int entityId, const Ref<VertexArray>& vertexArray, const glm::mat4& transform, const Ref<Shader>& shader, const int stencil,
+                          const Material& material) const {
     DebugGroup group("OpenGLRenderer::draw");
     shader->bind();
     shader->uploadUniformInt("uEntityId", static_cast<int>(entityId));
+    shader->uploadUniformInt("uStencil", stencil);
     shader->uploadUniformMat4("uViewProjection", this->viewProjectionMatrix);
     shader->uploadUniformMat4("uTransform", transform);
     shader->uploadUniformMat4("uDirectionalLightViewProjection", this->directionalLightViewProjection);
@@ -288,8 +305,30 @@ void OpenGLRenderer::drawForPointLightShadows(const Ref<VertexArray>& vertexArra
     glDrawElements(GL_TRIANGLES, static_cast<int>(vertexArray->getIndexBuffer()->getCount()), GL_UNSIGNED_INT, nullptr);
 }
 
-void OpenGLRenderer::drawSelectedMeshOutline(const Ref<VertexArray>& vertexArray, const glm::mat4& transform, const Ref<Shader>& shader) const {
-    
+void OpenGLRenderer::drawSelectedMeshOutline(const Ref<VertexArray>& vertexArray, const glm::mat4& transform, const Ref<Shader>& outlineShader) const {
+    DebugGroup group("OpenGLRenderer::drawSelectedMeshOutline");
+    glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+    glStencilMask(0x00);
+    // glDisable(GL_DEPTH_TEST);
+    outlineShader->bind();
+    outlineShader->uploadUniformMat4("uViewProjection", this->viewProjectionMatrix);
+    outlineShader->uploadUniformMat4("uTransform", transform);
+    vertexArray->bind();
+    glDrawElements(GL_TRIANGLES, static_cast<int>(vertexArray->getIndexBuffer()->getCount()), GL_UNSIGNED_INT, nullptr);
+}
+
+void OpenGLRenderer::drawEditorOverlays(const Ref<VertexArray>& vertexArray, const Ref<Shader>& shader) const {
+    DebugGroup group("OpenGLRenderer::drawEditorOverlays");
+    shader->bind();
+    this->framebuffer->getCustomStencilTexture()->bind(0);
+    shader->uploadUniformInt("uStencilTexture", 0);
+    vertexArray->bind();
+    glDisable(GL_DEPTH_TEST);
+    glDepthMask(GL_FALSE); // TODO: check if needed
+    // glViewport(0, 0, this->framebuffer->getWidth(), this->framebuffer->getHeight()); // TODO: check if needed
+    glDrawElements(GL_TRIANGLES, static_cast<int>(vertexArray->getIndexBuffer()->getCount()), GL_UNSIGNED_INT, nullptr);
+    glEnable(GL_DEPTH_TEST);
+    glDepthMask(GL_TRUE); // TODO: check if needed
 }
 
 void OpenGLRenderer::drawUI(const Ref<VertexArray>& vertexArray, const Ref<Shader>& shader, const Material& material) const {

@@ -15,13 +15,13 @@ public:
 
     virtual void bind() const = 0;
 
-    virtual uint32_t getColorTextureId() const = 0;
-    virtual uint32_t getDepthTextureId() const = 0;
+    virtual const Ref<Texture2D>& getCustomStencilTexture() const = 0;
 
     virtual int getMousePickingValue(int x, int y) const = 0;
 
     virtual void clear() const = 0;
-    virtual void updateMousePicking() const = 0;
+    virtual void saveMousePicking() const = 0;
+    virtual void saveDepthStencil() const = 0;
 
 protected:
     uint32_t width;
