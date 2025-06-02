@@ -6,7 +6,7 @@ in vec2 vPosition;
 in vec2 vTextureCoords;
 
 //uniform sampler2DMS uDepthTexture;
-uniform sampler2D uPassTexture;
+uniform sampler2DMS uPassTexture;
 uniform vec4 uOutlineColor;
 uniform float uOutlineWidth;
 
