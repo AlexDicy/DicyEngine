@@ -17,6 +17,9 @@ public:
     virtual void clear() const = 0;
 
     virtual const Ref<Texture2D>& getTexture() const = 0;
+    virtual const Ref<Texture2D>& getDepthTexture() const = 0;
+
+    virtual void copyDepthToBuffer(const Ref<RenderPassFramebuffer>& buffer) const = 0;
 
 protected:
     unsigned int width;

@@ -5,7 +5,7 @@ layout (location = 0) out vec4 color;
 in vec2 vPosition;
 in vec2 vTextureCoords;
 
-//uniform sampler2DMS uDepthTexture;
+uniform sampler2DMS uPassDepthTexture;
 uniform sampler2DMS uPassTexture;
 uniform int uOffset;
 uniform ivec2 uDirection;
@@ -28,6 +28,9 @@ void main() {
             closestPoint = point;
         }
     }
+
+    // set depth value to the closest point's depth
+    gl_FragDepth = texelFetch(uPassDepthTexture, ivec2(closestPoint), 0).r;
 
     color = vec4(passData.r, closestPoint, 1.0f);
 }

@@ -20,6 +20,7 @@ void Renderer::swapPassFramebuffers() {
     const Ref<RenderPassFramebuffer> temp = this->previousPassFramebuffer;
     this->previousPassFramebuffer = this->currentPassFramebuffer;
     this->currentPassFramebuffer = temp;
+    this->previousPassFramebuffer->copyDepthToBuffer(this->currentPassFramebuffer);
 }
 
 void Renderer::endMeshes() const {

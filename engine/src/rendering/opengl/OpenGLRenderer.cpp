@@ -314,25 +314,33 @@ void OpenGLRenderer::drawJumpFloodingPass(const Ref<VertexArray>& vertexArray, c
     this->swapPassFramebuffers();
     this->currentPassFramebuffer->bind();
     shader->bind();
-    this->previousPassFramebuffer->getTexture()->bind(0);
-    shader->uploadUniformInt("uPassTexture", 0);
+    this->previousPassFramebuffer->getDepthTexture()->bind(0);
+    shader->uploadUniformInt("uPassDepthTexture", 0);
+    this->previousPassFramebuffer->getTexture()->bind(1);
+    shader->uploadUniformInt("uPassTexture", 1);
     shader->uploadUniformInt("uOffset", offset);
     shader->uploadUniformVec2Int("uDirection", vertical ? glm::ivec2(0, 1) : glm::ivec2(1, 0));
     vertexArray->bind();
+    glDepthFunc(GL_ALWAYS);
     glViewport(0, 0, this->framebuffer->getWidth(), this->framebuffer->getHeight());
     glDrawElements(GL_TRIANGLES, static_cast<int>(vertexArray->getIndexBuffer()->getCount()), GL_UNSIGNED_INT, nullptr);
+    glDepthFunc(GL_LESS);
 }
 
 void OpenGLRenderer::drawEditorOverlays(const Ref<VertexArray>& vertexArray, const Ref<Shader>& shader, const glm::vec4 outlineColor, const float outlineWidth) const {
     DebugGroup group("OpenGLRenderer::drawEditorOverlays");
     this->framebuffer->bind();
     shader->bind();
-    this->currentPassFramebuffer->getTexture()->bind(0);
-    shader->uploadUniformInt("uPassTexture", 0);
+    this->framebuffer->getDepthTexture()->bind(0);
+    shader->uploadUniformInt("uMainDepthTexture", 0);
+    this->currentPassFramebuffer->getDepthTexture()->bind(1);
+    shader->uploadUniformInt("uPassDepthTexture", 1);
+    this->currentPassFramebuffer->getTexture()->bind(2);
+    shader->uploadUniformInt("uPassTexture", 2);
     shader->uploadUniformVec4("uOutlineColor", outlineColor);
     shader->uploadUniformFloat("uOutlineWidth", outlineWidth);
     vertexArray->bind();
-    glDisable(GL_DEPTH_TEST); // TODO: check if this is needed, considering the framebuffer does not have a depth attachment
+    glDisable(GL_DEPTH_TEST);
     glViewport(0, 0, this->framebuffer->getWidth(), this->framebuffer->getHeight());
     glDrawElements(GL_TRIANGLES, static_cast<int>(vertexArray->getIndexBuffer()->getCount()), GL_UNSIGNED_INT, nullptr);
     glEnable(GL_DEPTH_TEST);

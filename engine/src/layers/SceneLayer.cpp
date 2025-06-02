@@ -248,7 +248,7 @@ void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
     ctx->renderer->drawSkybox(this->skybox);
     // draw editor selection overlays
     constexpr float outlineWidth = 6.0f;
-    constexpr glm::vec4 outlineColor = {0.07f, 0.66f, 0.96f, 1.0f};
+    constexpr glm::vec4 outlineColor = {0.07f, 0.66f, 0.96f, 0.96f};
     const int maxIndex = static_cast<int>(glm::ceil(glm::log(outlineWidth) / std::numbers::ln2));
     for (int i = maxIndex - 1; i >= 0; i--) {
         ctx->renderer->drawJumpFloodingPass(this->editorOverlaysMesh->vertexArray, this->jumpFloodingShader, glm::pow(2, i), false);
