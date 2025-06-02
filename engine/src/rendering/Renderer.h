@@ -90,7 +90,7 @@ public:
     virtual void drawJumpFloodingPrepare(const Ref<VertexArray>& vertexArray, const glm::mat4& transform, const Ref<Shader>& outlineShader) const = 0;
     virtual void drawSkybox(const Ref<SkyboxCube>& skybox) const = 0;
     virtual void drawJumpFloodingPass(const Ref<VertexArray>& vertexArray, const Ref<Shader>& shader, int offset, bool vertical) = 0;
-    virtual void drawEditorOverlays(const Ref<VertexArray>& vertexArray, const Ref<Shader>& shader) const = 0;
+    virtual void drawEditorOverlays(const Ref<VertexArray>& vertexArray, const Ref<Shader>& shader, float outlineWidth) const = 0;
     virtual void drawUI(const Ref<VertexArray>& vertexArray, const Ref<Shader>& shader, const Material& material) const = 0;
 
 protected:

@@ -14,18 +14,47 @@ uniform float uOutlineWidth;
 
 void main() {
     ivec2 screenCoords = ivec2(gl_FragCoord.xy);
-    vec4 passColor = texelFetch(uPassTexture, screenCoords, 0);
+    vec4 passData = texelFetch(uPassTexture, screenCoords, 0);
 
-    if (passColor.r > 0 || (passColor.g <= 0 && passColor.b <= 0)) {
+    if (passData.r > 0 || (passData.g <= 0 && passData.b <= 0)) {
         discard;
     }
 
-    ivec2 size = textureSize(uPassTexture, 0);
+    float dist = distance(gl_FragCoord.xy, passData.gb);
+    if (dist > uOutlineWidth) {
+        discard;
+    }
+
+    color = uOutlineColor;
+    //color = vec4(1.0);
+
+    //ivec2 size = textureSize(uPassTexture, 0);
+    //color = vec4(passData.r, vec2(dot(gl_FragCoord.xy - passData.gb, gl_FragCoord.xy - passData.gb) / 200.0), 1.0);
+/*if (passColor.g > 0.0 || passColor.b > 0.0) {
+        color = vec4(0.0, passColor.gb, 1.0);
+    } else {
+        color = vec4(0.0, vTextureCoords, 1.0);
+    }*/
+    //color = vec4(0.0, (gl_FragCoord.xy - passData.gb) / vec2(size), 1.0);
+
+/*if (passData.g > 0.0 || passData.b > 0.0) {
+        float dist = distance(gl_FragCoord.xy, passData.gb);
+        float intensity = 1.0 - dist / 24.0;
+        intensity = clamp(intensity, 0.0, 1.0);
+        color = vec4(intensity, intensity, intensity, 1.0);
+        //color = vec4(dist / 12.0, dist, dist, 1.0);
+        //color = vec4(intensity, 0.0, 0.8, 1.0);
+    } else {
+        color = vec4(0.0, 0.0, 0.0, 1.0);
+    }*/
+
+
+/*
     vec2 closestPoint = round(passColor.gb * size);
     vec2 offset = closestPoint - vec2(screenCoords);
     float distSqr = dot(offset, offset);
     float widthSqr = uOutlineWidth * uOutlineWidth;
 
     float outline = 1.0f - saturate(distSqr - widthSqr);
-    color = vec4(uOutlineColor.rgb, outline * uOutlineColor.a);
+    color = vec4(uOutlineColor.rgb, outline * uOutlineColor.a);*/
 }

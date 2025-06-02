@@ -14,16 +14,16 @@ const float MAX_DISTANCE = 1000000000.0f;
 
 void main() {
     ivec2 screenCoords = ivec2(gl_FragCoord.xy);
-    vec4 passColor = texelFetch(uPassTexture, screenCoords, 0);
+    vec4 passData = texelFetch(uPassTexture, screenCoords, 0);
 
-    ivec2 size = textureSize(uPassTexture, 0);
+    //ivec2 size = textureSize(uPassTexture, 0);
 
     float bestSqrDistance = MAX_DISTANCE;
     vec2 closestPoint = vec2(0.0);
 
     for (int i = -1; i <= 1; i++) {
         ivec2 offset = uDirection * i * uOffset;
-        vec2 point = round(texelFetch(uPassTexture, screenCoords + offset, 0).gb * size);
+        vec2 point = round(texelFetch(uPassTexture, screenCoords + offset, 0).gb);
         float sqrDistance = (point.x > 0.0f || point.y > 0.0f) ? dot(point - vec2(screenCoords), point - vec2(screenCoords)) : MAX_DISTANCE;
         if (sqrDistance < bestSqrDistance) {
             bestSqrDistance = sqrDistance;
@@ -31,6 +31,5 @@ void main() {
         }
     }
 
-    vec2 gb = closestPoint / vec2(size);
-    color = vec4(passColor.r, gb, 1.0f);
+    color = vec4(passData.r, closestPoint, 1.0f);
 }

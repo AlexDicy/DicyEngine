@@ -41,7 +41,7 @@ public:
     void drawJumpFloodingPrepare(const Ref<VertexArray>& vertexArray, const glm::mat4& transform, const Ref<Shader>& outlineShader) const override;
     void drawSkybox(const Ref<SkyboxCube>& skybox) const override;
     void drawJumpFloodingPass(const Ref<VertexArray>& vertexArray, const Ref<Shader>& shader, int offset, bool vertical) override;
-    void drawEditorOverlays(const Ref<VertexArray>& vertexArray, const Ref<Shader>& shader) const override;
+    void drawEditorOverlays(const Ref<VertexArray>& vertexArray, const Ref<Shader>& shader, float outlineWidth) const override;
     void drawUI(const Ref<VertexArray>& vertexArray, const Ref<Shader>& shader, const Material& material) const override;
 
 private:

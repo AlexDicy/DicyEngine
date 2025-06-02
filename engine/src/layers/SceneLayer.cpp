@@ -246,13 +246,13 @@ void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
     ctx->renderer->endMeshes();
 
     ctx->renderer->drawSkybox(this->skybox);
-    constexpr int outlineWidth = 50;
+    constexpr float outlineWidth = 12.0f;
     const int maxIndex = static_cast<int>(glm::ceil(glm::log(outlineWidth) / std::numbers::ln2));
     for (int i = maxIndex - 1; i >= 0; i--) {
         ctx->renderer->drawJumpFloodingPass(this->editorOverlaysMesh->vertexArray, this->jumpFloodingShader, glm::pow(2, i), false);
         ctx->renderer->drawJumpFloodingPass(this->editorOverlaysMesh->vertexArray, this->jumpFloodingShader, glm::pow(2, i), true);
     }
-    ctx->renderer->drawEditorOverlays(this->editorOverlaysMesh->vertexArray, this->editorOverlaysShader);
+    ctx->renderer->drawEditorOverlays(this->editorOverlaysMesh->vertexArray, this->editorOverlaysShader, outlineWidth);
     ctx->renderer->drawUI(this->uiMesh->vertexArray, this->uiShader, this->uiMesh->material);
 
     ctx->renderer->endFrame();
