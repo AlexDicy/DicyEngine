@@ -38,7 +38,8 @@ SceneLayer::SceneLayer(const std::unique_ptr<Context>& ctx) {
 
     this->shader = app->getShaderRegistry()->load("../assets/shaders/default-shader");
     this->stencilShader = app->getShaderRegistry()->load("../assets/shaders/stencil-shader");
-    this->editorOverlaysShader = app->getShaderRegistry()->load("../assets/shaders/editor-overlays-shader");
+    //this->editorOverlaysShader = app->getShaderRegistry()->load("../assets/shaders/editor-overlays-shader");
+    this->jumpFloodingShader = app->getShaderRegistry()->load("../assets/shaders/jump-flooding");
     renderer->setDirectionalShadowMapShader(app->getShaderRegistry()->load("../assets/shaders/shadow-map-directional"));
     renderer->setPointLightShadowMapShader(app->getShaderRegistry()->load("../assets/shaders/shadow-map-point-light"));
     Ref<Shader> skyboxShader = app->getShaderRegistry()->load("../assets/shaders/skybox-shader");
@@ -244,7 +245,7 @@ void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
     ctx->renderer->endMeshes();
 
     ctx->renderer->drawSkybox(this->skybox);
-    ctx->renderer->drawEditorOverlays(this->editorOverlaysMesh->vertexArray, this->editorOverlaysShader);
+    ctx->renderer->drawEditorOverlays(this->editorOverlaysMesh->vertexArray, this->jumpFloodingShader);
     ctx->renderer->drawUI(this->uiMesh->vertexArray, this->uiShader, this->uiMesh->material);
 
     ctx->renderer->endFrame();

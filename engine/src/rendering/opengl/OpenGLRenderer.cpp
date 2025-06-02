@@ -307,10 +307,12 @@ void OpenGLRenderer::drawSelectedMeshOutline(const Ref<VertexArray>& vertexArray
 void OpenGLRenderer::drawEditorOverlays(const Ref<VertexArray>& vertexArray, const Ref<Shader>& shader) const {
     DebugGroup group("OpenGLRenderer::drawEditorOverlays");
     shader->bind();
-    this->framebuffer->getDepthTexture()->bind(0);
-    this->dataFramebuffer->getDataTexture()->bind(1);
-    shader->uploadUniformInt("uDepthTexture", 0);
-    shader->uploadUniformInt("uDataTexture", 1);
+    //this->framebuffer->getDepthTexture()->bind(0);
+    this->dataFramebuffer->getDataTexture()->bind(0);
+    //shader->uploadUniformInt("uDepthTexture", 0);
+    shader->uploadUniformInt("uDataTexture", 0);
+    shader->uploadUniformInt("uOffset", 16);
+    shader->uploadUniformVec2Int("uDirection", {1, 0});
     vertexArray->bind();
     glDisable(GL_DEPTH_TEST);
     glViewport(0, 0, this->framebuffer->getWidth(), this->framebuffer->getHeight());

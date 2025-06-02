@@ -28,5 +28,6 @@ private:
     Ref<EditorScript> editorScript;
     Ref<Shader> stencilShader;
     Ref<Mesh> editorOverlaysMesh;
-    Ref<Shader> editorOverlaysShader;
+    //Ref<Shader> editorOverlaysShader;
+    Ref<Shader> jumpFloodingShader;
 };

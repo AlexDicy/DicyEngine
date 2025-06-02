@@ -151,6 +151,12 @@ void OpenGLShader::uploadUniformFloat(const std::string& name, const float value
     glProgramUniform1f(this->id, location, value);
 }
 
+void OpenGLShader::uploadUniformVec2Int(const std::string& name, const glm::ivec2& vector) const {
+    const GLint location = glGetUniformLocation(this->id, name.c_str());
+    DE_ASSERT(location >= 0, "Uniform {0} not found", name)
+    glProgramUniform2iv(this->id, location, 1, glm::value_ptr(vector));
+}
+
 void OpenGLShader::uploadUniformVec3(const std::string& name, const glm::vec3& vector) const {
     const GLint location = glGetUniformLocation(this->id, name.c_str());
     DE_ASSERT(location >= 0, "Uniform {0} not found", name)
