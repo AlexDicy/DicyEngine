@@ -17,7 +17,7 @@ const Ref<DepthFramebuffer>& Renderer::getShadowDepthFramebuffer() const {
 }
 
 void Renderer::swapPassFramebuffers() {
-    const Ref<RenderPassFramebuffer>& temp = this->previousPassFramebuffer;
+    const Ref<RenderPassFramebuffer> temp = this->previousPassFramebuffer;
     this->previousPassFramebuffer = this->currentPassFramebuffer;
     this->currentPassFramebuffer = temp;
 }

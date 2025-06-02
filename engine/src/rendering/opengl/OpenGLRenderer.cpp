@@ -335,7 +335,7 @@ void OpenGLRenderer::drawEditorOverlays(const Ref<VertexArray>& vertexArray, con
     shader->uploadUniformVec4("uOutlineColor", glm::vec4(0.96f, 0.8f, 0.9f, 0.9f));
     //shader->uploadUniformFloat("uOutlineWidth", 12.0f);
     vertexArray->bind();
-    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_DEPTH_TEST); // TODO: check if this is needed, considering the framebuffer does not have a depth attachment
     glViewport(0, 0, this->framebuffer->getWidth(), this->framebuffer->getHeight());
     glDrawElements(GL_TRIANGLES, static_cast<int>(vertexArray->getIndexBuffer()->getCount()), GL_UNSIGNED_INT, nullptr);
     glEnable(GL_DEPTH_TEST);
