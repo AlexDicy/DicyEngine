@@ -6,27 +6,26 @@ in vec2 vPosition;
 in vec2 vTextureCoords;
 
 //uniform sampler2DMS uDepthTexture;
-uniform sampler2DMS uPassTexture;
+uniform sampler2D uPassTexture;
 uniform vec4 uOutlineColor;
-//uniform float uOutlineWidth;
+uniform float uOutlineWidth;
 
 #define saturate(x) clamp(x, 0.0, 1.0)
 
 void main() {
     ivec2 screenCoords = ivec2(gl_FragCoord.xy);
-
     vec4 passColor = texelFetch(uPassTexture, screenCoords, 0);
 
     if (passColor.r > 0 || (passColor.g <= 0 && passColor.b <= 0)) {
         discard;
     }
 
-//    vec2 closestPoint = round(jfa_color.gb * size);
-//    vec2 offset = closestPoint - vec2(screenCoords);
-//    float distSqr = dot(offset, offset);
-//    float widthSqr = uOutlineWidth * uOutlineWidth;
-//    float outline = 1.0f - saturate(distSqr - widthSqr);
+    ivec2 size = textureSize(uPassTexture, 0);
+    vec2 closestPoint = round(passColor.gb * size);
+    vec2 offset = closestPoint - vec2(screenCoords);
+    float distSqr = dot(offset, offset);
+    float widthSqr = uOutlineWidth * uOutlineWidth;
 
-    color = uOutlineColor;
-//    color.a = outline * uOutlineColor.a;
+    float outline = 1.0f - saturate(distSqr - widthSqr);
+    color = vec4(uOutlineColor.rgb, outline * uOutlineColor.a);
 }

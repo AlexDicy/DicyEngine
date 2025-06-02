@@ -14,6 +14,7 @@
 #include "scene/models/Plane.h"
 #include "serialization/SceneDeserializer.h"
 
+#include <numbers>
 #include <toml++/impl/table.hpp>
 #include <utility>
 
@@ -245,16 +246,12 @@ void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
     ctx->renderer->endMeshes();
 
     ctx->renderer->drawSkybox(this->skybox);
-    ctx->renderer->drawJumpFloodingPass(this->editorOverlaysMesh->vertexArray, this->jumpFloodingShader, 1, false);
-    ctx->renderer->drawJumpFloodingPass(this->editorOverlaysMesh->vertexArray, this->jumpFloodingShader, 1, true);
-    ctx->renderer->drawJumpFloodingPass(this->editorOverlaysMesh->vertexArray, this->jumpFloodingShader, 2, false);
-    ctx->renderer->drawJumpFloodingPass(this->editorOverlaysMesh->vertexArray, this->jumpFloodingShader, 2, true);
-    ctx->renderer->drawJumpFloodingPass(this->editorOverlaysMesh->vertexArray, this->jumpFloodingShader, 4, false);
-    ctx->renderer->drawJumpFloodingPass(this->editorOverlaysMesh->vertexArray, this->jumpFloodingShader, 4, true);
-    ctx->renderer->drawJumpFloodingPass(this->editorOverlaysMesh->vertexArray, this->jumpFloodingShader, 8, false);
-    ctx->renderer->drawJumpFloodingPass(this->editorOverlaysMesh->vertexArray, this->jumpFloodingShader, 8, true);
-    ctx->renderer->drawJumpFloodingPass(this->editorOverlaysMesh->vertexArray, this->jumpFloodingShader, 16, false);
-    ctx->renderer->drawJumpFloodingPass(this->editorOverlaysMesh->vertexArray, this->jumpFloodingShader, 16, true);
+    constexpr int outlineWidth = 50;
+    const int maxIndex = static_cast<int>(glm::ceil(glm::log(outlineWidth) / std::numbers::ln2));
+    for (int i = maxIndex - 1; i >= 0; i--) {
+        ctx->renderer->drawJumpFloodingPass(this->editorOverlaysMesh->vertexArray, this->jumpFloodingShader, glm::pow(2, i), false);
+        ctx->renderer->drawJumpFloodingPass(this->editorOverlaysMesh->vertexArray, this->jumpFloodingShader, glm::pow(2, i), true);
+    }
     ctx->renderer->drawEditorOverlays(this->editorOverlaysMesh->vertexArray, this->editorOverlaysShader);
     ctx->renderer->drawUI(this->uiMesh->vertexArray, this->uiShader, this->uiMesh->material);
 

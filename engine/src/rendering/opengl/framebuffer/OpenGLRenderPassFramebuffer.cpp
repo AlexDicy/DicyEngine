@@ -8,13 +8,17 @@
 OpenGLRenderPassFramebuffer::OpenGLRenderPassFramebuffer(const unsigned int width, const unsigned int height) : RenderPassFramebuffer(width, height) {
     unsigned int textureId;
     glGenTextures(1, &textureId);
-    glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, textureId);
-    glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 4, GL_RGBA8, static_cast<int>(width), static_cast<int>(height), true);
+    glBindTexture(GL_TEXTURE_2D, textureId);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, static_cast<int>(width), static_cast<int>(height), 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     this->texture = std::make_shared<OpenGLTexture2D>(textureId, width, height, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE);
     // framebuffer
     glGenFramebuffers(1, &this->id);
     glBindFramebuffer(GL_FRAMEBUFFER, this->id);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, textureId, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureId, 0);
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }

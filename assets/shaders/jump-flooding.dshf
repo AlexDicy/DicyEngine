@@ -6,7 +6,7 @@ in vec2 vPosition;
 in vec2 vTextureCoords;
 
 //uniform sampler2DMS uDepthTexture;
-uniform sampler2DMS uPassTexture;
+uniform sampler2D uPassTexture;
 uniform int uOffset;
 uniform ivec2 uDirection;
 
@@ -14,22 +14,17 @@ const float MAX_DISTANCE = 1000000000.0f;
 
 void main() {
     ivec2 screenCoords = ivec2(gl_FragCoord.xy);
-    //float depth = texelFetch(uDepthTexture, screenCoords, 0).r;
     vec4 passColor = texelFetch(uPassTexture, screenCoords, 0);
 
-    ivec2 size = textureSize(uPassTexture);
-    //color = vec4(depth, depth, stencil, 1.0);
+    ivec2 size = textureSize(uPassTexture, 0);
 
     float bestSqrDistance = MAX_DISTANCE;
     vec2 closestPoint = vec2(0.0);
-    //ivec2 direction = uDirection ? ivec2(1, 0) : ivec2(0, 1);
 
     for (int i = -1; i <= 1; i++) {
         ivec2 offset = uDirection * i * uOffset;
         vec2 point = round(texelFetch(uPassTexture, screenCoords + offset, 0).gb * size);
-        //float neighborData = round(texelFetch(uPassTexture, coords, 0).r);
-        float sqrDistance = (point.x > 0.0f || point.y > 0.0f) ? dot(point - screenCoords, point - screenCoords) : MAX_DISTANCE;
-        //float sqrDistance = neighborData > 0.0f ? dot(coords - screenCoords, coords - screenCoords) : MAX_DISTANCE;
+        float sqrDistance = (point.x > 0.0f || point.y > 0.0f) ? dot(point - vec2(screenCoords), point - vec2(screenCoords)) : MAX_DISTANCE;
         if (sqrDistance < bestSqrDistance) {
             bestSqrDistance = sqrDistance;
             closestPoint = point;
