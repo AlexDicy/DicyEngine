@@ -11,6 +11,7 @@
 #include "framebuffer/OpenGLDataFramebuffer.h"
 #include "framebuffer/OpenGLDepthFramebuffer.h"
 #include "framebuffer/OpenGLRenderFramebuffer.h"
+#include "framebuffer/OpenGLRenderPassFramebuffer.h"
 #include "framebuffer/OpenGLShadowCubeArrayFramebuffer.h"
 
 #include <glad/gl.h>
@@ -34,6 +35,8 @@ void OpenGLRenderer::init(const uint32_t width, const uint32_t height) {
 void OpenGLRenderer::setFramebufferDimensions(unsigned int width, unsigned int height) {
     this->framebuffer = std::make_shared<OpenGLRenderFramebuffer>(width, height);
     this->dataFramebuffer = std::make_shared<OpenGLDataFramebuffer>(width, height);
+    this->previousPassFramebuffer = std::make_shared<OpenGLRenderPassFramebuffer>(width, height);
+    this->currentPassFramebuffer = std::make_shared<OpenGLRenderPassFramebuffer>(width, height);
 }
 
 Ref<RenderFramebuffer> OpenGLRenderer::getFramebuffer() const {
@@ -195,6 +198,8 @@ void OpenGLRenderer::clear() const {
     DebugGroup group("OpenGLRenderer::clear");
     this->framebuffer->clear();
     this->dataFramebuffer->clear();
+    this->previousPassFramebuffer->clear();
+    this->currentPassFramebuffer->clear();
     glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
     glBindTexture(GL_TEXTURE_2D, 0);
     glBindVertexArray(0);
@@ -293,26 +298,42 @@ void OpenGLRenderer::drawForPointLightShadows(const Ref<VertexArray>& vertexArra
     glDrawElements(GL_TRIANGLES, static_cast<int>(vertexArray->getIndexBuffer()->getCount()), GL_UNSIGNED_INT, nullptr);
 }
 
-void OpenGLRenderer::drawSelectedMeshOutline(const Ref<VertexArray>& vertexArray, const glm::mat4& transform, const Ref<Shader>& outlineShader) const {
-    DebugGroup group("OpenGLRenderer::drawSelectedMeshOutline");
-    this->dataFramebuffer->bind();
+void OpenGLRenderer::drawJumpFloodingPrepare(const Ref<VertexArray>& vertexArray, const glm::mat4& transform, const Ref<Shader>& outlineShader) const {
+    DebugGroup group("OpenGLRenderer::drawJumpFloodingPrepare");
+    this->currentPassFramebuffer->bind();
     outlineShader->bind();
     outlineShader->uploadUniformMat4("uViewProjection", this->viewProjectionMatrix);
     outlineShader->uploadUniformMat4("uTransform", transform);
+    outlineShader->uploadUniformVec2("uScreenSize", glm::vec2(this->currentPassFramebuffer->getWidth(), this->currentPassFramebuffer->getHeight()));
     vertexArray->bind();
     glDrawElements(GL_TRIANGLES, static_cast<int>(vertexArray->getIndexBuffer()->getCount()), GL_UNSIGNED_INT, nullptr);
     this->framebuffer->bind();
 }
 
+void OpenGLRenderer::drawJumpFloodingPass(const Ref<VertexArray>& vertexArray, const Ref<Shader>& shader, const int offset, const bool vertical) {
+    DebugGroup group("OpenGLRenderer::drawJumpFloodingPass");
+    this->swapPassFramebuffers();
+    this->currentPassFramebuffer->bind();
+    shader->bind();
+    this->previousPassFramebuffer->getTexture()->bind(0);
+    shader->uploadUniformInt("uPassTexture", 0);
+    shader->uploadUniformInt("uOffset", offset);
+    shader->uploadUniformVec2Int("uDirection", vertical ? glm::ivec2(0, 1) : glm::ivec2(1, 0));
+    vertexArray->bind();
+    glDisable(GL_DEPTH_TEST);
+    glViewport(0, 0, this->framebuffer->getWidth(), this->framebuffer->getHeight());
+    glDrawElements(GL_TRIANGLES, static_cast<int>(vertexArray->getIndexBuffer()->getCount()), GL_UNSIGNED_INT, nullptr);
+    glEnable(GL_DEPTH_TEST);
+}
+
 void OpenGLRenderer::drawEditorOverlays(const Ref<VertexArray>& vertexArray, const Ref<Shader>& shader) const {
     DebugGroup group("OpenGLRenderer::drawEditorOverlays");
+    this->framebuffer->bind();
     shader->bind();
-    //this->framebuffer->getDepthTexture()->bind(0);
-    this->dataFramebuffer->getDataTexture()->bind(0);
-    //shader->uploadUniformInt("uDepthTexture", 0);
-    shader->uploadUniformInt("uDataTexture", 0);
-    shader->uploadUniformInt("uOffset", 16);
-    shader->uploadUniformVec2Int("uDirection", {1, 0});
+    this->currentPassFramebuffer->getTexture()->bind(0);
+    shader->uploadUniformInt("uPassTexture", 0);
+    shader->uploadUniformVec4("uOutlineColor", glm::vec4(0.96f, 0.8f, 0.9f, 0.9f));
+    //shader->uploadUniformFloat("uOutlineWidth", 12.0f);
     vertexArray->bind();
     glDisable(GL_DEPTH_TEST);
     glViewport(0, 0, this->framebuffer->getWidth(), this->framebuffer->getHeight());

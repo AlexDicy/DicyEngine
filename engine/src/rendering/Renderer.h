@@ -6,6 +6,7 @@
 #include "framebuffer/DataFramebuffer.h"
 #include "framebuffer/DepthFramebuffer.h"
 #include "framebuffer/RenderFramebuffer.h"
+#include "framebuffer/RenderPassFramebuffer.h"
 #include "framebuffer/ShadowCubeArrayFramebuffer.h"
 #include "scene/components/PointLight.h"
 #include "scene/lights/DirectionalLight.h"
@@ -48,6 +49,7 @@ public:
 
     virtual Ref<RenderFramebuffer> getFramebuffer() const = 0;
     const Ref<DepthFramebuffer>& getShadowDepthFramebuffer() const;
+    void swapPassFramebuffers();
 
     virtual Ref<VertexArray> createVertexArray(const Ref<VertexBuffer>& vertexBuffer, const Ref<IndexBuffer>& indexBuffer) const = 0;
     virtual Ref<VertexBuffer> createVertexBuffer(const float* vertices, uint32_t size) const = 0;
@@ -85,8 +87,9 @@ public:
     virtual void draw(unsigned int entityId, const Ref<VertexArray>& vertexArray, const glm::mat4& transform, const Ref<Shader>& shader, const Material& material) const = 0;
     virtual void drawForDirectionalShadows(const Ref<VertexArray>& vertexArray, const glm::mat4& transform) const = 0;
     virtual void drawForPointLightShadows(const Ref<VertexArray>& vertexArray, const glm::mat4& transform) const = 0;
-    virtual void drawSelectedMeshOutline(const Ref<VertexArray>& vertexArray, const glm::mat4& transform, const Ref<Shader>& outlineShader) const = 0;
+    virtual void drawJumpFloodingPrepare(const Ref<VertexArray>& vertexArray, const glm::mat4& transform, const Ref<Shader>& outlineShader) const = 0;
     virtual void drawSkybox(const Ref<SkyboxCube>& skybox) const = 0;
+    virtual void drawJumpFloodingPass(const Ref<VertexArray>& vertexArray, const Ref<Shader>& shader, int offset, bool vertical) = 0;
     virtual void drawEditorOverlays(const Ref<VertexArray>& vertexArray, const Ref<Shader>& shader) const = 0;
     virtual void drawUI(const Ref<VertexArray>& vertexArray, const Ref<Shader>& shader, const Material& material) const = 0;
 
@@ -112,6 +115,8 @@ protected:
     Ref<Shader> shadowCubeArrayShader;
 
     Ref<DataFramebuffer> dataFramebuffer;
+    Ref<RenderPassFramebuffer> previousPassFramebuffer; // used to reference in the current pass
+    Ref<RenderPassFramebuffer> currentPassFramebuffer; // will be swapped with the previous one after each pass
 
 private:
     RenderAPI api;

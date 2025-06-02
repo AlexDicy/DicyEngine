@@ -37,8 +37,8 @@ SceneLayer::SceneLayer(const std::unique_ptr<Context>& ctx) {
     this->cameraEntity->add<Script>("CameraScript", app, this->cameraEntity);
 
     this->shader = app->getShaderRegistry()->load("../assets/shaders/default-shader");
-    this->stencilShader = app->getShaderRegistry()->load("../assets/shaders/stencil-shader");
-    //this->editorOverlaysShader = app->getShaderRegistry()->load("../assets/shaders/editor-overlays-shader");
+    this->editorOverlaysShader = app->getShaderRegistry()->load("../assets/shaders/editor-overlays-shader");
+    this->jumpFloodingPrepareShader = app->getShaderRegistry()->load("../assets/shaders/jump-flooding-prepare");
     this->jumpFloodingShader = app->getShaderRegistry()->load("../assets/shaders/jump-flooding");
     renderer->setDirectionalShadowMapShader(app->getShaderRegistry()->load("../assets/shaders/shadow-map-directional"));
     renderer->setPointLightShadowMapShader(app->getShaderRegistry()->load("../assets/shaders/shadow-map-point-light"));
@@ -239,13 +239,23 @@ void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
         }
 
         if (isSelected) {
-            ctx->renderer->drawSelectedMeshOutline(mesh.vertexArray, transformMat, this->stencilShader);
+            ctx->renderer->drawJumpFloodingPrepare(mesh.vertexArray, transformMat, this->jumpFloodingPrepareShader);
         }
     }
     ctx->renderer->endMeshes();
 
     ctx->renderer->drawSkybox(this->skybox);
-    ctx->renderer->drawEditorOverlays(this->editorOverlaysMesh->vertexArray, this->jumpFloodingShader);
+    ctx->renderer->drawJumpFloodingPass(this->editorOverlaysMesh->vertexArray, this->jumpFloodingShader, 1, false);
+    ctx->renderer->drawJumpFloodingPass(this->editorOverlaysMesh->vertexArray, this->jumpFloodingShader, 1, true);
+    ctx->renderer->drawJumpFloodingPass(this->editorOverlaysMesh->vertexArray, this->jumpFloodingShader, 2, false);
+    ctx->renderer->drawJumpFloodingPass(this->editorOverlaysMesh->vertexArray, this->jumpFloodingShader, 2, true);
+    ctx->renderer->drawJumpFloodingPass(this->editorOverlaysMesh->vertexArray, this->jumpFloodingShader, 4, false);
+    ctx->renderer->drawJumpFloodingPass(this->editorOverlaysMesh->vertexArray, this->jumpFloodingShader, 4, true);
+    ctx->renderer->drawJumpFloodingPass(this->editorOverlaysMesh->vertexArray, this->jumpFloodingShader, 8, false);
+    ctx->renderer->drawJumpFloodingPass(this->editorOverlaysMesh->vertexArray, this->jumpFloodingShader, 8, true);
+    ctx->renderer->drawJumpFloodingPass(this->editorOverlaysMesh->vertexArray, this->jumpFloodingShader, 16, false);
+    ctx->renderer->drawJumpFloodingPass(this->editorOverlaysMesh->vertexArray, this->jumpFloodingShader, 16, true);
+    ctx->renderer->drawEditorOverlays(this->editorOverlaysMesh->vertexArray, this->editorOverlaysShader);
     ctx->renderer->drawUI(this->uiMesh->vertexArray, this->uiShader, this->uiMesh->material);
 
     ctx->renderer->endFrame();

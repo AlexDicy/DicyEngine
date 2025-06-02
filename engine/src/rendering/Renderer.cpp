@@ -16,6 +16,12 @@ const Ref<DepthFramebuffer>& Renderer::getShadowDepthFramebuffer() const {
     return this->shadowDepthFramebuffer;
 }
 
+void Renderer::swapPassFramebuffers() {
+    const Ref<RenderPassFramebuffer>& temp = this->previousPassFramebuffer;
+    this->previousPassFramebuffer = this->currentPassFramebuffer;
+    this->currentPassFramebuffer = temp;
+}
+
 void Renderer::endMeshes() const {
     this->getFramebuffer()->saveMousePicking();
 }

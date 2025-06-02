@@ -5,122 +5,28 @@ layout (location = 0) out vec4 color;
 in vec2 vPosition;
 in vec2 vTextureCoords;
 
-uniform sampler2DMS uDepthTexture;
-uniform usampler2D uDataTexture;
+//uniform sampler2DMS uDepthTexture;
+uniform sampler2DMS uPassTexture;
+uniform vec4 uOutlineColor;
+//uniform float uOutlineWidth;
 
-#define SNORM16_MAX_FLOAT_MINUS_EPSILON ((float)(32768 - 2) / (float)(32768 - 1))
-#define FLOOD_ENCODE_OFFSET vec2(1.0, SNORM16_MAX_FLOAT_MINUS_EPSILON)
-#define FLOOD_ENCODE_SCALE vec2(2.0, 1.0 + SNORM16_MAX_FLOAT_MINUS_EPSILON)
-
-#define FLOOD_NULL_POS - 1.0
-#define FLOOD_NULL_POS_FLOAT2 vec2(FLOOD_NULL_POS, FLOOD_NULL_POS)
-
-vec2 frag(vec2 i) {
-    // integer pixel position
-    ivec2 uvInt = ivec2(i.xy);
-
-    // sample silhouette texture for sobel
-    half3x3 values;
-    for (int u = 0; u < 3; u++) {
-        for (int v = 0; v < 3; v++) {
-            uvec2 sampleUV = clamp(uvInt + ivec2(u - 1, v - 1), ivec2(0, 0), (ivec2)_MainTex_TexelSize.zw - 1);
-        values[u][v] = _MainTex.Load(ivec3(sampleUV, 0)).r;
-        }
-    }
-
-    // calculate output position for this pixel
-    vec2 outPos = i.xy * abs(_MainTex_TexelSize.xy) * FLOOD_ENCODE_SCALE - FLOOD_ENCODE_OFFSET;
-
-// interior, return position
-if (values._m11 > 0.99)
-return outPos;
-
-// exterior, return no position
-if (values._m11 < 0.01)
-return FLOOD_NULL_POS_FLOAT2;
-
-// sobel to estimate edge direction
-vec2 dir = - vec2(
-values[0][0] + values[0][1] * 2.0 + values[0][2] - values[2][0] - values[2][1] * 2.0 - values[2][2],
-values[0][0] + values[1][0] * 2.0 + values[2][0] - values[0][2] - values[1][2] * 2.0 - values[2][2]
-);
-
-// if dir length is small, this is either a sub pixel dot or line
-// no way to estimate sub pixel edge, so output position
-if (abs(dir.x) <= 0.005 && abs(dir.y) <= 0.005)
-return outPos;
-
-// normalize direction
-dir = normalize(dir);
-
-// sub pixel offset
-vec2 offset = dir * (1.0 - values._m11);
-
-// output encoded offset position
-return (i.xy + offset) * abs(_MainTex_TexelSize.xy) * FLOOD_ENCODE_SCALE - FLOOD_ENCODE_OFFSET;
-}
+#define saturate(x) clamp(x, 0.0, 1.0)
 
 void main() {
     ivec2 screenCoords = ivec2(gl_FragCoord.xy);
-    float depth = texelFetch(uDepthTexture, screenCoords, 0).r;
-    float stencil = texture(uDataTexture, vTextureCoords).r;
-    //color = vec4(depth, depth, stencil, 1.0);
 
-    float r = 16;
-    ivec2 size = textureSize(uDataTexture, 0);
-    float xs = size.x;
-    float ys = size.y;
+    vec4 passColor = texelFetch(uPassTexture, screenCoords, 0);
 
-
-    ivec2 iResolution = size;
-    float Pi = 6.28318530718; // Pi*2
-
-    // GAUSSIAN BLUR SETTINGS {{{
-    float Directions = 16.0; // BLUR DIRECTIONS (Default 16.0 - More is better but slower)
-    float Quality = 3.0; // BLUR QUALITY (Default 4.0 - More is better but slower)
-    float Size = r; // BLUR SIZE (Radius)
-    // GAUSSIAN BLUR SETTINGS }}}
-
-    vec2 Radius = Size / iResolution.xy;
-
-    // Normalized pixel coordinates (from 0 to 1)
-    vec2 uv = vTextureCoords;
-    // Pixel colour
-    vec4 Color = texture(uDataTexture, uv);
-
-    // Blur calculations
-    for (float d = 0.0; d < Pi; d += Pi / Directions)
-    {
-        for (float i = 1.0 / Quality; i < 1.001; i += 1.0 / Quality)
-        {
-            Color += texture(uDataTexture, uv + vec2(cos(d), sin(d)) * Radius * i);
-        }
+    if (passColor.r > 0 || (passColor.g <= 0 && passColor.b <= 0)) {
+        discard;
     }
 
-    // Output to screen
-    Color /= Quality * Directions + 1.0; //- 15.0;
-    color = Color;
-    color.a = 0.8;
+//    vec2 closestPoint = round(jfa_color.gb * size);
+//    vec2 offset = closestPoint - vec2(screenCoords);
+//    float distSqr = dot(offset, offset);
+//    float widthSqr = uOutlineWidth * uOutlineWidth;
+//    float outline = 1.0f - saturate(distSqr - widthSqr);
 
-
-
-    //color = vec4(stencil, 0.0, 0.0, 1.0);
-
-/*    float x, y, xx, yy, rr = r * r, dx, dy, w, w0;
-    w0 = 0.3780 / pow(r, 1.975);
-    vec2 p;
-    vec4 col = vec4(0.0, 0.0, 0.0, 0.0);
-    for (dx = 1.0 / xs, x = -r, p.x = 0.5 + (vPosition.x * 0.5) + (x * dx); x <= r; x++) {
-        xx = x * x;
-        for (dy = 1.0 / ys, y = -r, p.y = 0.5 + (vPosition.y * 0.5) + (y * dy); y <= r; y++) {
-            yy = y * y;
-            if (xx + yy <= rr) {
-                w = w0 * exp((-xx - yy) / (2.0 * rr));
-                col += texture2D(uDataTexture, p) * w;
-            }
-            p.y += dy;
-        }
-        p.x += dx;
-    }
-    color = col;*/
+    color = uOutlineColor;
+//    color.a = outline * uOutlineColor.a;
 }
