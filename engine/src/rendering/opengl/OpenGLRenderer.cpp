@@ -304,7 +304,6 @@ void OpenGLRenderer::drawJumpFloodingPrepare(const Ref<VertexArray>& vertexArray
     outlineShader->bind();
     outlineShader->uploadUniformMat4("uViewProjection", this->viewProjectionMatrix);
     outlineShader->uploadUniformMat4("uTransform", transform);
-    outlineShader->uploadUniformVec2("uScreenSize", glm::vec2(this->currentPassFramebuffer->getWidth(), this->currentPassFramebuffer->getHeight()));
     vertexArray->bind();
     glDrawElements(GL_TRIANGLES, static_cast<int>(vertexArray->getIndexBuffer()->getCount()), GL_UNSIGNED_INT, nullptr);
     this->framebuffer->bind();
@@ -324,13 +323,13 @@ void OpenGLRenderer::drawJumpFloodingPass(const Ref<VertexArray>& vertexArray, c
     glDrawElements(GL_TRIANGLES, static_cast<int>(vertexArray->getIndexBuffer()->getCount()), GL_UNSIGNED_INT, nullptr);
 }
 
-void OpenGLRenderer::drawEditorOverlays(const Ref<VertexArray>& vertexArray, const Ref<Shader>& shader, const float outlineWidth) const {
+void OpenGLRenderer::drawEditorOverlays(const Ref<VertexArray>& vertexArray, const Ref<Shader>& shader, const glm::vec4 outlineColor, const float outlineWidth) const {
     DebugGroup group("OpenGLRenderer::drawEditorOverlays");
     this->framebuffer->bind();
     shader->bind();
     this->currentPassFramebuffer->getTexture()->bind(0);
     shader->uploadUniformInt("uPassTexture", 0);
-    shader->uploadUniformVec4("uOutlineColor", glm::vec4(0.96f, 0.8f, 0.9f, 0.9f));
+    shader->uploadUniformVec4("uOutlineColor", outlineColor);
     shader->uploadUniformFloat("uOutlineWidth", outlineWidth);
     vertexArray->bind();
     glDisable(GL_DEPTH_TEST); // TODO: check if this is needed, considering the framebuffer does not have a depth attachment

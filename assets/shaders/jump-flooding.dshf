@@ -16,8 +16,6 @@ void main() {
     ivec2 screenCoords = ivec2(gl_FragCoord.xy);
     vec4 passData = texelFetch(uPassTexture, screenCoords, 0);
 
-    //ivec2 size = textureSize(uPassTexture, 0);
-
     float bestSqrDistance = MAX_DISTANCE;
     vec2 closestPoint = vec2(0.0);
 
