@@ -1,0 +1,36 @@
+﻿#version 410 core
+
+layout (location = 0) out vec4 color;
+
+in vec2 vPosition;
+in vec2 vTextureCoords;
+
+uniform sampler2DMS uMainDepthTexture;
+uniform sampler2DMS uPassDepthTexture;
+uniform sampler2DMS uPassTexture;
+uniform vec4 uOutlineColor;
+uniform float uOutlineWidth;
+
+void main() {
+    ivec2 screenCoords = ivec2(gl_FragCoord.xy);
+    vec4 passData = texelFetch(uPassTexture, screenCoords, 0);
+
+    if (passData.r > 0 || (passData.g <= 0 && passData.b <= 0)) {
+        discard;
+    }
+
+    float alpha = uOutlineColor.a;
+
+    float mainDepth = texelFetch(uMainDepthTexture, screenCoords, 0).r;
+    float passDepth = texelFetch(uPassDepthTexture, screenCoords, 0).r;
+    if (mainDepth < passDepth) {
+        alpha *= 0.5;
+    }
+
+    float dist = distance(gl_FragCoord.xy, passData.gb);
+    if (dist > uOutlineWidth) {
+        discard;
+    }
+
+    color = vec4(uOutlineColor.rgb, alpha);
+}

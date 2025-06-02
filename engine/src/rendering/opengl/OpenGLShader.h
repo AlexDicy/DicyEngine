@@ -12,6 +12,8 @@ public:
 
     void uploadUniformInt(const std::string& name, int value) const override;
     void uploadUniformFloat(const std::string& name, float value) const override;
+    void uploadUniformVec2Int(const std::string& name, const glm::ivec2& vector) const override;
+    void uploadUniformVec2(const std::string& name, const glm::vec2& vector) const override;
     void uploadUniformVec3(const std::string& name, const glm::vec3& vector) const override;
     void uploadUniformVec4(const std::string& name, const glm::vec4& vector) const override;
     void uploadUniformMat3(const std::string& name, const glm::mat3& matrix) const override;

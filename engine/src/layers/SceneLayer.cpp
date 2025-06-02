@@ -14,7 +14,9 @@
 #include "scene/models/Plane.h"
 #include "serialization/SceneDeserializer.h"
 
+#include <numbers>
 #include <toml++/impl/table.hpp>
+#include <utility>
 
 
 SceneLayer::SceneLayer(const std::unique_ptr<Context>& ctx) {
@@ -36,6 +38,9 @@ SceneLayer::SceneLayer(const std::unique_ptr<Context>& ctx) {
     this->cameraEntity->add<Script>("CameraScript", app, this->cameraEntity);
 
     this->shader = app->getShaderRegistry()->load("../assets/shaders/default-shader");
+    this->editorOverlaysShader = app->getShaderRegistry()->load("../assets/shaders/editor-overlays-shader");
+    this->jumpFloodingPrepareShader = app->getShaderRegistry()->load("../assets/shaders/jump-flooding-prepare");
+    this->jumpFloodingShader = app->getShaderRegistry()->load("../assets/shaders/jump-flooding");
     renderer->setDirectionalShadowMapShader(app->getShaderRegistry()->load("../assets/shaders/shadow-map-directional"));
     renderer->setPointLightShadowMapShader(app->getShaderRegistry()->load("../assets/shaders/shadow-map-point-light"));
     Ref<Shader> skyboxShader = app->getShaderRegistry()->load("../assets/shaders/skybox-shader");
@@ -134,6 +139,11 @@ SceneLayer::SceneLayer(const std::unique_ptr<Context>& ctx) {
     this->uiShader = app->getShaderRegistry()->load("../assets/shaders/ui");
     uiScript.getEntityScript()->onSpawn(); // todo: should not be called manually
 
+    Ref<Entity> editorEntity = this->scene->createEntity("Editor");
+    this->editorScript = std::make_shared<EditorScript>(app, editorEntity, std::static_pointer_cast<UIScript>(uiScript.getEntityScript()));
+    editorEntity->add<Script>(editorScript);
+    this->editorOverlaysMesh = Plane::create(renderer, {});
+
     toml::table in = toml::parse_file("../assets/scene.toml");
     SceneDeserializer::deserialize(ctx, *this->scene, in);
 
@@ -212,32 +222,51 @@ void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
     }
     ctx->renderer->endShadows();
 
+    const int selectedEntity = this->editorScript->getSelectedEntityId();
+
     // render meshes
     for (const auto& entity : meshesView) {
         Transform& transform = meshesView.get<Transform>(entity);
         const Mesh& mesh = meshesView.get<Mesh>(entity);
 
+        const unsigned int entityId = entt::to_integral(entity);
+        const bool isSelected = selectedEntity >= 0 && std::cmp_equal(selectedEntity, entityId);
+
         const glm::mat4 transformMat = transform.getAsMatrix() * mesh.transformationMatrix;
         if (mesh.material.albedo) {
-            ctx->renderer->draw(mesh.vertexArray, transformMat, this->shader, mesh.material);
+            ctx->renderer->draw(entityId, mesh.vertexArray, transformMat, this->shader, mesh.material);
         } else {
-            ctx->renderer->draw(mesh.vertexArray, transformMat, this->shader);
+            ctx->renderer->draw(entityId, mesh.vertexArray, transformMat, this->shader);
+        }
+
+        if (isSelected) {
+            ctx->renderer->drawJumpFloodingPrepare(mesh.vertexArray, transformMat, this->jumpFloodingPrepareShader);
         }
     }
+    ctx->renderer->endMeshes();
 
     ctx->renderer->drawSkybox(this->skybox);
+    // draw editor selection overlays
+    constexpr float outlineWidth = 6.0f;
+    constexpr glm::vec4 outlineColor = {0.07f, 0.66f, 0.96f, 0.96f};
+    const int maxIndex = static_cast<int>(glm::ceil(glm::log(outlineWidth) / std::numbers::ln2));
+    for (int i = maxIndex - 1; i >= 0; i--) {
+        ctx->renderer->drawJumpFloodingPass(this->editorOverlaysMesh->vertexArray, this->jumpFloodingShader, glm::pow(2, i), false);
+        ctx->renderer->drawJumpFloodingPass(this->editorOverlaysMesh->vertexArray, this->jumpFloodingShader, glm::pow(2, i), true);
+    }
+    ctx->renderer->drawEditorOverlays(this->editorOverlaysMesh->vertexArray, this->editorOverlaysShader, outlineColor, outlineWidth);
     ctx->renderer->drawUI(this->uiMesh->vertexArray, this->uiShader, this->uiMesh->material);
 
     ctx->renderer->endFrame();
 }
 
-std::vector<Ref<Entity>> SceneLayer::addEntitiesForModels(const Ref<Renderer>& renderer, const std::string& path, const glm::vec3 position, const Rotation rotation,
+std::vector<Ref<Entity>> SceneLayer::addEntitiesForModels(const Ref<Renderer>& renderer, const std::string& path, const glm::vec3 position, const Rotation& rotation,
                                                           const glm::vec3 scale) const {
     const std::vector<Model> models = ModelImporter::importFromFile(renderer, path);
     return this->addEntitiesForModels(renderer, models, position, rotation, scale);
 }
 
-std::vector<Ref<Entity>> SceneLayer::addEntitiesForModels(const Ref<Renderer>& renderer, const std::vector<Model>& models, const glm::vec3 position, const Rotation rotation,
+std::vector<Ref<Entity>> SceneLayer::addEntitiesForModels(const Ref<Renderer>& renderer, const std::vector<Model>& models, const glm::vec3 position, const Rotation& rotation,
                                                           const glm::vec3 scale) const {
     std::vector<Ref<Entity>> entities;
     for (const Model& model : models) {

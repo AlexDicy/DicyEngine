@@ -1,6 +1,10 @@
 ﻿#version 410 core
+#define EDITOR
 
 layout (location = 0) out vec4 color;
+#ifdef EDITOR
+layout (location = 1) out int entityId;
+#endif
 
 in vec3 vPosition;
 in vec3 vNormal;
@@ -25,6 +29,9 @@ struct PointLight {
     float farPlane;
 };
 
+#ifdef EDITOR
+uniform int uEntityId;
+#endif
 uniform vec3 uCameraPosition;
 // material
 uniform Material uMaterial;
@@ -60,6 +67,11 @@ vec3 calculateLight(float NoV, float NoL, float NoH, float VoH, vec3 albedo, flo
 vec3 calculateIrradianceSphericalHarmonics(const vec3 normal);
 
 void main() {
+    #ifdef EDITOR
+    // set id for editor mouse picking
+    entityId = uEntityId;
+    #endif
+
     vec4 linearAlbedo = texture(uAlbedo, vTextureCoords);
     if (uMaterial.ignoreLighting) {
         color = linearAlbedo;

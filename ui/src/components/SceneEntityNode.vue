@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 export interface EntityNode {
   id: number;
@@ -15,16 +15,23 @@ const props = defineProps<{
   depth: number;
 }>();
 
+const entityRef = ref<HTMLElement>();
 const hasChildren = computed(() => !!props.node.children?.length);
 const showChildren = ref(true);
 const isSelected = computed(() => props.selectedId === props.node.id);
+
+watch(() => isSelected.value, (selected) => {
+  if (selected) {
+    entityRef.value?.scrollIntoViewIfNeeded(true);
+  }
+});
 </script>
 
 <template>
   <div class="text-sm">
-    <div class="entity" :class="{active: isSelected}" :style="{ paddingLeft: `${props.depth}rem` }" @click="onSelect(props.node.id)">
+    <div class="entity" :class="{active: isSelected}" :style="{ paddingLeft: `${props.depth}rem` }" @click="onSelect(props.node.id)" ref="entityRef">
       <div class="entity-expand-icon material-symbols-rounded" :class="{invisible: !hasChildren}"
-            @click.stop="showChildren = !showChildren">
+           @click.stop="showChildren = !showChildren">
         {{ showChildren ? 'keyboard_arrow_down' : 'chevron_right' }}
       </div>
       <div class="entity-icon material-symbols-rounded">deployed_code</div>

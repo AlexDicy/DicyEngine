@@ -1,6 +1,8 @@
 ﻿#pragma once
 #include "rendering/framebuffer/RenderFramebuffer.h"
 
+#include <glad/gl.h>
+
 class OpenGLRenderFramebuffer : public RenderFramebuffer {
 public:
     OpenGLRenderFramebuffer(uint32_t width, uint32_t height);
@@ -8,26 +10,26 @@ public:
 
     void bind() const override;
 
-    uint32_t getColorTextureId() const override {
-        return this->colorTextureId;
+    const Ref<Texture2D>& getDepthTexture() const override {
+        return depthTexture;
     }
 
-    uint32_t getDepthTextureId() const override {
-        return this->depthTextureId;
-    }
+    int getMousePickingValue(int x, int y) const override;
 
-    uint32_t getFinalColorTextureId() const override {
-        return this->finalColorTextureId;
-    }
+    void clear() const override;
+    void saveMousePicking() const override;
 
-    void updateFinalColorTexture() const override;
-    void copyToBuffer(uint32_t destinationId) const;
+    void copyColorToBuffer(uint32_t destinationId, GLenum sourceAttachment = GL_COLOR_ATTACHMENT0) const;
 
 private:
+    // in-progress framebuffer, multisampled
     uint32_t id;
     uint32_t colorTextureId;
-    uint32_t depthTextureId;
+    uint32_t mousePickingTextureId;
+    uint32_t depthStencilTextureId;
+    Ref<Texture2D> depthTexture;
 
-    uint32_t finalBufferId;
-    uint32_t finalColorTextureId;
+    // rendered, non-multisampled for pixel reading
+    uint32_t renderedBufferId;
+    uint32_t renderedMousePickingTextureId;
 };

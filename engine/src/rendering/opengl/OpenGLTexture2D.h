@@ -6,7 +6,7 @@ public:
     explicit OpenGLTexture2D(const std::string& path);
     OpenGLTexture2D(unsigned int channels, unsigned int width, unsigned int height, unsigned int bytesPerPixel, int format, const void* data);
     OpenGLTexture2D(unsigned int channels, unsigned int width, unsigned int height, unsigned int bytesPerPixel, const void* data);
-    OpenGLTexture2D(unsigned int id, unsigned int width, unsigned int height);
+    OpenGLTexture2D(unsigned int id, unsigned int width, unsigned int height, int internalFormat, int format, int type);
     ~OpenGLTexture2D() override;
 
     void bind(uint32_t) const override;

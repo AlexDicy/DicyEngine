@@ -112,6 +112,17 @@ void UIScript::onUpdate(const float deltaTime) {
 #endif
 }
 
+
+void UIScript::updateSelectedEntity(const int entityId) const {
+    if (this->handler->getHost() == nullptr) {
+        return;
+    }
+    const auto args = BrowserMessageHandler::createMessage("updateSelectedEntity");
+    args->appendInt(entityId);
+    this->handler->getHost()->GetBrowser()->GetMainFrame()->SendProcessMessage(PID_RENDERER, args->getMessage());
+}
+
+
 bool UIScript::initializeCef() const {
 #ifdef DE_PLATFORM_MACOS
     const CefMainArgs mainArgs(this->app->getArgc(), this->app->getArgv());

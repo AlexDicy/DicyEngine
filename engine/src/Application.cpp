@@ -59,7 +59,6 @@ void Application::run() const {
 void Application::updateFrame(const std::unique_ptr<Context>& ctx) const {
     DE::Profiling::getProfiler().clearTimings();
     this->window->pollEvents();
-    this->renderer->clear();
 
     ctx->setDeltaTime(this->window->getLastFrameTime());
 

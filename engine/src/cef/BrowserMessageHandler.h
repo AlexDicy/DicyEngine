@@ -9,6 +9,7 @@ class OSRCefHandler;
 
 class BrowserMessageHandler {
     friend class OSRCefHandler;
+    friend class UIScript;
 
 public:
     void registerCallback(const std::string& name, const std::function<void(const Callback& callback)>& callback);
