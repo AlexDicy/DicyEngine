@@ -15,6 +15,7 @@ public:
 
     virtual void bind() const = 0;
 
+    virtual const Ref<Texture2D>& getDepthTexture() const = 0;
     virtual int getMousePickingValue(int x, int y) const = 0;
 
     virtual void clear() const = 0;
