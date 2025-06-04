@@ -15,7 +15,7 @@ void main() {
     ivec2 screenCoords = ivec2(gl_FragCoord.xy);
     vec4 passData = texelFetch(uPassTexture, screenCoords, 0);
 
-    if (passData.r > 0 || (passData.g <= 0 && passData.b <= 0)) {
+    if (passData.r > 0.9 || (passData.g <= 0 && passData.b <= 0)) {
         discard;
     }
 
@@ -32,5 +32,5 @@ void main() {
         discard;
     }
 
-    color = vec4(uOutlineColor.rgb, alpha);
+    color = vec4(uOutlineColor.rgb, alpha - passData.r);
 }
