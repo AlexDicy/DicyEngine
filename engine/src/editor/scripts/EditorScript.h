@@ -11,7 +11,15 @@ public:
         return this->selectedEntityId;
     }
 
+    void drawSelectedEntity(const std::unique_ptr<Context>& ctx, const Mesh& mesh, const glm::mat4& transformMat) const;
+    void drawOverlays(const std::unique_ptr<Context>& ctx) const;
+
 private:
     Ref<UIScript> uiScript;
     int selectedEntityId;
+
+    Ref<Mesh> overlaysMesh;
+    Ref<Shader> overlaysShader;
+    Ref<Shader> jumpFloodingPrepareShader;
+    Ref<Shader> jumpFloodingShader;
 };

@@ -26,8 +26,4 @@ private:
     Ref<Mesh> uiMesh;
     Ref<Shader> uiShader;
     Ref<EditorScript> editorScript;
-    Ref<Mesh> editorOverlaysMesh;
-    Ref<Shader> editorOverlaysShader;
-    Ref<Shader> jumpFloodingPrepareShader;
-    Ref<Shader> jumpFloodingShader;
 };

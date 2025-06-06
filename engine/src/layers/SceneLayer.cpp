@@ -38,9 +38,6 @@ SceneLayer::SceneLayer(const std::unique_ptr<Context>& ctx) {
     this->cameraEntity->add<Script>("CameraScript", app, this->cameraEntity);
 
     this->shader = app->getShaderRegistry()->load("../assets/shaders/default-shader");
-    this->editorOverlaysShader = app->getShaderRegistry()->load("../assets/shaders/editor-overlays-shader");
-    this->jumpFloodingPrepareShader = app->getShaderRegistry()->load("../assets/shaders/jump-flooding-prepare");
-    this->jumpFloodingShader = app->getShaderRegistry()->load("../assets/shaders/jump-flooding");
     renderer->setDirectionalShadowMapShader(app->getShaderRegistry()->load("../assets/shaders/shadow-map-directional"));
     renderer->setPointLightShadowMapShader(app->getShaderRegistry()->load("../assets/shaders/shadow-map-point-light"));
     Ref<Shader> skyboxShader = app->getShaderRegistry()->load("../assets/shaders/skybox-shader");
@@ -142,7 +139,6 @@ SceneLayer::SceneLayer(const std::unique_ptr<Context>& ctx) {
     Ref<Entity> editorEntity = this->scene->createEntity("Editor");
     this->editorScript = std::make_shared<EditorScript>(app, editorEntity, std::static_pointer_cast<UIScript>(uiScript.getEntityScript()));
     editorEntity->add<Script>(editorScript);
-    this->editorOverlaysMesh = Plane::create(renderer, {});
 
     toml::table in = toml::parse_file("../assets/scene.toml");
     SceneDeserializer::deserialize(ctx, *this->scene, in);
@@ -240,21 +236,14 @@ void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
         }
 
         if (isSelected) {
-            ctx->renderer->drawJumpFloodingPrepare(mesh.vertexArray, transformMat, this->jumpFloodingPrepareShader);
+            this->editorScript->drawSelectedEntity(ctx, mesh, transformMat);
         }
     }
     ctx->renderer->endMeshes();
 
     ctx->renderer->drawSkybox(this->skybox);
-    // draw editor selection overlays
-    constexpr float outlineWidth = 6.0f;
-    constexpr glm::vec4 outlineColor = {0.07f, 0.66f, 0.96f, 0.96f};
-    const int maxIndex = static_cast<int>(glm::ceil(glm::log(outlineWidth) / std::numbers::ln2));
-    for (int i = maxIndex - 1; i >= 0; i--) {
-        ctx->renderer->drawJumpFloodingPass(this->editorOverlaysMesh->vertexArray, this->jumpFloodingShader, glm::pow(2, i), false);
-        ctx->renderer->drawJumpFloodingPass(this->editorOverlaysMesh->vertexArray, this->jumpFloodingShader, glm::pow(2, i), true);
-    }
-    ctx->renderer->drawEditorOverlays(this->editorOverlaysMesh->vertexArray, this->editorOverlaysShader, outlineColor, outlineWidth);
+
+    this->editorScript->drawOverlays(ctx);
     ctx->renderer->drawUI(this->uiMesh->vertexArray, this->uiShader, this->uiMesh->material);
 
     ctx->renderer->endFrame();
