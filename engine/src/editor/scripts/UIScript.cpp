@@ -15,9 +15,7 @@
 UIScript::UIScript(const Ref<Application>& app, const Ref<Entity>& entity) : EntityScript(app, entity) {
     this->app = app;
     this->handler = CefRefPtr<OSRCefHandler>(new OSRCefHandler(app));
-}
 
-void UIScript::onSpawn() {
     auto& [texture] = this->getComponent<UITexture>();
     this->handler->setTexture(texture);
 

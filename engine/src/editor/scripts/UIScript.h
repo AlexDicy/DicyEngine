@@ -9,7 +9,6 @@ class UIScript final : public EntityScript {
 public:
     explicit UIScript(const Ref<Application>& app, const Ref<Entity>& entity);
 
-    void onSpawn() override;
     void onUpdate(float deltaTime) override;
 
 protected:
