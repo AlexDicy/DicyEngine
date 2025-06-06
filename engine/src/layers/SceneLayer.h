@@ -13,11 +13,6 @@ public:
     void stop(const std::unique_ptr<Context>& ctx) override {}
 
 private:
-    std::vector<Ref<Entity>> addEntitiesForModels(const Ref<Renderer>& renderer, const std::string& path, glm::vec3 position, const Rotation& rotation = Rotation(),
-                                                  glm::vec3 scale = glm::vec3(1.0f)) const;
-    std::vector<Ref<Entity>> addEntitiesForModels(const Ref<Renderer>& renderer, const std::vector<Model>& models, glm::vec3 position, const Rotation& rotation = Rotation(),
-                                                  glm::vec3 scale = glm::vec3(1.0f)) const;
-
     Ref<Scene> scene;
     Ref<Entity> cameraEntity;
     Ref<Shader> shader;

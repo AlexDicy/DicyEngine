@@ -24,13 +24,6 @@ SceneLayer::SceneLayer(const std::unique_ptr<Context>& ctx) {
     const Ref<Renderer>& renderer = app->getRenderer();
     this->scene = std::make_shared<Scene>();
 
-    // x,y,z indicator
-    std::vector<Model> xyzModels = ModelImporter::importFromFile(renderer, "../assets/models/arrows.glb");
-    for (Model& arrow : xyzModels) {
-        arrow.material.ignoreLighting = true;
-    }
-    (void)this->addEntitiesForModels(renderer, xyzModels, {0.0f, 0.0f, 0.0f});
-
     // camera
     app->getEntityScriptRegistry()->registerScriptNative<CameraScript>("CameraScript");
     this->cameraEntity = this->scene->createEntity();
@@ -137,7 +130,7 @@ SceneLayer::SceneLayer(const std::unique_ptr<Context>& ctx) {
     uiScript.getEntityScript()->onSpawn(); // todo: should not be called manually
 
     Ref<Entity> editorEntity = this->scene->createEntity("Editor");
-    this->editorScript = std::make_shared<EditorScript>(app, editorEntity, std::static_pointer_cast<UIScript>(uiScript.getEntityScript()));
+    this->editorScript = std::make_shared<EditorScript>(app, this->scene, editorEntity, std::static_pointer_cast<UIScript>(uiScript.getEntityScript()));
     editorEntity->add<Script>(editorScript);
 
     toml::table in = toml::parse_file("../assets/scene.toml");
@@ -249,24 +242,3 @@ void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
     ctx->renderer->endFrame();
 }
 
-std::vector<Ref<Entity>> SceneLayer::addEntitiesForModels(const Ref<Renderer>& renderer, const std::string& path, const glm::vec3 position, const Rotation& rotation,
-                                                          const glm::vec3 scale) const {
-    const std::vector<Model> models = ModelImporter::importFromFile(renderer, path);
-    return this->addEntitiesForModels(renderer, models, position, rotation, scale);
-}
-
-std::vector<Ref<Entity>> SceneLayer::addEntitiesForModels(const Ref<Renderer>& renderer, const std::vector<Model>& models, const glm::vec3 position, const Rotation& rotation,
-                                                          const glm::vec3 scale) const {
-    std::vector<Ref<Entity>> entities;
-    for (const Model& model : models) {
-        const VertexData* vertexData = model.vertices.data();
-        auto vertexDataFloats = reinterpret_cast<const float*>(vertexData);
-        const Material& material = model.material;
-        Ref<Entity> entity = this->scene->createEntity();
-        this->scene->setEntityModel(entity, model);
-        entity->add<Mesh>(renderer, vertexDataFloats, model.vertices.size() * sizeof(VertexData), model.indexes.data(), model.indexes.size(), material, model.transformationMatrix);
-        entity->setTransform(position, rotation, scale);
-        entities.push_back(entity);
-    }
-    return entities;
-}

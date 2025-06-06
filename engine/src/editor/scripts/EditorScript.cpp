@@ -3,16 +3,25 @@
 
 #include "Application.h"
 #include "Context.h"
+#include "scene/models/ModelImporter.h"
 #include "scene/models/Plane.h"
 
 #include <numbers>
 
 
-EditorScript::EditorScript(const Ref<Application>& app, const Ref<Entity>& entity, const Ref<UIScript>& uiScript) : EntityScript(app, entity), uiScript(uiScript) {
+EditorScript::EditorScript(const Ref<Application>& app, const Ref<Scene>& scene, const Ref<Entity>& entity, const Ref<UIScript>& uiScript) :
+    EntityScript(app, entity), scene(scene), uiScript(uiScript) {
     this->overlaysMesh = Plane::create(app->getRenderer(), {});
     this->overlaysShader = app->getShaderRegistry()->load("../assets/shaders/editor-overlays-shader");
     this->jumpFloodingPrepareShader = app->getShaderRegistry()->load("../assets/shaders/jump-flooding-prepare");
     this->jumpFloodingShader = app->getShaderRegistry()->load("../assets/shaders/jump-flooding");
+
+    // x,y,z indicator
+    std::vector<Model> xyzModels = ModelImporter::importFromFile(app->getRenderer(), "../assets/models/arrows.glb");
+    for (Model& arrow : xyzModels) {
+        arrow.material.ignoreLighting = true;
+    }
+    std::vector<Ref<Entity>> xyzEntities = this->addEntitiesForGizmo(app->getRenderer(), xyzModels, {0.0f, 0.0f, 0.0f});
 
     app->getEventDispatcher()->registerGlobalHandler<MouseButtonPressedEvent>([this, app](const MouseButtonPressedEvent& event) {
         if (event.getButton() != InputCode::MOUSE_BUTTON_LEFT) {
@@ -52,4 +61,26 @@ void EditorScript::drawOverlays(const std::unique_ptr<Context>& ctx) const {
         ctx->renderer->drawJumpFloodingPass(this->overlaysMesh->vertexArray, this->jumpFloodingShader, static_cast<int>(glm::pow(2, i)), true);
     }
     ctx->renderer->drawEditorOverlays(this->overlaysMesh->vertexArray, this->overlaysShader, outlineColor, outlineWidth);
+}
+
+std::vector<Ref<Entity>> EditorScript::addEntitiesForGizmo(const Ref<Renderer>& renderer, const std::string& path, const glm::vec3 position, const Rotation& rotation,
+                                                            const glm::vec3 scale) const {
+    const std::vector<Model> models = ModelImporter::importFromFile(renderer, path);
+    return this->addEntitiesForGizmo(renderer, models, position, rotation, scale);
+}
+
+std::vector<Ref<Entity>> EditorScript::addEntitiesForGizmo(const Ref<Renderer>& renderer, const std::vector<Model>& models, const glm::vec3 position, const Rotation& rotation,
+                                                            const glm::vec3 scale) const {
+    std::vector<Ref<Entity>> entities;
+    for (const Model& model : models) {
+        const VertexData* vertexData = model.vertices.data();
+        auto vertexDataFloats = reinterpret_cast<const float*>(vertexData);
+        const Material& material = model.material;
+        Ref<Entity> entity = this->scene->createEntity();
+        this->scene->setEntityModel(entity, model);
+        entity->add<Mesh>(renderer, vertexDataFloats, model.vertices.size() * sizeof(VertexData), model.indexes.data(), model.indexes.size(), material, model.transformationMatrix);
+        entity->setTransform(position, rotation, scale);
+        entities.push_back(entity);
+    }
+    return entities;
 }
