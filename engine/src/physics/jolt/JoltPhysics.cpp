@@ -58,7 +58,7 @@ void JoltPhysics::update(const float deltaTime, const int steps) {
     // << velocity.GetY() << ", " << velocity.GetZ() << ")" << std::endl;
 }
 
-Ref<PhysicsBody> JoltPhysics::createBody(const PhysicsShape* shape, Transform& transform, const PhysicsLayer& layer) {
+Ref<PhysicsBody> JoltPhysics::createBody(const PhysicsShape* shape, Transform& transform, const Layer& layer) {
     const JPH::RVec3 position(transform.getPosition().x, transform.getPosition().y, transform.getPosition().z);
     const glm::quat rotation = transform.getRotation().getQuaternion();
     const JPH::Quat joltRotation(rotation.x, rotation.y, rotation.z, rotation.w);

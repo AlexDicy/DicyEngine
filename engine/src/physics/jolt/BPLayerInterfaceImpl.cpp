@@ -2,8 +2,8 @@
 #include "BPLayerInterfaceImpl.h"
 
 BPLayerInterfaceImpl::BPLayerInterfaceImpl() {
-    objectToBroadPhase[static_cast<unsigned int>(PhysicsLayer::NON_MOVING)] = JoltBroadPhaseLayers::NON_MOVING;
-    objectToBroadPhase[static_cast<unsigned int>(PhysicsLayer::MOVING)] = JoltBroadPhaseLayers::MOVING;
+    objectToBroadPhase[static_cast<unsigned int>(Physics::Layer::NON_MOVING)] = JoltBroadPhaseLayers::NON_MOVING;
+    objectToBroadPhase[static_cast<unsigned int>(Physics::Layer::MOVING)] = JoltBroadPhaseLayers::MOVING;
 }
 
 #if defined(JPH_EXTERNAL_PROFILE) || defined(JPH_PROFILE_ENABLED)
