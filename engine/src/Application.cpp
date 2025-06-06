@@ -2,7 +2,9 @@
 #include "Application.h"
 
 #include "input/Input.h"
+#include "layers/PhysicsLayer.h"
 #include "layers/SceneLayer.h"
+#include "layers/ScriptsLayer.h"
 #include "physics/jolt/JoltPhysics.h"
 #include "rendering/Renderer.h"
 #include "rendering/opengl/OpenGLRenderer.h"
@@ -25,7 +27,8 @@ void Application::initialize() {
     this->shaderRegistry = std::make_shared<ShaderRegistry>(this->renderer);
 
     this->window = Window::create("DicyEngine", 1920, 1080);
-    this->currentCtx = std::make_unique<Context>(this->shared_from_this());
+    auto scene = std::make_shared<Scene>();
+    this->currentCtx = std::make_unique<Context>(this->shared_from_this(), scene);
 
     this->eventDispatcher->registerGlobalHandler<WindowCloseEvent>([this](const WindowCloseEvent&) {
         this->running = false;
@@ -73,5 +76,7 @@ void Application::updateFrame(const std::unique_ptr<Context>& ctx) const {
 }
 
 void Application::registerLayers(const std::unique_ptr<Context>& ctx) {
+    this->layers.push_back(new ScriptsLayer(ctx));
+    this->layers.push_back(new PhysicsLayer(ctx));
     this->layers.push_back(new SceneLayer(ctx));
 }

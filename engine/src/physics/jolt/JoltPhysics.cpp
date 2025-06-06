@@ -45,17 +45,7 @@ void JoltPhysics::init() {
 }
 
 void JoltPhysics::update(const float deltaTime, const int steps) {
-    DE_PROFILE_FUNCTION();
-    static JPH::uint step = 0;
-    ++step;
-
     physicsSystem.Update(deltaTime, steps, tempAllocator, jobSystem);
-
-
-    // JPH::RVec3 position = bodyInterface.GetCenterOfMassPosition(sphereId);
-    // JPH::Vec3 velocity = bodyInterface.GetLinearVelocity(sphereId);
-    // std::cout << "Step " << step << ": Position = (" << position.GetX() << ", " << position.GetY() << ", " << position.GetZ() << "), Velocity = (" << velocity.GetX() << ", "
-    // << velocity.GetY() << ", " << velocity.GetZ() << ")" << std::endl;
 }
 
 Ref<PhysicsBody> JoltPhysics::createBody(const PhysicsShape* shape, Transform& transform, const Layer& layer) {

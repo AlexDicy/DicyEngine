@@ -9,10 +9,11 @@ public:
     const Ref<Application>& app;
     const Ref<Physics>& physics;
     const Ref<Renderer>& renderer;
+    const Ref<Scene>& scene;
 
     const float& deltaTime = _deltaTime;
 
-    explicit Context(const Ref<Application>& app) : app(app), physics(app->getPhysics()), renderer(app->getRenderer()) {}
+    explicit Context(const Ref<Application>& app, const Ref<Scene>& scene) : app(app), physics(app->getPhysics()), renderer(app->getRenderer()), scene(scene) {}
 
 protected:
     void setDeltaTime(const float& deltaTime) {

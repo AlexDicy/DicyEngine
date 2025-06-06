@@ -19,10 +19,9 @@
 #include <utility>
 
 
-SceneLayer::SceneLayer(const std::unique_ptr<Context>& ctx) {
+SceneLayer::SceneLayer(const std::unique_ptr<Context>& ctx) : Layer(ctx) {
     const Ref<Application>& app = ctx->app;
     const Ref<Renderer>& renderer = app->getRenderer();
-    this->scene = std::make_shared<Scene>();
 
     // camera
     app->getEntityScriptRegistry()->registerScriptNative<CameraScript>("CameraScript");
@@ -156,24 +155,6 @@ void SceneLayer::play(const std::unique_ptr<Context>& ctx) {
 }
 
 void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
-    DE_PROFILE_FUNCTION();
-    const auto scriptsView = this->scene->getScripts();
-    for (const auto& entity : scriptsView) {
-        Script& script = scriptsView.get<Script>(entity);
-        script.getEntityScript()->onUpdate(ctx->deltaTime);
-    }
-
-    ctx->physics->update(ctx->deltaTime, 1); // TODO: calculate steps based on delta time
-    const auto rigidBodiesView = this->scene->getRigidBodies();
-    for (const auto& entity : rigidBodiesView) {
-        RigidBody& rigidBody = rigidBodiesView.get<RigidBody>(entity);
-        if (!rigidBody.isInitialized()) {
-            continue;
-        }
-        Transform& transform = rigidBodiesView.get<Transform>(entity);
-        ctx->physics->syncTransform(rigidBody.getPhysicsBody(), transform);
-    }
-
     ctx->renderer->beginFrame();
 
     ctx->renderer->setDirectionalLight(this->directionalLight);

@@ -13,7 +13,6 @@ public:
     void stop(const std::unique_ptr<Context>& ctx) override {}
 
 private:
-    Ref<Scene> scene;
     Ref<Entity> cameraEntity;
     Ref<Shader> shader;
     Ref<SkyboxCube> skybox;
