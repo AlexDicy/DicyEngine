@@ -22,7 +22,7 @@ private:
 
     Ref<Scene> scene;
     Ref<UIScript> uiScript;
-    int selectedEntityId;
+    int selectedEntityId = -1;
 
     Ref<Mesh> overlaysMesh;
     Ref<Shader> overlaysShader;

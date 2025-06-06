@@ -279,6 +279,8 @@ void OpenGLRenderer::drawSkybox(const Ref<SkyboxCube>& skybox) const {
     glDepthFunc(GL_LEQUAL);
     glDisable(GL_CULL_FACE);
     glDrawElements(GL_TRIANGLES, static_cast<int>(skybox->getVertexArray()->getIndexBuffer()->getCount()), GL_UNSIGNED_INT, nullptr);
+    glEnable(GL_CULL_FACE);
+    glDepthFunc(GL_LESS);
 }
 
 void OpenGLRenderer::drawForDirectionalShadows(const Ref<VertexArray>& vertexArray, const glm::mat4& transform) const {

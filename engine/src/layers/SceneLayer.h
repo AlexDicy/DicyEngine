@@ -1,8 +1,5 @@
 ﻿#pragma once
 #include "Layer.h"
-#include "editor/scripts/EditorScript.h"
-#include "scene/Scene.h"
-#include "scene/lights/DirectionalLight.h"
 
 class SceneLayer : public Layer {
 public:
@@ -17,7 +14,4 @@ private:
     Ref<Shader> shader;
     Ref<SkyboxCube> skybox;
     Ref<DirectionalLight> directionalLight;
-    Ref<Mesh> uiMesh;
-    Ref<Shader> uiShader;
-    Ref<EditorScript> editorScript;
 };

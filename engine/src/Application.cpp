@@ -2,6 +2,7 @@
 #include "Application.h"
 
 #include "input/Input.h"
+#include "layers/EditorLayer.h"
 #include "layers/PhysicsLayer.h"
 #include "layers/SceneLayer.h"
 #include "layers/ScriptsLayer.h"
@@ -66,9 +67,11 @@ void Application::updateFrame(const std::unique_ptr<Context>& ctx) const {
     ctx->setDeltaTime(this->window->getLastFrameTime());
 
     if (!this->isMinimized) {
+        ctx->renderer->beginFrame();
         for (const auto& layer : layers) {
             layer->update(ctx);
         }
+        ctx->renderer->endFrame();
     }
 
     this->renderer->drawToMainFramebuffer();
@@ -79,4 +82,5 @@ void Application::registerLayers(const std::unique_ptr<Context>& ctx) {
     this->layers.push_back(new ScriptsLayer(ctx));
     this->layers.push_back(new PhysicsLayer(ctx));
     this->layers.push_back(new SceneLayer(ctx));
+    this->layers.push_back(new EditorLayer(ctx));
 }

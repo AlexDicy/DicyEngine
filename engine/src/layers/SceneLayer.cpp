@@ -5,13 +5,11 @@
 
 #include "editor/scripts/CameraScript.h"
 #include "editor/scripts/LightScript.h"
-#include "editor/scripts/UIScript.h"
 #include "images/Image.h"
 #include "images/ImageUtils.h"
 #include "images/LinearImage.h"
 #include "rendering/skybox/SphericalHarmonics.h"
 #include "scene/models/ModelImporter.h"
-#include "scene/models/Plane.h"
 #include "serialization/SceneDeserializer.h"
 
 #include <numbers>
@@ -120,18 +118,6 @@ SceneLayer::SceneLayer(const std::unique_ptr<Context>& ctx) : Layer(ctx) {
 
     app->getEntityScriptRegistry()->registerScriptJava("com.dicydev.engine.scene.scripts.RotatingEntityScript");
 
-    Ref<Entity> uiEntity = this->scene->createEntity("CEF Editor UI");
-    Script& uiScript = uiEntity->add<Script>(std::make_shared<UIScript>(app, uiEntity));
-    const auto uiMaterial = Material(renderer->createTexture2D(4, 1, 1, 1, BGRA, std::array<unsigned char, 4>{0, 0, 0, 0}.data()));
-    this->uiMesh = Plane::create(renderer, uiMaterial);
-    uiEntity->add<UITexture>(uiMaterial.albedo);
-    this->uiShader = app->getShaderRegistry()->load("../assets/shaders/ui");
-    uiScript.getEntityScript()->onSpawn(); // todo: should not be called manually
-
-    Ref<Entity> editorEntity = this->scene->createEntity("Editor");
-    this->editorScript = std::make_shared<EditorScript>(app, this->scene, editorEntity, std::static_pointer_cast<UIScript>(uiScript.getEntityScript()));
-    editorEntity->add<Script>(editorScript);
-
     toml::table in = toml::parse_file("../assets/scene.toml");
     SceneDeserializer::deserialize(ctx, *this->scene, in);
 
@@ -155,8 +141,6 @@ void SceneLayer::play(const std::unique_ptr<Context>& ctx) {
 }
 
 void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
-    ctx->renderer->beginFrame();
-
     ctx->renderer->setDirectionalLight(this->directionalLight);
 
     // add point lights to the renderer
@@ -192,7 +176,6 @@ void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
     }
     ctx->renderer->endShadows();
 
-    const int selectedEntity = this->editorScript->getSelectedEntityId();
 
     // render meshes
     for (const auto& entity : meshesView) {
@@ -200,7 +183,6 @@ void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
         const Mesh& mesh = meshesView.get<Mesh>(entity);
 
         const unsigned int entityId = entt::to_integral(entity);
-        const bool isSelected = selectedEntity >= 0 && std::cmp_equal(selectedEntity, entityId);
 
         const glm::mat4 transformMat = transform.getAsMatrix() * mesh.transformationMatrix;
         if (mesh.material.albedo) {
@@ -208,18 +190,8 @@ void SceneLayer::update(const std::unique_ptr<Context>& ctx) {
         } else {
             ctx->renderer->draw(entityId, mesh.vertexArray, transformMat, this->shader);
         }
-
-        if (isSelected) {
-            this->editorScript->drawSelectedEntity(ctx, mesh, transformMat);
-        }
     }
     ctx->renderer->endMeshes();
 
     ctx->renderer->drawSkybox(this->skybox);
-
-    this->editorScript->drawOverlays(ctx);
-    ctx->renderer->drawUI(this->uiMesh->vertexArray, this->uiShader, this->uiMesh->material);
-
-    ctx->renderer->endFrame();
 }
-
