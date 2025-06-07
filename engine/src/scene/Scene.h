@@ -22,6 +22,8 @@ public:
         return this->entities;
     }
 
+    const Ref<Entity>& getEntity(unsigned int id) const;
+
     auto getMeshes() const {
         return this->registry->view<Mesh, Transform>();
     }
@@ -57,6 +59,7 @@ protected:
 
     // keep entities alive
     std::list<Ref<Entity>> entities;
+    std::unordered_map<unsigned int, Ref<Entity>> entitiesById;
     std::unordered_map<Ref<Entity>, std::pair<std::string, unsigned int>> entityModels;
 
 private:

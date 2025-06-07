@@ -3,6 +3,7 @@
 
 #include "Application.h"
 #include "Context.h"
+#include "editor/components/EditorGizmo.h"
 #include "scene/models/ModelImporter.h"
 #include "scene/models/Plane.h"
 
@@ -22,6 +23,9 @@ EditorScript::EditorScript(const Ref<Application>& app, const Ref<Scene>& scene,
         arrow.material.ignoreLighting = true;
     }
     std::vector<Ref<Entity>> xyzEntities = this->addEntitiesForGizmo(app->getRenderer(), xyzModels, {0.0f, 0.0f, 0.0f});
+    for (const Ref<Entity>& e : xyzEntities) {
+        e->add<EditorGizmo>();
+    }
 
     app->getEventDispatcher()->registerGlobalHandler<MouseButtonPressedEvent>([this, app](const MouseButtonPressedEvent& event) {
         if (event.getButton() != InputCode::MOUSE_BUTTON_LEFT) {
@@ -36,6 +40,13 @@ EditorScript::EditorScript(const Ref<Application>& app, const Ref<Scene>& scene,
         }
 
         const int entityId = app->getRenderer()->getFramebuffer()->getMousePickingValue(mouseX, mouseY);
+        if (entityId >= 0) {
+            const Ref<Entity>& selectedEntity = this->scene->getEntity(entityId);
+            if (selectedEntity->has<EditorGizmo>()) {
+                DE_INFO("Selected gizmo entity with ID: {}", entityId);
+                return;
+            }
+        }
         this->selectedEntityId = entityId;
         this->uiScript->updateSelectedEntity(entityId);
     });
@@ -64,13 +75,13 @@ void EditorScript::drawOverlays(const std::unique_ptr<Context>& ctx) const {
 }
 
 std::vector<Ref<Entity>> EditorScript::addEntitiesForGizmo(const Ref<Renderer>& renderer, const std::string& path, const glm::vec3 position, const Rotation& rotation,
-                                                            const glm::vec3 scale) const {
+                                                           const glm::vec3 scale) const {
     const std::vector<Model> models = ModelImporter::importFromFile(renderer, path);
     return this->addEntitiesForGizmo(renderer, models, position, rotation, scale);
 }
 
 std::vector<Ref<Entity>> EditorScript::addEntitiesForGizmo(const Ref<Renderer>& renderer, const std::vector<Model>& models, const glm::vec3 position, const Rotation& rotation,
-                                                            const glm::vec3 scale) const {
+                                                           const glm::vec3 scale) const {
     std::vector<Ref<Entity>> entities;
     for (const Model& model : models) {
         const VertexData* vertexData = model.vertices.data();
