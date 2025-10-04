@@ -152,6 +152,7 @@ void UIScript::runCef() const {
 
     CefWindowInfo windowInfo;
     windowInfo.SetAsWindowless(nullptr);
+    windowInfo.shared_texture_enabled = true;
     const CefBrowserSettings browserSettings;
     CefBrowserHost::CreateBrowser(windowInfo, this->handler, this->url, browserSettings, nullptr, nullptr);
 

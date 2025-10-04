@@ -5,8 +5,8 @@
 OSRCefApp::OSRCefApp() = default;
 
 void OSRCefApp::OnBeforeCommandLineProcessing(const CefString& processType, const CefRefPtr<CefCommandLine> commandLine) {
-    commandLine->AppendSwitch("disable-gpu");
-    commandLine->AppendSwitch("disable-gpu-compositing");
+    // commandLine->AppendSwitch("disable-gpu");
+    // commandLine->AppendSwitch("disable-gpu-compositing");
     commandLine->AppendSwitch("hide-crash-restore-bubble");
     commandLine->AppendSwitchWithValue("disable-features",
                                        "WebBluetooth,WebUSB,"

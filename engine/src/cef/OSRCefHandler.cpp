@@ -231,6 +231,10 @@ void OSRCefHandler::OnPaint(CefRefPtr<CefBrowser> browser, const PaintElementTyp
 #endif
 }
 
+void OSRCefHandler::OnAcceleratedPaint(CefRefPtr<CefBrowser> browser, PaintElementType type, const RectList& dirtyRects, const CefAcceleratedPaintInfo& info) {
+    // std::cout << "OnAcceleratedPaint\n";
+}
+
 bool OSRCefHandler::OnProcessMessageReceived(const CefRefPtr<CefBrowser> browser, const CefRefPtr<CefFrame> frame, const CefProcessId sourceProcess,
                                              const CefRefPtr<CefProcessMessage> message) {
     return this->browserMessageHandler.processMessage(this, browser, frame, sourceProcess, message);
