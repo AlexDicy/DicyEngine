@@ -138,8 +138,8 @@ void GLFW3Window::setRawMouseMotion(const bool enabled) const {
 
 void GLFW3Window::registerEvents() const {
     static auto eventDispatcher = EventDispatcher::get();
-    glfwSetWindowSizeCallback(this->window, [](GLFWwindow*, int new_width, int new_height) {
-        eventDispatcher->dispatch(WindowResizeEvent(static_cast<unsigned int>(new_width), static_cast<unsigned int>(new_height)));
+    glfwSetWindowSizeCallback(this->window, [](GLFWwindow*, const int newWidth, const int newHeight) {
+        eventDispatcher->dispatch(WindowResizeEvent(static_cast<unsigned int>(newWidth), static_cast<unsigned int>(newHeight)));
     });
     glfwSetFramebufferSizeCallback(this->window, [](GLFWwindow*, const int newWidth, const int newHeight) {
         eventDispatcher->dispatch(WindowFramebufferResizeEvent(newWidth, newHeight));
