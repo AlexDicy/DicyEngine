@@ -132,6 +132,10 @@ void GLFW3Window::setCursorMode(const CursorMode mode) const {
     }
 }
 
+void GLFW3Window::setRawMouseMotion(const bool enabled) const {
+    glfwSetInputMode(this->window, GLFW_RAW_MOUSE_MOTION, enabled ? GLFW_TRUE : GLFW_FALSE);
+}
+
 void GLFW3Window::registerEvents() const {
     static auto eventDispatcher = EventDispatcher::get();
     glfwSetWindowSizeCallback(this->window, [](GLFWwindow*, int new_width, int new_height) {

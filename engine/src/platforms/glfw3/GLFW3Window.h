@@ -27,6 +27,7 @@ public:
     float getScalingFactor() const override;
     int getMonitorRefreshRate() const override;
     void setCursorMode(CursorMode mode) const override;
+    void setRawMouseMotion(bool enabled) const override;
 
     GLFWwindow *getNativeWindow() const override {
         return this->window;

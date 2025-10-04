@@ -31,6 +31,15 @@ CameraScript::CameraScript(const Ref<Application>& app, const Ref<Entity>& entit
         renderer->setCamera(scene->getCamera());
         cameraBool = !cameraBool;
     });
+
+    Input::bindActionPressed("right_click", [this, window] {
+        window->setCursorMode(CursorMode::DISABLED);
+        window->setRawMouseMotion(true);
+    });
+
+    Input::bindActionReleased("right_click", [this, window] {
+        window->setCursorMode(CursorMode::NORMAL);
+    });
 }
 
 void CameraScript::onUpdate(const float deltaTime) {

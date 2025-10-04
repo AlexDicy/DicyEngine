@@ -22,6 +22,7 @@ public:
     virtual float getScalingFactor() const = 0;
     virtual int getMonitorRefreshRate() const = 0;
     virtual void setCursorMode(CursorMode mode) const = 0;
+    virtual void setRawMouseMotion(bool enabled) const = 0;
 
     static Ref<Window> create(const char* title, unsigned int width, unsigned int height);
 
