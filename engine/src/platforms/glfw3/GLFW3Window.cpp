@@ -118,6 +118,20 @@ int GLFW3Window::getMonitorRefreshRate() const {
     return refreshRate;
 }
 
+void GLFW3Window::setCursorMode(const CursorMode mode) const {
+    switch (mode) {
+        case CursorMode::NORMAL:
+            glfwSetInputMode(this->window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            break;
+        case CursorMode::HIDDEN:
+            glfwSetInputMode(this->window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+            break;
+        case CursorMode::DISABLED:
+            glfwSetInputMode(this->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            break;
+    }
+}
+
 void GLFW3Window::registerEvents() const {
     static auto eventDispatcher = EventDispatcher::get();
     glfwSetWindowSizeCallback(this->window, [](GLFWwindow*, int new_width, int new_height) {

@@ -26,6 +26,7 @@ public:
     float getLastFrameTime() const override;
     float getScalingFactor() const override;
     int getMonitorRefreshRate() const override;
+    void setCursorMode(CursorMode mode) const override;
 
     GLFWwindow *getNativeWindow() const override {
         return this->window;

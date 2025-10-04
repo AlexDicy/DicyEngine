@@ -1,5 +1,11 @@
 #pragma once
 
+enum class CursorMode {
+    NORMAL = 0,
+    HIDDEN = 1,
+    DISABLED = 2
+};
+
 class Window {
 public:
     virtual ~Window() = default;
@@ -15,6 +21,7 @@ public:
     virtual float getLastFrameTime() const = 0;
     virtual float getScalingFactor() const = 0;
     virtual int getMonitorRefreshRate() const = 0;
+    virtual void setCursorMode(CursorMode mode) const = 0;
 
     static Ref<Window> create(const char* title, unsigned int width, unsigned int height);
 
