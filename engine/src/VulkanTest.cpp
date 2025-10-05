@@ -62,7 +62,7 @@ void VulkanTest::createInstance() {
 }
 
 bool VulkanTest::checkValidationLayerSupport() const {
-    #ifdef VK_ADD_LAYER_PATH and DE_PLATFORM_WINDOWS
+    #if defined(VK_ADD_LAYER_PATH) && defined(DE_PLATFORM_WINDOWS)
     _putenv_s("VK_ADD_LAYER_PATH", VK_ADD_LAYER_PATH);
     #endif
 
