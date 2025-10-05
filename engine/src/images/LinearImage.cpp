@@ -50,7 +50,7 @@ LinearImage::LinearImage(const std::string& path) : Image(0, 0, 3, sizeof(float)
     this->data = std::make_unique<unsigned char[]>(width * height * this->bytesPerPixel);
 
     std::vector<unsigned char> row;
-    row.reserve(width * 4); // RGBE
+    row.resize(width * 4); // RGBE
 
     // read the first 3 bytes of the file to check if the file is using RLE compression
     const std::streampos position = imageStream.tellg();
