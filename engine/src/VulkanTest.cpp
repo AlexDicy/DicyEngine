@@ -3,7 +3,7 @@
 
 #include <fstream>
 
-int main() {
+int mainVulkan() {
     VulkanTest app;
 
     try {
@@ -500,7 +500,6 @@ void VulkanTest::createFramebuffers() {
     swapChainFramebuffers.resize(swapChainImageViews.size());
     for (size_t i = 0; i < swapChainImageViews.size(); i++) {
         const vk::ImageView attachments[] = {swapChainImageViews[i]};
-std::cout << "Creating framebuffer " << i << " with size " << swapChainExtent.width << "x" << swapChainExtent.height << std::endl;
         vk::FramebufferCreateInfo framebufferInfo{};
         framebufferInfo.renderPass = renderPass;
         framebufferInfo.attachmentCount = 1;

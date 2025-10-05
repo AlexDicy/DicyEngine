@@ -29,7 +29,7 @@ OpenGLVertexArray::OpenGLVertexArray(const Ref<VertexBuffer>& vertexBuffer, cons
         glVertexAttribPointer(
             layoutIndex,
             attribute.getDatatypeCount(),
-            getOpenGLTypeFromDatatype(attribute.type),
+            OpenGLDataType::getFromDataType(attribute.type),
             attribute.isNormalized ? GL_TRUE : GL_FALSE,
             layout.getSize(), // NOLINT(bugprone-narrowing-conversions, cppcoreguidelines-narrowing-conversions)
             #pragma warning(suppress: 4312)

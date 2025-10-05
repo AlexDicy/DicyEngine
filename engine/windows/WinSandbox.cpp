@@ -5,7 +5,7 @@
 #include <filesystem>
 
 
-int mainOld(const int argc, char* argv[]) {
+int main(const int argc, char* argv[]) {
     const CefMainArgs mainArgs;
     const CefRefPtr<CefApp> osrApp = new OSRCefApp();
 

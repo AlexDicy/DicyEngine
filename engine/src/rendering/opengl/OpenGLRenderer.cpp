@@ -5,6 +5,7 @@
 #include "OpenGLBuffer.h"
 #include "OpenGLDataType.h"
 #include "OpenGLShader.h"
+#include "OpenGLTexture.h"
 #include "OpenGLTexture2D.h"
 #include "OpenGLTextureCube.h"
 #include "OpenGLVertexArray.h"
@@ -60,6 +61,10 @@ Ref<Shader> OpenGLRenderer::createShader(const std::string& vertexPath, const st
     return std::make_shared<OpenGLShader>(vertexPath, fragmentPath);
 }
 
+Ref<Texture> OpenGLRenderer::createTexture(unsigned int width, unsigned int height, unsigned int layers, Texture::Format format, Texture::InternalFormat internalFormat, const void* data) const {
+    return std::make_shared<OpenGLTexture>(width, height, layers, format, internalFormat, data);
+}
+
 Ref<Texture2D> OpenGLRenderer::createTexture2D(const std::string& path) const {
     return std::make_shared<OpenGLTexture2D>(path);
 }
@@ -70,8 +75,8 @@ Ref<Texture2D> OpenGLRenderer::createTexture2D(const unsigned int channels, cons
 }
 
 Ref<Texture2D> OpenGLRenderer::createTexture2D(const unsigned int channels, const unsigned int width, const unsigned int height, const unsigned int bytesPerPixel,
-                                               const TextureFormat format, const void* data) const {
-    GLenum glFormat = getOpenGLTypeFromTextureFormat(format);
+                                               const Texture::Format format, const void* data) const {
+    GLenum glFormat = OpenGLDataType::getFromTextureFormat(format);
     return std::make_shared<OpenGLTexture2D>(channels, width, height, bytesPerPixel, glFormat, data);
 }
 
