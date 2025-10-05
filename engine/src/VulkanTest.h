@@ -19,6 +19,8 @@ private:
     void createLogicalDevice();
     void createSurface();
     void createSwapChain();
+    void cleanupSwapChain() const;
+    void recreateSwapChain();
     void createImageViews();
     void createRenderPass();
     void createGraphicsPipeline();

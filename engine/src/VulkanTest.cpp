@@ -27,7 +27,6 @@ void VulkanTest::initWindow() {
     glfwInit();
 
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
     window = glfwCreateWindow(1920, 1080, "Vulkan", nullptr, nullptr);
 }
@@ -48,22 +47,16 @@ void VulkanTest::initVulkan() {
 }
 
 void VulkanTest::cleanup() const {
+    cleanupSwapChain();
+    device.destroyPipeline(graphicsPipeline);
+    device.destroyPipelineLayout(pipelineLayout);
+    device.destroyRenderPass(renderPass);
     for (size_t i = 0; i < maxFramesInFlight; i++) {
         device.destroySemaphore(renderFinishedSemaphores[i]);
         device.destroySemaphore(imageAvailableSemaphores[i]);
         device.destroyFence(inFlightFences[i]);
     }
     device.destroyCommandPool(commandPool);
-    for (const auto& framebuffer : swapChainFramebuffers) {
-        device.destroyFramebuffer(framebuffer);
-    }
-    device.destroyPipeline(graphicsPipeline);
-    device.destroyPipelineLayout(pipelineLayout);
-    device.destroyRenderPass(renderPass);
-    for (const auto& imageView : swapChainImageViews) {
-        device.destroyImageView(imageView);
-    }
-    device.destroySwapchainKHR(swapChain);
     device.destroy();
     instance.destroySurfaceKHR(surface);
     instance.destroy();
@@ -88,13 +81,22 @@ void VulkanTest::drawFrame() {
     if (device.waitForFences(1, &inFlightFence, true, std::numeric_limits<uint64_t>::max()) != vk::Result::eSuccess) {
         throw std::runtime_error("Failed to wait for fence");
     }
+
+    const auto acquireResult = device.acquireNextImageKHR(swapChain, std::numeric_limits<uint64_t>::max(), imageAvailableSemaphore, nullptr);
+    if (acquireResult.result == vk::Result::eErrorOutOfDateKHR) {
+        recreateSwapChain();
+        return;
+    }
+    if (acquireResult.result != vk::Result::eSuccess && acquireResult.result != vk::Result::eSuboptimalKHR) {
+        throw std::runtime_error("Failed to acquire swap chain image");
+    }
+
     if (device.resetFences(1, &inFlightFence) != vk::Result::eSuccess) {
         throw std::runtime_error("Failed to reset fence");
     }
 
-    unsigned int imageIndex = device.acquireNextImageKHR(swapChain, std::numeric_limits<uint64_t>::max(), imageAvailableSemaphore, nullptr).value;
     commandBuffer.reset();
-    recordCommandBuffer(commandBuffer, imageIndex);
+    recordCommandBuffer(commandBuffer, acquireResult.value);
 
     vk::SubmitInfo submitInfo{};
     vk::Semaphore waitSemaphores[] = {imageAvailableSemaphore};
@@ -118,10 +120,14 @@ void VulkanTest::drawFrame() {
     vk::SwapchainKHR swapChains[] = {swapChain};
     presentInfo.swapchainCount = 1;
     presentInfo.pSwapchains = swapChains;
-    presentInfo.pImageIndices = &imageIndex;
-    if (presentQueue.presentKHR(&presentInfo) != vk::Result::eSuccess) {
+    presentInfo.pImageIndices = &acquireResult.value;
+    const auto presentResult = presentQueue.presentKHR(&presentInfo);
+    if (presentResult == vk::Result::eErrorOutOfDateKHR || presentResult == vk::Result::eSuboptimalKHR) {
+        recreateSwapChain();
+    } else if (presentResult != vk::Result::eSuccess) {
         throw std::runtime_error("Failed to present swap chain image");
     }
+
     currentFrame = (currentFrame + 1) % maxFramesInFlight;
 }
 
@@ -285,6 +291,24 @@ void VulkanTest::createSwapChain() {
     swapChainImages = device.getSwapchainImagesKHR(swapChain);
     swapChainImageFormat = surfaceFormat.format;
     swapChainExtent = extent;
+}
+
+void VulkanTest::cleanupSwapChain() const {
+    for (const auto& framebuffer : swapChainFramebuffers) {
+        device.destroyFramebuffer(framebuffer);
+    }
+    for (const auto& imageView : swapChainImageViews) {
+        device.destroyImageView(imageView);
+    }
+    device.destroySwapchainKHR(swapChain);
+}
+
+void VulkanTest::recreateSwapChain() {
+    device.waitIdle();
+    cleanupSwapChain();
+    createSwapChain();
+    createImageViews();
+    createFramebuffers();
 }
 
 void VulkanTest::createImageViews() {
@@ -469,7 +493,7 @@ void VulkanTest::createFramebuffers() {
     swapChainFramebuffers.resize(swapChainImageViews.size());
     for (size_t i = 0; i < swapChainImageViews.size(); i++) {
         const vk::ImageView attachments[] = {swapChainImageViews[i]};
-
+std::cout << "Creating framebuffer " << i << " with size " << swapChainExtent.width << "x" << swapChainExtent.height << std::endl;
         vk::FramebufferCreateInfo framebufferInfo{};
         framebufferInfo.renderPass = renderPass;
         framebufferInfo.attachmentCount = 1;
