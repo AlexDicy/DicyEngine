@@ -92,7 +92,6 @@ void VulkanTest::drawFrame() const {
     vk::SubmitInfo submitInfo{};
     vk::Semaphore waitSemaphores[] = {imageAvailableSemaphore};
     vk::PipelineStageFlags waitStages[] = {vk::PipelineStageFlagBits::eColorAttachmentOutput};
-    submitInfo.sType = vk::StructureType::eSubmitInfo;
     submitInfo.waitSemaphoreCount = 1;
     submitInfo.pWaitSemaphores = waitSemaphores;
     submitInfo.pWaitDstStageMask = waitStages;
@@ -106,7 +105,6 @@ void VulkanTest::drawFrame() const {
     }
 
     vk::PresentInfoKHR presentInfo{};
-    presentInfo.sType = vk::StructureType::ePresentInfoKHR;
     presentInfo.waitSemaphoreCount = 1;
     presentInfo.pWaitSemaphores = signalSemaphores;
 
@@ -125,7 +123,6 @@ void VulkanTest::createInstance() {
     }
 
     vk::ApplicationInfo appInfo{};
-    appInfo.sType = vk::StructureType::eApplicationInfo;
     appInfo.pApplicationName = "Hello Triangle";
     appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
     appInfo.pEngineName = "No Engine";
@@ -133,7 +130,6 @@ void VulkanTest::createInstance() {
     appInfo.apiVersion = VK_API_VERSION_1_0;
 
     vk::InstanceCreateInfo createInfo{};
-    createInfo.sType = vk::StructureType::eInstanceCreateInfo;
     createInfo.pApplicationInfo = &appInfo;
 
     uint32_t glfwExtensionCount = 0;
@@ -219,7 +215,6 @@ void VulkanTest::createLogicalDevice() {
     float queuePriority = 1.0f;
     for (unsigned int queueFamily : uniqueQueueFamilies) {
         vk::DeviceQueueCreateInfo queueCreateInfo{};
-        queueCreateInfo.sType = vk::StructureType::eDeviceQueueCreateInfo;
         queueCreateInfo.queueFamilyIndex = queueFamily;
         queueCreateInfo.queueCount = 1;
         queueCreateInfo.pQueuePriorities = &queuePriority;
@@ -228,7 +223,6 @@ void VulkanTest::createLogicalDevice() {
 
     vk::PhysicalDeviceFeatures deviceFeatures{};
     vk::DeviceCreateInfo createInfo{};
-    createInfo.sType = vk::StructureType::eDeviceCreateInfo;
     createInfo.pQueueCreateInfos = queueCreateInfos.data();
     createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
     createInfo.pEnabledFeatures = &deviceFeatures;
@@ -258,7 +252,6 @@ void VulkanTest::createSwapChain() {
         imageCount = capabilities.maxImageCount;
     }
     vk::SwapchainCreateInfoKHR createInfo{};
-    createInfo.sType = vk::StructureType::eSwapchainCreateInfoKHR;
     createInfo.surface = surface;
     createInfo.minImageCount = imageCount;
     createInfo.imageFormat = surfaceFormat.format;
@@ -290,7 +283,6 @@ void VulkanTest::createImageViews() {
     swapChainImageViews.resize(swapChainImages.size());
     for (size_t i = 0; i < swapChainImages.size(); i++) {
         vk::ImageViewCreateInfo createInfo{};
-        createInfo.sType = vk::StructureType::eImageViewCreateInfo;
         createInfo.image = swapChainImages[i];
         createInfo.viewType = vk::ImageViewType::e2D;
         createInfo.format = swapChainImageFormat;
@@ -339,7 +331,6 @@ void VulkanTest::createRenderPass() {
     dependency.dstAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
 
     vk::RenderPassCreateInfo renderPassInfo{};
-    renderPassInfo.sType = vk::StructureType::eRenderPassCreateInfo;
     renderPassInfo.attachmentCount = 1;
     renderPassInfo.pAttachments = &colorAttachment;
     renderPassInfo.subpassCount = 1;
@@ -357,26 +348,22 @@ void VulkanTest::createGraphicsPipeline() {
     vk::ShaderModule fragShaderModule = createShaderModule(fragShaderCode);
 
     vk::PipelineShaderStageCreateInfo vertShaderStageInfo{};
-    vertShaderStageInfo.sType = vk::StructureType::ePipelineShaderStageCreateInfo;
     vertShaderStageInfo.stage = vk::ShaderStageFlagBits::eVertex;
     vertShaderStageInfo.module = vertShaderModule;
     vertShaderStageInfo.pName = "main";
     vk::PipelineShaderStageCreateInfo fragShaderStageInfo{};
-    fragShaderStageInfo.sType = vk::StructureType::ePipelineShaderStageCreateInfo;
     fragShaderStageInfo.stage = vk::ShaderStageFlagBits::eFragment;
     fragShaderStageInfo.module = fragShaderModule;
     fragShaderStageInfo.pName = "main";
     vk::PipelineShaderStageCreateInfo shaderStages[] = {vertShaderStageInfo, fragShaderStageInfo};
 
     vk::PipelineVertexInputStateCreateInfo vertexInputInfo{};
-    vertexInputInfo.sType = vk::StructureType::ePipelineVertexInputStateCreateInfo;
     vertexInputInfo.vertexBindingDescriptionCount = 0;
     vertexInputInfo.pVertexBindingDescriptions = nullptr;
     vertexInputInfo.vertexAttributeDescriptionCount = 0;
     vertexInputInfo.pVertexAttributeDescriptions = nullptr;
 
     vk::PipelineInputAssemblyStateCreateInfo inputAssembly{};
-    inputAssembly.sType = vk::StructureType::ePipelineInputAssemblyStateCreateInfo;
     inputAssembly.topology = vk::PrimitiveTopology::eTriangleList;
     inputAssembly.primitiveRestartEnable = VK_FALSE;
 
@@ -389,19 +376,16 @@ void VulkanTest::createGraphicsPipeline() {
         vk::DynamicState::eScissor,
     };
     vk::PipelineDynamicStateCreateInfo dynamicState{};
-    dynamicState.sType = vk::StructureType::ePipelineDynamicStateCreateInfo;
     dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
     dynamicState.pDynamicStates = dynamicStates.data();
 
     vk::PipelineViewportStateCreateInfo viewportState{};
-    viewportState.sType = vk::StructureType::ePipelineViewportStateCreateInfo;
     viewportState.viewportCount = 1;
     viewportState.pViewports = &viewport;
     viewportState.scissorCount = 1;
     viewportState.pScissors = &scissor;
 
     vk::PipelineRasterizationStateCreateInfo rasterizer{};
-    rasterizer.sType = vk::StructureType::ePipelineRasterizationStateCreateInfo;
     rasterizer.depthClampEnable = VK_FALSE;
     rasterizer.rasterizerDiscardEnable = VK_FALSE;
     rasterizer.polygonMode = vk::PolygonMode::eFill;
@@ -414,7 +398,6 @@ void VulkanTest::createGraphicsPipeline() {
     rasterizer.depthBiasSlopeFactor = 0.0f;
 
     vk::PipelineMultisampleStateCreateInfo multisampling{};
-    multisampling.sType = vk::StructureType::ePipelineMultisampleStateCreateInfo;
     multisampling.sampleShadingEnable = VK_FALSE;
     multisampling.rasterizationSamples = vk::SampleCountFlagBits::e1;
     multisampling.minSampleShading = 1.0f;
@@ -433,7 +416,6 @@ void VulkanTest::createGraphicsPipeline() {
     colorBlendAttachment.alphaBlendOp = vk::BlendOp::eAdd;
 
     vk::PipelineColorBlendStateCreateInfo colorBlending{};
-    colorBlending.sType = vk::StructureType::ePipelineColorBlendStateCreateInfo;
     colorBlending.logicOpEnable = VK_FALSE;
     colorBlending.logicOp = vk::LogicOp::eCopy;
     colorBlending.attachmentCount = 1;
@@ -444,7 +426,6 @@ void VulkanTest::createGraphicsPipeline() {
     colorBlending.blendConstants[3] = 0.0f;
 
     vk::PipelineLayoutCreateInfo pipelineLayoutInfo{};
-    pipelineLayoutInfo.sType = vk::StructureType::ePipelineLayoutCreateInfo;
     pipelineLayoutInfo.setLayoutCount = 0;
     pipelineLayoutInfo.pSetLayouts = nullptr;
     pipelineLayoutInfo.pushConstantRangeCount = 0;
@@ -452,7 +433,6 @@ void VulkanTest::createGraphicsPipeline() {
     pipelineLayout = device.createPipelineLayout(pipelineLayoutInfo);
 
     vk::GraphicsPipelineCreateInfo pipelineInfo{};
-    pipelineInfo.sType = vk::StructureType::eGraphicsPipelineCreateInfo;
     pipelineInfo.stageCount = 2;
     pipelineInfo.pStages = shaderStages;
     pipelineInfo.pVertexInputState = &vertexInputInfo;
@@ -483,7 +463,6 @@ void VulkanTest::createFramebuffers() {
         const vk::ImageView attachments[] = {swapChainImageViews[i]};
 
         vk::FramebufferCreateInfo framebufferInfo{};
-        framebufferInfo.sType = vk::StructureType::eFramebufferCreateInfo;
         framebufferInfo.renderPass = renderPass;
         framebufferInfo.attachmentCount = 1;
         framebufferInfo.pAttachments = attachments;
@@ -501,7 +480,6 @@ void VulkanTest::createCommandPool() {
     QueueFamilyIndices queueFamilyIndices = findQueueFamilies(physicalDevice);
 
     vk::CommandPoolCreateInfo poolInfo{};
-    poolInfo.sType = vk::StructureType::eCommandPoolCreateInfo;
     poolInfo.flags = vk::CommandPoolCreateFlagBits::eResetCommandBuffer;
     poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
 
@@ -512,7 +490,6 @@ void VulkanTest::createCommandPool() {
 
 void VulkanTest::createCommandBuffer() {
     vk::CommandBufferAllocateInfo allocInfo{};
-    allocInfo.sType = vk::StructureType::eCommandBufferAllocateInfo;
     allocInfo.commandPool = commandPool;
     allocInfo.level = vk::CommandBufferLevel::ePrimary;
     allocInfo.commandBufferCount = 1;
@@ -521,24 +498,20 @@ void VulkanTest::createCommandBuffer() {
 
 void VulkanTest::createSyncObjects() {
     vk::SemaphoreCreateInfo semaphoreInfo{};
-    semaphoreInfo.sType = vk::StructureType::eSemaphoreCreateInfo;
     imageAvailableSemaphore = device.createSemaphore(semaphoreInfo);
     renderFinishedSemaphore = device.createSemaphore(semaphoreInfo);
 
     vk::FenceCreateInfo fenceInfo{};
-    fenceInfo.sType = vk::StructureType::eFenceCreateInfo;
     fenceInfo.flags = vk::FenceCreateFlagBits::eSignaled;
     inFlightFence = device.createFence(fenceInfo);
 }
 
 void VulkanTest::recordCommandBuffer(const vk::CommandBuffer commandBuffer, const unsigned int imageIndex) const {
-    vk::CommandBufferBeginInfo beginInfo{};
-    beginInfo.sType = vk::StructureType::eCommandBufferBeginInfo;
+    constexpr vk::CommandBufferBeginInfo beginInfo{};
     if (commandBuffer.begin(&beginInfo) != vk::Result::eSuccess) {
         throw std::runtime_error("Failed to begin recording command buffer");
     }
     vk::RenderPassBeginInfo renderPassInfo{};
-    renderPassInfo.sType = vk::StructureType::eRenderPassBeginInfo;
     renderPassInfo.renderPass = renderPass;
     renderPassInfo.framebuffer = swapChainFramebuffers[imageIndex];
     renderPassInfo.renderArea.offset = vk::Offset2D(0, 0);
@@ -558,7 +531,6 @@ void VulkanTest::recordCommandBuffer(const vk::CommandBuffer commandBuffer, cons
 
 vk::ShaderModule VulkanTest::createShaderModule(const std::vector<char>& code) const {
     vk::ShaderModuleCreateInfo createInfo{};
-    createInfo.sType = vk::StructureType::eShaderModuleCreateInfo;
     createInfo.codeSize = code.size();
     createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
     return device.createShaderModule(createInfo);
