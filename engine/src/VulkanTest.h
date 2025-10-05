@@ -19,6 +19,8 @@ private:
     void createSurface();
     void createSwapChain();
     void createImageViews();
+    void createRenderPass();
+    void createGraphicsPipeline();
 
     unsigned int rateDeviceSuitability(vk::PhysicalDevice device);
 
@@ -45,6 +47,10 @@ private:
     vk::PresentModeKHR chooseSwapPresentMode(const std::vector<vk::PresentModeKHR>& availablePresentModes) const;
     vk::Extent2D chooseSwapExtent(const vk::SurfaceCapabilitiesKHR& capabilities) const;
 
+    vk::ShaderModule createShaderModule(const std::vector<char>& code) const;
+
+    static std::vector<char> readFile(const std::string& filename);
+
     GLFWwindow* window = nullptr;
     vk::Instance instance;
     vk::PhysicalDevice physicalDevice = nullptr;
@@ -57,6 +63,9 @@ private:
     vk::Format swapChainImageFormat = {};
     vk::Extent2D swapChainExtent;
     std::vector<vk::ImageView> swapChainImageViews;
+    vk::RenderPass renderPass;
+    vk::PipelineLayout pipelineLayout;
+    vk::Pipeline graphicsPipeline;
 
     const std::vector<const char*> validationLayers = {"VK_LAYER_KHRONOS_validation"};
     const std::vector<const char*> deviceExtensions = {vk::KHRSwapchainExtensionName};
