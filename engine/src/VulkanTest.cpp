@@ -41,9 +41,20 @@ void VulkanTest::initVulkan() {
     createImageViews();
     createRenderPass();
     createGraphicsPipeline();
+    createFramebuffers();
+    createCommandPool();
+    createCommandBuffer();
+    createSyncObjects();
 }
 
 void VulkanTest::cleanup() const {
+    device.destroySemaphore(renderFinishedSemaphore);
+    device.destroySemaphore(imageAvailableSemaphore);
+    device.destroyFence(inFlightFence);
+    device.destroyCommandPool(commandPool);
+    for (const auto& framebuffer : swapChainFramebuffers) {
+        device.destroyFramebuffer(framebuffer);
+    }
     device.destroyPipeline(graphicsPipeline);
     device.destroyPipelineLayout(pipelineLayout);
     device.destroyRenderPass(renderPass);
@@ -58,15 +69,59 @@ void VulkanTest::cleanup() const {
     glfwTerminate();
 }
 
-void VulkanTest::mainLoop() {
+void VulkanTest::mainLoop() const {
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
+        drawFrame();
+    }
+    device.waitIdle();
+}
+
+void VulkanTest::drawFrame() const {
+    if (device.waitForFences(1, &inFlightFence, true, std::numeric_limits<uint64_t>::max()) != vk::Result::eSuccess) {
+        throw std::runtime_error("Failed to wait for fence");
+    }
+    if (device.resetFences(1, &inFlightFence) != vk::Result::eSuccess) {
+        throw std::runtime_error("Failed to reset fence");
+    }
+
+    unsigned int imageIndex = device.acquireNextImageKHR(swapChain, std::numeric_limits<uint64_t>::max(), imageAvailableSemaphore, nullptr).value;
+    commandBuffer.reset();
+    recordCommandBuffer(commandBuffer, imageIndex);
+
+    vk::SubmitInfo submitInfo{};
+    vk::Semaphore waitSemaphores[] = {imageAvailableSemaphore};
+    vk::PipelineStageFlags waitStages[] = {vk::PipelineStageFlagBits::eColorAttachmentOutput};
+    submitInfo.sType = vk::StructureType::eSubmitInfo;
+    submitInfo.waitSemaphoreCount = 1;
+    submitInfo.pWaitSemaphores = waitSemaphores;
+    submitInfo.pWaitDstStageMask = waitStages;
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = &commandBuffer;
+    vk::Semaphore signalSemaphores[] = {renderFinishedSemaphore};
+    submitInfo.signalSemaphoreCount = 1;
+    submitInfo.pSignalSemaphores = signalSemaphores;
+    if (graphicsQueue.submit(1, &submitInfo, inFlightFence) != vk::Result::eSuccess) {
+        throw std::runtime_error("Failed to submit draw command buffer");
+    }
+
+    vk::PresentInfoKHR presentInfo{};
+    presentInfo.sType = vk::StructureType::ePresentInfoKHR;
+    presentInfo.waitSemaphoreCount = 1;
+    presentInfo.pWaitSemaphores = signalSemaphores;
+
+    vk::SwapchainKHR swapChains[] = {swapChain};
+    presentInfo.swapchainCount = 1;
+    presentInfo.pSwapchains = swapChains;
+    presentInfo.pImageIndices = &imageIndex;
+    if (presentQueue.presentKHR(&presentInfo) != vk::Result::eSuccess) {
+        throw std::runtime_error("Failed to present swap chain image");
     }
 }
 
 void VulkanTest::createInstance() {
     if (enableValidationLayers && !checkValidationLayerSupport()) {
-        throw std::runtime_error("validation layers requested, but not available!");
+        throw std::runtime_error("validation layers requested, but not available");
     }
 
     vk::ApplicationInfo appInfo{};
@@ -94,7 +149,7 @@ void VulkanTest::createInstance() {
     }
 
     if (vk::createInstance(&createInfo, nullptr, &instance) != vk::Result::eSuccess) {
-        throw std::runtime_error("Failed to create instance!");
+        throw std::runtime_error("Failed to create instance");
     }
 }
 
@@ -105,12 +160,12 @@ bool VulkanTest::checkValidationLayerSupport() const {
 
     uint32_t layerCount;
     if (vk::enumerateInstanceLayerProperties(&layerCount, nullptr) != vk::Result::eSuccess) {
-        throw std::runtime_error("Failed to enumerate instance layer properties!");
+        throw std::runtime_error("Failed to enumerate instance layer properties");
     }
 
     std::vector<vk::LayerProperties> availableLayers(layerCount);
     if (vk::enumerateInstanceLayerProperties(&layerCount, availableLayers.data()) != vk::Result::eSuccess) {
-        throw std::runtime_error("Failed to enumerate instance layer properties!");
+        throw std::runtime_error("Failed to enumerate instance layer properties");
     }
 
     for (const char* layerName : validationLayers) {
@@ -134,12 +189,12 @@ bool VulkanTest::checkValidationLayerSupport() const {
 void VulkanTest::pickPhysicalDevice() {
     uint32_t deviceCount = 0;
     if (instance.enumeratePhysicalDevices(&deviceCount, nullptr) != vk::Result::eSuccess || deviceCount == 0) {
-        throw std::runtime_error("Failed to find GPUs with Vulkan support!");
+        throw std::runtime_error("Failed to find GPUs with Vulkan support");
     }
 
     std::vector<vk::PhysicalDevice> devices(deviceCount);
     if (instance.enumeratePhysicalDevices(&deviceCount, devices.data()) != vk::Result::eSuccess) {
-        throw std::runtime_error("Failed to enumerate physical devices!");
+        throw std::runtime_error("Failed to enumerate physical devices");
     }
 
     std::multimap<unsigned int, VkPhysicalDevice> candidates;
@@ -152,7 +207,7 @@ void VulkanTest::pickPhysicalDevice() {
         physicalDevice = candidates.rbegin()->second;
         std::cout << "Selected GPU: " << physicalDevice.getProperties().deviceName << std::endl;
     } else {
-        throw std::runtime_error("Failed to find a suitable GPU!");
+        throw std::runtime_error("Failed to find a suitable GPU");
     }
 }
 
@@ -180,7 +235,7 @@ void VulkanTest::createLogicalDevice() {
     createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
     createInfo.ppEnabledExtensionNames = deviceExtensions.data();
     if (physicalDevice.createDevice(&createInfo, nullptr, &device) != vk::Result::eSuccess) {
-        throw std::runtime_error("Failed to create logical device!");
+        throw std::runtime_error("Failed to create logical device");
     }
 
     graphicsQueue = device.getQueue(indices.graphicsFamily.value(), 0);
@@ -189,7 +244,7 @@ void VulkanTest::createLogicalDevice() {
 
 void VulkanTest::createSurface() {
     if (glfwCreateWindowSurface(instance, window, nullptr, reinterpret_cast<VkSurfaceKHR*>(&surface)) != VK_SUCCESS) {
-        throw std::runtime_error("Failed to create window surface!");
+        throw std::runtime_error("Failed to create window surface");
     }
 }
 
@@ -250,7 +305,7 @@ void VulkanTest::createImageViews() {
         createInfo.subresourceRange.layerCount = 1;
 
         if (device.createImageView(&createInfo, nullptr, &swapChainImageViews[i]) != vk::Result::eSuccess) {
-            throw std::runtime_error("Failed to create image views!");
+            throw std::runtime_error("Failed to create image views");
         }
     }
 }
@@ -266,7 +321,7 @@ void VulkanTest::createRenderPass() {
     colorAttachment.initialLayout = vk::ImageLayout::eUndefined;
     colorAttachment.finalLayout = vk::ImageLayout::ePresentSrcKHR;
 
-    vk::AttachmentReference colorAttachmentRef{};
+    vk::AttachmentReference colorAttachmentRef;
     colorAttachmentRef.attachment = 0;
     colorAttachmentRef.layout = vk::ImageLayout::eColorAttachmentOptimal;
 
@@ -275,12 +330,22 @@ void VulkanTest::createRenderPass() {
     subpass.colorAttachmentCount = 1;
     subpass.pColorAttachments = &colorAttachmentRef;
 
+    vk::SubpassDependency dependency{};
+    dependency.srcSubpass = vk::SubpassExternal;
+    dependency.dstSubpass = 0;
+    dependency.srcStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput;
+    dependency.srcAccessMask = vk::AccessFlags();
+    dependency.dstStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput;
+    dependency.dstAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
+
     vk::RenderPassCreateInfo renderPassInfo{};
     renderPassInfo.sType = vk::StructureType::eRenderPassCreateInfo;
     renderPassInfo.attachmentCount = 1;
     renderPassInfo.pAttachments = &colorAttachment;
     renderPassInfo.subpassCount = 1;
     renderPassInfo.pSubpasses = &subpass;
+    renderPassInfo.dependencyCount = 1;
+    renderPassInfo.pDependencies = &dependency;
     renderPass = device.createRenderPass(renderPassInfo);
 }
 
@@ -404,12 +469,91 @@ void VulkanTest::createGraphicsPipeline() {
 
     const vk::ResultValue<vk::Pipeline> result = device.createGraphicsPipeline(nullptr, pipelineInfo);
     if (result.result != vk::Result::eSuccess) {
-        throw std::runtime_error("Failed to create graphics pipeline!");
+        throw std::runtime_error("Failed to create graphics pipeline");
     }
     graphicsPipeline = result.value;
 
     device.destroyShaderModule(fragShaderModule);
     device.destroyShaderModule(vertShaderModule);
+}
+
+void VulkanTest::createFramebuffers() {
+    swapChainFramebuffers.resize(swapChainImageViews.size());
+    for (size_t i = 0; i < swapChainImageViews.size(); i++) {
+        const vk::ImageView attachments[] = {swapChainImageViews[i]};
+
+        vk::FramebufferCreateInfo framebufferInfo{};
+        framebufferInfo.sType = vk::StructureType::eFramebufferCreateInfo;
+        framebufferInfo.renderPass = renderPass;
+        framebufferInfo.attachmentCount = 1;
+        framebufferInfo.pAttachments = attachments;
+        framebufferInfo.width = swapChainExtent.width;
+        framebufferInfo.height = swapChainExtent.height;
+        framebufferInfo.layers = 1;
+
+        if (device.createFramebuffer(&framebufferInfo, nullptr, &swapChainFramebuffers[i]) != vk::Result::eSuccess) {
+            throw std::runtime_error("failed to create framebuffer");
+        }
+    }
+}
+
+void VulkanTest::createCommandPool() {
+    QueueFamilyIndices queueFamilyIndices = findQueueFamilies(physicalDevice);
+
+    vk::CommandPoolCreateInfo poolInfo{};
+    poolInfo.sType = vk::StructureType::eCommandPoolCreateInfo;
+    poolInfo.flags = vk::CommandPoolCreateFlagBits::eResetCommandBuffer;
+    poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
+
+    if (device.createCommandPool(&poolInfo, nullptr, &commandPool) != vk::Result::eSuccess) {
+        throw std::runtime_error("Failed to create command pool");
+    }
+}
+
+void VulkanTest::createCommandBuffer() {
+    vk::CommandBufferAllocateInfo allocInfo{};
+    allocInfo.sType = vk::StructureType::eCommandBufferAllocateInfo;
+    allocInfo.commandPool = commandPool;
+    allocInfo.level = vk::CommandBufferLevel::ePrimary;
+    allocInfo.commandBufferCount = 1;
+    commandBuffer = device.allocateCommandBuffers(allocInfo)[0];
+}
+
+void VulkanTest::createSyncObjects() {
+    vk::SemaphoreCreateInfo semaphoreInfo{};
+    semaphoreInfo.sType = vk::StructureType::eSemaphoreCreateInfo;
+    imageAvailableSemaphore = device.createSemaphore(semaphoreInfo);
+    renderFinishedSemaphore = device.createSemaphore(semaphoreInfo);
+
+    vk::FenceCreateInfo fenceInfo{};
+    fenceInfo.sType = vk::StructureType::eFenceCreateInfo;
+    fenceInfo.flags = vk::FenceCreateFlagBits::eSignaled;
+    inFlightFence = device.createFence(fenceInfo);
+}
+
+void VulkanTest::recordCommandBuffer(const vk::CommandBuffer commandBuffer, const unsigned int imageIndex) const {
+    vk::CommandBufferBeginInfo beginInfo{};
+    beginInfo.sType = vk::StructureType::eCommandBufferBeginInfo;
+    if (commandBuffer.begin(&beginInfo) != vk::Result::eSuccess) {
+        throw std::runtime_error("Failed to begin recording command buffer");
+    }
+    vk::RenderPassBeginInfo renderPassInfo{};
+    renderPassInfo.sType = vk::StructureType::eRenderPassBeginInfo;
+    renderPassInfo.renderPass = renderPass;
+    renderPassInfo.framebuffer = swapChainFramebuffers[imageIndex];
+    renderPassInfo.renderArea.offset = vk::Offset2D(0, 0);
+    renderPassInfo.renderArea.extent = swapChainExtent;
+    constexpr vk::ClearValue clearColor = vk::ClearColorValue(std::array{0.0f, 0.0f, 0.0f, 1.0f});
+    renderPassInfo.clearValueCount = 1;
+    renderPassInfo.pClearValues = &clearColor;
+
+    commandBuffer.beginRenderPass(&renderPassInfo, vk::SubpassContents::eInline);
+    commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, graphicsPipeline);
+    commandBuffer.setViewport(0, vk::Viewport(0.0f, 0.0f, static_cast<float>(swapChainExtent.width), static_cast<float>(swapChainExtent.height), 0.0f, 1.0f));
+    commandBuffer.setScissor(0, vk::Rect2D({0, 0}, swapChainExtent));
+    commandBuffer.draw(3, 1, 0, 0);
+    commandBuffer.endRenderPass();
+    commandBuffer.end();
 }
 
 vk::ShaderModule VulkanTest::createShaderModule(const std::vector<char>& code) const {
@@ -430,7 +574,7 @@ VulkanTest::QueueFamilyIndices VulkanTest::findQueueFamilies(const vk::PhysicalD
         }
         vk::Bool32 presentSupport = false;
         if (device.getSurfaceSupportKHR(i, surface, &presentSupport) != vk::Result::eSuccess) {
-            throw std::runtime_error("Failed to get device surface support!");
+            throw std::runtime_error("Failed to get device surface support");
         }
         if (presentSupport) {
             indices.presentFamily = i;
@@ -529,7 +673,7 @@ std::vector<char> VulkanTest::readFile(const std::string& filename) {
     std::ifstream file(filename, std::ios::ate | std::ios::binary);
 
     if (!file.is_open()) {
-        throw std::runtime_error("Failed to open file!");
+        throw std::runtime_error("Failed to open file");
     }
     size_t fileSize = static_cast<size_t>(file.tellg());
     std::vector<char> buffer(fileSize);

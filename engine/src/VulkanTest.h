@@ -10,7 +10,8 @@ private:
     void initWindow();
     void initVulkan();
     void cleanup() const;
-    void mainLoop();
+    void mainLoop() const;
+    void drawFrame() const;
 
     void createInstance();
     bool checkValidationLayerSupport() const;
@@ -21,6 +22,12 @@ private:
     void createImageViews();
     void createRenderPass();
     void createGraphicsPipeline();
+    void createFramebuffers();
+    void createCommandPool();
+    void createCommandBuffer();
+    void createSyncObjects();
+
+    void recordCommandBuffer(vk::CommandBuffer commandBuffer, unsigned int imageIndex) const;
 
     unsigned int rateDeviceSuitability(vk::PhysicalDevice device);
 
@@ -66,6 +73,13 @@ private:
     vk::RenderPass renderPass;
     vk::PipelineLayout pipelineLayout;
     vk::Pipeline graphicsPipeline;
+    std::vector<vk::Framebuffer> swapChainFramebuffers;
+    vk::CommandPool commandPool;
+    vk::CommandBuffer commandBuffer;
+
+    vk::Semaphore imageAvailableSemaphore;
+    vk::Semaphore renderFinishedSemaphore;
+    vk::Fence inFlightFence;
 
     const std::vector<const char*> validationLayers = {"VK_LAYER_KHRONOS_validation"};
     const std::vector<const char*> deviceExtensions = {vk::KHRSwapchainExtensionName};
