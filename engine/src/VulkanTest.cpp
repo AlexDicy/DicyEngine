@@ -57,7 +57,7 @@ void VulkanTest::createInstance() {
     createInfo.enabledLayerCount = 0;
 
     if (vk::createInstance(&createInfo, nullptr, &instance) != vk::Result::eSuccess) {
-        throw std::runtime_error("failed to create instance!");
+        throw std::runtime_error("Failed to create instance!");
     }
 }
 
@@ -67,10 +67,14 @@ bool VulkanTest::checkValidationLayerSupport() const {
     #endif
 
     uint32_t layerCount;
-    vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
+    if (vk::enumerateInstanceLayerProperties(&layerCount, nullptr) != vk::Result::eSuccess) {
+        throw std::runtime_error("Failed to enumerate instance layer properties!");
+    }
 
-    std::vector<VkLayerProperties> availableLayers(layerCount);
-    vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
+    std::vector<vk::LayerProperties> availableLayers(layerCount);
+    if (vk::enumerateInstanceLayerProperties(&layerCount, availableLayers.data()) != vk::Result::eSuccess) {
+        throw std::runtime_error("Failed to enumerate instance layer properties!");
+    }
 
     for (const char* layerName : validationLayers) {
         bool layerFound = false;

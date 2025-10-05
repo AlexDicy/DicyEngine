@@ -26,7 +26,7 @@ private:
 
     const std::vector<const char*> validationLayers = {"VK_LAYER_KHRONOS_validation"};
 
-#ifdef DE_DEBUG
+#if defined(DE_DEBUG) && (!defined(DE_PLATFORM_WINDOWS) || defined(VK_ADD_LAYER_PATH))
     const bool enableValidationLayers = true;
 #else
     const bool enableValidationLayers = false;
