@@ -43,14 +43,16 @@ void VulkanTest::initVulkan() {
     createGraphicsPipeline();
     createFramebuffers();
     createCommandPool();
-    createCommandBuffer();
+    createCommandBuffers();
     createSyncObjects();
 }
 
 void VulkanTest::cleanup() const {
-    device.destroySemaphore(renderFinishedSemaphore);
-    device.destroySemaphore(imageAvailableSemaphore);
-    device.destroyFence(inFlightFence);
+    for (size_t i = 0; i < maxFramesInFlight; i++) {
+        device.destroySemaphore(renderFinishedSemaphores[i]);
+        device.destroySemaphore(imageAvailableSemaphores[i]);
+        device.destroyFence(inFlightFences[i]);
+    }
     device.destroyCommandPool(commandPool);
     for (const auto& framebuffer : swapChainFramebuffers) {
         device.destroyFramebuffer(framebuffer);
@@ -69,7 +71,7 @@ void VulkanTest::cleanup() const {
     glfwTerminate();
 }
 
-void VulkanTest::mainLoop() const {
+void VulkanTest::mainLoop() {
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
         drawFrame();
@@ -77,7 +79,12 @@ void VulkanTest::mainLoop() const {
     device.waitIdle();
 }
 
-void VulkanTest::drawFrame() const {
+void VulkanTest::drawFrame() {
+    const vk::Semaphore imageAvailableSemaphore = imageAvailableSemaphores[currentFrame];
+    const vk::Semaphore renderFinishedSemaphore = renderFinishedSemaphores[currentFrame];
+    const vk::Fence inFlightFence = inFlightFences[currentFrame];
+    const vk::CommandBuffer commandBuffer = commandBuffers[currentFrame];
+
     if (device.waitForFences(1, &inFlightFence, true, std::numeric_limits<uint64_t>::max()) != vk::Result::eSuccess) {
         throw std::runtime_error("Failed to wait for fence");
     }
@@ -115,6 +122,7 @@ void VulkanTest::drawFrame() const {
     if (presentQueue.presentKHR(&presentInfo) != vk::Result::eSuccess) {
         throw std::runtime_error("Failed to present swap chain image");
     }
+    currentFrame = (currentFrame + 1) % maxFramesInFlight;
 }
 
 void VulkanTest::createInstance() {
@@ -488,22 +496,28 @@ void VulkanTest::createCommandPool() {
     }
 }
 
-void VulkanTest::createCommandBuffer() {
+void VulkanTest::createCommandBuffers() {
     vk::CommandBufferAllocateInfo allocInfo{};
     allocInfo.commandPool = commandPool;
     allocInfo.level = vk::CommandBufferLevel::ePrimary;
-    allocInfo.commandBufferCount = 1;
-    commandBuffer = device.allocateCommandBuffers(allocInfo)[0];
+    allocInfo.commandBufferCount = maxFramesInFlight;
+    commandBuffers = device.allocateCommandBuffers(allocInfo);
 }
 
 void VulkanTest::createSyncObjects() {
-    vk::SemaphoreCreateInfo semaphoreInfo{};
-    imageAvailableSemaphore = device.createSemaphore(semaphoreInfo);
-    renderFinishedSemaphore = device.createSemaphore(semaphoreInfo);
+    imageAvailableSemaphores.resize(maxFramesInFlight);
+    renderFinishedSemaphores.resize(maxFramesInFlight);
+    inFlightFences.resize(maxFramesInFlight);
 
+    const vk::SemaphoreCreateInfo semaphoreInfo{};
     vk::FenceCreateInfo fenceInfo{};
     fenceInfo.flags = vk::FenceCreateFlagBits::eSignaled;
-    inFlightFence = device.createFence(fenceInfo);
+
+    for (size_t i = 0; i < maxFramesInFlight; i++) {
+        imageAvailableSemaphores[i] = device.createSemaphore(semaphoreInfo);
+        renderFinishedSemaphores[i] = device.createSemaphore(semaphoreInfo);
+        inFlightFences[i] = device.createFence(fenceInfo);
+    }
 }
 
 void VulkanTest::recordCommandBuffer(const vk::CommandBuffer commandBuffer, const unsigned int imageIndex) const {

@@ -10,8 +10,8 @@ private:
     void initWindow();
     void initVulkan();
     void cleanup() const;
-    void mainLoop() const;
-    void drawFrame() const;
+    void mainLoop();
+    void drawFrame();
 
     void createInstance();
     bool checkValidationLayerSupport() const;
@@ -24,7 +24,7 @@ private:
     void createGraphicsPipeline();
     void createFramebuffers();
     void createCommandPool();
-    void createCommandBuffer();
+    void createCommandBuffers();
     void createSyncObjects();
 
     void recordCommandBuffer(vk::CommandBuffer commandBuffer, unsigned int imageIndex) const;
@@ -75,11 +75,13 @@ private:
     vk::Pipeline graphicsPipeline;
     std::vector<vk::Framebuffer> swapChainFramebuffers;
     vk::CommandPool commandPool;
-    vk::CommandBuffer commandBuffer;
 
-    vk::Semaphore imageAvailableSemaphore;
-    vk::Semaphore renderFinishedSemaphore;
-    vk::Fence inFlightFence;
+    static constexpr unsigned int maxFramesInFlight = 2;
+    std::vector<vk::CommandBuffer> commandBuffers;
+    std::vector<vk::Semaphore> imageAvailableSemaphores;
+    std::vector<vk::Semaphore> renderFinishedSemaphores;
+    std::vector<vk::Fence> inFlightFences;
+    unsigned int currentFrame = 0;
 
     const std::vector<const char*> validationLayers = {"VK_LAYER_KHRONOS_validation"};
     const std::vector<const char*> deviceExtensions = {vk::KHRSwapchainExtensionName};
