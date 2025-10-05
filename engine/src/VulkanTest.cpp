@@ -675,7 +675,7 @@ std::vector<char> VulkanTest::readFile(const std::string& filename) {
     if (!file.is_open()) {
         throw std::runtime_error("Failed to open file");
     }
-    size_t fileSize = static_cast<size_t>(file.tellg());
+    const auto fileSize = file.tellg();
     std::vector<char> buffer(fileSize);
     file.seekg(0);
     file.read(buffer.data(), fileSize);
