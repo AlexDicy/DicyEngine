@@ -61,7 +61,8 @@ Ref<Shader> OpenGLRenderer::createShader(const std::string& vertexPath, const st
     return std::make_shared<OpenGLShader>(vertexPath, fragmentPath);
 }
 
-Ref<Texture> OpenGLRenderer::createTexture(unsigned int width, unsigned int height, unsigned int layers, Texture::Format format, Texture::InternalFormat internalFormat, const void* data) const {
+Ref<Texture> OpenGLRenderer::createTexture(unsigned int width, unsigned int height, unsigned int layers, Texture::Format format, Texture::InternalFormat internalFormat,
+                                           const void* data) const {
     return std::make_shared<OpenGLTexture>(width, height, layers, format, internalFormat, data);
 }
 

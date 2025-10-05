@@ -42,7 +42,7 @@ public:
         return 0;
     }
 
-    static GLenum getFromTextureInternalFormat(const Texture::InternalFormat internalFormat) {
+    static GLint getFromTextureInternalFormat(const Texture::InternalFormat internalFormat) {
         switch (internalFormat) {
             case Texture::InternalFormat::R8:
                 return GL_R8;

@@ -10,7 +10,7 @@ TextureBuilder Texture::builder() {
 }
 
 Ref<Texture> TextureBuilder::build(const Ref<Renderer>& renderer) const {
-    Ref<Texture> texture = renderer->createTexture(this->height, this->width, this->layers, this->format, this->internalFormat);
+    Ref<Texture> texture = renderer->createTexture(this->height, this->width, this->layers, this->format, this->internalFormat, this->data);
     texture->setSourcePath(this->sourcePath);
     return texture;
 }

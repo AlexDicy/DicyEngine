@@ -33,5 +33,5 @@ private:
 };
 
 struct UITexture {
-    Ref<Texture2D> texture;
+    Ref<Texture> texture;
 };

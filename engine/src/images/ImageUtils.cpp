@@ -30,6 +30,7 @@ Ref<Texture> ImageUtils::loadTextureFromFile(const Ref<Renderer>& renderer, cons
                                .setHeight(height)
                                .setFormat(format)
                                .setInternalFormat(internalFormat)
+                               .setData(data)
                                .setSourcePath(path)
                                .build(renderer);
     stbi_image_free(data);

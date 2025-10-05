@@ -15,12 +15,12 @@ public:
     void resize(unsigned int width, unsigned int height) override;
 
 private:
-    OpenGLTexture(unsigned int width, unsigned int height, Format format, InternalFormat internalFormat);
-
     void createTextureWithData(const void* data);
     void initializePBO();
 
     GLuint id = 0;
+    GLenum glFormat;
+    GLint glInternalFormat;
     GLenum dataType;
     GLuint pbo = 0;
 };

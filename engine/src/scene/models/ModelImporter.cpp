@@ -1,6 +1,8 @@
 ﻿#include "pch/enginepch.h"
 #include "ModelImporter.h"
 
+#include "images/ImageUtils.h"
+
 #include <stack>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -89,7 +91,7 @@ std::vector<Model> ModelImporter::importFromFile(const Ref<Renderer>& renderer, 
     return models;
 }
 
-Ref<Texture2D> ModelImporter::getTextureFromMaterial(const Ref<Renderer>& renderer, const aiScene* scene, const aiMaterial* material, const aiTextureType type,
+Ref<Texture> ModelImporter::getTextureFromMaterial(const Ref<Renderer>& renderer, const aiScene* scene, const aiMaterial* material, const aiTextureType type,
                                                      const std::string& basePath) {
     if (material->GetTextureCount(type) == 0) {
         aiColor3D diffuseColor = {1.0f, 1.0f, 1.0f};
@@ -118,9 +120,11 @@ Ref<Texture2D> ModelImporter::getTextureFromMaterial(const Ref<Renderer>& render
         if (texture->mHeight == 0) { // compressed texture
             data = decompressTexture(data, texture->mWidth, channels, width, height);
         }
-        return renderer->createTexture2D(channels, width, height, 1, data);
+        const Texture::Format format = channels == 4 ? Texture::Format::RGBA : Texture::Format::RGB;
+        const Texture::InternalFormat internalFormat = channels == 4 ? Texture::InternalFormat::RGBA8 : Texture::InternalFormat::RGB8;
+        return renderer->createTexture(width, height, 1, format, internalFormat, data);
     }
-    return renderer->createTexture2D(basePath + "/" + texturePath);
+    return ImageUtils::loadTextureFromFile(renderer, basePath + "/" + texturePath);
 }
 
 unsigned char* ModelImporter::decompressTexture(const unsigned char* data, const unsigned int size, unsigned int& channels, unsigned int& width, unsigned int& height) {

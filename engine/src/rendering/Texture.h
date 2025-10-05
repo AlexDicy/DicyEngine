@@ -8,6 +8,14 @@ class Texture {
 public:
     virtual ~Texture() = default;
 
+    unsigned int getWidth() const {
+        return this->width;
+    }
+
+    unsigned int getHeight() const {
+        return this->height;
+    }
+
     virtual void bind(unsigned int) const = 0;
 
     virtual void setRawData(const void* data, unsigned int size) = 0;
@@ -65,19 +73,10 @@ protected:
 
 class Texture2D : public Texture {
 public:
-    Texture2D(const unsigned int width, const unsigned int height) : Texture(), width(width), height(height) {}
-
-    unsigned int getWidth() const {
-        return this->width;
+    Texture2D(const unsigned int width, const unsigned int height) : Texture() {
+        this->width = width;
+        this->height = height;
     }
-
-    unsigned int getHeight() const {
-        return this->height;
-    }
-
-protected:
-    unsigned int width;
-    unsigned int height;
 };
 
 
@@ -146,9 +145,8 @@ public:
         return *this;
     }
 
-    TextureBuilder& setData(void* data, const size_t dataSize) {
+    TextureBuilder& setData(void* data) {
         this->data = data;
-        this->dataSize = dataSize;
         return *this;
     }
 
@@ -169,6 +167,5 @@ private:
     Texture::Format format = Texture::Format::RGBA;
     Texture::InternalFormat internalFormat = Texture::InternalFormat::RGBA8;
     void* data = nullptr;
-    size_t dataSize = 0;
     std::string sourcePath;
 };

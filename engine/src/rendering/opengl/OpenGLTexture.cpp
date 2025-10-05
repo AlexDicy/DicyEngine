@@ -3,22 +3,24 @@
 
 #include "OpenGLDataType.h"
 
-OpenGLTexture::OpenGLTexture(const unsigned int width, const unsigned int height, unsigned int layers, const Format format, const InternalFormat internalFormat, const void* data) :
-    OpenGLTexture(width, height, format, internalFormat) {
-    this->createTextureWithData(data);
-}
-
-OpenGLTexture::OpenGLTexture(const GLuint id, const unsigned int width, const unsigned int height, unsigned int layers, const Format format, const InternalFormat internalFormat) :
-    OpenGLTexture(width, height, format, internalFormat) {
-    this->id = id;
-}
-
-OpenGLTexture::OpenGLTexture(const unsigned int width, const unsigned int height, const Format format, const InternalFormat internalFormat) : Texture() {
+OpenGLTexture::OpenGLTexture(const unsigned int width, const unsigned int height, const unsigned int layers, const Format format, const InternalFormat internalFormat, const void* data) :
+    Texture() {
     this->width = width;
     this->height = height;
+    this->layers = layers;
     this->format = format;
     this->internalFormat = internalFormat;
+    this->glFormat = OpenGLDataType::getFromTextureFormat(this->format);
+    this->glInternalFormat = OpenGLDataType::getFromTextureInternalFormat(this->internalFormat);
     this->dataType = OpenGLDataType::getPixelTypeFromInternalFormat(internalFormat);
+    if (data) {
+        this->createTextureWithData(data);
+    }
+}
+
+OpenGLTexture::OpenGLTexture(const GLuint id, const unsigned int width, const unsigned int height, const unsigned int layers, const Format format, const InternalFormat internalFormat) :
+    OpenGLTexture(width, height, layers, format, internalFormat) {
+    this->id = id;
 }
 
 OpenGLTexture::~OpenGLTexture() {
@@ -50,7 +52,7 @@ void OpenGLTexture::setRawData(const void* data, const unsigned int size) {
     }
     glBindTexture(GL_TEXTURE_2D, this->id);
     // update the texture from the PBO. This will be asynchronous until the texture is used
-    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, static_cast<int>(this->width), static_cast<int>(this->height), this->format, this->dataType, nullptr);
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, static_cast<int>(this->width), static_cast<int>(this->height), this->glFormat, this->dataType, nullptr);
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 }
 
@@ -59,13 +61,13 @@ void OpenGLTexture::resize(const unsigned int width, const unsigned int height) 
     this->height = height;
 
     glBindTexture(GL_TEXTURE_2D, this->id);
-    glTexImage2D(GL_TEXTURE_2D, 0, this->internalFormat, static_cast<int>(width), static_cast<int>(height), 0, this->format, this->dataType, nullptr);
+    glTexImage2D(GL_TEXTURE_2D, 0, this->glInternalFormat, static_cast<int>(width), static_cast<int>(height), 0, this->glFormat, this->dataType, nullptr);
 }
 
 void OpenGLTexture::createTextureWithData(const void* data) {
     glGenTextures(1, &this->id);
     glBindTexture(GL_TEXTURE_2D, this->id);
-    glTexImage2D(GL_TEXTURE_2D, 0, this->internalFormat, static_cast<int>(width), static_cast<int>(height), 0, this->format, this->dataType, data);
+    glTexImage2D(GL_TEXTURE_2D, 0, this->glInternalFormat, static_cast<int>(width), static_cast<int>(height), 0, this->glFormat, this->dataType, data);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
