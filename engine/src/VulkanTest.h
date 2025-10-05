@@ -17,6 +17,8 @@ private:
     void pickPhysicalDevice();
     void createLogicalDevice();
     void createSurface();
+    void createSwapChain();
+    void createImageViews();
 
     unsigned int rateDeviceSuitability(vk::PhysicalDevice device);
 
@@ -29,15 +31,32 @@ private:
         }
     };
 
-    QueueFamilyIndices findQueueFamilies(vk::PhysicalDevice device);
+    QueueFamilyIndices findQueueFamilies(vk::PhysicalDevice device) const;
+    bool checkDeviceExtensionSupport(vk::PhysicalDevice device) const;
 
-    GLFWwindow* window;
+    struct SwapChainSupportDetails {
+        vk::SurfaceCapabilitiesKHR capabilities;
+        std::vector<vk::SurfaceFormatKHR> formats;
+        std::vector<vk::PresentModeKHR> presentModes;
+    };
+
+    SwapChainSupportDetails querySwapChainSupport(vk::PhysicalDevice device) const;
+    vk::SurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<vk::SurfaceFormatKHR>& availableFormats) const;
+    vk::PresentModeKHR chooseSwapPresentMode(const std::vector<vk::PresentModeKHR>& availablePresentModes) const;
+    vk::Extent2D chooseSwapExtent(const vk::SurfaceCapabilitiesKHR& capabilities) const;
+
+    GLFWwindow* window = nullptr;
     vk::Instance instance;
     vk::PhysicalDevice physicalDevice = nullptr;
     vk::Device device;
     vk::Queue graphicsQueue;
     vk::Queue presentQueue;
     vk::SurfaceKHR surface;
+    vk::SwapchainKHR swapChain;
+    std::vector<vk::Image> swapChainImages;
+    vk::Format swapChainImageFormat = {};
+    vk::Extent2D swapChainExtent;
+    std::vector<vk::ImageView> swapChainImageViews;
 
     const std::vector<const char*> validationLayers = {"VK_LAYER_KHRONOS_validation"};
     const std::vector<const char*> deviceExtensions = {vk::KHRSwapchainExtensionName};

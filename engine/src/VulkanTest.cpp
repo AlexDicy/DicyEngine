@@ -35,6 +35,8 @@ void VulkanTest::initVulkan() {
     createSurface();
     pickPhysicalDevice();
     createLogicalDevice();
+    createSwapChain();
+    createImageViews();
 }
 
 void VulkanTest::mainLoop() {
@@ -156,7 +158,8 @@ void VulkanTest::createLogicalDevice() {
     createInfo.pQueueCreateInfos = queueCreateInfos.data();
     createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
     createInfo.pEnabledFeatures = &deviceFeatures;
-    createInfo.enabledExtensionCount = 0;
+    createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
+    createInfo.ppEnabledExtensionNames = deviceExtensions.data();
     if (physicalDevice.createDevice(&createInfo, nullptr, &device) != vk::Result::eSuccess) {
         throw std::runtime_error("Failed to create logical device!");
     }
@@ -171,7 +174,69 @@ void VulkanTest::createSurface() {
     }
 }
 
-VulkanTest::QueueFamilyIndices VulkanTest::findQueueFamilies(vk::PhysicalDevice device) {
+void VulkanTest::createSwapChain() {
+    auto [capabilities, formats, presentModes] = querySwapChainSupport(physicalDevice);
+    vk::SurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(formats);
+    vk::PresentModeKHR presentMode = chooseSwapPresentMode(presentModes);
+    vk::Extent2D extent = chooseSwapExtent(capabilities);
+    unsigned int imageCount = capabilities.minImageCount + 1;
+    if (capabilities.maxImageCount > 0 && imageCount > capabilities.maxImageCount) {
+        imageCount = capabilities.maxImageCount;
+    }
+    vk::SwapchainCreateInfoKHR createInfo{};
+    createInfo.sType = vk::StructureType::eSwapchainCreateInfoKHR;
+    createInfo.surface = surface;
+    createInfo.minImageCount = imageCount;
+    createInfo.imageFormat = surfaceFormat.format;
+    createInfo.imageColorSpace = surfaceFormat.colorSpace;
+    createInfo.imageExtent = extent;
+    createInfo.imageArrayLayers = 1;
+    createInfo.imageUsage = vk::ImageUsageFlagBits::eColorAttachment;
+    const QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
+    const unsigned int queueFamilyIndices[] = {indices.graphicsFamily.value(), indices.presentFamily.value()};
+    if (indices.graphicsFamily != indices.presentFamily) {
+        createInfo.imageSharingMode = vk::SharingMode::eConcurrent;
+        createInfo.queueFamilyIndexCount = 2;
+        createInfo.pQueueFamilyIndices = queueFamilyIndices;
+    } else {
+        createInfo.imageSharingMode = vk::SharingMode::eExclusive;
+    }
+    createInfo.preTransform = capabilities.currentTransform;
+    createInfo.compositeAlpha = vk::CompositeAlphaFlagBitsKHR::eOpaque;
+    createInfo.presentMode = presentMode;
+    createInfo.clipped = true;
+    createInfo.oldSwapchain = nullptr;
+    swapChain = device.createSwapchainKHR(createInfo);
+    swapChainImages = device.getSwapchainImagesKHR(swapChain);
+    swapChainImageFormat = surfaceFormat.format;
+    swapChainExtent = extent;
+}
+
+void VulkanTest::createImageViews() {
+    swapChainImageViews.resize(swapChainImages.size());
+    for (size_t i = 0; i < swapChainImages.size(); i++) {
+        vk::ImageViewCreateInfo createInfo{};
+        createInfo.sType = vk::StructureType::eImageViewCreateInfo;
+        createInfo.image = swapChainImages[i];
+        createInfo.viewType = vk::ImageViewType::e2D;
+        createInfo.format = swapChainImageFormat;
+        createInfo.components.r = vk::ComponentSwizzle::eIdentity;
+        createInfo.components.g = vk::ComponentSwizzle::eIdentity;
+        createInfo.components.b = vk::ComponentSwizzle::eIdentity;
+        createInfo.components.a = vk::ComponentSwizzle::eIdentity;
+        createInfo.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
+        createInfo.subresourceRange.baseMipLevel = 0;
+        createInfo.subresourceRange.levelCount = 1;
+        createInfo.subresourceRange.baseArrayLayer = 0;
+        createInfo.subresourceRange.layerCount = 1;
+
+        if (device.createImageView(&createInfo, nullptr, &swapChainImageViews[i]) != vk::Result::eSuccess) {
+            throw std::runtime_error("Failed to create image views!");
+        }
+    }
+}
+
+VulkanTest::QueueFamilyIndices VulkanTest::findQueueFamilies(const vk::PhysicalDevice device) const {
     QueueFamilyIndices indices;
     std::vector<vk::QueueFamilyProperties> queueFamilies = device.getQueueFamilyProperties();
     int i = 0;
@@ -194,19 +259,55 @@ VulkanTest::QueueFamilyIndices VulkanTest::findQueueFamilies(vk::PhysicalDevice 
     return indices;
 }
 
-unsigned int VulkanTest::rateDeviceSuitability(const vk::PhysicalDevice device) {
-    const vk::PhysicalDeviceProperties properties = device.getProperties();
-    const vk::PhysicalDeviceFeatures features = device.getFeatures();
-
-    unsigned int score = 0;
-
-    if (properties.deviceType == vk::PhysicalDeviceType::eDiscreteGpu) {
-        score += 1000;
+bool VulkanTest::checkDeviceExtensionSupport(const vk::PhysicalDevice device) const {
+    const std::vector<vk::ExtensionProperties> availableExtensions = device.enumerateDeviceExtensionProperties();
+    std::set<std::string> requiredExtensions(deviceExtensions.begin(), deviceExtensions.end());
+    for (const auto& extension : availableExtensions) {
+        requiredExtensions.erase(extension.extensionName);
     }
+    return requiredExtensions.empty();
+}
 
-    score += properties.limits.maxImageDimension2D;
+VulkanTest::SwapChainSupportDetails VulkanTest::querySwapChainSupport(vk::PhysicalDevice device) const {
+    return {
+        .capabilities = device.getSurfaceCapabilitiesKHR(surface),
+        .formats = device.getSurfaceFormatsKHR(surface),
+        .presentModes = device.getSurfacePresentModesKHR(surface),
+    };
+}
 
-    if (!features.geometryShader) {
+vk::SurfaceFormatKHR VulkanTest::chooseSwapSurfaceFormat(const std::vector<vk::SurfaceFormatKHR>& availableFormats) const {
+    for (const auto& availableFormat : availableFormats) {
+        if (availableFormat.format == vk::Format::eB8G8R8A8Srgb && availableFormat.colorSpace == vk::ColorSpaceKHR::eSrgbNonlinear) {
+            return availableFormat;
+        }
+    }
+    return availableFormats[0];
+}
+
+vk::PresentModeKHR VulkanTest::chooseSwapPresentMode(const std::vector<vk::PresentModeKHR>& availablePresentModes) const {
+    for (const auto& availablePresentMode : availablePresentModes) {
+        if (availablePresentMode == vk::PresentModeKHR::eMailbox) {
+            return availablePresentMode;
+        }
+    }
+    return vk::PresentModeKHR::eFifo;
+}
+
+vk::Extent2D VulkanTest::chooseSwapExtent(const vk::SurfaceCapabilitiesKHR& capabilities) const {
+    if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max()) {
+        return capabilities.currentExtent;
+    }
+    int width, height;
+    glfwGetFramebufferSize(window, &width, &height);
+    vk::Extent2D actualExtent;
+    actualExtent.width = std::clamp(static_cast<unsigned int>(width), capabilities.minImageExtent.width, capabilities.maxImageExtent.width);
+    actualExtent.height = std::clamp(static_cast<unsigned int>(height), capabilities.minImageExtent.height, capabilities.maxImageExtent.height);
+    return actualExtent;
+}
+
+unsigned int VulkanTest::rateDeviceSuitability(const vk::PhysicalDevice device) {
+    if (!device.getFeatures().geometryShader) {
         return 0;
     }
 
@@ -214,6 +315,24 @@ unsigned int VulkanTest::rateDeviceSuitability(const vk::PhysicalDevice device) 
     if (!indices.isComplete()) {
         return 0;
     }
+
+    if (!checkDeviceExtensionSupport(device)) {
+        return 0;
+    }
+
+    SwapChainSupportDetails swapChainSupport = querySwapChainSupport(device);
+    if (swapChainSupport.formats.empty() || swapChainSupport.presentModes.empty()) {
+        return 0;
+    }
+
+    const vk::PhysicalDeviceProperties properties = device.getProperties();
+    unsigned int score = 0;
+
+    if (properties.deviceType == vk::PhysicalDeviceType::eDiscreteGpu) {
+        score += 1000;
+    }
+
+    score += properties.limits.maxImageDimension2D;
 
     if (indices.graphicsFamily == indices.presentFamily) {
         score += 1;
@@ -223,6 +342,10 @@ unsigned int VulkanTest::rateDeviceSuitability(const vk::PhysicalDevice device) 
 }
 
 void VulkanTest::cleanup() const {
+    for (const auto& imageView : swapChainImageViews) {
+        device.destroyImageView(imageView);
+    }
+    device.destroySwapchainKHR(swapChain);
     device.destroy();
     instance.destroySurfaceKHR(surface);
     instance.destroy();
