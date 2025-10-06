@@ -1,6 +1,9 @@
 ﻿#include "pch/enginepch.h"
 #include "OpenGLTextureCube.h"
 
+#include "images/CubeMap.h"
+#include "images/Image.h"
+
 #include <glad/gl.h>
 #include <stb_image.h>
 
@@ -88,13 +91,13 @@ Ref<CubeMap> OpenGLTextureCube::toCubemap() const {
     std::array<Image, 6> faces;
     glBindTexture(GL_TEXTURE_CUBE_MAP, this->id);
     for (int i = 0; i < 6; i++) {
-        faces[i] = Image(this->size, this->size, 3, sizeof(float) * 3, nullptr);
+        faces[i] = Image(this->size, this->size, Format::RGB, InternalFormat::RGB32F);
         glGetTexImage(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, GL_FLOAT, faces[i].getData());
     }
     return std::make_shared<CubeMap>(std::move(faces));
 }
 
-Ref<TextureCube> OpenGLTextureCube::createFromHDR(const Ref<Renderer>& renderer, const Ref<Texture2D>& hdrTexture, const Ref<Shader>& convertShader, const uint32_t size) {
+Ref<TextureCube> OpenGLTextureCube::createFromHDR(const Ref<Renderer>& renderer, const Ref<Texture>& hdrTexture, const Ref<Shader>& convertShader, const uint32_t size) {
     uint32_t captureFramebuffer;
     uint32_t captureRenderbuffer;
     setupRenderBuffer(captureFramebuffer, captureRenderbuffer, size);

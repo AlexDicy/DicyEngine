@@ -4,7 +4,7 @@
 
 class OpenGLDataType {
 public:
-    static GLenum getFromDataType(DataType type) {
+    static constexpr GLenum getFromDataType(DataType type) {
         switch (type) {
             case DataType::BOOL:
                 return GL_BOOL;
@@ -23,7 +23,7 @@ public:
         return 0;
     }
 
-    static GLenum getFromTextureFormat(const Texture::Format format) {
+    static constexpr GLenum getFromTextureFormat(const Texture::Format format) {
         switch (format) {
             case Texture::Format::RED:
                 return GL_RED;
@@ -42,7 +42,7 @@ public:
         return 0;
     }
 
-    static GLint getFromTextureInternalFormat(const Texture::InternalFormat internalFormat) {
+    static constexpr GLint getFromTextureInternalFormat(const Texture::InternalFormat internalFormat) {
         switch (internalFormat) {
             case Texture::InternalFormat::R8:
                 return GL_R8;
@@ -87,7 +87,7 @@ public:
         return 0;
     }
 
-    static GLenum getPixelTypeFromInternalFormat(const Texture::InternalFormat internalFormat) {
+    static constexpr GLenum getPixelTypeFromInternalFormat(const Texture::InternalFormat internalFormat) {
         switch (internalFormat) {
             case Texture::InternalFormat::R8:
             case Texture::InternalFormat::RG8:

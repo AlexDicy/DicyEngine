@@ -22,7 +22,7 @@ Ref<Texture> ImageUtils::loadTextureFromFile(const Ref<Renderer>& renderer, cons
         DE_ERROR("Failed to read texture file {0} - {1}", path, error);
     }
 
-    const Texture::Format format = !isHDR && channels > 3 ? Texture::Format::RGBA : Texture::RGB;
+    const Texture::Format format = !isHDR && channels > 3 ? Texture::Format::RGBA : Texture::Format::RGB;
     const Texture::InternalFormat internalFormat = isHDR ? (channels > 3 ? Texture::InternalFormat::RGBA16F : Texture::InternalFormat::RGB16F)
                                                          : (channels > 3 ? Texture::InternalFormat::RGBA8 : Texture::InternalFormat::RGB8);
     Ref<Texture> texture = Texture::builder() //

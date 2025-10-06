@@ -65,10 +65,6 @@ Ref<Texture> OpenGLRenderer::createTexture(unsigned int width, unsigned int heig
     return std::make_shared<OpenGLTexture>(width, height, layers, format, internalFormat, data);
 }
 
-Ref<Texture2D> OpenGLRenderer::createTexture2D(const std::string& path) const {
-    return std::make_shared<OpenGLTexture2D>(path);
-}
-
 Ref<Texture2D> OpenGLRenderer::createTexture2D(const unsigned int channels, const unsigned int width, const unsigned int height, const unsigned int bytesPerPixel,
                                                const void* data) const {
     return std::make_shared<OpenGLTexture2D>(channels, width, height, bytesPerPixel, data);
@@ -138,7 +134,7 @@ Ref<TextureCube> OpenGLRenderer::createTextureCube(const std::array<std::string,
     return std::make_shared<OpenGLTextureCube>(paths);
 }
 
-Ref<TextureCube> OpenGLRenderer::createTextureCubeFromHDR(const Ref<Texture2D>& hdrTexture, const Ref<Shader>& convertShader, const uint32_t size) {
+Ref<TextureCube> OpenGLRenderer::createTextureCubeFromHDR(const Ref<Texture>& hdrTexture, const Ref<Shader>& convertShader, const uint32_t size) {
     return OpenGLTextureCube::createFromHDR(shared_from_this(), hdrTexture, convertShader, size);
 }
 

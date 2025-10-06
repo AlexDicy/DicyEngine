@@ -9,7 +9,7 @@ add_requires("vulkan-headers 1.4.309+0")
 add_requires("vulkan-loader 1.4.309+0")
 add_requires("vulkan-validationlayers 1.4.309+0")
 add_requires("entt v3.13.2")
-add_requires("assimp v5.4.3")
+add_requires("assimp-alternative v5.4.3")
 add_requires("toml++ v3.4.0")
 add_requires("chromium-embedded-framework 135.0.21")
 add_requires("joltphysics v5.3.0")
@@ -44,7 +44,7 @@ target("engine")
         end
     end)
 
-    add_packages("spdlog", "glfw", "glm", "vulkan-headers", "vulkan-loader", "vulkan-validationlayers", "entt", "assimp", "toml++", "chromium-embedded-framework", "joltphysics")
+    add_packages("spdlog", "glfw", "glm", "vulkan-headers", "vulkan-loader", "vulkan-validationlayers", "entt", "assimp-alternative", "toml++", "chromium-embedded-framework", "joltphysics")
     add_deps("glad", "stb")
 
     add_defines("DE_IS_ENGINE", "GLM_ENABLE_EXPERIMENTAL", "NDEBUG")

@@ -1,19 +1,26 @@
 ﻿#pragma once
+#include "rendering/Texture.h"
 
+/**
+ * The Image class is similar to Texture but stores the image data in CPU memory.
+ * It cannot be used directly for rendering.
+ */
 class Image {
 public:
-    Image() = default;
-    explicit Image(const std::string& path);
-    Image(unsigned int width, unsigned int height, unsigned int channels, unsigned int bytesPerPixel, const void* data);
+    using Format = TextureFormats::Format;
+    using InternalFormat = TextureFormats::InternalFormat;
 
-    Image(Image&& other) noexcept : width(other.width), height(other.height), channels(other.channels), bytesPerPixel(other.bytesPerPixel), data(std::move(other.data)) {}
+    Image() = default;
+    Image(unsigned int width, unsigned int height, Format format, InternalFormat internalFormat, const void* data = nullptr);
+
+    Image(Image&& other) noexcept : width(other.width), height(other.height), format(other.format), internalFormat(other.internalFormat), data(std::move(other.data)) {}
     Image& operator=(Image&& other) noexcept {
         if (this == &other)
             return *this;
         width = other.width;
         height = other.height;
-        channels = other.channels;
-        bytesPerPixel = other.bytesPerPixel;
+        format = other.format;
+        internalFormat = other.internalFormat;
         data = std::move(other.data);
         return *this;
     }
@@ -29,12 +36,12 @@ public:
         return height;
     }
 
-    unsigned int getChannels() const {
-        return channels;
+    Texture::Format getFormat() const {
+        return format;
     }
 
-    unsigned int getBytesPerPixel() const {
-        return bytesPerPixel;
+    Texture::InternalFormat getInternalFormat() const {
+        return internalFormat;
     }
 
     void* getData() const {
@@ -46,7 +53,7 @@ public:
 protected:
     unsigned int width;
     unsigned int height;
-    unsigned int channels;
-    unsigned int bytesPerPixel;
+    Format format;
+    InternalFormat internalFormat;
     std::unique_ptr<uint8_t[]> data;
 };

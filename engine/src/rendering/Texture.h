@@ -1,11 +1,16 @@
 ﻿#pragma once
-#include "images/CubeMap.h"
+#include "TextureFormats.h"
 
+
+class CubeMap;
 class Renderer;
 class TextureBuilder;
 
 class Texture {
 public:
+    using Format = TextureFormats::Format;
+    using InternalFormat = TextureFormats::InternalFormat;
+
     virtual ~Texture() = default;
 
     unsigned int getWidth() const {
@@ -24,39 +29,6 @@ public:
     void setSourcePath(const std::string& path);
 
     static TextureBuilder builder();
-
-    enum Format {
-        RED,
-        RG,
-        RGB,
-        RGBA,
-        BGRA,
-        DEPTH,
-    };
-
-    // ReSharper disable CppInconsistentNaming
-    enum InternalFormat {
-        R8,
-        R16,
-        R16F,
-        R32F,
-        RG8,
-        RG16,
-        RG16F,
-        RG32F,
-        RGB8,
-        RGB16,
-        RGB16F,
-        RGB32F,
-        RGBA8,
-        RGBA16,
-        RGBA16F,
-        RGBA32F,
-        D16,
-        D32,
-        D24S8,
-    };
-    // ReSharper restore CppInconsistentNaming
 
 protected:
     Texture() = default;

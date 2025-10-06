@@ -34,10 +34,10 @@ SceneLayer::SceneLayer(const std::unique_ptr<Context>& ctx) : Layer(ctx) {
     Ref<LinearImage> skyboxHDR = std::make_shared<LinearImage>("../assets/skybox/kloofendal_48d_partly_cloudy_puresky_8k.hdr");
     // this takes more than 2 seconds, might be worth to improve
     Ref<LinearImage> skyboxToneMapped = ImageUtils::acesFilmicTonemapping(skyboxHDR);
-    Ref<Texture2D> skyboxTexture =
-        renderer->createTexture2D(skyboxHDR->getChannels(), skyboxHDR->getWidth(), skyboxHDR->getHeight(), skyboxHDR->getBytesPerPixel(), skyboxHDR->getData());
-    Ref<Texture2D> skyboxTextureToneMapped = renderer->createTexture2D(skyboxToneMapped->getChannels(), skyboxToneMapped->getWidth(), skyboxToneMapped->getHeight(),
-                                                                       skyboxToneMapped->getBytesPerPixel(), skyboxToneMapped->getData());
+    Ref<Texture> skyboxTexture =
+        renderer->createTexture(skyboxHDR->getWidth(), skyboxHDR->getHeight(), 1, skyboxHDR->getFormat(), skyboxHDR->getInternalFormat(), skyboxHDR->getData());
+    Ref<Texture> skyboxTextureToneMapped = renderer->createTexture(skyboxToneMapped->getWidth(), skyboxToneMapped->getHeight(), 1, skyboxToneMapped->getFormat(),
+                                                                   skyboxToneMapped->getInternalFormat(), skyboxToneMapped->getData());
     Ref<Shader> equirectangularToCubemapShader = app->getShaderRegistry()->load("../assets/shaders/equirectangular-to-cubemap");
     Ref<TextureCube> skyboxCubeTexture = renderer->createTextureCubeFromHDR(skyboxTexture, equirectangularToCubemapShader, 2048);
     Ref<TextureCube> skyboxCubeToneMapped = renderer->createTextureCubeFromHDR(skyboxTextureToneMapped, equirectangularToCubemapShader, 256);

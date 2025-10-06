@@ -102,7 +102,7 @@ Ref<Texture> ModelImporter::getTextureFromMaterial(const Ref<Renderer>& renderer
             static_cast<unsigned char>(diffuseColor.b * 255),
             static_cast<unsigned char>(255),
         };
-        return renderer->createTexture2D(4, 1, 1, 1, colorData.data());
+        return renderer->createTexture(1, 1, 1, Texture::Format::RGBA, Texture::InternalFormat::RGBA8, colorData.data());
     }
 
     aiString aiTexturePath;
