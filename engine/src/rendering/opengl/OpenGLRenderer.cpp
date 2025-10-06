@@ -26,9 +26,8 @@ void OpenGLRenderer::init(const uint32_t width, const uint32_t height) {
     glFrontFace(GL_CW);
     this->setFramebufferDimensions(width, height);
     this->setViewport(0, 0, width, height);
-    unsigned char white[4] = {255, 255, 255, 255};
-    this->whitePixelTexture = std::make_shared<OpenGLTexture2D>(1, 1, 1, 1, GL_RGBA, white);
-    this->defaultOcclusionRoughnessMetallicTexture = std::make_shared<OpenGLTexture2D>(3, 1, 1, 1, GL_RGB, std::array<unsigned char, 3>{255, 255, 0}.data());
+    this->whitePixelTexture = this->createTexture(1, 1, 1, Texture::Format::RGBA, Texture::InternalFormat::RGBA8, std::array<unsigned char, 4>{255, 255, 255, 255}.data());
+    this->defaultOcclusionRoughnessMetallicTexture = this->createTexture(1, 1, 1, Texture::Format::RGB, Texture::InternalFormat::RGB8, std::array<unsigned char, 3>{255, 255, 0}.data());
     this->shadowDepthFramebuffer = std::make_shared<OpenGLDepthFramebuffer>(2048, 2048);
     this->shadowCubeArrayFramebuffer = std::make_shared<OpenGLShadowCubeArrayFramebuffer>(1024, 0);
 }

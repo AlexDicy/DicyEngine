@@ -47,6 +47,6 @@ public:
 
 private:
     Ref<OpenGLRenderFramebuffer> framebuffer;
-    Ref<OpenGLTexture2D> whitePixelTexture;
-    Ref<OpenGLTexture2D> defaultOcclusionRoughnessMetallicTexture;
+    Ref<Texture> whitePixelTexture;
+    Ref<Texture> defaultOcclusionRoughnessMetallicTexture;
 };
