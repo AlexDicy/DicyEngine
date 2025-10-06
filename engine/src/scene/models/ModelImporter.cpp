@@ -92,7 +92,7 @@ std::vector<Model> ModelImporter::importFromFile(const Ref<Renderer>& renderer, 
 }
 
 Ref<Texture> ModelImporter::getTextureFromMaterial(const Ref<Renderer>& renderer, const aiScene* scene, const aiMaterial* material, const aiTextureType type,
-                                                     const std::string& basePath) {
+                                                   const std::string& basePath) {
     if (material->GetTextureCount(type) == 0) {
         aiColor3D diffuseColor = {1.0f, 1.0f, 1.0f};
         material->Get(AI_MATKEY_COLOR_DIFFUSE, diffuseColor);
