@@ -65,17 +65,6 @@ Ref<Texture> OpenGLRenderer::createTexture(unsigned int width, unsigned int heig
     return std::make_shared<OpenGLTexture>(width, height, layers, format, internalFormat, data);
 }
 
-Ref<Texture2D> OpenGLRenderer::createTexture2D(const unsigned int channels, const unsigned int width, const unsigned int height, const unsigned int bytesPerPixel,
-                                               const void* data) const {
-    return std::make_shared<OpenGLTexture2D>(channels, width, height, bytesPerPixel, data);
-}
-
-Ref<Texture2D> OpenGLRenderer::createTexture2D(const unsigned int channels, const unsigned int width, const unsigned int height, const unsigned int bytesPerPixel,
-                                               const Texture::Format format, const void* data) const {
-    GLenum glFormat = OpenGLDataType::getFromTextureFormat(format);
-    return std::make_shared<OpenGLTexture2D>(channels, width, height, bytesPerPixel, glFormat, data);
-}
-
 Ref<Texture2D> OpenGLRenderer::createBRDFLUT(const Ref<Shader>& shader, const uint32_t size) const {
     DebugGroup group("OpenGLRenderer::createBRDFLUT");
     unsigned int textureId;
