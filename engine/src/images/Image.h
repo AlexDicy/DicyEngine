@@ -17,11 +17,11 @@ public:
     Image& operator=(Image&& other) noexcept {
         if (this == &other)
             return *this;
-        width = other.width;
-        height = other.height;
-        format = other.format;
-        internalFormat = other.internalFormat;
-        data = std::move(other.data);
+        this->width = other.width;
+        this->height = other.height;
+        this->format = other.format;
+        this->internalFormat = other.internalFormat;
+        this->data = std::move(other.data);
         return *this;
     }
 
@@ -29,23 +29,27 @@ public:
 
 
     unsigned int getWidth() const {
-        return width;
+        return this->width;
     }
 
     unsigned int getHeight() const {
-        return height;
+        return this->height;
     }
 
     Texture::Format getFormat() const {
-        return format;
+        return this->format;
     }
 
     Texture::InternalFormat getInternalFormat() const {
-        return internalFormat;
+        return this->internalFormat;
     }
 
     void* getData() const {
-        return data.get();
+        return this->data.get();
+    }
+
+    unsigned int getDataSize() const {
+        return this->width * this->height * this->internalFormat.getSize();
     }
 
     void* getPixelPointer(unsigned int x, unsigned int y) const;

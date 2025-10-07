@@ -26,8 +26,10 @@ void OpenGLRenderer::init(const uint32_t width, const uint32_t height) {
     glFrontFace(GL_CW);
     this->setFramebufferDimensions(width, height);
     this->setViewport(0, 0, width, height);
-    this->whitePixelTexture = this->createTexture(1, 1, 1, Texture::Format::RGBA, Texture::InternalFormat::RGBA8, std::array<unsigned char, 4>{255, 255, 255, 255}.data());
-    this->defaultOcclusionRoughnessMetallicTexture = this->createTexture(1, 1, 1, Texture::Format::RGB, Texture::InternalFormat::RGB8, std::array<unsigned char, 3>{255, 255, 0}.data());
+    this->whitePixelTexture = this->createTexture(1, 1, 1, Texture::Format::RGBA, Texture::InternalFormat::RGBA8, Texture::TextureType::TEXTURE_2D,
+                                                  std::array<unsigned char, 4>{255, 255, 255, 255}.data());
+    this->defaultOcclusionRoughnessMetallicTexture =
+        this->createTexture(1, 1, 1, Texture::Format::RGB, Texture::InternalFormat::RGB8, Texture::TextureType::TEXTURE_2D, std::array<unsigned char, 3>{255, 255, 0}.data());
     this->shadowDepthFramebuffer = std::make_shared<OpenGLDepthFramebuffer>(2048, 2048);
     this->shadowCubeArrayFramebuffer = std::make_shared<OpenGLShadowCubeArrayFramebuffer>(1024, 0);
 }
@@ -61,8 +63,8 @@ Ref<Shader> OpenGLRenderer::createShader(const std::string& vertexPath, const st
 }
 
 Ref<Texture> OpenGLRenderer::createTexture(unsigned int width, unsigned int height, unsigned int layers, Texture::Format format, Texture::InternalFormat internalFormat,
-                                           const void* data) const {
-    return std::make_shared<OpenGLTexture>(width, height, layers, format, internalFormat, data);
+                                           Texture::TextureType type, const void* data) const {
+    return std::make_shared<OpenGLTexture>(width, height, layers, format, internalFormat, type, data);
 }
 
 Ref<Texture2D> OpenGLRenderer::createBRDFLUT(const Ref<Shader>& shader, const uint32_t size) const {
@@ -119,15 +121,11 @@ Ref<Texture2D> OpenGLRenderer::createBRDFLUT(const Ref<Shader>& shader, const ui
     return std::make_shared<OpenGLTexture2D>(textureId, size, size, GL_RG16F, GL_RG, GL_FLOAT);
 }
 
-Ref<TextureCube> OpenGLRenderer::createTextureCube(const std::array<std::string, 6>& paths) const {
-    return std::make_shared<OpenGLTextureCube>(paths);
-}
-
-Ref<TextureCube> OpenGLRenderer::createTextureCubeFromHDR(const Ref<Texture>& hdrTexture, const Ref<Shader>& convertShader, const uint32_t size) {
+Ref<Texture> OpenGLRenderer::createTextureCubeFromHDR(const Ref<Texture>& hdrTexture, const Ref<Shader>& convertShader, const uint32_t size) {
     return OpenGLTextureCube::createFromHDR(shared_from_this(), hdrTexture, convertShader, size);
 }
 
-Ref<TextureCube> OpenGLRenderer::createPrefilteredCubemap(const Ref<TextureCube>& textureCube, const Ref<Shader>& convertShader, const uint32_t size) {
+Ref<Texture> OpenGLRenderer::createPrefilteredCubemap(const Ref<Texture>& textureCube, const Ref<Shader>& convertShader, const uint32_t size) {
     return OpenGLTextureCube::createPrefilteredCubemap(shared_from_this(), textureCube, convertShader, size);
 }
 

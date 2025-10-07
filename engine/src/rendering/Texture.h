@@ -10,6 +10,7 @@ class Texture {
 public:
     using Format = TextureFormats::Format;
     using InternalFormat = TextureFormats::InternalFormat;
+    using TextureType = TextureFormats::Type;
 
     virtual ~Texture() = default;
 
@@ -26,26 +27,25 @@ public:
     virtual void setRawData(const void* data, unsigned int size) = 0;
     virtual void resize(unsigned int width, unsigned int height) = 0;
 
-    void setSourcePath(const std::string& path);
+    virtual Ref<CubeMap> toCubemap() const = 0;
 
     static TextureBuilder builder();
 
 protected:
-    Texture() = default;
+    Texture(unsigned int width, unsigned int height, unsigned int layers, Format format, InternalFormat internalFormat, TextureType type);
 
     unsigned int width;
     unsigned int height;
     unsigned int layers;
     Format format;
     InternalFormat internalFormat;
-
-    std::string sourcePath;
+    TextureType type;
 };
 
 
 class Texture2D : public Texture {
 public:
-    Texture2D(const unsigned int width, const unsigned int height) : Texture() {
+    Texture2D(const unsigned int width, const unsigned int height) : Texture(width, height, 1, Format::RGBA, InternalFormat::RGBA8, TextureType::TEXTURE_2D) {
         this->width = width;
         this->height = height;
     }
@@ -54,7 +54,7 @@ public:
 
 class TextureCube : public Texture {
 public:
-    explicit TextureCube(const unsigned int size) : Texture(), size(size) {}
+    explicit TextureCube(const unsigned int size) : Texture(size, size, 6, Format::RGBA, InternalFormat::RGBA8, TextureType::TEXTURE_CUBE), size(size) {}
 
     unsigned int getSize() const {
         return this->size;
@@ -72,7 +72,8 @@ protected:
 
 class TextureCubeArray : public Texture {
 public:
-    TextureCubeArray(const unsigned int size, const unsigned int layersCount) : Texture(), size(size), layersCount(layersCount) {}
+    TextureCubeArray(const unsigned int size, const unsigned int layersCount) :
+        Texture(size, size, layersCount * 6, Format::RGBA, InternalFormat::RGBA8, TextureType::TEXTURE_CUBE_ARRAY), size(size), layersCount(layersCount) {}
 
     unsigned int getSize() const {
         return this->size;
@@ -117,13 +118,13 @@ public:
         return *this;
     }
 
-    TextureBuilder& setData(void* data) {
-        this->data = data;
+    TextureBuilder& setType(const Texture::TextureType type) {
+        this->type = type;
         return *this;
     }
 
-    TextureBuilder& setSourcePath(const std::string& path) {
-        this->sourcePath = path;
+    TextureBuilder& setData(void* data) {
+        this->data = data;
         return *this;
     }
 
@@ -138,6 +139,6 @@ private:
     unsigned int layers = 1;
     Texture::Format format = Texture::Format::RGBA;
     Texture::InternalFormat internalFormat = Texture::InternalFormat::RGBA8;
+    Texture::TextureType type = Texture::TextureType::TEXTURE_2D;
     void* data = nullptr;
-    std::string sourcePath;
 };

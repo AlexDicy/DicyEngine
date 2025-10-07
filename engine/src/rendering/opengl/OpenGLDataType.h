@@ -87,6 +87,21 @@ public:
         return 0;
     }
 
+    static constexpr GLenum getFromTextureType(const Texture::TextureType type) {
+        switch (type) {
+            case Texture::TextureType::TEXTURE_2D:
+                return GL_TEXTURE_2D;
+            case Texture::TextureType::TEXTURE_2D_ARRAY:
+                return GL_TEXTURE_2D_ARRAY;
+            case Texture::TextureType::TEXTURE_CUBE:
+                return GL_TEXTURE_CUBE_MAP;
+            case Texture::TextureType::TEXTURE_CUBE_ARRAY:
+                return GL_TEXTURE_CUBE_MAP_ARRAY;
+        }
+        DE_ERROR("Couldn't find corresponding OpenGL type for TextureType {0}", static_cast<int>(type));
+        return 0;
+    }
+
     static constexpr GLenum getPixelTypeFromInternalFormat(const Texture::InternalFormat internalFormat) {
         switch (internalFormat) {
             case Texture::InternalFormat::R8:

@@ -16,11 +16,11 @@ public:
     Ref<VertexBuffer> createVertexBuffer(const float* vertices, uint32_t size) const override;
     Ref<IndexBuffer> createIndexBuffer(const uint32_t* indexes, uint32_t count) const override;
     Ref<Shader> createShader(const std::string& vertexPath, const std::string& fragmentPath) const override;
-    Ref<Texture> createTexture(unsigned int width, unsigned int height, unsigned int layers, Texture::Format format, Texture::InternalFormat internalFormat, const void* data = nullptr) const override;
+    Ref<Texture> createTexture(unsigned int width, unsigned int height, unsigned int layers, Texture::Format format, Texture::InternalFormat internalFormat,
+                               Texture::TextureType type = Texture::TextureType::TEXTURE_2D, const void* data = nullptr) const override;
     Ref<Texture2D> createBRDFLUT(const Ref<Shader>& shader, uint32_t size) const override;
-    Ref<TextureCube> createTextureCube(const std::array<std::string, 6>& paths) const override;
-    Ref<TextureCube> createTextureCubeFromHDR(const Ref<Texture>& hdrTexture, const Ref<Shader>& convertShader, uint32_t size) override;
-    Ref<TextureCube> createPrefilteredCubemap(const Ref<TextureCube>& textureCube, const Ref<Shader>& convertShader, uint32_t size) override;
+    Ref<Texture> createTextureCubeFromHDR(const Ref<Texture>& hdrTexture, const Ref<Shader>& convertShader, uint32_t size) override;
+    Ref<Texture> createPrefilteredCubemap(const Ref<Texture>& textureCube, const Ref<Shader>& convertShader, uint32_t size) override;
 
     void beginFrame() override;
     void beginDirectionalShadows() const override;

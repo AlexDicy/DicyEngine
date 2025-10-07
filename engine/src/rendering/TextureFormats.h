@@ -1,7 +1,10 @@
 ﻿#pragma once
 
 class TextureFormats {
-public:
+protected:
+    friend class Texture;
+    friend class Image;
+
     class Format {
     public:
         enum FormatEnum : unsigned char {
@@ -190,5 +193,32 @@ public:
 
     private:
         InternalFormatEnum e;
+    };
+
+    class Type {
+    public:
+        // ReSharper disable CppInconsistentNaming
+        enum TextureTypeEnum {
+            TEXTURE_2D,
+            TEXTURE_2D_ARRAY,
+            TEXTURE_CUBE,
+            TEXTURE_CUBE_ARRAY,
+        };
+        // ReSharper restore CppInconsistentNaming
+
+        constexpr Type() = default;
+        /* implicit */ constexpr Type(const TextureTypeEnum e) : e(e) {}
+
+        // ReSharper disable once CppNonExplicitConversionOperator
+        // allows comparisons with Enum constants.
+        constexpr operator TextureTypeEnum() const {
+            return e;
+        }
+
+        // prevent if (x)
+        explicit operator bool() const = delete;
+
+    private:
+        TextureTypeEnum e;
     };
 };

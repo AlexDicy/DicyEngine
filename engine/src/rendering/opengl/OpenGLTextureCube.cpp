@@ -1,54 +1,10 @@
 ﻿#include "pch/enginepch.h"
 #include "OpenGLTextureCube.h"
 
-#include "images/CubeMap.h"
-#include "images/Image.h"
+#include "OpenGLTexture.h"
 
 #include <glad/gl.h>
-#include <stb_image.h>
 
-
-OpenGLTextureCube::OpenGLTextureCube(const std::array<std::string, 6>& paths) : TextureCube(0), paths(paths) {
-    glGenTextures(1, &this->id);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, this->id);
-
-    int width = -1;
-    int height = -1;
-    int channels = 0;
-    for (unsigned int i = 0; i < paths.size(); i++) {
-        stbi_uc* texture = stbi_load(paths[i].c_str(), &width, &height, &channels, 0);
-        if (!texture) {
-            const char* error = stbi_failure_reason();
-            DE_ERROR("Failed to read texture file {0} - {1}", paths[i], error);
-        }
-
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, texture);
-        stbi_image_free(texture);
-    }
-
-    this->size = width;
-
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-}
-
-OpenGLTextureCube::OpenGLTextureCube(const uint32_t id, const uint32_t size) : TextureCube(size), id(id) {}
-
-OpenGLTextureCube::~OpenGLTextureCube() {
-    glDeleteTextures(1, &this->id);
-}
-
-void OpenGLTextureCube::bind(uint32_t slot) const {
-#ifdef OPENGL_4_6
-    glBindTextureUnit(slot, this->id);
-#else
-    glActiveTexture(GL_TEXTURE0 + slot);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, this->id);
-#endif
-}
 
 void setupRenderBuffer(uint32_t& captureFramebuffer, uint32_t& captureRenderbuffer, const uint32_t size) {
     glGenFramebuffers(1, &captureFramebuffer);
@@ -87,17 +43,7 @@ void renderToCubemap(const Ref<Renderer>& renderer, const Ref<Shader>& convertSh
     }
 }
 
-Ref<CubeMap> OpenGLTextureCube::toCubemap() const {
-    std::array<Image, 6> faces;
-    glBindTexture(GL_TEXTURE_CUBE_MAP, this->id);
-    for (int i = 0; i < 6; i++) {
-        faces[i] = Image(this->size, this->size, Format::RGB, InternalFormat::RGB32F);
-        glGetTexImage(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, GL_FLOAT, faces[i].getData());
-    }
-    return std::make_shared<CubeMap>(std::move(faces));
-}
-
-Ref<TextureCube> OpenGLTextureCube::createFromHDR(const Ref<Renderer>& renderer, const Ref<Texture>& hdrTexture, const Ref<Shader>& convertShader, const uint32_t size) {
+Ref<Texture> OpenGLTextureCube::createFromHDR(const Ref<Renderer>& renderer, const Ref<Texture>& hdrTexture, const Ref<Shader>& convertShader, const uint32_t size) {
     uint32_t captureFramebuffer;
     uint32_t captureRenderbuffer;
     setupRenderBuffer(captureFramebuffer, captureRenderbuffer, size);
@@ -117,11 +63,10 @@ Ref<TextureCube> OpenGLTextureCube::createFromHDR(const Ref<Renderer>& renderer,
     glViewport(previousViewport[0], previousViewport[1], previousViewport[2], previousViewport[3]);
     glDeleteFramebuffers(1, &captureFramebuffer);
     glDeleteRenderbuffers(1, &captureRenderbuffer);
-    return std::make_shared<OpenGLTextureCube>(cubeMapId, size);
+    return std::make_shared<OpenGLTexture>(cubeMapId, size, size, 6, Texture::Format::RGB, Texture::InternalFormat::RGB16F, Texture::TextureType::TEXTURE_CUBE);
 }
 
-Ref<TextureCube> OpenGLTextureCube::createPrefilteredCubemap(const Ref<Renderer>& renderer, const Ref<TextureCube>& textureCube, const Ref<Shader>& convertShader,
-                                                             const uint32_t size) {
+Ref<Texture> OpenGLTextureCube::createPrefilteredCubemap(const Ref<Renderer>& renderer, const Ref<Texture>& textureCube, const Ref<Shader>& convertShader, const uint32_t size) {
     uint32_t captureFramebuffer;
     uint32_t captureRenderbuffer;
     setupRenderBuffer(captureFramebuffer, captureRenderbuffer, size);
@@ -151,5 +96,5 @@ Ref<TextureCube> OpenGLTextureCube::createPrefilteredCubemap(const Ref<Renderer>
     glViewport(previousViewport[0], previousViewport[1], previousViewport[2], previousViewport[3]);
     glDeleteFramebuffers(1, &captureFramebuffer);
     glDeleteRenderbuffers(1, &captureRenderbuffer);
-    return std::make_shared<OpenGLTextureCube>(prefilteredCubemapId, size);
+    return std::make_shared<OpenGLTexture>(prefilteredCubemapId, size, size, 6, Texture::Format::RGB, Texture::InternalFormat::RGB16F, Texture::TextureType::TEXTURE_CUBE);
 }

@@ -3,18 +3,38 @@
 
 #include <stb_image.h>
 
+Ref<Image> ImageUtils::loadImageFromFile(const std::string& path) {
+    unsigned int width;
+    unsigned int height;
+    Image::Format format;
+    Image::InternalFormat internalFormat;
+    void* data = loadImageData(path, width, height, format, internalFormat);
+    return createImageFromData(width, height, format, internalFormat, data);
+}
+
 Ref<Texture> ImageUtils::loadTextureFromFile(const Ref<Renderer>& renderer, const std::string& path) {
+    unsigned int width;
+    unsigned int height;
+    Texture::Format format;
+    Texture::InternalFormat internalFormat;
+    void* data = loadImageData(path, width, height, format, internalFormat);
+    return createTextureFromData(renderer, width, height, format, internalFormat, data);
+}
+
+/**
+ * Always remember to free the returned data using stbi_image_free when done using it.
+ */
+void* ImageUtils::loadImageData(const std::string& path, unsigned int& width, unsigned int& height, Image::Format& format, Image::InternalFormat& internalFormat) {
     const bool isHDR = path.ends_with(".hdr");
-    int width;
-    int height;
+    int w, h;
     int channels;
 
     stbi_set_flip_vertically_on_load(true);
     void* data;
     if (isHDR) {
-        data = stbi_loadf(path.c_str(), &width, &height, &channels, 0);
+        data = stbi_loadf(path.c_str(), &w, &h, &channels, 0);
     } else {
-        data = stbi_load(path.c_str(), &width, &height, &channels, 0);
+        data = stbi_load(path.c_str(), &w, &h, &channels, 0);
     }
 
     if (!data) {
@@ -22,19 +42,12 @@ Ref<Texture> ImageUtils::loadTextureFromFile(const Ref<Renderer>& renderer, cons
         DE_ERROR("Failed to read texture file {0} - {1}", path, error);
     }
 
-    const Texture::Format format = !isHDR && channels > 3 ? Texture::Format::RGBA : Texture::Format::RGB;
-    const Texture::InternalFormat internalFormat = isHDR ? (channels > 3 ? Texture::InternalFormat::RGBA16F : Texture::InternalFormat::RGB16F)
-                                                         : (channels > 3 ? Texture::InternalFormat::RGBA8 : Texture::InternalFormat::RGB8);
-    Ref<Texture> texture = Texture::builder() //
-                               .setWidth(width)
-                               .setHeight(height)
-                               .setFormat(format)
-                               .setInternalFormat(internalFormat)
-                               .setData(data)
-                               .setSourcePath(path)
-                               .build(renderer);
-    stbi_image_free(data);
-    return texture;
+    width = static_cast<unsigned int>(w);
+    height = static_cast<unsigned int>(h);
+    format = !isHDR && channels > 3 ? Texture::Format::RGBA : Texture::Format::RGB;
+    internalFormat = isHDR ? (channels > 3 ? Texture::InternalFormat::RGBA16F : Texture::InternalFormat::RGB16F)
+                           : (channels > 3 ? Texture::InternalFormat::RGBA8 : Texture::InternalFormat::RGB8);
+    return data; // remember to free with stbi_image_free
 }
 
 Ref<LinearImage> ImageUtils::acesFilmicTonemapping(const Ref<LinearImage>& image) {
@@ -53,4 +66,26 @@ Ref<LinearImage> ImageUtils::acesFilmicTonemapping(const Ref<LinearImage>& image
         }
     }
     return result;
+}
+
+
+Ref<Image> ImageUtils::createImageFromData(const unsigned int width, const unsigned int height, const Image::Format format, const Image::InternalFormat internalFormat,
+                                           void* data) {
+    auto image = std::make_shared<Image>(width, height, format, internalFormat, data);
+    stbi_image_free(data);
+    return image;
+}
+
+Ref<Texture> ImageUtils::createTextureFromData(const Ref<Renderer>& renderer, const unsigned int width, const unsigned int height, const Texture::Format format,
+                                               const Texture::InternalFormat internalFormat, void* data) {
+    Ref<Texture> texture = Texture::builder() //
+                               .setWidth(width)
+                               .setHeight(height)
+                               .setFormat(format)
+                               .setInternalFormat(internalFormat)
+                               .setType(Texture::TextureType::TEXTURE_2D)
+                               .setData(data)
+                               .build(renderer);
+    stbi_image_free(data);
+    return texture;
 }

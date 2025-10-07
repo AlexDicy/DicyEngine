@@ -16,6 +16,7 @@ public:
 
     void createTextureWithData(unsigned int channels, unsigned int width, unsigned int height, bool isHDR, const void* data);
     void createTextureWithData(unsigned int channels, unsigned int width, unsigned int height, bool isHDR, int format, const void* data);
+    Ref<CubeMap> toCubemap() const override { return nullptr; }
 
 private:
     void initializePBO();

@@ -6,9 +6,9 @@
 
 Image::Image(const unsigned int width, const unsigned int height, const Format format, const InternalFormat internalFormat, const void* data) :
     width(width), height(height), format(format), internalFormat(internalFormat) {
-    this->data = std::make_unique<uint8_t[]>(width * height * internalFormat.getSize());
+    this->data = std::make_unique<uint8_t[]>(this->getDataSize());
     if (data) {
-        memcpy(this->data.get(), data, width * height * internalFormat.getSize());
+        memcpy(this->data.get(), data, this->getDataSize());
     }
 }
 
