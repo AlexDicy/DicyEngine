@@ -6,7 +6,6 @@
 #include "OpenGLDataType.h"
 #include "OpenGLShader.h"
 #include "OpenGLTexture.h"
-#include "OpenGLTexture2D.h"
 #include "OpenGLTextureCube.h"
 #include "OpenGLVertexArray.h"
 #include "framebuffer/OpenGLDataFramebuffer.h"
@@ -67,7 +66,7 @@ Ref<Texture> OpenGLRenderer::createTexture(unsigned int width, unsigned int heig
     return std::make_shared<OpenGLTexture>(width, height, layers, format, internalFormat, type, data);
 }
 
-Ref<Texture2D> OpenGLRenderer::createBRDFLUT(const Ref<Shader>& shader, const uint32_t size) const {
+Ref<Texture> OpenGLRenderer::createBRDFLUT(const Ref<Shader>& shader, const uint32_t size) const {
     DebugGroup group("OpenGLRenderer::createBRDFLUT");
     unsigned int textureId;
     glGenTextures(1, &textureId);
@@ -118,7 +117,7 @@ Ref<Texture2D> OpenGLRenderer::createBRDFLUT(const Ref<Shader>& shader, const ui
     glViewport(previousViewport[0], previousViewport[1], previousViewport[2], previousViewport[3]);
     glDeleteFramebuffers(1, &captureFramebuffer);
     glDeleteRenderbuffers(1, &captureRenderbuffer);
-    return std::make_shared<OpenGLTexture2D>(textureId, size, size, GL_RG16F, GL_RG, GL_FLOAT);
+    return std::make_shared<OpenGLTexture>(textureId, size, size, Texture::Format::RG, Texture::InternalFormat::RG16_FLOAT, Texture::TextureType::TEXTURE_2D);
 }
 
 Ref<Texture> OpenGLRenderer::createTextureCubeFromHDR(const Ref<Texture>& hdrTexture, const Ref<Shader>& convertShader, const uint32_t size) {

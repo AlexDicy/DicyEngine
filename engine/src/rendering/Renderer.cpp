@@ -60,7 +60,7 @@ void Renderer::setPrefilteredEnvMap(const Ref<Texture>& prefilteredEnvMap) {
     this->prefilteredEnvMap = prefilteredEnvMap;
 }
 
-void Renderer::setBRDFLUT(const Ref<Texture2D>& brdfLUT) {
+void Renderer::setBRDFLUT(const Ref<Texture>& brdfLUT) {
     this->brdfLUT = brdfLUT;
 }
 

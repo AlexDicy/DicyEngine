@@ -25,17 +25,11 @@ Ref<Texture> ImageUtils::loadTextureFromFile(const Ref<Renderer>& renderer, cons
  * Always remember to free the returned data using stbi_image_free when done using it.
  */
 void* ImageUtils::loadImageData(const std::string& path, unsigned int& width, unsigned int& height, Image::Format& format, Image::InternalFormat& internalFormat) {
-    const bool isHDR = path.ends_with(".hdr");
     int w, h;
     int channels;
 
     stbi_set_flip_vertically_on_load(true);
-    void* data;
-    if (isHDR) {
-        data = stbi_loadf(path.c_str(), &w, &h, &channels, 0);
-    } else {
-        data = stbi_load(path.c_str(), &w, &h, &channels, 0);
-    }
+    void* data = stbi_load(path.c_str(), &w, &h, &channels, 0);
 
     if (!data) {
         const char* error = stbi_failure_reason();
@@ -44,9 +38,8 @@ void* ImageUtils::loadImageData(const std::string& path, unsigned int& width, un
 
     width = static_cast<unsigned int>(w);
     height = static_cast<unsigned int>(h);
-    format = !isHDR && channels > 3 ? Texture::Format::RGBA : Texture::Format::RGB;
-    internalFormat = isHDR ? (channels > 3 ? Texture::InternalFormat::RGBA16F : Texture::InternalFormat::RGB16F)
-                           : (channels > 3 ? Texture::InternalFormat::RGBA8 : Texture::InternalFormat::RGB8);
+    format = channels > 3 ? Texture::Format::RGBA : Texture::Format::RGB;
+    internalFormat = channels > 3 ? Texture::InternalFormat::RGBA8 : Texture::InternalFormat::RGB8;
     return data; // remember to free with stbi_image_free
 }
 
@@ -57,12 +50,14 @@ Ref<LinearImage> ImageUtils::acesFilmicTonemapping(const Ref<LinearImage>& image
             const auto originalPixel = static_cast<float*>(image->getPixelPointer(x, y));
             const auto resultPixel = static_cast<float*>(result->getPixelPointer(x, y));
             const auto color = glm::vec3(originalPixel[0], originalPixel[1], originalPixel[2]);
+            const auto alpha = originalPixel[3];
             constexpr float a = 2.51f;
             constexpr float b = 0.03f;
             constexpr float c = 2.43f;
             constexpr float d = 0.59f;
             constexpr float e = 0.14f;
-            *reinterpret_cast<glm::vec3*>(resultPixel) = glm::clamp((color * (a * color + b)) / (color * (c * color + d) + e), glm::vec3(0.0), glm::vec3(1.0));
+            const glm::vec3 mapped = glm::clamp((color * (a * color + b)) / (color * (c * color + d) + e), glm::vec3(0.0), glm::vec3(1.0));
+            *reinterpret_cast<glm::vec4*>(resultPixel) = glm::vec4(mapped, alpha);
         }
     }
     return result;

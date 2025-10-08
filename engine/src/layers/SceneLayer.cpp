@@ -57,7 +57,7 @@ SceneLayer::SceneLayer(const std::unique_ptr<Context>& ctx) : Layer(ctx) {
     renderer->setPrefilteredEnvMap(prefilteredSkybox);
     this->skybox = std::make_shared<SkyboxCube>(renderer, skyboxShader, skyboxCubeTexture);
     Ref<Shader> brdfLUTShader = app->getShaderRegistry()->load("../assets/shaders/brdf-lut");
-    Ref<Texture2D> brdfLUT = renderer->createBRDFLUT(brdfLUTShader, 512);
+    Ref<Texture> brdfLUT = renderer->createBRDFLUT(brdfLUTShader, 512);
     renderer->setBRDFLUT(brdfLUT);
 
     this->directionalLight = std::make_shared<DirectionalLight>(Rotation(-70, 90, 0), 2.86f);

@@ -116,8 +116,8 @@ Ref<CubeMap> OpenGLTexture::toCubemap() const {
     std::array<Image, 6> faces;
     glBindTexture(this->glTextureType, this->id);
     for (int i = 0; i < 6; i++) {
-        faces[i] = Image(this->width, this->height, Format::RGB, InternalFormat::RGB32F);
-        glGetTexImage(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, GL_FLOAT, faces[i].getData());
+        faces[i] = Image(this->width, this->height, Format::RGBA, InternalFormat::RGBA32_FLOAT);
+        glGetTexImage(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA, GL_FLOAT, faces[i].getData());
     }
     return std::make_shared<CubeMap>(std::move(faces));
 }

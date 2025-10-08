@@ -15,7 +15,7 @@ public:
 
     virtual void bind() const = 0;
 
-    virtual const Ref<Texture2D>& getDepthTexture() const = 0;
+    virtual const Ref<Texture>& getDepthTexture() const = 0;
 
 protected:
     uint32_t width;

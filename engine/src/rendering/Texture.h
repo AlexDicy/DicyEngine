@@ -10,6 +10,7 @@ class Texture {
 public:
     using Format = TextureFormats::Format;
     using InternalFormat = TextureFormats::InternalFormat;
+    using DataType = TextureFormats::DataType;
     using TextureType = TextureFormats::Type;
 
     virtual ~Texture() = default;
@@ -40,15 +41,6 @@ protected:
     Format format;
     InternalFormat internalFormat;
     TextureType type;
-};
-
-
-class Texture2D : public Texture {
-public:
-    Texture2D(const unsigned int width, const unsigned int height) : Texture(width, height, 1, Format::RGBA, InternalFormat::RGBA8, TextureType::TEXTURE_2D) {
-        this->width = width;
-        this->height = height;
-    }
 };
 
 

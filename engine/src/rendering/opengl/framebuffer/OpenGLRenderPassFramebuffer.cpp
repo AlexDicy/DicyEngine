@@ -2,7 +2,7 @@
 #include "OpenGLRenderPassFramebuffer.h"
 
 #include "glad/gl.h"
-#include "rendering/opengl/OpenGLTexture2D.h"
+#include "rendering/opengl/OpenGLTexture.h"
 
 
 OpenGLRenderPassFramebuffer::OpenGLRenderPassFramebuffer(const unsigned int width, const unsigned int height) : RenderPassFramebuffer(width, height) {
@@ -10,13 +10,13 @@ OpenGLRenderPassFramebuffer::OpenGLRenderPassFramebuffer(const unsigned int widt
     glGenTextures(1, &textureId);
     glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, textureId);
     glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 4, GL_RGBA32F, static_cast<int>(width), static_cast<int>(height), GL_TRUE);
-    this->texture = std::make_shared<OpenGLTexture2D>(textureId, width, height, GL_RGBA32F, GL_RGBA, GL_FLOAT);
+    this->texture = std::make_shared<OpenGLTexture>(textureId, width, height, Texture::Format::RGBA, Texture::InternalFormat::RGBA32_FLOAT, Texture::TextureType::TEXTURE_2D);
     // depth texture
     unsigned int depthTextureId;
     glGenTextures(1, &depthTextureId);
     glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, depthTextureId);
     glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 4, GL_DEPTH_COMPONENT24, static_cast<int>(width), static_cast<int>(height), GL_TRUE);
-    this->depthTexture = std::make_shared<OpenGLTexture2D>(depthTextureId, width, height, GL_DEPTH_COMPONENT24, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT);
+    this->depthTexture = std::make_shared<OpenGLTexture>(depthTextureId, width, height, Texture::Format::DEPTH, Texture::InternalFormat::D24, Texture::TextureType::TEXTURE_2D);
     // framebuffer
     glGenFramebuffers(1, &this->id);
     glBindFramebuffer(GL_FRAMEBUFFER, this->id);

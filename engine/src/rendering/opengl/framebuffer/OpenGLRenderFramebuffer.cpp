@@ -2,7 +2,7 @@
 #include "OpenGLRenderFramebuffer.h"
 
 #include "glad/gl.h"
-#include "rendering/opengl/OpenGLTexture2D.h"
+#include "rendering/opengl/OpenGLTexture.h"
 
 
 OpenGLRenderFramebuffer::OpenGLRenderFramebuffer(const uint32_t width, const uint32_t height) : RenderFramebuffer(width, height) {
@@ -18,7 +18,7 @@ OpenGLRenderFramebuffer::OpenGLRenderFramebuffer(const uint32_t width, const uin
     glGenTextures(1, &this->depthStencilTextureId);
     glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, this->depthStencilTextureId);
     glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 4, GL_DEPTH24_STENCIL8, static_cast<int>(width), static_cast<int>(height), true);
-    this->depthTexture = std::make_shared<OpenGLTexture2D>(this->depthStencilTextureId, width, height, GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8);
+    this->depthTexture = std::make_shared<OpenGLTexture>(this->depthStencilTextureId, width, height, Texture::Format::DEPTH_STENCIL, Texture::InternalFormat::D24S8, Texture::TextureType::TEXTURE_2D);
     // framebuffer
     glGenFramebuffers(1, &this->id);
     glBindFramebuffer(GL_FRAMEBUFFER, this->id);

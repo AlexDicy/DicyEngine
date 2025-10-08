@@ -9,11 +9,11 @@ public:
     void bind() const override;
     void clear() const override;
 
-    const Ref<Texture2D>& getDataTexture() const override {
+    const Ref<Texture>& getDataTexture() const override {
         return this->depthTexture;
     }
 
 private:
     unsigned int id;
-    Ref<Texture2D> depthTexture;
+    Ref<Texture> depthTexture;
 };

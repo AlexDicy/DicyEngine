@@ -8,12 +8,17 @@ protected:
     class Format {
     public:
         enum FormatEnum : unsigned char {
-            RED,
+            R,
+            R_INT,
             RG,
+            RG_INT,
             RGB,
+            RGB_INT,
             RGBA,
-            BGRA,
+            RGBA_INT,
+            BGRA, // TODO: test removing this, see if the UI texture still works
             DEPTH,
+            DEPTH_STENCIL,
         };
 
         constexpr Format() = default;
@@ -30,17 +35,21 @@ protected:
 
         constexpr unsigned int getChannelCount() const {
             switch (e) {
-                case RED:
-                    return 1;
-                case RG:
-                    return 2;
-                case RGB:
-                    return 3;
-                case BGRA:
-                case RGBA:
-                    return 4;
+                case R:
+                case R_INT:
                 case DEPTH:
                     return 1;
+                case RG:
+                case RG_INT:
+                case DEPTH_STENCIL:
+                    return 2;
+                case RGB:
+                case RGB_INT:
+                    return 3;
+                case RGBA:
+                case RGBA_INT:
+                case BGRA:
+                    return 4;
                 default:
                     return 0;
             }
@@ -53,12 +62,18 @@ protected:
 
     class DataType {
     public:
-        // ReSharper disable CppInconsistentNaming
+        // ReSharper disable CppInconsistentNaming, IdentifierTypo
         enum DataTypeEnum {
+            BYTE,
+            UBYTE,
+            SHORT,
+            USHORT,
             INT,
+            UINT,
+            HALF_FLOAT,
             FLOAT,
         };
-        // ReSharper restore CppInconsistentNaming
+        // ReSharper restore CppInconsistentNaming, IdentifierTypo
 
         constexpr DataType() = default;
         /* implicit */ constexpr DataType(const DataTypeEnum e) : e(e) {}
@@ -93,22 +108,47 @@ protected:
         // ReSharper disable CppInconsistentNaming
         enum InternalFormatEnum {
             R8,
+            R8_SNORM,
+            R8_UINT,
+            R8_INT,
             R16,
-            R16F,
-            R32F,
+            R16_SNORM,
+            R16_UINT,
+            R16_INT,
+            R16_FLOAT,
+            R32_UINT,
+            R32_INT,
+            R32_FLOAT,
             RG8,
+            RG8_SNORM,
+            RG8_UINT,
+            RG8_INT,
             RG16,
-            RG16F,
-            RG32F,
+            RG16_SNORM,
+            RG16_UINT,
+            RG16_INT,
+            RG16_FLOAT,
+            RG32_UINT,
+            RG32_INT,
+            RG32_FLOAT,
             RGB8,
-            RGB16,
-            RGB16F,
-            RGB32F,
+            RGB8_SNORM,
+            RGB8_UINT,
+            RGB8_INT,
             RGBA8,
+            RGBA8_SNORM,
+            RGBA8_UINT,
+            RGBA8_INT,
             RGBA16,
-            RGBA16F,
-            RGBA32F,
+            RGBA16_SNORM,
+            RGBA16_UINT,
+            RGBA16_INT,
+            RGBA16_FLOAT,
+            RGBA32_UINT,
+            RGBA32_INT,
+            RGBA32_FLOAT,
             D16,
+            D24,
             D32,
             D24S8,
         };
@@ -128,63 +168,114 @@ protected:
 
         constexpr DataType getDataType() const {
             switch (e) {
+                case R8_SNORM:
+                case RG8_SNORM:
+                case RGB8_SNORM:
+                case RGBA8_SNORM:
+                case R8_INT:
+                case RG8_INT:
+                case RGB8_INT:
+                case RGBA8_INT:
+                    return DataType::BYTE;
                 case R8:
-                case R16:
                 case RG8:
-                case RG16:
                 case RGB8:
-                case RGB16:
                 case RGBA8:
+                case R8_UINT:
+                case RG8_UINT:
+                case RGB8_UINT:
+                case RGBA8_UINT:
+                    return DataType::UBYTE;
+                case R16_SNORM:
+                case RG16_SNORM:
+                case RGBA16_SNORM:
+                case R16_INT:
+                case RG16_INT:
+                case RGBA16_INT:
+                    return DataType::SHORT;
+                case R16:
+                case RG16:
                 case RGBA16:
-                    return DataType::INT;
-                case R16F:
-                case R32F:
-                case RG16F:
-                case RG32F:
-                case RGB16F:
-                case RGB32F:
-                case RGBA16F:
-                case RGBA32F:
-                    return DataType::FLOAT;
+                case R16_UINT:
+                case RG16_UINT:
+                case RGBA16_UINT:
                 case D16:
+                    return DataType::USHORT;
+                case R32_INT:
+                case RG32_INT:
+                case RGBA32_INT:
                     return DataType::INT;
+                case R32_UINT:
+                case RG32_UINT:
+                case RGBA32_UINT:
+                case D24:
+                case D24S8:
+                    return DataType::UINT;
+                case R16_FLOAT:
+                case RG16_FLOAT:
+                case RGBA16_FLOAT:
+                    return DataType::HALF_FLOAT;
+                case R32_FLOAT:
+                case RG32_FLOAT:
+                case RGBA32_FLOAT:
                 case D32:
                     return DataType::FLOAT;
-                case D24S8:
-                    return DataType::INT;
                 default:
-                    return DataType::INT;
+                    return DataType::FLOAT;
             }
         }
 
         constexpr unsigned int getSize() const {
             switch (e) {
                 case R8:
+                case R8_SNORM:
+                case R8_UINT:
+                case R8_INT:
                     return 1;
                 case R16:
-                case R16F:
+                case R16_SNORM:
+                case R16_UINT:
+                case R16_INT:
+                case R16_FLOAT:
                 case RG8:
+                case RG8_SNORM:
+                case RG8_UINT:
+                case RG8_INT:
                 case D16:
                     return 2;
                 case RGB8:
+                case RGB8_SNORM:
+                case RGB8_UINT:
+                case RGB8_INT:
+                case D24:
                     return 3;
-                case R32F:
+                case R32_UINT:
+                case R32_INT:
+                case R32_FLOAT:
                 case RG16:
-                case RG16F:
+                case RG16_SNORM:
+                case RG16_UINT:
+                case RG16_INT:
+                case RG16_FLOAT:
                 case RGBA8:
+                case RGBA8_SNORM:
+                case RGBA8_UINT:
+                case RGBA8_INT:
                 case D32:
                 case D24S8:
                     return 4;
-                case RGB16:
-                case RGB16F:
-                    return 6;
-                case RG32F:
+                case RG32_UINT:
+                case RG32_INT:
+                case RG32_FLOAT:
                 case RGBA16:
-                case RGBA16F:
+                case RGBA16_SNORM:
+                case RGBA16_UINT:
+                case RGBA16_INT:
+                case RGBA16_FLOAT:
                     return 8;
-                case RGB32F:
-                    return 12;
-                case RGBA32F:
+                case RGBA32_UINT:
+                case RGBA32_INT:
+                case RGBA32_FLOAT:
                     return 16;
                 default:
                     return 0;

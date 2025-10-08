@@ -3,7 +3,7 @@
 
 #include <fstream>
 
-LinearImage::LinearImage(const std::string& path) : Image(0, 0, Format::RGB, InternalFormat::RGB32F, nullptr) {
+LinearImage::LinearImage(const std::string& path) : Image(0, 0, Format::RGBA, InternalFormat::RGBA32_FLOAT, nullptr) {
     auto imageStream = std::ifstream(path, std::ios::in | std::ios::binary);
     if (!imageStream.is_open()) {
         DE_ERROR("Failed to open image file {0}", path);
@@ -47,7 +47,7 @@ LinearImage::LinearImage(const std::string& path) : Image(0, 0, Format::RGB, Int
         return;
     }
 
-    this->data = std::make_unique<unsigned char[]>(width * height * this->internalFormat.getSize());
+    this->data = std::make_unique<unsigned char[]>(static_cast<size_t>(width) * height * this->internalFormat.getSize());
 
     std::vector<unsigned char> row;
     row.resize(width * 4); // RGBE
@@ -107,7 +107,7 @@ LinearImage::LinearImage(const std::string& path) : Image(0, 0, Format::RGB, Int
                 }
             }
             for (unsigned int x = 0; x < width; x++) {
-                convertRGBEtoRGB(row.data() + x * 4, reinterpret_cast<float*>(this->data.get()) + (y * width + x) * 3);
+                convertRGBEtoRGB(row.data() + x * 4, reinterpret_cast<float*>(this->data.get()) + (y * width + x) * 4); // TODO: replace 4 with dynamic value
             }
         }
     } else {
@@ -121,15 +121,16 @@ LinearImage::LinearImage(const std::string& path) : Image(0, 0, Format::RGB, Int
     auto invertedData = std::make_unique<uint8_t[]>(width * height * bbp);
     unsigned int bytesPerRow = bbp * width;
     for (unsigned int y = 0; y < height; y++) {
-        float* src = reinterpret_cast<float*>(this->data.get()) + (height - y - 1) * width * 3; // NOLINT(bugprone-implicit-widening-of-multiplication-result)
-        float* dst = reinterpret_cast<float*>(invertedData.get()) + y * width * 3; // NOLINT(bugprone-implicit-widening-of-multiplication-result)
+        // TODO: replace 4 with dynamic value
+        float* src = reinterpret_cast<float*>(this->data.get()) + (height - y - 1) * width * 4; // NOLINT(bugprone-implicit-widening-of-multiplication-result)
+        float* dst = reinterpret_cast<float*>(invertedData.get()) + y * width * 4; // NOLINT(bugprone-implicit-widening-of-multiplication-result)
         std::memcpy(dst, src, bytesPerRow);
     }
     this->data = std::move(invertedData);
 }
 
 LinearImage::LinearImage(const unsigned int width, const unsigned int height, const float* data, const float gamma, const float exposure) :
-    Image(width, height, Format::RGB, InternalFormat::RGB32F, data) {
+    Image(width, height, Format::RGBA, InternalFormat::RGBA32_FLOAT, data) {
     this->gamma = gamma;
     this->exposure = exposure;
 }

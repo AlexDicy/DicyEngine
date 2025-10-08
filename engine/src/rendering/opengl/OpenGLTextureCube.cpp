@@ -19,7 +19,7 @@ void createCubeMap(uint32_t& cubeMapId, const uint32_t size, const bool hasMipma
     glGenTextures(1, &cubeMapId);
     glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMapId);
     for (unsigned int i = 0; i < 6; i++) {
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, size, size, 0, GL_RGB, GL_FLOAT, nullptr);
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA16F, size, size, 0, GL_RGBA, GL_FLOAT, nullptr);
     }
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, hasMipmaps ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -63,7 +63,7 @@ Ref<Texture> OpenGLTextureCube::createFromHDR(const Ref<Renderer>& renderer, con
     glViewport(previousViewport[0], previousViewport[1], previousViewport[2], previousViewport[3]);
     glDeleteFramebuffers(1, &captureFramebuffer);
     glDeleteRenderbuffers(1, &captureRenderbuffer);
-    return std::make_shared<OpenGLTexture>(cubeMapId, size, size, 6, Texture::Format::RGB, Texture::InternalFormat::RGB16F, Texture::TextureType::TEXTURE_CUBE);
+    return std::make_shared<OpenGLTexture>(cubeMapId, size, size, 6, Texture::Format::RGBA, Texture::InternalFormat::RGBA16_FLOAT, Texture::TextureType::TEXTURE_CUBE);
 }
 
 Ref<Texture> OpenGLTextureCube::createPrefilteredCubemap(const Ref<Renderer>& renderer, const Ref<Texture>& textureCube, const Ref<Shader>& convertShader, const uint32_t size) {
@@ -96,5 +96,5 @@ Ref<Texture> OpenGLTextureCube::createPrefilteredCubemap(const Ref<Renderer>& re
     glViewport(previousViewport[0], previousViewport[1], previousViewport[2], previousViewport[3]);
     glDeleteFramebuffers(1, &captureFramebuffer);
     glDeleteRenderbuffers(1, &captureRenderbuffer);
-    return std::make_shared<OpenGLTexture>(prefilteredCubemapId, size, size, 6, Texture::Format::RGB, Texture::InternalFormat::RGB16F, Texture::TextureType::TEXTURE_CUBE);
+    return std::make_shared<OpenGLTexture>(prefilteredCubemapId, size, size, 6, Texture::Format::RGBA, Texture::InternalFormat::RGBA16_FLOAT, Texture::TextureType::TEXTURE_CUBE);
 }
