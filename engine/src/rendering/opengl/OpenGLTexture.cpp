@@ -10,9 +10,8 @@ OpenGLTexture::OpenGLTexture(const unsigned int width, const unsigned int height
     this->glInternalFormat = OpenGLDataType::getFromTextureInternalFormat(this->internalFormat);
     this->glTextureType = OpenGLDataType::getFromTextureType(this->type);
     this->dataType = OpenGLDataType::getPixelTypeFromInternalFormat(internalFormat);
-    if (data) {
-        this->createTextureWithData(data);
-    }
+    this->createTexture();
+    this->uploadData(data);
 }
 
 OpenGLTexture::OpenGLTexture(const GLuint id, const unsigned int width, const unsigned int height, const unsigned int layers, const Format format,
@@ -59,9 +58,27 @@ void OpenGLTexture::resize(const unsigned int width, const unsigned int height) 
     glTexImage2D(GL_TEXTURE_2D, 0, this->glInternalFormat, static_cast<int>(width), static_cast<int>(height), 0, this->glFormat, this->dataType, nullptr);
 }
 
-void OpenGLTexture::createTextureWithData(const void* data) {
+void OpenGLTexture::createTexture() {
     glGenTextures(1, &this->id);
     glBindTexture(this->glTextureType, this->id);
+
+    glTexParameteri(this->glTextureType, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(this->glTextureType, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    if (this->type == TextureType::TEXTURE_CUBE || this->type == TextureType::TEXTURE_CUBE_ARRAY) {
+        glTexParameteri(this->glTextureType, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(this->glTextureType, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(this->glTextureType, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    } else {
+        glTexParameteri(this->glTextureType, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(this->glTextureType, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    }
+}
+
+void OpenGLTexture::uploadData(const void* data) {
+    if (!data) {
+        return;
+    }
 
     switch (this->type) {
         case TextureType::TEXTURE_2D:
@@ -83,18 +100,6 @@ void OpenGLTexture::createTextureWithData(const void* data) {
             }
         default:
             DE_ASSERT(false, "Unsupported texture type")
-    }
-
-    glTexParameteri(this->glTextureType, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(this->glTextureType, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    if (this->type == TextureType::TEXTURE_CUBE || this->type == TextureType::TEXTURE_CUBE_ARRAY) {
-        glTexParameteri(this->glTextureType, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(this->glTextureType, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glTexParameteri(this->glTextureType, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-    } else {
-        glTexParameteri(this->glTextureType, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(this->glTextureType, GL_TEXTURE_WRAP_T, GL_REPEAT);
     }
 }
 

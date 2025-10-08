@@ -1,6 +1,8 @@
 ﻿#include "pch/enginepch.h"
 #include "Texture.h"
 
+#include "images/Image.h"
+
 TextureBuilder Texture::builder() {
     return {};
 }
@@ -16,8 +18,18 @@ Texture::Texture(const unsigned int width, const unsigned int height, const unsi
     }
 }
 
+TextureBuilder& TextureBuilder::fromImage(const Ref<Image>& image) {
+    this->width(image->getWidth());
+    this->height(image->getHeight());
+    this->format(image->getFormat());
+    this->internalFormat(image->getInternalFormat());
+    this->data(image->getData());
+    return *this;
+}
+
 Ref<Texture> TextureBuilder::build(const Ref<Renderer>& renderer) const {
-    return renderer->createTexture(this->height, this->width, this->layers, this->format, this->internalFormat, Texture::TextureType::TEXTURE_2D, this->data);
+    const auto [width, height, layers, format, internalFormat, type, data] = this->builderData;
+    return renderer->createTexture(width, height, layers, format, internalFormat, type, data);
 }
 
 const glm::mat4 TextureCube::invertedViewMatrices[] = {

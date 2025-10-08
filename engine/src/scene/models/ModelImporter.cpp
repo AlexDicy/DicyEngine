@@ -102,7 +102,7 @@ Ref<Texture> ModelImporter::getTextureFromMaterial(const Ref<Renderer>& renderer
             static_cast<unsigned char>(diffuseColor.b * 255),
             static_cast<unsigned char>(255),
         };
-        return renderer->createTexture(1, 1, 1, Texture::Format::RGBA, Texture::InternalFormat::RGBA8, Texture::TextureType::TEXTURE_2D, colorData.data());
+        return Texture::builder().width(1).height(1).format(Texture::Format::RGBA).internalFormat(Texture::InternalFormat::RGBA8).data(colorData.data()).build(renderer);
     }
 
     aiString aiTexturePath;
@@ -122,7 +122,7 @@ Ref<Texture> ModelImporter::getTextureFromMaterial(const Ref<Renderer>& renderer
         }
         const Texture::Format format = channels == 4 ? Texture::Format::RGBA : Texture::Format::RGB;
         const Texture::InternalFormat internalFormat = channels == 4 ? Texture::InternalFormat::RGBA8 : Texture::InternalFormat::RGB8;
-        return renderer->createTexture(width, height, 1, format, internalFormat, Texture::TextureType::TEXTURE_2D, data);
+        return Texture::builder().width(width).height(height).format(format).internalFormat(internalFormat).data(data).build(renderer);
     }
     return ImageUtils::loadTextureFromFile(renderer, basePath + "/" + texturePath);
 }

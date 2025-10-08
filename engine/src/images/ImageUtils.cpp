@@ -79,12 +79,12 @@ Ref<Image> ImageUtils::createImageFromData(const unsigned int width, const unsig
 Ref<Texture> ImageUtils::createTextureFromData(const Ref<Renderer>& renderer, const unsigned int width, const unsigned int height, const Texture::Format format,
                                                const Texture::InternalFormat internalFormat, void* data) {
     Ref<Texture> texture = Texture::builder() //
-                               .setWidth(width)
-                               .setHeight(height)
-                               .setFormat(format)
-                               .setInternalFormat(internalFormat)
-                               .setType(Texture::TextureType::TEXTURE_2D)
-                               .setData(data)
+                               .width(width)
+                               .height(height)
+                               .format(format)
+                               .internalFormat(internalFormat)
+                               .type(Texture::TextureType::TEXTURE_2D)
+                               .data(data)
                                .build(renderer);
     stbi_image_free(data);
     return texture;

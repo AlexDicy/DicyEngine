@@ -94,39 +94,41 @@ protected:
 
 class TextureBuilder {
 public:
-    TextureBuilder& setWidth(const unsigned int width) {
-        this->width = width;
+    TextureBuilder& width(const unsigned int width) {
+        this->builderData.width = width;
         return *this;
     }
 
-    TextureBuilder& setHeight(const unsigned int height) {
-        this->height = height;
+    TextureBuilder& height(const unsigned int height) {
+        this->builderData.height = height;
         return *this;
     }
 
-    TextureBuilder& setLayers(const unsigned int layers) {
-        this->layers = layers;
+    TextureBuilder& layers(const unsigned int layers) {
+        this->builderData.layers = layers;
         return *this;
     }
-    TextureBuilder& setFormat(const Texture::Format format) {
-        this->format = format;
-        return *this;
-    }
-
-    TextureBuilder& setInternalFormat(const Texture::InternalFormat internalFormat) {
-        this->internalFormat = internalFormat;
+    TextureBuilder& format(const Texture::Format format) {
+        this->builderData.format = format;
         return *this;
     }
 
-    TextureBuilder& setType(const Texture::TextureType type) {
-        this->type = type;
+    TextureBuilder& internalFormat(const Texture::InternalFormat internalFormat) {
+        this->builderData.internalFormat = internalFormat;
         return *this;
     }
 
-    TextureBuilder& setData(void* data) {
-        this->data = data;
+    TextureBuilder& type(const Texture::TextureType type) {
+        this->builderData.type = type;
         return *this;
     }
+
+    TextureBuilder& data(const void* data) {
+        this->builderData.data = data;
+        return *this;
+    }
+
+    TextureBuilder& fromImage(const Ref<Image>& image);
 
     Ref<Texture> build(const Ref<Renderer>& renderer) const;
 
@@ -134,11 +136,13 @@ private:
     friend class Texture;
     TextureBuilder() = default;
 
-    unsigned int width = 0;
-    unsigned int height = 0;
-    unsigned int layers = 1;
-    Texture::Format format = Texture::Format::RGBA;
-    Texture::InternalFormat internalFormat = Texture::InternalFormat::RGBA8;
-    Texture::TextureType type = Texture::TextureType::TEXTURE_2D;
-    void* data = nullptr;
+    struct BuilderData {
+        unsigned int width = 0;
+        unsigned int height = 0;
+        unsigned int layers = 1;
+        Texture::Format format = Texture::Format::RGBA;
+        Texture::InternalFormat internalFormat = Texture::InternalFormat::RGBA8;
+        Texture::TextureType type = Texture::TextureType::TEXTURE_2D;
+        const void* data = nullptr;
+    } builderData;
 };

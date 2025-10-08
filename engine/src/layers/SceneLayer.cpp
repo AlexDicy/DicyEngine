@@ -34,11 +34,8 @@ SceneLayer::SceneLayer(const std::unique_ptr<Context>& ctx) : Layer(ctx) {
     Ref<LinearImage> skyboxHDR = std::make_shared<LinearImage>("../assets/skybox/kloofendal_48d_partly_cloudy_puresky_8k.hdr");
     // this takes more than 2 seconds, might be worth to improve
     Ref<LinearImage> skyboxToneMapped = ImageUtils::acesFilmicTonemapping(skyboxHDR);
-    Ref<Texture> skyboxTexture =
-        renderer->createTexture(skyboxHDR->getWidth(), skyboxHDR->getHeight(), 1, skyboxHDR->getFormat(), skyboxHDR->getInternalFormat(),
-                                                         Texture::TextureType::TEXTURE_2D, skyboxHDR->getData());
-    Ref<Texture> skyboxTextureToneMapped = renderer->createTexture(skyboxToneMapped->getWidth(), skyboxToneMapped->getHeight(), 1, skyboxToneMapped->getFormat(),
-                                                                   skyboxToneMapped->getInternalFormat(), Texture::TextureType::TEXTURE_2D, skyboxToneMapped->getData());
+    Ref<Texture> skyboxTexture = Texture::builder().fromImage(skyboxHDR).build(renderer);
+    Ref<Texture> skyboxTextureToneMapped = Texture::builder().fromImage(skyboxToneMapped).build(renderer);
     Ref<Shader> equirectangularToCubemapShader = app->getShaderRegistry()->load("../assets/shaders/equirectangular-to-cubemap");
     Ref<Texture> skyboxCubeTexture = renderer->createTextureCubeFromHDR(skyboxTexture, equirectangularToCubemapShader, 2048);
     Ref<Texture> skyboxCubeToneMapped = renderer->createTextureCubeFromHDR(skyboxTextureToneMapped, equirectangularToCubemapShader, 256);
@@ -81,6 +78,13 @@ SceneLayer::SceneLayer(const std::unique_ptr<Context>& ctx) : Layer(ctx) {
 
     Ref<Entity> spheres = this->scene->createEntity("Red spheres");
     Model sphereModel = std::move(ModelImporter::importFromFile(renderer, "../assets/models/sphere.glb")[0]);
+    Ref<Texture> redTexture = Texture::builder()
+                                  .width(1)
+                                  .height(1)
+                                  .format(Texture::Format::RGB)
+                                  .internalFormat(Texture::InternalFormat::RGB8)
+                                  .data(std::array<unsigned char, 3>{250, 0, 0}.data())
+                                  .build(renderer);
     for (int x = 0; x < 10; x++) {
         for (int z = 0; z < 10; z++) {
             const float xPos = -5.0f + x + 0.5f;
@@ -89,10 +93,14 @@ SceneLayer::SceneLayer(const std::unique_ptr<Context>& ctx) : Layer(ctx) {
             auto vertexDataFloats = reinterpret_cast<const float*>(vertexData);
             unsigned char roughness = static_cast<unsigned char>(static_cast<float>(9 - x) / 9 * 255.0f);
             unsigned char metallic = static_cast<unsigned char>(static_cast<float>(9 - z) / 9 * 255.0f);
-            Material material(renderer->createTexture(1, 1, 1, Texture::Format::RGB, Texture::InternalFormat::RGB8, Texture::TextureType::TEXTURE_2D,
-                                                      std::array<unsigned char, 3>{250, 0, 0}.data()),
-                              renderer->createTexture(1, 1, 1, Texture::Format::RGB, Texture::InternalFormat::RGB8, Texture::TextureType::TEXTURE_2D,
-                                                      std::array<unsigned char, 3>{255, roughness, metallic}.data()));
+            Material material(redTexture,
+                              Texture::builder()
+                                  .width(1)
+                                  .height(1)
+                                  .format(Texture::Format::RGB)
+                                  .internalFormat(Texture::InternalFormat::RGB8)
+                                  .data(std::array<unsigned char, 3>{255, roughness, metallic}.data())
+                                  .build(renderer));
             Ref<Entity> entity = this->scene->createEntity(std::format("Sphere ({},{})", x, z));
             entity->setParent(spheres);
             entity->add<Mesh>(renderer, vertexDataFloats, sphereModel.vertices.size() * sizeof(VertexData), sphereModel.indexes.data(), sphereModel.indexes.size(), material,
@@ -114,8 +122,13 @@ SceneLayer::SceneLayer(const std::unique_ptr<Context>& ctx) : Layer(ctx) {
         pointLightEntity->setTransform(position, Rotation(), glm::vec3(0.1f));
         const VertexData* vertexData = sphereModel.vertices.data();
         auto vertexDataFloats = reinterpret_cast<const float*>(vertexData);
-        auto material = Material(renderer->createTexture(1, 1, 1, Texture::Format::RGB, Texture::InternalFormat::RGB8, Texture::TextureType::TEXTURE_2D,
-                                                         std::array<unsigned char, 3>{50, 50, 255}.data()));
+        auto material = Material(Texture::builder()
+                                     .width(1)
+                                     .height(1)
+                                     .format(Texture::Format::RGB)
+                                     .internalFormat(Texture::InternalFormat::RGB8)
+                                     .data(std::array<unsigned char, 3>{50, 50, 255}.data())
+                                     .build(renderer));
         material.ignoreLighting = true;
         pointLightEntity->add<Mesh>(renderer, vertexDataFloats, sphereModel.vertices.size() * sizeof(VertexData), sphereModel.indexes.data(), sphereModel.indexes.size(), material,
                                     sphereModel.transformationMatrix);

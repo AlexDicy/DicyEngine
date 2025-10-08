@@ -17,7 +17,8 @@ public:
     Ref<CubeMap> toCubemap() const override;
 
 private:
-    void createTextureWithData(const void* data);
+    void createTexture();
+    void uploadData(const void* data);
     void initializePBO();
 
     GLuint id = 0;
