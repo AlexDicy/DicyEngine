@@ -56,28 +56,6 @@ public:
 };
 
 
-class TextureCubeArray : public Texture {
-public:
-    TextureCubeArray(const unsigned int size, const unsigned int layersCount) :
-        Texture(size, size, layersCount * 6, Format::RGBA, InternalFormat::RGBA8, TextureType::TEXTURE_CUBE_ARRAY), size(size), layersCount(layersCount) {}
-
-    unsigned int getSize() const {
-        return this->size;
-    }
-
-    unsigned int getLayersCount() const {
-        return this->layersCount;
-    }
-
-    void setLayersCount(const unsigned int layersCount) {
-        this->layersCount = layersCount;
-    }
-
-protected:
-    unsigned int size;
-    unsigned int layersCount;
-};
-
 class TextureBuilder {
 public:
     TextureBuilder& width(const unsigned int width) {
