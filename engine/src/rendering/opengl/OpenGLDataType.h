@@ -26,17 +26,21 @@ public:
     static constexpr GLenum getFromTextureFormat(const Texture::Format format) {
         switch (format) {
             case Texture::Format::R:
-            case Texture::Format::R_INT:
                 return GL_RED;
+            case Texture::Format::R_INT:
+                return GL_RED_INTEGER;
             case Texture::Format::RG:
-            case Texture::Format::RG_INT:
                 return GL_RG;
+            case Texture::Format::RG_INT:
+                return GL_RG_INTEGER;
             case Texture::Format::RGB:
-            case Texture::Format::RGB_INT:
                 return GL_RGB;
+            case Texture::Format::RGB_INT:
+                return GL_RGB_INTEGER;
             case Texture::Format::RGBA:
-            case Texture::Format::RGBA_INT:
                 return GL_RGBA;
+            case Texture::Format::RGBA_INT:
+                return GL_RGBA_INTEGER;
             case Texture::Format::BGRA:
                 return GL_BGRA;
             case Texture::Format::DEPTH:
