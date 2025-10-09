@@ -62,7 +62,8 @@ int OpenGLRenderFramebuffer::getMousePickingValue(const int x, const int y) cons
     return value;
 }
 
-void OpenGLRenderFramebuffer::copyColorToBuffer(const uint32_t destinationId, const GLenum sourceAttachment) const {
+void OpenGLRenderFramebuffer::copyColorToBuffer(const uint32_t destinationId, const unsigned int sourceAttachmentIndex = 0) const {
+    const GLenum sourceAttachment = GL_COLOR_ATTACHMENT0 + sourceAttachmentIndex;
     glBindFramebuffer(GL_READ_FRAMEBUFFER, this->id);
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, destinationId);
     glReadBuffer(sourceAttachment);
@@ -75,7 +76,7 @@ void OpenGLRenderFramebuffer::copyColorToBuffer(const uint32_t destinationId, co
 }
 
 void OpenGLRenderFramebuffer::saveMousePicking() const {
-    this->copyColorToBuffer(this->renderedBufferId, GL_COLOR_ATTACHMENT1);
+    this->copyColorToBuffer(this->renderedBufferId, 1);
 }
 
 void OpenGLRenderFramebuffer::clear() const {

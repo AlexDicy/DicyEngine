@@ -5,10 +5,14 @@
 
 class OpenGLRenderer : public Renderer, public std::enable_shared_from_this<OpenGLRenderer> {
 public:
-    OpenGLRenderer() : Renderer(RenderAPI::OPENGL) {}
+    explicit OpenGLRenderer() : Renderer(RenderAPI::OPENGL) {}
 
     void init(uint32_t width, uint32_t height) override;
-    void setFramebufferDimensions(unsigned int width, unsigned int height) override;
+
+    void createRenderFramebuffer(unsigned int width, unsigned int height) override;
+    void createRenderPassFramebuffers(unsigned int width, unsigned int height) override;
+    void createDataFramebuffer(unsigned int width, unsigned int height) override;
+
     Ref<RenderFramebuffer> getFramebuffer() const override;
 
     Ref<VertexArray> createVertexArray(const Ref<VertexBuffer>& vertexBuffer, const Ref<IndexBuffer>& indexBuffer) const override;
@@ -39,9 +43,4 @@ public:
     void drawJumpFloodingPass(const Ref<VertexArray>& vertexArray, const Ref<Shader>& shader, int offset, bool vertical) override;
     void drawEditorOverlays(const Ref<VertexArray>& vertexArray, const Ref<Shader>& shader, glm::vec4 outlineColor, float outlineWidth) const override;
     void drawUI(const Ref<VertexArray>& vertexArray, const Ref<Shader>& shader, const Material& material) const override;
-
-private:
-    Ref<OpenGLRenderFramebuffer> framebuffer;
-    Ref<Texture> whitePixelTexture;
-    Ref<Texture> defaultOcclusionRoughnessMetallicTexture;
 };

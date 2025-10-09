@@ -4,6 +4,21 @@
 #include "images/ImageUtils.h"
 
 
+void Renderer::init(const unsigned int width, const unsigned int height) {
+    this->setFramebufferDimensions(width, height);
+    this->setViewport(0, 0, width, height);
+    this->whitePixelTexture = this->createTexture(1, 1, 1, Texture::Format::RGBA, Texture::InternalFormat::RGBA8, Texture::TextureType::TEXTURE_2D,
+                                                  std::array<unsigned char, 4>{255, 255, 255, 255}.data());
+    this->defaultOcclusionRoughnessMetallicTexture =
+        this->createTexture(1, 1, 1, Texture::Format::RGB, Texture::InternalFormat::RGB8, Texture::TextureType::TEXTURE_2D, std::array<unsigned char, 3>{255, 255, 0}.data());
+}
+
+void Renderer::setFramebufferDimensions(const unsigned int width, const unsigned int height) {
+    this->createRenderFramebuffer(width, height);
+    this->createDataFramebuffer(width, height);
+    this->createRenderPassFramebuffers(width, height);
+}
+
 void Renderer::setViewport(const int x, const int y, const uint32_t width, const uint32_t height) {
     if (this->camera) {
         this->camera->setAspectRatio(static_cast<float>(width) / static_cast<float>(height));
@@ -38,7 +53,7 @@ Ref<Texture> Renderer::createTextureCube(const std::array<std::string, 6>& paths
             DE_ERROR("All images must have the same dimensions and format to create a cubemap texture");
             delete[] data;
             return nullptr;
-            }
+        }
         memcpy(data + i * dataSize, face->getData(), face->getDataSize());
     }
 

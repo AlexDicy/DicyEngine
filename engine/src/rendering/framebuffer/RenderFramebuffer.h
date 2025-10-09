@@ -20,6 +20,8 @@ public:
 
     virtual void clear() const = 0;
     virtual void saveMousePicking() const = 0;
+    // TODO: generalize this instead of accepting resources IDs
+    virtual void copyColorToBuffer(uint32_t destinationId, unsigned int sourceAttachmentIndex = 0) const = 0;
 
 protected:
     uint32_t width;

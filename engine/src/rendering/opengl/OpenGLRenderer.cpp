@@ -18,26 +18,27 @@
 #include <glm/glm.hpp>
 
 void OpenGLRenderer::init(const uint32_t width, const uint32_t height) {
+    Renderer::init(width, height);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
     glFrontFace(GL_CW);
-    this->setFramebufferDimensions(width, height);
-    this->setViewport(0, 0, width, height);
-    this->whitePixelTexture = this->createTexture(1, 1, 1, Texture::Format::RGBA, Texture::InternalFormat::RGBA8, Texture::TextureType::TEXTURE_2D,
-                                                  std::array<unsigned char, 4>{255, 255, 255, 255}.data());
-    this->defaultOcclusionRoughnessMetallicTexture =
-        this->createTexture(1, 1, 1, Texture::Format::RGB, Texture::InternalFormat::RGB8, Texture::TextureType::TEXTURE_2D, std::array<unsigned char, 3>{255, 255, 0}.data());
     this->shadowDepthFramebuffer = std::make_shared<OpenGLDepthFramebuffer>(2048, 2048);
     this->shadowCubeArrayFramebuffer = std::make_shared<OpenGLShadowCubeArrayFramebuffer>(1024);
 }
 
-void OpenGLRenderer::setFramebufferDimensions(unsigned int width, unsigned int height) {
+void OpenGLRenderer::createRenderFramebuffer(unsigned int width, unsigned int height) {
     this->framebuffer = std::make_shared<OpenGLRenderFramebuffer>(width, height);
-    this->dataFramebuffer = std::make_shared<OpenGLDataFramebuffer>(width, height);
+}
+
+void OpenGLRenderer::createRenderPassFramebuffers(unsigned int width, unsigned int height) {
     this->previousPassFramebuffer = std::make_shared<OpenGLRenderPassFramebuffer>(width, height);
     this->currentPassFramebuffer = std::make_shared<OpenGLRenderPassFramebuffer>(width, height);
+}
+
+void OpenGLRenderer::createDataFramebuffer(unsigned int width, unsigned int height) {
+    this->dataFramebuffer = std::make_shared<OpenGLDataFramebuffer>(width, height);
 }
 
 Ref<RenderFramebuffer> OpenGLRenderer::getFramebuffer() const {

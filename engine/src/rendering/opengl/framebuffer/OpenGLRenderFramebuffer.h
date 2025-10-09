@@ -19,7 +19,7 @@ public:
     void clear() const override;
     void saveMousePicking() const override;
 
-    void copyColorToBuffer(uint32_t destinationId, GLenum sourceAttachment = GL_COLOR_ATTACHMENT0) const;
+    void copyColorToBuffer(uint32_t destinationId, unsigned int sourceAttachmentIndex) const override;
 
 private:
     // in-progress framebuffer, multisampled

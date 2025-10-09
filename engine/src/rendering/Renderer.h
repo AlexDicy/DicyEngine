@@ -13,7 +13,7 @@
 #include "scene/materials/Material.h"
 #include "skybox/SkyboxCube.h"
 
-enum class RenderAPI { NONE, OPENGL };
+enum class RenderAPI { NONE, OPENGL, VULKAN };
 
 class Renderer {
 public:
@@ -39,8 +39,13 @@ public:
         this->camera = camera;
     }
 
-    virtual void init(uint32_t width, uint32_t height) = 0;
-    virtual void setFramebufferDimensions(unsigned int width, unsigned int height) = 0;
+    virtual void init(uint32_t width, uint32_t height);
+
+    void setFramebufferDimensions(unsigned int width, unsigned int height);
+    virtual void createRenderFramebuffer(unsigned int width, unsigned int height) = 0;
+    virtual void createRenderPassFramebuffers(unsigned int width, unsigned int height) = 0;
+    virtual void createDataFramebuffer(unsigned int width, unsigned int height) = 0;
+
     void setViewport(int x, int y, uint32_t width, uint32_t height);
 
     const Viewport& getViewport() const {
@@ -93,17 +98,26 @@ public:
 
 protected:
     Ref<Camera> camera;
-    glm::mat4 viewProjectionMatrix;
-    glm::mat4 viewMatrix;
-    glm::mat4 projectionMatrix;
+    glm::mat4 viewProjectionMatrix = glm::identity<glm::mat4>();
+    glm::mat4 viewMatrix = glm::identity<glm::mat4>();
+    glm::mat4 projectionMatrix = glm::identity<glm::mat4>();
     Viewport viewport;
+
+    Ref<RenderFramebuffer> framebuffer;
+    Ref<RenderPassFramebuffer> previousPassFramebuffer; // used to reference in the current pass
+    Ref<RenderPassFramebuffer> currentPassFramebuffer; // will be swapped with the previous one after each pass
+    Ref<DataFramebuffer> dataFramebuffer;
+
+    // default textures
+    Ref<Texture> whitePixelTexture;
+    Ref<Texture> defaultOcclusionRoughnessMetallicTexture;
 
     // lighting
     std::array<glm::vec3, 9> irradianceSH = std::array<glm::vec3, 9>();
     Ref<Texture> prefilteredEnvMap;
     Ref<Texture> brdfLUT;
     Ref<DirectionalLight> directionalLight;
-    glm::mat4 directionalLightViewProjection;
+    glm::mat4 directionalLightViewProjection = glm::identity<glm::mat4>();
     std::vector<PointLight> pointLights = std::vector<PointLight>();
 
     // shadow mapping
@@ -111,10 +125,6 @@ protected:
     Ref<Shader> shadowMapShader;
     Ref<ShadowCubeArrayFramebuffer> shadowCubeArrayFramebuffer;
     Ref<Shader> shadowCubeArrayShader;
-
-    Ref<DataFramebuffer> dataFramebuffer;
-    Ref<RenderPassFramebuffer> previousPassFramebuffer; // used to reference in the current pass
-    Ref<RenderPassFramebuffer> currentPassFramebuffer; // will be swapped with the previous one after each pass
 
 private:
     RenderAPI api;
