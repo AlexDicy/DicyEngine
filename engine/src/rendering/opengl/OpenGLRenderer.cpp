@@ -117,7 +117,7 @@ Ref<Texture> OpenGLRenderer::createBRDFLUT(const Ref<Shader>& shader, const uint
     glViewport(previousViewport[0], previousViewport[1], previousViewport[2], previousViewport[3]);
     glDeleteFramebuffers(1, &captureFramebuffer);
     glDeleteRenderbuffers(1, &captureRenderbuffer);
-    return std::make_shared<OpenGLTexture>(textureId, size, size, Texture::Format::RG, Texture::InternalFormat::RG16_FLOAT, Texture::TextureType::TEXTURE_2D);
+    return std::make_shared<OpenGLTexture>(textureId, size, size, 1, Texture::Format::RG, Texture::InternalFormat::RG16_FLOAT, Texture::TextureType::TEXTURE_2D);
 }
 
 Ref<Texture> OpenGLRenderer::createTextureCubeFromHDR(const Ref<Texture>& hdrTexture, const Ref<Shader>& convertShader, const uint32_t size) {
