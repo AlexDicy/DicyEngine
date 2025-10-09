@@ -23,10 +23,15 @@ public:
         return this->height;
     }
 
+    unsigned int getLayers() const {
+        return this->layers;
+    }
+
     virtual void bind(unsigned int) const = 0;
 
     virtual void setRawData(const void* data, unsigned int size) = 0;
     virtual void resize(unsigned int width, unsigned int height) = 0;
+    virtual void resize(unsigned int width, unsigned int height, unsigned int layers) = 0;
 
     virtual Ref<CubeMap> toCubemap() const = 0;
 
@@ -44,21 +49,10 @@ protected:
 };
 
 
-class TextureCube : public Texture {
+class TextureCubeUtils {
 public:
-    explicit TextureCube(const unsigned int size) : Texture(size, size, 6, Format::RGBA, InternalFormat::RGBA8, TextureType::TEXTURE_CUBE), size(size) {}
-
-    unsigned int getSize() const {
-        return this->size;
-    }
-
-    virtual Ref<CubeMap> toCubemap() const = 0;
-
     static const glm::mat4 invertedViewMatrices[6];
     static const glm::mat4 shadowViewMatrices[6];
-
-protected:
-    unsigned int size;
 };
 
 

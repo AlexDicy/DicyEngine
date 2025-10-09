@@ -30,7 +30,7 @@ void OpenGLRenderer::init(const uint32_t width, const uint32_t height) {
     this->defaultOcclusionRoughnessMetallicTexture =
         this->createTexture(1, 1, 1, Texture::Format::RGB, Texture::InternalFormat::RGB8, Texture::TextureType::TEXTURE_2D, std::array<unsigned char, 3>{255, 255, 0}.data());
     this->shadowDepthFramebuffer = std::make_shared<OpenGLDepthFramebuffer>(2048, 2048);
-    this->shadowCubeArrayFramebuffer = std::make_shared<OpenGLShadowCubeArrayFramebuffer>(1024, 0);
+    this->shadowCubeArrayFramebuffer = std::make_shared<OpenGLShadowCubeArrayFramebuffer>(1024);
 }
 
 void OpenGLRenderer::setFramebufferDimensions(unsigned int width, unsigned int height) {
@@ -162,7 +162,7 @@ void OpenGLRenderer::beginPointLightShadow(const PointLight& light, const int li
     glViewport(0, 0, this->shadowCubeArrayFramebuffer->getSize(), this->shadowCubeArrayFramebuffer->getSize());
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    const glm::mat4 faceView = TextureCube::shadowViewMatrices[faceIndex];
+    const glm::mat4 faceView = TextureCubeUtils::shadowViewMatrices[faceIndex];
     const glm::mat4 projection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, light.farPlane);
     const glm::mat4 viewProjection = projection * glm::translate(faceView, -light.position);
     this->shadowCubeArrayShader->uploadUniformMat4("uViewProjection", viewProjection);

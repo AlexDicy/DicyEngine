@@ -1,11 +1,11 @@
 ﻿#include "pch/enginepch.h"
 #include "OpenGLShadowCubeArrayFramebuffer.h"
 
-#include "rendering/opengl/OpenGLTextureCubeArray.h"
+#include "rendering/opengl/OpenGLTexture.h"
 
 #include <glad/gl.h>
 
-OpenGLShadowCubeArrayFramebuffer::OpenGLShadowCubeArrayFramebuffer(const unsigned int size, const unsigned int layersCount) : ShadowCubeArrayFramebuffer(size) {
+OpenGLShadowCubeArrayFramebuffer::OpenGLShadowCubeArrayFramebuffer(const unsigned int size) : ShadowCubeArrayFramebuffer(size) {
     // depth texture
     glGenTextures(1, &this->depthTextureId);
     glBindTexture(GL_TEXTURE_2D, depthTextureId);
@@ -17,14 +17,14 @@ OpenGLShadowCubeArrayFramebuffer::OpenGLShadowCubeArrayFramebuffer(const unsigne
     // cube map array texture
     glGenTextures(1, &this->shadowCubeTextureId);
     glBindTexture(GL_TEXTURE_CUBE_MAP_ARRAY, this->shadowCubeTextureId);
-    glTexImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, 0, GL_R32F, static_cast<int>(size), static_cast<int>(size), static_cast<int>(layersCount) * 6, 0, GL_RED, GL_FLOAT, nullptr);
     glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    this->shadowCubeTexture = std::make_shared<OpenGLTextureCubeArray>(this->shadowCubeTextureId, size, layersCount);
+    this->shadowCubeTexture =
+        std::make_shared<OpenGLTexture>(this->shadowCubeTextureId, size, size, 0, Texture::Format::R, Texture::InternalFormat::R32_FLOAT, Texture::TextureType::TEXTURE_CUBE_ARRAY);
     // framebuffer
     glGenFramebuffers(1, &this->id);
     glBindFramebuffer(GL_FRAMEBUFFER, this->id);
@@ -44,11 +44,9 @@ void OpenGLShadowCubeArrayFramebuffer::bind(const unsigned int layer, const unsi
 }
 
 void OpenGLShadowCubeArrayFramebuffer::ensureLayersCapacity(const unsigned int layersCount) {
-    if (layersCount <= this->shadowCubeTexture->getLayersCount()) { // at the moment we only scale up
+    if (layersCount <= this->shadowCubeTexture->getLayers()) { // at the moment we only scale up
         return;
     }
 
-    glBindTexture(GL_TEXTURE_CUBE_MAP_ARRAY, this->shadowCubeTextureId);
-    glTexImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, 0, GL_R32F, static_cast<int>(this->size), static_cast<int>(this->size), static_cast<int>(layersCount) * 6, 0, GL_RED, GL_FLOAT, nullptr);
-    this->shadowCubeTexture->setLayersCount(layersCount);
+    this->shadowCubeTexture->resize(this->size, this->size, layersCount * 6);
 }

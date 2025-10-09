@@ -13,6 +13,7 @@ public:
 
     void setRawData(const void* data, unsigned int size) override;
     void resize(unsigned int width, unsigned int height) override;
+    void resize(unsigned int width, unsigned int height, unsigned int layers) override;
 
     Ref<CubeMap> toCubemap() const override;
 

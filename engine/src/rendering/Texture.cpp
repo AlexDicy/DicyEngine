@@ -32,7 +32,7 @@ Ref<Texture> TextureBuilder::build(const Ref<Renderer>& renderer) const {
     return renderer->createTexture(width, height, layers, format, internalFormat, type, data);
 }
 
-const glm::mat4 TextureCube::invertedViewMatrices[] = {
+const glm::mat4 TextureCubeUtils::invertedViewMatrices[] = {
     lookAt(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)), // right
     lookAt(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f)), // left
     lookAt(glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f)), // top
@@ -41,7 +41,7 @@ const glm::mat4 TextureCube::invertedViewMatrices[] = {
     lookAt(glm::vec3(0.0f), glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)), // back
 };
 
-const glm::mat4 TextureCube::shadowViewMatrices[] = {
+const glm::mat4 TextureCubeUtils::shadowViewMatrices[] = {
     lookAt(glm::vec3(0.0f), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)), // right
     lookAt(glm::vec3(0.0f), glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)), // left
     lookAt(glm::vec3(0.0f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)), // bottom

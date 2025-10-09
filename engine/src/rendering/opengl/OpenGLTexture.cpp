@@ -51,11 +51,22 @@ void OpenGLTexture::setRawData(const void* data, const unsigned int size) {
 
 void OpenGLTexture::resize(const unsigned int width, const unsigned int height) {
     DE_ASSERT(this->type == TextureType::TEXTURE_2D, "Resize is only supported for 2D textures")
-    this->width = width;
-    this->height = height;
-
     glBindTexture(GL_TEXTURE_2D, this->id);
     glTexImage2D(GL_TEXTURE_2D, 0, this->glInternalFormat, static_cast<int>(width), static_cast<int>(height), 0, this->glFormat, this->dataType, nullptr);
+    this->width = width;
+    this->height = height;
+}
+
+void OpenGLTexture::resize(const unsigned int width, const unsigned int height, const unsigned int layers) {
+    DE_ASSERT(this->type == TextureType::TEXTURE_2D_ARRAY || this->type == TextureType::TEXTURE_CUBE_ARRAY,
+              "Resize with layers is only supported for 2D Array and Cube Array textures")
+    DE_ASSERT(layers % 6 == 0 || this->type == TextureType::TEXTURE_2D_ARRAY, "Cube Array textures must have a multiple of 6 layers")
+    glBindTexture(this->glTextureType, this->id);
+    glTexImage3D(this->glTextureType, 0, this->glInternalFormat, static_cast<int>(width), static_cast<int>(height), static_cast<int>(layers), 0, this->glFormat, this->dataType,
+                 nullptr);
+    this->width = width;
+    this->height = height;
+    this->layers = layers;
 }
 
 void OpenGLTexture::createTexture() {

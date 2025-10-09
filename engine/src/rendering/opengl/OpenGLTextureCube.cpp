@@ -35,7 +35,7 @@ void renderToCubemap(const Ref<Renderer>& renderer, const Ref<Shader>& convertSh
     const auto projection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
     const SkyboxCube cube(renderer, convertShader, texture);
     for (unsigned int i = 0; i < 6; i++) {
-        convertShader->uploadUniformMat4("uViewProjection", projection * TextureCube::invertedViewMatrices[i]);
+        convertShader->uploadUniformMat4("uViewProjection", projection * TextureCubeUtils::invertedViewMatrices[i]);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, cubeMapId, mipLevel);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         cube.getVertexArray()->bind();
