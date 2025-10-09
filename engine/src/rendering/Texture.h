@@ -27,7 +27,19 @@ public:
         return this->layers;
     }
 
-    virtual void bind(unsigned int) const = 0;
+    Format getFormat() const {
+        return this->format;
+    }
+
+    InternalFormat getInternalFormat() const {
+        return this->internalFormat;
+    }
+
+    TextureType getType() const {
+        return this->type;
+    }
+
+    virtual void bind(unsigned int slot) const = 0;
 
     virtual void setRawData(const void* data, unsigned int size) = 0;
     virtual void resize(unsigned int width, unsigned int height) = 0;
@@ -68,6 +80,18 @@ public:
         return *this;
     }
 
+    TextureBuilder& size(const unsigned int size) {
+        this->width(size);
+        this->height(size);
+        return *this;
+    }
+
+    TextureBuilder& size(const unsigned int width, const unsigned int height) {
+        this->width(width);
+        this->height(height);
+        return *this;
+    }
+
     TextureBuilder& layers(const unsigned int layers) {
         this->builderData.layers = layers;
         return *this;
@@ -94,7 +118,7 @@ public:
 
     TextureBuilder& fromImage(const Ref<Image>& image);
 
-    Ref<Texture> build(const Ref<Renderer>& renderer) const;
+    Ref<Texture> build(const Ref<const Renderer>& renderer) const;
 
 private:
     friend class Texture;

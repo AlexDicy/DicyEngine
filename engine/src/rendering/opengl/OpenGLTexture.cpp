@@ -10,6 +10,9 @@ OpenGLTexture::OpenGLTexture(const unsigned int width, const unsigned int height
     this->glInternalFormat = OpenGLDataType::getFromTextureInternalFormat(this->internalFormat);
     this->glTextureType = OpenGLDataType::getFromTextureType(this->type);
     this->dataType = OpenGLDataType::getPixelTypeFromInternalFormat(internalFormat);
+    if (this->id != 0) {
+        return;
+    }
     this->createTexture();
     this->uploadData(data);
 }
@@ -26,6 +29,10 @@ OpenGLTexture::~OpenGLTexture() {
 
 void OpenGLTexture::bind(const GLuint slot) const {
     glBindTextureUnit(slot, this->id);
+}
+
+void OpenGLTexture::bind() const {
+    glBindTexture(this->glTextureType, this->id);
 }
 
 void OpenGLTexture::setRawData(const void* data, const unsigned int size) {
@@ -86,11 +93,7 @@ void OpenGLTexture::createTexture() {
     }
 }
 
-void OpenGLTexture::uploadData(const void* data) {
-    if (!data) {
-        return;
-    }
-
+void OpenGLTexture::uploadData(const void* data) const {
     switch (this->type) {
         case TextureType::TEXTURE_2D:
             glTexImage2D(this->glTextureType, 0, this->glInternalFormat, static_cast<int>(this->width), static_cast<int>(this->height), 0, this->glFormat, this->dataType, data);
@@ -104,8 +107,9 @@ void OpenGLTexture::uploadData(const void* data) {
             {
                 const size_t faceSize = static_cast<size_t>(this->width) * this->height * this->internalFormat.getSize();
                 for (int face = 0; face < 6; face++) {
+                    const uint8_t* const dataOffset = data == nullptr ? nullptr : static_cast<const uint8_t*>(data) + (face * faceSize);
                     glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, 0, this->glInternalFormat, static_cast<int>(this->width), static_cast<int>(this->height), 0, this->glFormat,
-                                 this->dataType, static_cast<const uint8_t*>(data) + (face * faceSize));
+                                 this->dataType, dataOffset);
                 }
                 break;
             }

@@ -13,8 +13,6 @@ public:
     void createRenderPassFramebuffers(unsigned int width, unsigned int height) override;
     void createDataFramebuffer(unsigned int width, unsigned int height) override;
 
-    Ref<RenderFramebuffer> getFramebuffer() const override;
-
     Ref<VertexArray> createVertexArray(const Ref<VertexBuffer>& vertexBuffer, const Ref<IndexBuffer>& indexBuffer) const override;
     Ref<VertexBuffer> createVertexBuffer(const float* vertices, uint32_t size) const override;
     Ref<IndexBuffer> createIndexBuffer(const uint32_t* indexes, uint32_t count) const override;

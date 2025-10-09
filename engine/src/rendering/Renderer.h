@@ -52,7 +52,10 @@ public:
         return this->viewport;
     }
 
-    virtual Ref<RenderFramebuffer> getFramebuffer() const = 0;
+    Ref<RenderFramebuffer> getFramebuffer() const {
+        return this->framebuffer;
+    }
+
     const Ref<DepthFramebuffer>& getShadowDepthFramebuffer() const;
     void swapPassFramebuffers();
 

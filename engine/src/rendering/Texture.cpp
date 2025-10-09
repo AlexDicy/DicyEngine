@@ -27,7 +27,7 @@ TextureBuilder& TextureBuilder::fromImage(const Ref<Image>& image) {
     return *this;
 }
 
-Ref<Texture> TextureBuilder::build(const Ref<Renderer>& renderer) const {
+Ref<Texture> TextureBuilder::build(const Ref<const Renderer>& renderer) const {
     const auto [width, height, layers, format, internalFormat, type, data] = this->builderData;
     return renderer->createTexture(width, height, layers, format, internalFormat, type, data);
 }

@@ -41,10 +41,6 @@ void OpenGLRenderer::createDataFramebuffer(unsigned int width, unsigned int heig
     this->dataFramebuffer = std::make_shared<OpenGLDataFramebuffer>(width, height);
 }
 
-Ref<RenderFramebuffer> OpenGLRenderer::getFramebuffer() const {
-    return this->framebuffer;
-}
-
 
 Ref<VertexArray> OpenGLRenderer::createVertexArray(const Ref<VertexBuffer>& vertexBuffer, const Ref<IndexBuffer>& indexBuffer) const {
     return std::make_shared<OpenGLVertexArray>(vertexBuffer, indexBuffer);
@@ -69,12 +65,9 @@ Ref<Texture> OpenGLRenderer::createTexture(unsigned int width, unsigned int heig
 
 Ref<Texture> OpenGLRenderer::createBRDFLUT(const Ref<Shader>& shader, const uint32_t size) const {
     DebugGroup group("OpenGLRenderer::createBRDFLUT");
-    unsigned int textureId;
-    glGenTextures(1, &textureId);
-    glBindTexture(GL_TEXTURE_2D, textureId);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, size, size, 0, GL_RG, GL_FLOAT, nullptr);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    const Ref<OpenGLTexture> texture = std::static_pointer_cast<OpenGLTexture>(
+        Texture::builder().size(size).format(Texture::Format::RG).internalFormat(Texture::InternalFormat::RG16_FLOAT).build(this->shared_from_this()));
+    texture->bind();
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
@@ -85,7 +78,7 @@ Ref<Texture> OpenGLRenderer::createBRDFLUT(const Ref<Shader>& shader, const uint
     glBindFramebuffer(GL_FRAMEBUFFER, captureFramebuffer);
     glBindRenderbuffer(GL_RENDERBUFFER, captureRenderbuffer);
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, size, size);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureId, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture->getId(), 0);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, captureRenderbuffer);
 
     int previousViewport[4];
@@ -118,7 +111,7 @@ Ref<Texture> OpenGLRenderer::createBRDFLUT(const Ref<Shader>& shader, const uint
     glViewport(previousViewport[0], previousViewport[1], previousViewport[2], previousViewport[3]);
     glDeleteFramebuffers(1, &captureFramebuffer);
     glDeleteRenderbuffers(1, &captureRenderbuffer);
-    return std::make_shared<OpenGLTexture>(textureId, size, size, 1, Texture::Format::RG, Texture::InternalFormat::RG16_FLOAT, Texture::TextureType::TEXTURE_2D);
+    return texture;
 }
 
 Ref<Texture> OpenGLRenderer::createTextureCubeFromHDR(const Ref<Texture>& hdrTexture, const Ref<Shader>& convertShader, const uint32_t size) {
