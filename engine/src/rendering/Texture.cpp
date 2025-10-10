@@ -1,13 +1,11 @@
 ﻿#include "pch/enginepch.h"
 #include "Texture.h"
 
-#include "images/Image.h"
-
 TextureBuilder Texture::builder() {
     return {};
 }
 
-Texture::Texture(const unsigned int width, const unsigned int height, const unsigned int layers, const Format format, const InternalFormat internalFormat, const TextureType type) :
+Texture::Texture(const unsigned int width, const unsigned int height, const unsigned int layers, const TextureFormat format, const TextureInternalFormat internalFormat, const TextureType type) :
     width(width), height(height), layers(layers), format(format), internalFormat(internalFormat), type(type) {
     if (this->type == TextureType::TEXTURE_CUBE) {
         DE_ASSERT(this->layers == 6, "Cubemap must have 6 layers")

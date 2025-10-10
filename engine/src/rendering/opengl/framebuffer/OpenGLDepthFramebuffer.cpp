@@ -15,7 +15,7 @@ OpenGLDepthFramebuffer::OpenGLDepthFramebuffer(const uint32_t width, const uint3
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    this->depthTexture = std::make_shared<OpenGLTexture>(depthTextureId, width, height, 1, Texture::Format::DEPTH, Texture::InternalFormat::D24, Texture::TextureType::TEXTURE_2D);
+    this->depthTexture = std::make_shared<OpenGLTexture>(depthTextureId, width, height, 1, TextureFormat::DEPTH, TextureInternalFormat::D24, TextureType::TEXTURE_2D);
     // framebuffer
     glGenFramebuffers(1, &this->id);
     glBindFramebuffer(GL_FRAMEBUFFER, this->id);

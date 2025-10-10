@@ -81,8 +81,8 @@ SceneLayer::SceneLayer(const std::unique_ptr<Context>& ctx) : Layer(ctx) {
     Ref<Texture> redTexture = Texture::builder()
                                   .width(1)
                                   .height(1)
-                                  .format(Texture::Format::RGB)
-                                  .internalFormat(Texture::InternalFormat::RGB8)
+                                  .format(TextureFormat::RGB)
+                                  .internalFormat(TextureInternalFormat::RGB8)
                                   .data(std::array<unsigned char, 3>{250, 0, 0}.data())
                                   .build(renderer);
     for (int x = 0; x < 10; x++) {
@@ -97,8 +97,8 @@ SceneLayer::SceneLayer(const std::unique_ptr<Context>& ctx) : Layer(ctx) {
                               Texture::builder()
                                   .width(1)
                                   .height(1)
-                                  .format(Texture::Format::RGB)
-                                  .internalFormat(Texture::InternalFormat::RGB8)
+                                  .format(TextureFormat::RGB)
+                                  .internalFormat(TextureInternalFormat::RGB8)
                                   .data(std::array<unsigned char, 3>{255, roughness, metallic}.data())
                                   .build(renderer));
             Ref<Entity> entity = this->scene->createEntity(std::format("Sphere ({},{})", x, z));
@@ -125,8 +125,8 @@ SceneLayer::SceneLayer(const std::unique_ptr<Context>& ctx) : Layer(ctx) {
         auto material = Material(Texture::builder()
                                      .width(1)
                                      .height(1)
-                                     .format(Texture::Format::RGB)
-                                     .internalFormat(Texture::InternalFormat::RGB8)
+                                     .format(TextureFormat::RGB)
+                                     .internalFormat(TextureInternalFormat::RGB8)
                                      .data(std::array<unsigned char, 3>{50, 50, 255}.data())
                                      .build(renderer));
         material.ignoreLighting = true;

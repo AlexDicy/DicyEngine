@@ -58,15 +58,15 @@ Ref<Shader> OpenGLRenderer::createShader(const std::string& vertexPath, const st
     return std::make_shared<OpenGLShader>(vertexPath, fragmentPath);
 }
 
-Ref<Texture> OpenGLRenderer::createTexture(unsigned int width, unsigned int height, unsigned int layers, Texture::Format format, Texture::InternalFormat internalFormat,
-                                           Texture::TextureType type, const void* data) const {
+Ref<Texture> OpenGLRenderer::createTexture(unsigned int width, unsigned int height, unsigned int layers, TextureFormat format, TextureInternalFormat internalFormat,
+                                           TextureType type, const void* data) const {
     return std::make_shared<OpenGLTexture>(width, height, layers, format, internalFormat, type, data);
 }
 
 Ref<Texture> OpenGLRenderer::createBRDFLUT(const Ref<Shader>& shader, const uint32_t size) const {
     DebugGroup group("OpenGLRenderer::createBRDFLUT");
     const Ref<OpenGLTexture> texture = std::static_pointer_cast<OpenGLTexture>(
-        Texture::builder().size(size).format(Texture::Format::RG).internalFormat(Texture::InternalFormat::RG16_FLOAT).build(this->shared_from_this()));
+        Texture::builder().size(size).format(TextureFormat::RG).internalFormat(TextureInternalFormat::RG16_FLOAT).build(this->shared_from_this()));
     texture->bind();
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);

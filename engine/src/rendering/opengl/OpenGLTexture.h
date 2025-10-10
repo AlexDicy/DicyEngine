@@ -5,8 +5,8 @@
 
 class OpenGLTexture : public Texture {
 public:
-    OpenGLTexture(unsigned int width, unsigned int height, unsigned int layers, Format format, InternalFormat internalFormat, TextureType type, const void* data = nullptr);
-    OpenGLTexture(GLuint id, unsigned int width, unsigned int height, unsigned int layers, Format format, InternalFormat internalFormat, TextureType type);
+    OpenGLTexture(unsigned int width, unsigned int height, unsigned int layers, TextureFormat format, TextureInternalFormat internalFormat, TextureType type, const void* data = nullptr);
+    OpenGLTexture(GLuint id, unsigned int width, unsigned int height, unsigned int layers, TextureFormat format, TextureInternalFormat internalFormat, TextureType type);
     ~OpenGLTexture() override;
 
     void bind(GLuint slot) const override;

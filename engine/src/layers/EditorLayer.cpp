@@ -8,8 +8,8 @@ EditorLayer::EditorLayer(const std::unique_ptr<Context>& ctx) : Layer(ctx) {
     const auto uiMaterial = Material(Texture::builder()
                                          .width(1)
                                          .height(1)
-                                         .format(Texture::Format::BGRA)
-                                         .internalFormat(Texture::InternalFormat::RGBA8)
+                                         .format(TextureFormat::BGRA)
+                                         .internalFormat(TextureInternalFormat::RGBA8)
                                          .data(std::array<unsigned char, 4>{0, 0, 0, 0}.data())
                                          .build(ctx->renderer));
     this->uiMesh = Plane::create(ctx->renderer, uiMaterial);

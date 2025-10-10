@@ -23,166 +23,166 @@ public:
         return 0;
     }
 
-    static constexpr GLenum getFromTextureFormat(const Texture::Format format) {
+    static constexpr GLenum getFromTextureFormat(const TextureFormat format) {
         switch (format) {
-            case Texture::Format::R:
+            case TextureFormat::R:
                 return GL_RED;
-            case Texture::Format::R_INT:
+            case TextureFormat::R_INT:
                 return GL_RED_INTEGER;
-            case Texture::Format::RG:
+            case TextureFormat::RG:
                 return GL_RG;
-            case Texture::Format::RG_INT:
+            case TextureFormat::RG_INT:
                 return GL_RG_INTEGER;
-            case Texture::Format::RGB:
+            case TextureFormat::RGB:
                 return GL_RGB;
-            case Texture::Format::RGB_INT:
+            case TextureFormat::RGB_INT:
                 return GL_RGB_INTEGER;
-            case Texture::Format::RGBA:
+            case TextureFormat::RGBA:
                 return GL_RGBA;
-            case Texture::Format::RGBA_INT:
+            case TextureFormat::RGBA_INT:
                 return GL_RGBA_INTEGER;
-            case Texture::Format::BGRA:
+            case TextureFormat::BGRA:
                 return GL_BGRA;
-            case Texture::Format::DEPTH:
+            case TextureFormat::DEPTH:
                 return GL_DEPTH_COMPONENT;
-            case Texture::Format::DEPTH_STENCIL:
+            case TextureFormat::DEPTH_STENCIL:
                 return GL_DEPTH_STENCIL;
         }
         DE_ERROR("Couldn't find corresponding OpenGL format for TextureFormat {0}", static_cast<int>(format));
         return 0;
     }
 
-    static constexpr GLint getFromTextureInternalFormat(const Texture::InternalFormat internalFormat) {
+    static constexpr GLint getFromTextureInternalFormat(const TextureInternalFormat internalFormat) {
         switch (internalFormat) {
-            case Texture::InternalFormat::R8:
+            case TextureInternalFormat::R8:
                 return GL_R8;
-            case Texture::InternalFormat::R8_SNORM:
+            case TextureInternalFormat::R8_SNORM:
                 return GL_R8_SNORM;
-            case Texture::InternalFormat::R8_UINT:
+            case TextureInternalFormat::R8_UINT:
                 return GL_R8UI;
-            case Texture::InternalFormat::R8_INT:
+            case TextureInternalFormat::R8_INT:
                 return GL_R8I;
-            case Texture::InternalFormat::R16:
+            case TextureInternalFormat::R16:
                 return GL_R16;
-            case Texture::InternalFormat::R16_SNORM:
+            case TextureInternalFormat::R16_SNORM:
                 return GL_R16_SNORM;
-            case Texture::InternalFormat::R16_UINT:
+            case TextureInternalFormat::R16_UINT:
                 return GL_R16UI;
-            case Texture::InternalFormat::R16_INT:
+            case TextureInternalFormat::R16_INT:
                 return GL_R16I;
-            case Texture::InternalFormat::R16_FLOAT:
+            case TextureInternalFormat::R16_FLOAT:
                 return GL_R16F;
-            case Texture::InternalFormat::R32_UINT:
+            case TextureInternalFormat::R32_UINT:
                 return GL_R32UI;
-            case Texture::InternalFormat::R32_INT:
+            case TextureInternalFormat::R32_INT:
                 return GL_R32I;
-            case Texture::InternalFormat::R32_FLOAT:
+            case TextureInternalFormat::R32_FLOAT:
                 return GL_R32F;
-            case Texture::InternalFormat::RG8:
+            case TextureInternalFormat::RG8:
                 return GL_RG8;
-            case Texture::InternalFormat::RG8_SNORM:
+            case TextureInternalFormat::RG8_SNORM:
                 return GL_RG8_SNORM;
-            case Texture::InternalFormat::RG8_UINT:
+            case TextureInternalFormat::RG8_UINT:
                 return GL_RG8UI;
-            case Texture::InternalFormat::RG8_INT:
+            case TextureInternalFormat::RG8_INT:
                 return GL_RG8I;
-            case Texture::InternalFormat::RG16:
+            case TextureInternalFormat::RG16:
                 return GL_RG16;
-            case Texture::InternalFormat::RG16_SNORM:
+            case TextureInternalFormat::RG16_SNORM:
                 return GL_RG16_SNORM;
-            case Texture::InternalFormat::RG16_UINT:
+            case TextureInternalFormat::RG16_UINT:
                 return GL_RG16UI;
-            case Texture::InternalFormat::RG16_INT:
+            case TextureInternalFormat::RG16_INT:
                 return GL_RG16I;
-            case Texture::InternalFormat::RG16_FLOAT:
+            case TextureInternalFormat::RG16_FLOAT:
                 return GL_RG16F;
-            case Texture::InternalFormat::RG32_UINT:
+            case TextureInternalFormat::RG32_UINT:
                 return GL_RG32UI;
-            case Texture::InternalFormat::RG32_INT:
+            case TextureInternalFormat::RG32_INT:
                 return GL_RG32I;
-            case Texture::InternalFormat::RG32_FLOAT:
+            case TextureInternalFormat::RG32_FLOAT:
                 return GL_RG32F;
-            case Texture::InternalFormat::RGB8:
+            case TextureInternalFormat::RGB8:
                 return GL_RGB8;
-            case Texture::InternalFormat::RGB8_SNORM:
+            case TextureInternalFormat::RGB8_SNORM:
                 return GL_RGB8_SNORM;
-            case Texture::InternalFormat::RGB8_UINT:
+            case TextureInternalFormat::RGB8_UINT:
                 return GL_RGB8UI;
-            case Texture::InternalFormat::RGB8_INT:
+            case TextureInternalFormat::RGB8_INT:
                 return GL_RGB8I;
-            case Texture::InternalFormat::RGBA8:
+            case TextureInternalFormat::RGBA8:
                 return GL_RGBA8;
-            case Texture::InternalFormat::RGBA8_SNORM:
+            case TextureInternalFormat::RGBA8_SNORM:
                 return GL_RGBA8_SNORM;
-            case Texture::InternalFormat::RGBA8_UINT:
+            case TextureInternalFormat::RGBA8_UINT:
                 return GL_RGBA8UI;
-            case Texture::InternalFormat::RGBA8_INT:
+            case TextureInternalFormat::RGBA8_INT:
                 return GL_RGBA8I;
-            case Texture::InternalFormat::RGBA16:
+            case TextureInternalFormat::RGBA16:
                 return GL_RGBA16;
-            case Texture::InternalFormat::RGBA16_SNORM:
+            case TextureInternalFormat::RGBA16_SNORM:
                 return GL_RGBA16_SNORM;
-            case Texture::InternalFormat::RGBA16_UINT:
+            case TextureInternalFormat::RGBA16_UINT:
                 return GL_RGBA16UI;
-            case Texture::InternalFormat::RGBA16_INT:
+            case TextureInternalFormat::RGBA16_INT:
                 return GL_RGBA16I;
-            case Texture::InternalFormat::RGBA16_FLOAT:
+            case TextureInternalFormat::RGBA16_FLOAT:
                 return GL_RGBA16F;
-            case Texture::InternalFormat::RGBA32_UINT:
+            case TextureInternalFormat::RGBA32_UINT:
                 return GL_RGBA32UI;
-            case Texture::InternalFormat::RGBA32_INT:
+            case TextureInternalFormat::RGBA32_INT:
                 return GL_RGBA32I;
-            case Texture::InternalFormat::RGBA32_FLOAT:
+            case TextureInternalFormat::RGBA32_FLOAT:
                 return GL_RGBA32F;
-            case Texture::InternalFormat::D16:
+            case TextureInternalFormat::D16:
                 return GL_DEPTH_COMPONENT16;
-            case Texture::InternalFormat::D24:
+            case TextureInternalFormat::D24:
                 return GL_DEPTH_COMPONENT24;
-            case Texture::InternalFormat::D32:
+            case TextureInternalFormat::D32:
                 return GL_DEPTH_COMPONENT32;
-            case Texture::InternalFormat::D24S8:
+            case TextureInternalFormat::D24S8:
                 return GL_DEPTH24_STENCIL8;
         }
         DE_ERROR("Couldn't find corresponding OpenGL internal format for TextureInternalFormat {0}", static_cast<int>(internalFormat));
         return 0;
     }
 
-    static constexpr GLenum getFromTextureType(const Texture::TextureType type) {
+    static constexpr GLenum getFromTextureType(const TextureType type) {
         switch (type) {
-            case Texture::TextureType::TEXTURE_2D:
+            case TextureType::TEXTURE_2D:
                 return GL_TEXTURE_2D;
-            case Texture::TextureType::TEXTURE_2D_ARRAY:
+            case TextureType::TEXTURE_2D_ARRAY:
                 return GL_TEXTURE_2D_ARRAY;
-            case Texture::TextureType::TEXTURE_CUBE:
+            case TextureType::TEXTURE_CUBE:
                 return GL_TEXTURE_CUBE_MAP;
-            case Texture::TextureType::TEXTURE_CUBE_ARRAY:
+            case TextureType::TEXTURE_CUBE_ARRAY:
                 return GL_TEXTURE_CUBE_MAP_ARRAY;
         }
         DE_ERROR("Couldn't find corresponding OpenGL texture target for TextureType {0}", static_cast<int>(type));
         return 0;
     }
 
-    static constexpr GLenum getPixelTypeFromInternalFormat(const Texture::InternalFormat internalFormat) {
-        if (internalFormat == Texture::InternalFormat::D24S8) {
+    static constexpr GLenum getPixelTypeFromInternalFormat(const TextureInternalFormat internalFormat) {
+        if (internalFormat == TextureInternalFormat::D24S8) {
             return GL_UNSIGNED_INT_24_8;
         }
 
         switch (internalFormat.getDataType()) {
-            case Texture::DataType::BYTE:
+            case TextureDataType::BYTE:
                 return GL_BYTE;
-            case Texture::DataType::UBYTE:
+            case TextureDataType::UBYTE:
                 return GL_UNSIGNED_BYTE;
-            case Texture::DataType::USHORT:
+            case TextureDataType::USHORT:
                 return GL_UNSIGNED_SHORT;
-            case Texture::DataType::SHORT:
+            case TextureDataType::SHORT:
                 return GL_SHORT;
-            case Texture::DataType::INT:
+            case TextureDataType::INT:
                 return GL_INT;
-            case Texture::DataType::UINT:
+            case TextureDataType::UINT:
                 return GL_UNSIGNED_INT;
-            case Texture::DataType::HALF_FLOAT:
+            case TextureDataType::HALF_FLOAT:
                 return GL_HALF_FLOAT;
-            case Texture::DataType::FLOAT:
+            case TextureDataType::FLOAT:
                 return GL_FLOAT;
         }
         DE_ERROR("Couldn't find corresponding OpenGL pixel type for TextureInternalFormat {0}", static_cast<int>(internalFormat));

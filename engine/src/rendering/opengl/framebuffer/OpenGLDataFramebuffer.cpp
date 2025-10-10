@@ -16,7 +16,7 @@ OpenGLDataFramebuffer::OpenGLDataFramebuffer(const unsigned int width, const uns
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     this->depthTexture =
-        std::make_shared<OpenGLTexture>(dataTextureId, width, height, 1, Texture::Format::R_INT, Texture::InternalFormat::R8_INT, Texture::TextureType::TEXTURE_2D);
+        std::make_shared<OpenGLTexture>(dataTextureId, width, height, 1, TextureFormat::R_INT, TextureInternalFormat::R8_INT, TextureType::TEXTURE_2D);
     // framebuffer
     glGenFramebuffers(1, &this->id);
     glBindFramebuffer(GL_FRAMEBUFFER, this->id);

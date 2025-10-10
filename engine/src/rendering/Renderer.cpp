@@ -7,10 +7,10 @@
 void Renderer::init(const unsigned int width, const unsigned int height) {
     this->setFramebufferDimensions(width, height);
     this->setViewport(0, 0, width, height);
-    this->whitePixelTexture = this->createTexture(1, 1, 1, Texture::Format::RGBA, Texture::InternalFormat::RGBA8, Texture::TextureType::TEXTURE_2D,
+    this->whitePixelTexture = this->createTexture(1, 1, 1, TextureFormat::RGBA, TextureInternalFormat::RGBA8, TextureType::TEXTURE_2D,
                                                   std::array<unsigned char, 4>{255, 255, 255, 255}.data());
     this->defaultOcclusionRoughnessMetallicTexture =
-        this->createTexture(1, 1, 1, Texture::Format::RGB, Texture::InternalFormat::RGB8, Texture::TextureType::TEXTURE_2D, std::array<unsigned char, 3>{255, 255, 0}.data());
+        this->createTexture(1, 1, 1, TextureFormat::RGB, TextureInternalFormat::RGB8, TextureType::TEXTURE_2D, std::array<unsigned char, 3>{255, 255, 0}.data());
 }
 
 void Renderer::setFramebufferDimensions(const unsigned int width, const unsigned int height) {
@@ -58,7 +58,7 @@ Ref<Texture> Renderer::createTextureCube(const std::array<std::string, 6>& paths
     }
 
     Ref<Texture> textureCube =
-        this->createTexture(firstFace->getWidth(), firstFace->getHeight(), 6, firstFace->getFormat(), firstFace->getInternalFormat(), Texture::TextureType::TEXTURE_CUBE, data);
+        this->createTexture(firstFace->getWidth(), firstFace->getHeight(), 6, firstFace->getFormat(), firstFace->getInternalFormat(), TextureType::TEXTURE_CUBE, data);
     delete[] data;
     return textureCube;
 }

@@ -24,7 +24,7 @@ OpenGLShadowCubeArrayFramebuffer::OpenGLShadowCubeArrayFramebuffer(const unsigne
     glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     this->shadowCubeTexture =
-        std::make_shared<OpenGLTexture>(this->shadowCubeTextureId, size, size, 0, Texture::Format::R, Texture::InternalFormat::R32_FLOAT, Texture::TextureType::TEXTURE_CUBE_ARRAY);
+        std::make_shared<OpenGLTexture>(this->shadowCubeTextureId, size, size, 0, TextureFormat::R, TextureInternalFormat::R32_FLOAT, TextureType::TEXTURE_CUBE_ARRAY);
     // framebuffer
     glGenFramebuffers(1, &this->id);
     glBindFramebuffer(GL_FRAMEBUFFER, this->id);

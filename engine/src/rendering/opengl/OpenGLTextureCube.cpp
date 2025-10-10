@@ -63,7 +63,7 @@ Ref<Texture> OpenGLTextureCube::createFromHDR(const Ref<Renderer>& renderer, con
     glViewport(previousViewport[0], previousViewport[1], previousViewport[2], previousViewport[3]);
     glDeleteFramebuffers(1, &captureFramebuffer);
     glDeleteRenderbuffers(1, &captureRenderbuffer);
-    return std::make_shared<OpenGLTexture>(cubeMapId, size, size, 6, Texture::Format::RGBA, Texture::InternalFormat::RGBA16_FLOAT, Texture::TextureType::TEXTURE_CUBE);
+    return std::make_shared<OpenGLTexture>(cubeMapId, size, size, 6, TextureFormat::RGBA, TextureInternalFormat::RGBA16_FLOAT, TextureType::TEXTURE_CUBE);
 }
 
 Ref<Texture> OpenGLTextureCube::createPrefilteredCubemap(const Ref<Renderer>& renderer, const Ref<Texture>& textureCube, const Ref<Shader>& convertShader, const uint32_t size) {
@@ -96,5 +96,5 @@ Ref<Texture> OpenGLTextureCube::createPrefilteredCubemap(const Ref<Renderer>& re
     glViewport(previousViewport[0], previousViewport[1], previousViewport[2], previousViewport[3]);
     glDeleteFramebuffers(1, &captureFramebuffer);
     glDeleteRenderbuffers(1, &captureRenderbuffer);
-    return std::make_shared<OpenGLTexture>(prefilteredCubemapId, size, size, 6, Texture::Format::RGBA, Texture::InternalFormat::RGBA16_FLOAT, Texture::TextureType::TEXTURE_CUBE);
+    return std::make_shared<OpenGLTexture>(prefilteredCubemapId, size, size, 6, TextureFormat::RGBA, TextureInternalFormat::RGBA16_FLOAT, TextureType::TEXTURE_CUBE);
 }

@@ -4,7 +4,7 @@
 #include <stb_image.h>
 
 
-Image::Image(const unsigned int width, const unsigned int height, const Format format, const InternalFormat internalFormat, const void* data) :
+Image::Image(const unsigned int width, const unsigned int height, const TextureFormat format, const TextureInternalFormat internalFormat, const void* data) :
     width(width), height(height), format(format), internalFormat(internalFormat) {
     this->data = std::make_unique<uint8_t[]>(this->getDataSize());
     if (data) {

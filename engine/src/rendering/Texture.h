@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "TextureFormats.h"
+#include "images/Image.h"
 
 
 class CubeMap;
@@ -8,11 +9,6 @@ class TextureBuilder;
 
 class Texture {
 public:
-    using Format = TextureFormats::Format;
-    using InternalFormat = TextureFormats::InternalFormat;
-    using DataType = TextureFormats::DataType;
-    using TextureType = TextureFormats::Type;
-
     virtual ~Texture() = default;
 
     unsigned int getWidth() const {
@@ -27,11 +23,11 @@ public:
         return this->layers;
     }
 
-    Format getFormat() const {
+    TextureFormat getFormat() const {
         return this->format;
     }
 
-    InternalFormat getInternalFormat() const {
+    TextureInternalFormat getInternalFormat() const {
         return this->internalFormat;
     }
 
@@ -50,13 +46,13 @@ public:
     static TextureBuilder builder();
 
 protected:
-    Texture(unsigned int width, unsigned int height, unsigned int layers, Format format, InternalFormat internalFormat, TextureType type);
+    Texture(unsigned int width, unsigned int height, unsigned int layers, TextureFormat format, TextureInternalFormat internalFormat, TextureType type);
 
     unsigned int width;
     unsigned int height;
     unsigned int layers;
-    Format format;
-    InternalFormat internalFormat;
+    TextureFormat format;
+    TextureInternalFormat internalFormat;
     TextureType type;
 };
 
@@ -96,17 +92,17 @@ public:
         this->builderData.layers = layers;
         return *this;
     }
-    TextureBuilder& format(const Texture::Format format) {
+    TextureBuilder& format(const TextureFormat format) {
         this->builderData.format = format;
         return *this;
     }
 
-    TextureBuilder& internalFormat(const Texture::InternalFormat internalFormat) {
+    TextureBuilder& internalFormat(const TextureInternalFormat internalFormat) {
         this->builderData.internalFormat = internalFormat;
         return *this;
     }
 
-    TextureBuilder& type(const Texture::TextureType type) {
+    TextureBuilder& type(const TextureType type) {
         this->builderData.type = type;
         return *this;
     }
@@ -128,9 +124,9 @@ private:
         unsigned int width = 0;
         unsigned int height = 0;
         unsigned int layers = 1;
-        Texture::Format format = Texture::Format::RGBA;
-        Texture::InternalFormat internalFormat = Texture::InternalFormat::RGBA8;
-        Texture::TextureType type = Texture::TextureType::TEXTURE_2D;
+        TextureFormat format = TextureFormat::RGBA;
+        TextureInternalFormat internalFormat = TextureInternalFormat::RGBA8;
+        TextureType type = TextureType::TEXTURE_2D;
         const void* data = nullptr;
     } builderData;
 };

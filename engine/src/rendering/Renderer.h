@@ -63,8 +63,8 @@ public:
     virtual Ref<VertexBuffer> createVertexBuffer(const float* vertices, uint32_t size) const = 0;
     virtual Ref<IndexBuffer> createIndexBuffer(const uint32_t* indexes, uint32_t count) const = 0;
     virtual Ref<Shader> createShader(const std::string& vertexPath, const std::string& fragmentPath) const = 0;
-    virtual Ref<Texture> createTexture(unsigned int width, unsigned int height, unsigned int layers, Texture::Format format, Texture::InternalFormat internalFormat,
-                                       Texture::TextureType type = Texture::TextureType::TEXTURE_2D, const void* data = nullptr) const = 0;
+    virtual Ref<Texture> createTexture(unsigned int width, unsigned int height, unsigned int layers, TextureFormat format, TextureInternalFormat internalFormat,
+                                       TextureType type = TextureType::TEXTURE_2D, const void* data = nullptr) const = 0;
     virtual Ref<Texture> createBRDFLUT(const Ref<Shader>& shader, uint32_t width) const = 0;
     Ref<Texture> createTextureCube(const std::array<std::string, 6>& paths) const;
     virtual Ref<Texture> createTextureCubeFromHDR(const Ref<Texture>& hdrTexture, const Ref<Shader>& convertShader, uint32_t size) = 0;

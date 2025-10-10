@@ -1,5 +1,4 @@
 ﻿#pragma once
-#include "rendering/Texture.h"
 
 /**
  * The Image class is similar to Texture but stores the image data in CPU memory.
@@ -7,11 +6,8 @@
  */
 class Image {
 public:
-    using Format = TextureFormats::Format;
-    using InternalFormat = TextureFormats::InternalFormat;
-
     Image() = default;
-    Image(unsigned int width, unsigned int height, Format format, InternalFormat internalFormat, const void* data = nullptr);
+    Image(unsigned int width, unsigned int height, TextureFormat format, TextureInternalFormat internalFormat, const void* data = nullptr);
 
     Image(Image&& other) noexcept : width(other.width), height(other.height), format(other.format), internalFormat(other.internalFormat), data(std::move(other.data)) {}
     Image& operator=(Image&& other) noexcept {
@@ -36,11 +32,11 @@ public:
         return this->height;
     }
 
-    Texture::Format getFormat() const {
+    TextureFormat getFormat() const {
         return this->format;
     }
 
-    Texture::InternalFormat getInternalFormat() const {
+    TextureInternalFormat getInternalFormat() const {
         return this->internalFormat;
     }
 
@@ -57,7 +53,7 @@ public:
 protected:
     unsigned int width;
     unsigned int height;
-    Format format;
-    InternalFormat internalFormat;
+    TextureFormat format;
+    TextureInternalFormat internalFormat;
     std::unique_ptr<uint8_t[]> data;
 };

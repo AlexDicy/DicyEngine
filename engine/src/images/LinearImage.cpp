@@ -3,7 +3,7 @@
 
 #include <fstream>
 
-LinearImage::LinearImage(const std::string& path) : Image(0, 0, Format::RGBA, InternalFormat::RGBA32_FLOAT, nullptr) {
+LinearImage::LinearImage(const std::string& path) : Image(0, 0, TextureFormat::RGBA, TextureInternalFormat::RGBA32_FLOAT, nullptr) {
     auto imageStream = std::ifstream(path, std::ios::in | std::ios::binary);
     if (!imageStream.is_open()) {
         DE_ERROR("Failed to open image file {0}", path);
@@ -130,7 +130,7 @@ LinearImage::LinearImage(const std::string& path) : Image(0, 0, Format::RGBA, In
 }
 
 LinearImage::LinearImage(const unsigned int width, const unsigned int height, const float* data, const float gamma, const float exposure) :
-    Image(width, height, Format::RGBA, InternalFormat::RGBA32_FLOAT, data) {
+    Image(width, height, TextureFormat::RGBA, TextureInternalFormat::RGBA32_FLOAT, data) {
     this->gamma = gamma;
     this->exposure = exposure;
 }

@@ -6,8 +6,8 @@
 Ref<Image> ImageUtils::loadImageFromFile(const std::string& path) {
     unsigned int width;
     unsigned int height;
-    Image::Format format;
-    Image::InternalFormat internalFormat;
+    TextureFormat format;
+    TextureInternalFormat internalFormat;
     void* data = loadImageData(path, width, height, format, internalFormat);
     return createImageFromData(width, height, format, internalFormat, data);
 }
@@ -15,8 +15,8 @@ Ref<Image> ImageUtils::loadImageFromFile(const std::string& path) {
 Ref<Texture> ImageUtils::loadTextureFromFile(const Ref<Renderer>& renderer, const std::string& path) {
     unsigned int width;
     unsigned int height;
-    Texture::Format format;
-    Texture::InternalFormat internalFormat;
+    TextureFormat format;
+    TextureInternalFormat internalFormat;
     void* data = loadImageData(path, width, height, format, internalFormat);
     return createTextureFromData(renderer, width, height, format, internalFormat, data);
 }
@@ -24,7 +24,7 @@ Ref<Texture> ImageUtils::loadTextureFromFile(const Ref<Renderer>& renderer, cons
 /**
  * Always remember to free the returned data using stbi_image_free when done using it.
  */
-void* ImageUtils::loadImageData(const std::string& path, unsigned int& width, unsigned int& height, Image::Format& format, Image::InternalFormat& internalFormat) {
+void* ImageUtils::loadImageData(const std::string& path, unsigned int& width, unsigned int& height, TextureFormat& format, TextureInternalFormat& internalFormat) {
     int w, h;
     int channels;
 
@@ -38,8 +38,8 @@ void* ImageUtils::loadImageData(const std::string& path, unsigned int& width, un
 
     width = static_cast<unsigned int>(w);
     height = static_cast<unsigned int>(h);
-    format = channels > 3 ? Texture::Format::RGBA : Texture::Format::RGB;
-    internalFormat = channels > 3 ? Texture::InternalFormat::RGBA8 : Texture::InternalFormat::RGB8;
+    format = channels > 3 ? TextureFormat::RGBA : TextureFormat::RGB;
+    internalFormat = channels > 3 ? TextureInternalFormat::RGBA8 : TextureInternalFormat::RGB8;
     return data; // remember to free with stbi_image_free
 }
 
@@ -64,21 +64,21 @@ Ref<LinearImage> ImageUtils::acesFilmicTonemapping(const Ref<LinearImage>& image
 }
 
 
-Ref<Image> ImageUtils::createImageFromData(const unsigned int width, const unsigned int height, const Image::Format format, const Image::InternalFormat internalFormat,
+Ref<Image> ImageUtils::createImageFromData(const unsigned int width, const unsigned int height, const TextureFormat format, const TextureInternalFormat internalFormat,
                                            void* data) {
     auto image = std::make_shared<Image>(width, height, format, internalFormat, data);
     stbi_image_free(data);
     return image;
 }
 
-Ref<Texture> ImageUtils::createTextureFromData(const Ref<Renderer>& renderer, const unsigned int width, const unsigned int height, const Texture::Format format,
-                                               const Texture::InternalFormat internalFormat, void* data) {
+Ref<Texture> ImageUtils::createTextureFromData(const Ref<Renderer>& renderer, const unsigned int width, const unsigned int height, const TextureFormat format,
+                                               const TextureInternalFormat internalFormat, void* data) {
     Ref<Texture> texture = Texture::builder() //
                                .width(width)
                                .height(height)
                                .format(format)
                                .internalFormat(internalFormat)
-                               .type(Texture::TextureType::TEXTURE_2D)
+                               .type(TextureType::TEXTURE_2D)
                                .data(data)
                                .build(renderer);
     stbi_image_free(data);

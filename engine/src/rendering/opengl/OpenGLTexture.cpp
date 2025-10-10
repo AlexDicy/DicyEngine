@@ -4,7 +4,7 @@
 #include "OpenGLDataType.h"
 #include "images/CubeMap.h"
 
-OpenGLTexture::OpenGLTexture(const unsigned int width, const unsigned int height, const unsigned int layers, const Format format, const InternalFormat internalFormat,
+OpenGLTexture::OpenGLTexture(const unsigned int width, const unsigned int height, const unsigned int layers, const TextureFormat format, const TextureInternalFormat internalFormat,
                              const TextureType type, const void* data) : Texture(width, height, layers, format, internalFormat, type) {
     this->glFormat = OpenGLDataType::getFromTextureFormat(this->format);
     this->glInternalFormat = OpenGLDataType::getFromTextureInternalFormat(this->internalFormat);
@@ -17,8 +17,8 @@ OpenGLTexture::OpenGLTexture(const unsigned int width, const unsigned int height
     this->uploadData(data);
 }
 
-OpenGLTexture::OpenGLTexture(const GLuint id, const unsigned int width, const unsigned int height, const unsigned int layers, const Format format,
-                             const InternalFormat internalFormat, const TextureType type) : OpenGLTexture(width, height, layers, format, internalFormat, type) {
+OpenGLTexture::OpenGLTexture(const GLuint id, const unsigned int width, const unsigned int height, const unsigned int layers, const TextureFormat format,
+                             const TextureInternalFormat internalFormat, const TextureType type) : OpenGLTexture(width, height, layers, format, internalFormat, type) {
     this->id = id;
 }
 
@@ -131,7 +131,7 @@ Ref<CubeMap> OpenGLTexture::toCubemap() const {
     std::array<Image, 6> faces;
     glBindTexture(this->glTextureType, this->id);
     for (int i = 0; i < 6; i++) {
-        faces[i] = Image(this->width, this->height, Format::RGBA, InternalFormat::RGBA32_FLOAT);
+        faces[i] = Image(this->width, this->height, TextureFormat::RGBA, TextureInternalFormat::RGBA32_FLOAT);
         glGetTexImage(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA, GL_FLOAT, faces[i].getData());
     }
     return std::make_shared<CubeMap>(std::move(faces));
