@@ -7,10 +7,18 @@
 void Renderer::init(const unsigned int width, const unsigned int height) {
     this->setFramebufferDimensions(width, height);
     this->setViewport(0, 0, width, height);
-    this->whitePixelTexture = this->createTexture(1, 1, 1, TextureFormat::RGBA, TextureInternalFormat::RGBA8, TextureType::TEXTURE_2D,
-                                                  std::array<unsigned char, 4>{255, 255, 255, 255}.data());
-    this->defaultOcclusionRoughnessMetallicTexture =
-        this->createTexture(1, 1, 1, TextureFormat::RGB, TextureInternalFormat::RGB8, TextureType::TEXTURE_2D, std::array<unsigned char, 3>{255, 255, 0}.data());
+    this->whitePixelTexture = Texture::builder()
+                                  .size(1)
+                                  .format(TextureFormat::RGBA)
+                                  .internalFormat(TextureInternalFormat::RGBA8)
+                                  .data(std::array<unsigned char, 4>{255, 255, 255, 255}.data())
+                                  .build(this->shared_from_this());
+    this->defaultOcclusionRoughnessMetallicTexture = Texture::builder()
+                                                         .size(1)
+                                                         .format(TextureFormat::RGB)
+                                                         .internalFormat(TextureInternalFormat::RGB8)
+                                                         .data(std::array<unsigned char, 3>{255, 255, 0}.data())
+                                                         .build(this->shared_from_this());
 }
 
 void Renderer::setFramebufferDimensions(const unsigned int width, const unsigned int height) {
@@ -57,8 +65,14 @@ Ref<Texture> Renderer::createTextureCube(const std::array<std::string, 6>& paths
         memcpy(data + i * dataSize, face->getData(), face->getDataSize());
     }
 
-    Ref<Texture> textureCube =
-        this->createTexture(firstFace->getWidth(), firstFace->getHeight(), 6, firstFace->getFormat(), firstFace->getInternalFormat(), TextureType::TEXTURE_CUBE, data);
+    Ref<Texture> textureCube = Texture::builder()
+                                   .size(firstFace->getWidth())
+                                   .layers(6)
+                                   .format(firstFace->getFormat())
+                                   .internalFormat(firstFace->getInternalFormat())
+                                   .type(TextureType::TEXTURE_CUBE)
+                                   .data(data)
+                                   .build(this->shared_from_this());
     delete[] data;
     return textureCube;
 }

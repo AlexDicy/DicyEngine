@@ -5,14 +5,13 @@ TextureBuilder Texture::builder() {
     return {};
 }
 
-Texture::Texture(const unsigned int width, const unsigned int height, const unsigned int layers, const TextureFormat format, const TextureInternalFormat internalFormat, const TextureType type) :
-    width(width), height(height), layers(layers), format(format), internalFormat(internalFormat), type(type) {
-    if (this->type == TextureType::TEXTURE_CUBE) {
-        DE_ASSERT(this->layers == 6, "Cubemap must have 6 layers")
-        DE_ASSERT(this->width == this->height, "Cubemap must be square")
-    } else if (this->type == TextureType::TEXTURE_CUBE_ARRAY) {
-        DE_ASSERT(this->layers % 6 == 0, "Cubemap array must have a multiple of 6 layers")
-        DE_ASSERT(this->width == this->height, "Cubemap array must be square")
+Texture::Texture(const TextureParams& params) : params(params) {
+    if (this->params.type == TextureType::TEXTURE_CUBE) {
+        DE_ASSERT(this->params.layers == 6, "Cubemap must have 6 layers")
+        DE_ASSERT(this->params.width == this->params.height, "Cubemap must be square")
+    } else if (this->params.type == TextureType::TEXTURE_CUBE_ARRAY) {
+        DE_ASSERT(this->params.layers % 6 == 0, "Cubemap array must have a multiple of 6 layers")
+        DE_ASSERT(this->params.width == this->params.height, "Cubemap array must be square")
     }
 }
 
@@ -26,8 +25,7 @@ TextureBuilder& TextureBuilder::fromImage(const Ref<Image>& image) {
 }
 
 Ref<Texture> TextureBuilder::build(const Ref<const Renderer>& renderer) const {
-    const auto [width, height, layers, format, internalFormat, type, data] = this->builderData;
-    return renderer->createTexture(width, height, layers, format, internalFormat, type, data);
+    return renderer->createTexture(this->params, this->textureData);
 }
 
 const glm::mat4 TextureCubeUtils::invertedViewMatrices[] = {

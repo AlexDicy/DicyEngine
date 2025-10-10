@@ -307,3 +307,57 @@ public:
 private:
     TextureTypeEnum e;
 };
+
+class TextureWrap {
+public:
+    // ReSharper disable CppInconsistentNaming, IdentifierTypo
+    enum WrapEnum {
+        REPEAT,
+        MIRRORED_REPEAT,
+        CLAMP_TO_EDGE,
+        CLAMP_TO_BORDER,
+    };
+    // ReSharper restore CppInconsistentNaming, IdentifierTypo
+
+    constexpr TextureWrap() = default;
+    /* implicit */ constexpr TextureWrap(const WrapEnum e) : e(e) {}
+
+    // ReSharper disable once CppNonExplicitConversionOperator
+    // allows comparisons with Enum constants.
+    constexpr operator WrapEnum() const {
+        return e;
+    }
+
+    // prevent if (x)
+    explicit operator bool() const = delete;
+
+private:
+    WrapEnum e;
+};
+
+class TextureFilter {
+public:
+    // ReSharper disable CppInconsistentNaming, IdentifierTypo
+    enum FilterEnum {
+        NEAREST,
+        LINEAR,
+        MIPMAP_NEAREST,
+        MIPMAP_LINEAR,
+    };
+    // ReSharper restore CppInconsistentNaming, IdentifierTypo
+
+    constexpr TextureFilter() = default;
+    /* implicit */ constexpr TextureFilter(const FilterEnum e) : e(e) {}
+
+    // ReSharper disable once CppNonExplicitConversionOperator
+    // allows comparisons with Enum constants.
+    constexpr operator FilterEnum() const {
+        return e;
+    }
+
+    // prevent if (x)
+    explicit operator bool() const = delete;
+
+private:
+    FilterEnum e;
+};

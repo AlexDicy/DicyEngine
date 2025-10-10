@@ -147,12 +147,12 @@ public:
         return 0;
     }
 
-    static constexpr GLenum getFromTextureType(const TextureType type) {
+    static constexpr GLenum getFromTextureType(const TextureType type, const unsigned int samples) {
         switch (type) {
             case TextureType::TEXTURE_2D:
-                return GL_TEXTURE_2D;
+                return samples > 1 ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
             case TextureType::TEXTURE_2D_ARRAY:
-                return GL_TEXTURE_2D_ARRAY;
+                return samples > 1 ? GL_TEXTURE_2D_MULTISAMPLE_ARRAY : GL_TEXTURE_2D_ARRAY;
             case TextureType::TEXTURE_CUBE:
                 return GL_TEXTURE_CUBE_MAP;
             case TextureType::TEXTURE_CUBE_ARRAY:
@@ -186,6 +186,36 @@ public:
                 return GL_FLOAT;
         }
         DE_ERROR("Couldn't find corresponding OpenGL pixel type for TextureInternalFormat {0}", static_cast<int>(internalFormat));
+        return 0;
+    }
+
+    static constexpr GLint getFromTextureFilter(const TextureFilter filter) {
+        switch (filter) {
+            case TextureFilter::NEAREST:
+                return GL_NEAREST;
+            case TextureFilter::LINEAR:
+                return GL_LINEAR;
+            case TextureFilter::MIPMAP_NEAREST:
+                return GL_NEAREST_MIPMAP_NEAREST;
+            case TextureFilter::MIPMAP_LINEAR:
+                return GL_LINEAR_MIPMAP_LINEAR;
+        }
+        DE_ERROR("Couldn't find corresponding OpenGL filter for TextureFilter {0}", static_cast<int>(filter));
+        return 0;
+    }
+
+    static constexpr GLint getFromTextureWrap(const TextureWrap wrap) {
+        switch (wrap) {
+            case TextureWrap::REPEAT:
+                return GL_REPEAT;
+            case TextureWrap::MIRRORED_REPEAT:
+                return GL_MIRRORED_REPEAT;
+            case TextureWrap::CLAMP_TO_EDGE:
+                return GL_CLAMP_TO_EDGE;
+            case TextureWrap::CLAMP_TO_BORDER:
+                return GL_CLAMP_TO_BORDER;
+        }
+        DE_ERROR("Couldn't find corresponding OpenGL wrap mode for TextureWrap {0}", static_cast<int>(wrap));
         return 0;
     }
 };

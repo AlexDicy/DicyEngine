@@ -12,27 +12,27 @@ public:
     virtual ~Texture() = default;
 
     unsigned int getWidth() const {
-        return this->width;
+        return this->params.width;
     }
 
     unsigned int getHeight() const {
-        return this->height;
+        return this->params.height;
     }
 
     unsigned int getLayers() const {
-        return this->layers;
+        return this->params.layers;
     }
 
     TextureFormat getFormat() const {
-        return this->format;
+        return this->params.format;
     }
 
     TextureInternalFormat getInternalFormat() const {
-        return this->internalFormat;
+        return this->params.internalFormat;
     }
 
     TextureType getType() const {
-        return this->type;
+        return this->params.type;
     }
 
     virtual void bind(unsigned int slot) const = 0;
@@ -45,15 +45,26 @@ public:
 
     static TextureBuilder builder();
 
-protected:
-    Texture(unsigned int width, unsigned int height, unsigned int layers, TextureFormat format, TextureInternalFormat internalFormat, TextureType type);
+    struct TextureParams {
+        unsigned int width = 0;
+        unsigned int height = 0;
+        unsigned int layers = 1;
+        unsigned int samples = 1;
+        TextureFormat format = TextureFormat::RGBA;
+        TextureInternalFormat internalFormat = TextureInternalFormat::RGBA8;
+        TextureType type = TextureType::TEXTURE_2D;
+        TextureFilter filterMin = TextureFilter::LINEAR;
+        TextureFilter filterMag = TextureFilter::LINEAR;
+        TextureWrap wrapU = TextureWrap::REPEAT;
+        TextureWrap wrapV = TextureWrap::REPEAT;
+        TextureWrap wrapW = TextureWrap::REPEAT;
+        bool generateMipmaps = false;
+    };
 
-    unsigned int width;
-    unsigned int height;
-    unsigned int layers;
-    TextureFormat format;
-    TextureInternalFormat internalFormat;
-    TextureType type;
+protected:
+    Texture(const TextureParams& params);
+
+    TextureParams params;
 };
 
 
@@ -67,12 +78,12 @@ public:
 class TextureBuilder {
 public:
     TextureBuilder& width(const unsigned int width) {
-        this->builderData.width = width;
+        this->params.width = width;
         return *this;
     }
 
     TextureBuilder& height(const unsigned int height) {
-        this->builderData.height = height;
+        this->params.height = height;
         return *this;
     }
 
@@ -89,26 +100,87 @@ public:
     }
 
     TextureBuilder& layers(const unsigned int layers) {
-        this->builderData.layers = layers;
+        this->params.layers = layers;
         return *this;
     }
+
+    TextureBuilder& samples(const unsigned int samples) {
+        this->params.samples = samples;
+        return *this;
+    }
+
     TextureBuilder& format(const TextureFormat format) {
-        this->builderData.format = format;
+        this->params.format = format;
         return *this;
     }
 
     TextureBuilder& internalFormat(const TextureInternalFormat internalFormat) {
-        this->builderData.internalFormat = internalFormat;
+        this->params.internalFormat = internalFormat;
         return *this;
     }
 
     TextureBuilder& type(const TextureType type) {
-        this->builderData.type = type;
+        this->params.type = type;
+        return *this;
+    }
+
+    TextureBuilder& filterMin(const TextureFilter filter) {
+        this->params.filterMin = filter;
+        return *this;
+    }
+
+    TextureBuilder& filterMag(const TextureFilter filter) {
+        this->params.filterMag = filter;
+        return *this;
+    }
+
+    TextureBuilder& filter(const TextureFilter filter) {
+        this->filterMin(filter);
+        this->filterMag(filter);
+        return *this;
+    }
+
+    TextureBuilder& filter(const TextureFilter minFilter, const TextureFilter maxFilter) {
+        this->filterMin(minFilter);
+        this->filterMag(maxFilter);
+        return *this;
+    }
+
+    TextureBuilder& wrapU(const TextureWrap wrap) {
+        this->params.wrapU = wrap;
+        return *this;
+    }
+
+    TextureBuilder& wrapV(const TextureWrap wrap) {
+        this->params.wrapV = wrap;
+        return *this;
+    }
+
+    TextureBuilder& wrapW(const TextureWrap wrap) {
+        this->params.wrapW = wrap;
+        return *this;
+    }
+
+    TextureBuilder& wrapUV(const TextureWrap wrap) {
+        this->wrapU(wrap);
+        this->wrapV(wrap);
+        return *this;
+    }
+
+    TextureBuilder& wrap(const TextureWrap wrap) {
+        this->wrapU(wrap);
+        this->wrapV(wrap);
+        this->wrapW(wrap);
+        return *this;
+    }
+
+    TextureBuilder& generateMipmaps(const bool generateMipmaps) {
+        this->params.generateMipmaps = generateMipmaps;
         return *this;
     }
 
     TextureBuilder& data(const void* data) {
-        this->builderData.data = data;
+        this->textureData = data;
         return *this;
     }
 
@@ -120,13 +192,6 @@ private:
     friend class Texture;
     TextureBuilder() = default;
 
-    struct BuilderData {
-        unsigned int width = 0;
-        unsigned int height = 0;
-        unsigned int layers = 1;
-        TextureFormat format = TextureFormat::RGBA;
-        TextureInternalFormat internalFormat = TextureInternalFormat::RGBA8;
-        TextureType type = TextureType::TEXTURE_2D;
-        const void* data = nullptr;
-    } builderData;
+    Texture::TextureParams params;
+    const void* textureData = nullptr;
 };

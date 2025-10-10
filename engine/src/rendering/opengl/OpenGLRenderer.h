@@ -1,9 +1,8 @@
 ﻿#pragma once
-#include "framebuffer/OpenGLRenderFramebuffer.h"
 #include "rendering/Renderer.h"
 #include "rendering/Shader.h"
 
-class OpenGLRenderer : public Renderer, public std::enable_shared_from_this<OpenGLRenderer> {
+class OpenGLRenderer : public Renderer {
 public:
     explicit OpenGLRenderer() : Renderer(RenderAPI::OPENGL) {}
 
@@ -17,8 +16,7 @@ public:
     Ref<VertexBuffer> createVertexBuffer(const float* vertices, uint32_t size) const override;
     Ref<IndexBuffer> createIndexBuffer(const uint32_t* indexes, uint32_t count) const override;
     Ref<Shader> createShader(const std::string& vertexPath, const std::string& fragmentPath) const override;
-    Ref<Texture> createTexture(unsigned int width, unsigned int height, unsigned int layers, TextureFormat format, TextureInternalFormat internalFormat,
-                               TextureType type = TextureType::TEXTURE_2D, const void* data = nullptr) const override;
+    Ref<Texture> createTexture(const Texture::TextureParams& params, const void* data = nullptr) const override;
     Ref<Texture> createBRDFLUT(const Ref<Shader>& shader, uint32_t size) const override;
     Ref<Texture> createTextureCubeFromHDR(const Ref<Texture>& hdrTexture, const Ref<Shader>& convertShader, uint32_t size) override;
     Ref<Texture> createPrefilteredCubemap(const Ref<Texture>& textureCube, const Ref<Shader>& convertShader, uint32_t size) override;

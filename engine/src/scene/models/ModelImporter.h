@@ -1,6 +1,5 @@
 ﻿#pragma once
 #include "Model.h"
-#include "scene/entities/Entity.h"
 
 #include <assimp/material.h>
 

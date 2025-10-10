@@ -5,18 +5,11 @@
 #include "rendering/opengl/OpenGLTexture.h"
 
 
-OpenGLDataFramebuffer::OpenGLDataFramebuffer(const unsigned int width, const unsigned int height) : DataFramebuffer(width, height) {
+OpenGLDataFramebuffer::OpenGLDataFramebuffer(const Ref<const Renderer>& renderer, const unsigned int width, const unsigned int height) : DataFramebuffer(width, height) {
     // data texture, similar to a stencil texture
-    unsigned int dataTextureId;
-    glGenTextures(1, &dataTextureId);
-    glBindTexture(GL_TEXTURE_2D, dataTextureId);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_R8I, static_cast<int>(width), static_cast<int>(height), 0, GL_RED_INTEGER, GL_BYTE, nullptr);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     this->depthTexture =
-        std::make_shared<OpenGLTexture>(dataTextureId, width, height, 1, TextureFormat::R_INT, TextureInternalFormat::R8_INT, TextureType::TEXTURE_2D);
+        Texture::builder().size(width, height).format(TextureFormat::R_INT).internalFormat(TextureInternalFormat::R8_INT).filter(TextureFilter::NEAREST).build(renderer);
+    const unsigned int dataTextureId = std::static_pointer_cast<OpenGLTexture>(this->depthTexture)->getId();
     // framebuffer
     glGenFramebuffers(1, &this->id);
     glBindFramebuffer(GL_FRAMEBUFFER, this->id);

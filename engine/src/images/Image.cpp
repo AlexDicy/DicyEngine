@@ -1,8 +1,6 @@
 ﻿#include "pch/enginepch.h"
 #include "Image.h"
 
-#include <stb_image.h>
-
 
 Image::Image(const unsigned int width, const unsigned int height, const TextureFormat format, const TextureInternalFormat internalFormat, const void* data) :
     width(width), height(height), format(format), internalFormat(internalFormat) {

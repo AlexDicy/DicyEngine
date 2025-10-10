@@ -5,7 +5,6 @@
 
 #include "editor/scripts/CameraScript.h"
 #include "editor/scripts/LightScript.h"
-#include "images/Image.h"
 #include "images/ImageUtils.h"
 #include "images/LinearImage.h"
 #include "rendering/skybox/SphericalHarmonics.h"

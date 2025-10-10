@@ -24,21 +24,21 @@ void OpenGLRenderer::init(const uint32_t width, const uint32_t height) {
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
     glFrontFace(GL_CW);
-    this->shadowDepthFramebuffer = std::make_shared<OpenGLDepthFramebuffer>(2048, 2048);
-    this->shadowCubeArrayFramebuffer = std::make_shared<OpenGLShadowCubeArrayFramebuffer>(1024);
+    this->shadowDepthFramebuffer = std::make_shared<OpenGLDepthFramebuffer>(shared_from_this(), 2048, 2048);
+    this->shadowCubeArrayFramebuffer = std::make_shared<OpenGLShadowCubeArrayFramebuffer>(shared_from_this(), 1024);
 }
 
 void OpenGLRenderer::createRenderFramebuffer(unsigned int width, unsigned int height) {
-    this->framebuffer = std::make_shared<OpenGLRenderFramebuffer>(width, height);
+    this->framebuffer = std::make_shared<OpenGLRenderFramebuffer>(shared_from_this(), width, height);
 }
 
 void OpenGLRenderer::createRenderPassFramebuffers(unsigned int width, unsigned int height) {
-    this->previousPassFramebuffer = std::make_shared<OpenGLRenderPassFramebuffer>(width, height);
-    this->currentPassFramebuffer = std::make_shared<OpenGLRenderPassFramebuffer>(width, height);
+    this->previousPassFramebuffer = std::make_shared<OpenGLRenderPassFramebuffer>(shared_from_this(), width, height);
+    this->currentPassFramebuffer = std::make_shared<OpenGLRenderPassFramebuffer>(shared_from_this(), width, height);
 }
 
 void OpenGLRenderer::createDataFramebuffer(unsigned int width, unsigned int height) {
-    this->dataFramebuffer = std::make_shared<OpenGLDataFramebuffer>(width, height);
+    this->dataFramebuffer = std::make_shared<OpenGLDataFramebuffer>(shared_from_this(), width, height);
 }
 
 
@@ -58,9 +58,8 @@ Ref<Shader> OpenGLRenderer::createShader(const std::string& vertexPath, const st
     return std::make_shared<OpenGLShader>(vertexPath, fragmentPath);
 }
 
-Ref<Texture> OpenGLRenderer::createTexture(unsigned int width, unsigned int height, unsigned int layers, TextureFormat format, TextureInternalFormat internalFormat,
-                                           TextureType type, const void* data) const {
-    return std::make_shared<OpenGLTexture>(width, height, layers, format, internalFormat, type, data);
+Ref<Texture> OpenGLRenderer::createTexture(const Texture::TextureParams& params, const void* data) const {
+    return std::make_shared<OpenGLTexture>(params, data);
 }
 
 Ref<Texture> OpenGLRenderer::createBRDFLUT(const Ref<Shader>& shader, const uint32_t size) const {

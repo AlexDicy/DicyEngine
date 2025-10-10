@@ -15,23 +15,7 @@ void setupRenderBuffer(uint32_t& captureFramebuffer, uint32_t& captureRenderbuff
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, captureRenderbuffer);
 }
 
-void createCubeMap(uint32_t& cubeMapId, const uint32_t size, const bool hasMipmaps) {
-    glGenTextures(1, &cubeMapId);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMapId);
-    for (unsigned int i = 0; i < 6; i++) {
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA16F, size, size, 0, GL_RGBA, GL_FLOAT, nullptr);
-    }
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, hasMipmaps ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-    if (hasMipmaps) {
-        glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
-    }
-}
-
-void renderToCubemap(const Ref<Renderer>& renderer, const Ref<Shader>& convertShader, const Ref<Texture>& texture, const uint32_t cubeMapId, const int mipLevel = 0) {
+void renderToCubemap(const Ref<Renderer>& renderer, const Ref<Shader>& convertShader, const Ref<Texture>& texture, const unsigned int cubeMapId, const int mipLevel = 0) {
     const auto projection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
     const SkyboxCube cube(renderer, convertShader, texture);
     for (unsigned int i = 0; i < 6; i++) {
@@ -48,8 +32,16 @@ Ref<Texture> OpenGLTextureCube::createFromHDR(const Ref<Renderer>& renderer, con
     uint32_t captureRenderbuffer;
     setupRenderBuffer(captureFramebuffer, captureRenderbuffer, size);
 
-    uint32_t cubeMapId;
-    createCubeMap(cubeMapId, size, false);
+    const Ref<Texture> cubeMap = Texture::builder()
+                                     .size(size)
+                                     .layers(6)
+                                     .format(TextureFormat::RGBA)
+                                     .internalFormat(TextureInternalFormat::RGBA16_FLOAT)
+                                     .type(TextureType::TEXTURE_CUBE)
+                                     .filter(TextureFilter::LINEAR)
+                                     .wrap(TextureWrap::CLAMP_TO_EDGE)
+                                     .build(renderer);
+    const unsigned int cubeMapId = std::static_pointer_cast<OpenGLTexture>(cubeMap)->getId();
 
     convertShader->bind();
     hdrTexture->bind(0);
@@ -63,7 +55,7 @@ Ref<Texture> OpenGLTextureCube::createFromHDR(const Ref<Renderer>& renderer, con
     glViewport(previousViewport[0], previousViewport[1], previousViewport[2], previousViewport[3]);
     glDeleteFramebuffers(1, &captureFramebuffer);
     glDeleteRenderbuffers(1, &captureRenderbuffer);
-    return std::make_shared<OpenGLTexture>(cubeMapId, size, size, 6, TextureFormat::RGBA, TextureInternalFormat::RGBA16_FLOAT, TextureType::TEXTURE_CUBE);
+    return cubeMap;
 }
 
 Ref<Texture> OpenGLTextureCube::createPrefilteredCubemap(const Ref<Renderer>& renderer, const Ref<Texture>& textureCube, const Ref<Shader>& convertShader, const uint32_t size) {
@@ -71,8 +63,17 @@ Ref<Texture> OpenGLTextureCube::createPrefilteredCubemap(const Ref<Renderer>& re
     uint32_t captureRenderbuffer;
     setupRenderBuffer(captureFramebuffer, captureRenderbuffer, size);
 
-    uint32_t prefilteredCubemapId;
-    createCubeMap(prefilteredCubemapId, size, true);
+    Ref<Texture> prefilteredCubemap = Texture::builder()
+                                          .size(size)
+                                          .layers(6)
+                                          .format(TextureFormat::RGBA)
+                                          .internalFormat(TextureInternalFormat::RGBA16_FLOAT)
+                                          .type(TextureType::TEXTURE_CUBE)
+                                          .filterMin(TextureFilter::MIPMAP_LINEAR)
+                                          .wrap(TextureWrap::CLAMP_TO_EDGE)
+                                          .generateMipmaps(true)
+                                          .build(renderer);
+    const unsigned int prefilteredCubemapId = std::static_pointer_cast<OpenGLTexture>(prefilteredCubemap)->getId();
 
     convertShader->bind();
     textureCube->bind(0);
@@ -96,5 +97,5 @@ Ref<Texture> OpenGLTextureCube::createPrefilteredCubemap(const Ref<Renderer>& re
     glViewport(previousViewport[0], previousViewport[1], previousViewport[2], previousViewport[3]);
     glDeleteFramebuffers(1, &captureFramebuffer);
     glDeleteRenderbuffers(1, &captureRenderbuffer);
-    return std::make_shared<OpenGLTexture>(prefilteredCubemapId, size, size, 6, TextureFormat::RGBA, TextureInternalFormat::RGBA16_FLOAT, TextureType::TEXTURE_CUBE);
+    return prefilteredCubemap;
 }
