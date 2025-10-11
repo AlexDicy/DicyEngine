@@ -1,20 +1,23 @@
 ﻿#pragma once
 
+/**
+ * The Image class is similar to Texture but stores the image data in CPU memory.
+ * It cannot be used directly for rendering.
+ */
 class Image {
 public:
     Image() = default;
-    explicit Image(const std::string& path);
-    Image(unsigned int width, unsigned int height, unsigned int channels, unsigned int bytesPerPixel, const void* data);
+    Image(unsigned int width, unsigned int height, TextureFormat format, TextureInternalFormat internalFormat, const void* data = nullptr);
 
-    Image(Image&& other) noexcept : width(other.width), height(other.height), channels(other.channels), bytesPerPixel(other.bytesPerPixel), data(std::move(other.data)) {}
+    Image(Image&& other) noexcept : width(other.width), height(other.height), format(other.format), internalFormat(other.internalFormat), data(std::move(other.data)) {}
     Image& operator=(Image&& other) noexcept {
         if (this == &other)
             return *this;
-        width = other.width;
-        height = other.height;
-        channels = other.channels;
-        bytesPerPixel = other.bytesPerPixel;
-        data = std::move(other.data);
+        this->width = other.width;
+        this->height = other.height;
+        this->format = other.format;
+        this->internalFormat = other.internalFormat;
+        this->data = std::move(other.data);
         return *this;
     }
 
@@ -22,23 +25,27 @@ public:
 
 
     unsigned int getWidth() const {
-        return width;
+        return this->width;
     }
 
     unsigned int getHeight() const {
-        return height;
+        return this->height;
     }
 
-    unsigned int getChannels() const {
-        return channels;
+    TextureFormat getFormat() const {
+        return this->format;
     }
 
-    unsigned int getBytesPerPixel() const {
-        return bytesPerPixel;
+    TextureInternalFormat getInternalFormat() const {
+        return this->internalFormat;
     }
 
     void* getData() const {
-        return data.get();
+        return this->data.get();
+    }
+
+    unsigned int getDataSize() const {
+        return this->width * this->height * this->internalFormat.getSize();
     }
 
     void* getPixelPointer(unsigned int x, unsigned int y) const;
@@ -46,7 +53,7 @@ public:
 protected:
     unsigned int width;
     unsigned int height;
-    unsigned int channels;
-    unsigned int bytesPerPixel;
+    TextureFormat format;
+    TextureInternalFormat internalFormat;
     std::unique_ptr<uint8_t[]> data;
 };

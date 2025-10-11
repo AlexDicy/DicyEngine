@@ -1,6 +1,5 @@
 #pragma once
 
-#include "pch/enginepch.h"
 #include "Event.h"
 
 // ReSharper disable CppMemberFunctionMayBeStatic

@@ -1,6 +1,8 @@
 ﻿#include "pch/enginepch.h"
 #include "ModelImporter.h"
 
+#include "images/ImageUtils.h"
+
 #include <stack>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -89,8 +91,8 @@ std::vector<Model> ModelImporter::importFromFile(const Ref<Renderer>& renderer, 
     return models;
 }
 
-Ref<Texture2D> ModelImporter::getTextureFromMaterial(const Ref<Renderer>& renderer, const aiScene* scene, const aiMaterial* material, const aiTextureType type,
-                                                     const std::string& basePath) {
+Ref<Texture> ModelImporter::getTextureFromMaterial(const Ref<Renderer>& renderer, const aiScene* scene, const aiMaterial* material, const aiTextureType type,
+                                                   const std::string& basePath) {
     if (material->GetTextureCount(type) == 0) {
         aiColor3D diffuseColor = {1.0f, 1.0f, 1.0f};
         material->Get(AI_MATKEY_COLOR_DIFFUSE, diffuseColor);
@@ -100,7 +102,7 @@ Ref<Texture2D> ModelImporter::getTextureFromMaterial(const Ref<Renderer>& render
             static_cast<unsigned char>(diffuseColor.b * 255),
             static_cast<unsigned char>(255),
         };
-        return renderer->createTexture2D(4, 1, 1, 1, colorData.data());
+        return Texture::builder().width(1).height(1).format(TextureFormat::RGBA).internalFormat(TextureInternalFormat::RGBA8).data(colorData.data()).build(renderer);
     }
 
     aiString aiTexturePath;
@@ -118,9 +120,11 @@ Ref<Texture2D> ModelImporter::getTextureFromMaterial(const Ref<Renderer>& render
         if (texture->mHeight == 0) { // compressed texture
             data = decompressTexture(data, texture->mWidth, channels, width, height);
         }
-        return renderer->createTexture2D(channels, width, height, 1, data);
+        const TextureFormat format = channels == 4 ? TextureFormat::RGBA : TextureFormat::RGB;
+        const TextureInternalFormat internalFormat = channels == 4 ? TextureInternalFormat::RGBA8 : TextureInternalFormat::RGB8;
+        return Texture::builder().width(width).height(height).format(format).internalFormat(internalFormat).data(data).build(renderer);
     }
-    return renderer->createTexture2D(basePath + "/" + texturePath);
+    return ImageUtils::loadTextureFromFile(renderer, basePath + "/" + texturePath);
 }
 
 unsigned char* ModelImporter::decompressTexture(const unsigned char* data, const unsigned int size, unsigned int& channels, unsigned int& width, unsigned int& height) {

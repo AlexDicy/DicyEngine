@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "Image.h"
 
 class LinearImage final : public Image {
 public:

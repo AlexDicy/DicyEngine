@@ -12,7 +12,7 @@ public:
     explicit OSRCefHandler(const Ref<Application>& app);
     ~OSRCefHandler() override;
 
-    void setTexture(const Ref<Texture2D>& texture) {
+    void setTexture(const Ref<Texture>& texture) {
         this->texture = texture;
     }
 
@@ -106,7 +106,7 @@ private:
     } textureInfo;
     std::mutex textureInfoMutex;
 #endif
-    Ref<Texture2D> texture;
+    Ref<Texture> texture;
     CefRefPtr<CefBrowserHost> host;
     BrowserMessageHandler browserMessageHandler = BrowserMessageHandler();
     bool closing = false;
