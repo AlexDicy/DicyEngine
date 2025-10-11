@@ -1,6 +1,6 @@
 ﻿#include "pch/enginepch.h"
 #include "OpenGLVertexArray.h"
-#include "OpenGLDataType.h"
+#include "OpenGLTypes.h"
 
 #include <glad/gl.h>
 
@@ -29,7 +29,7 @@ OpenGLVertexArray::OpenGLVertexArray(const Ref<VertexBuffer>& vertexBuffer, cons
         glVertexAttribPointer(
             layoutIndex,
             attribute.getDatatypeCount(),
-            OpenGLDataType::getFromDataType(attribute.type),
+            OpenGLTypes::getFromDataType(attribute.type),
             attribute.isNormalized ? GL_TRUE : GL_FALSE,
             layout.getSize(), // NOLINT(bugprone-narrowing-conversions, cppcoreguidelines-narrowing-conversions)
             #pragma warning(suppress: 4312)

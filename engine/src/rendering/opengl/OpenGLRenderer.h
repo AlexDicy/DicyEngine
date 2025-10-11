@@ -6,20 +6,20 @@ class OpenGLRenderer : public Renderer {
 public:
     explicit OpenGLRenderer() : Renderer(RenderAPI::OPENGL) {}
 
-    void init(uint32_t width, uint32_t height) override;
+    void init(unsigned int width, unsigned int height) override;
 
     void createRenderFramebuffer(unsigned int width, unsigned int height) override;
     void createRenderPassFramebuffers(unsigned int width, unsigned int height) override;
     void createDataFramebuffer(unsigned int width, unsigned int height) override;
 
     Ref<VertexArray> createVertexArray(const Ref<VertexBuffer>& vertexBuffer, const Ref<IndexBuffer>& indexBuffer) const override;
-    Ref<VertexBuffer> createVertexBuffer(const float* vertices, uint32_t size) const override;
-    Ref<IndexBuffer> createIndexBuffer(const uint32_t* indexes, uint32_t count) const override;
+    Ref<VertexBuffer> createVertexBuffer(const float* vertices, unsigned int size) const override;
+    Ref<IndexBuffer> createIndexBuffer(const unsigned int* indexes, unsigned int count) const override;
     Ref<Shader> createShader(const std::string& vertexPath, const std::string& fragmentPath) const override;
     Ref<Texture> createTexture(const Texture::TextureParams& params, const void* data = nullptr) const override;
-    Ref<Texture> createBRDFLUT(const Ref<Shader>& shader, uint32_t size) const override;
-    Ref<Texture> createTextureCubeFromHDR(const Ref<Texture>& hdrTexture, const Ref<Shader>& convertShader, uint32_t size) override;
-    Ref<Texture> createPrefilteredCubemap(const Ref<Texture>& textureCube, const Ref<Shader>& convertShader, uint32_t size) override;
+    Ref<Texture> createBRDFLUT(const Ref<Shader>& shader, unsigned int size) const override;
+    Ref<Texture> createTextureCubeFromHDR(const Ref<Texture>& hdrTexture, const Ref<Shader>& convertShader, unsigned int size) override;
+    Ref<Texture> createPrefilteredCubemap(const Ref<Texture>& textureCube, const Ref<Shader>& convertShader, unsigned int size) override;
 
     void beginFrame() override;
     void beginDirectionalShadows() const override;

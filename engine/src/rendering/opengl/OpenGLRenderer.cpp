@@ -3,7 +3,8 @@
 
 #include "DebugGroup.h"
 #include "OpenGLBuffer.h"
-#include "OpenGLDataType.h"
+#include "OpenGLPipeline.h"
+#include "OpenGLTypes.h"
 #include "OpenGLShader.h"
 #include "OpenGLTexture.h"
 #include "OpenGLTextureCube.h"
@@ -17,7 +18,7 @@
 #include <glad/gl.h>
 #include <glm/glm.hpp>
 
-void OpenGLRenderer::init(const uint32_t width, const uint32_t height) {
+void OpenGLRenderer::init(const unsigned int width, const unsigned int height) {
     Renderer::init(width, height);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
@@ -131,9 +132,14 @@ void OpenGLRenderer::beginFrame() {
     this->pointLights.clear();
     this->framebuffer->bind();
     this->clear(); // make sure to clean the framebuffer
-    glEnable(GL_CULL_FACE); // disabled by the skybox
-    glDepthFunc(GL_LESS); // changed by the skybox
-    glStencilMask(0x00);
+    // TODO: this should be handled in a render loop based on commands
+    auto pipeline = OpenGLPipeline();
+    pipeline.params.blending.enabled = true;
+    pipeline.params.blending.color.srcFactor = PipelineBlendFactor::SRC_ALPHA;
+    pipeline.params.blending.color.dstFactor = PipelineBlendFactor::ONE_MINUS_SRC_ALPHA;
+    pipeline.params.blending.alpha.srcFactor = PipelineBlendFactor::SRC_ALPHA;
+    pipeline.params.blending.alpha.dstFactor = PipelineBlendFactor::ONE_MINUS_SRC_ALPHA;
+    pipeline.bind();
 }
 
 void OpenGLRenderer::beginDirectionalShadows() const {

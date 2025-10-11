@@ -1,8 +1,9 @@
 ﻿#pragma once
 #include "rendering/BufferLayout.h"
 #include "glad/gl.h"
+#include "rendering/Pipeline.h"
 
-class OpenGLDataType {
+class OpenGLTypes {
 public:
     static constexpr GLenum getFromDataType(DataType type) {
         switch (type) {
@@ -216,6 +217,98 @@ public:
                 return GL_CLAMP_TO_BORDER;
         }
         DE_ERROR("Couldn't find corresponding OpenGL wrap mode for TextureWrap {0}", static_cast<int>(wrap));
+        return 0;
+    }
+
+    static constexpr GLenum getFromBlendFactor(const PipelineBlendFactor factor) {
+        switch (factor) {
+            case PipelineBlendFactor::ZERO:
+                return GL_ZERO;
+            case PipelineBlendFactor::ONE:
+                return GL_ONE;
+            case PipelineBlendFactor::SRC_COLOR:
+                return GL_SRC_COLOR;
+            case PipelineBlendFactor::ONE_MINUS_SRC_COLOR:
+                return GL_ONE_MINUS_SRC_COLOR;
+            case PipelineBlendFactor::DST_COLOR:
+                return GL_DST_COLOR;
+            case PipelineBlendFactor::ONE_MINUS_DST_COLOR:
+                return GL_ONE_MINUS_DST_COLOR;
+            case PipelineBlendFactor::SRC_ALPHA:
+                return GL_SRC_ALPHA;
+            case PipelineBlendFactor::ONE_MINUS_SRC_ALPHA:
+                return GL_ONE_MINUS_SRC_ALPHA;
+            case PipelineBlendFactor::DST_ALPHA:
+                return GL_DST_ALPHA;
+            case PipelineBlendFactor::ONE_MINUS_DST_ALPHA:
+                return GL_ONE_MINUS_DST_ALPHA;
+            case PipelineBlendFactor::CONSTANT_COLOR:
+                return GL_CONSTANT_COLOR;
+            case PipelineBlendFactor::ONE_MINUS_CONSTANT_COLOR:
+                return GL_ONE_MINUS_CONSTANT_COLOR;
+            case PipelineBlendFactor::CONSTANT_ALPHA:
+                return GL_CONSTANT_ALPHA;
+            case PipelineBlendFactor::ONE_MINUS_CONSTANT_ALPHA:
+                return GL_ONE_MINUS_CONSTANT_ALPHA;
+            case PipelineBlendFactor::SRC_ALPHA_SATURATE:
+                return GL_SRC_ALPHA_SATURATE;
+        }
+        DE_ERROR("Couldn't find corresponding OpenGL blend factor for PipelineBlendFactor {0}", static_cast<int>(factor));
+        return 0;
+    }
+
+    static constexpr GLenum getFromBlendOp(const PipelineBlendOp op) {
+        switch (op) {
+            case PipelineBlendOp::ADD:
+                return GL_FUNC_ADD;
+            case PipelineBlendOp::SUBTRACT:
+                return GL_FUNC_SUBTRACT;
+            case PipelineBlendOp::REVERSE_SUBTRACT:
+                return GL_FUNC_REVERSE_SUBTRACT;
+            case PipelineBlendOp::MIN:
+                return GL_MIN;
+            case PipelineBlendOp::MAX:
+                return GL_MAX;
+        }
+        DE_ERROR("Couldn't find corresponding OpenGL blend operation for PipelineBlendOp {0}", static_cast<int>(op));
+        return 0;
+    }
+
+    static constexpr GLenum getFromCompareOp(const PipelineCompareOp op) {
+        switch (op) {
+            case PipelineCompareOp::NEVER:
+                return GL_NEVER;
+            case PipelineCompareOp::LESS:
+                return GL_LESS;
+            case PipelineCompareOp::EQUAL:
+                return GL_EQUAL;
+            case PipelineCompareOp::LESS_EQUAL:
+                return GL_LEQUAL;
+            case PipelineCompareOp::GREATER:
+                return GL_GREATER;
+            case PipelineCompareOp::NOT_EQUAL:
+                return GL_NOTEQUAL;
+            case PipelineCompareOp::GREATER_EQUAL:
+                return GL_GEQUAL;
+            case PipelineCompareOp::ALWAYS:
+                return GL_ALWAYS;
+        }
+        DE_ERROR("Couldn't find corresponding OpenGL compare operation for PipelineCompareOp {0}", static_cast<int>(op));
+        return 0;
+    }
+
+    static constexpr GLenum getFromCullMode(const PipelineCullMode mode) {
+        switch (mode) {
+            case PipelineCullMode::NONE:
+                return GL_NONE;
+            case PipelineCullMode::FRONT:
+                return GL_FRONT;
+            case PipelineCullMode::BACK:
+                return GL_BACK;
+            case PipelineCullMode::FRONT_AND_BACK:
+                return GL_FRONT_AND_BACK;
+        }
+        DE_ERROR("Couldn't find corresponding OpenGL cull mode for PipelineCullMode {0}", static_cast<int>(mode));
         return 0;
     }
 };

@@ -1,14 +1,14 @@
 ﻿#include "pch/enginepch.h"
 #include "OpenGLTexture.h"
 
-#include "OpenGLDataType.h"
+#include "OpenGLTypes.h"
 #include "images/CubeMap.h"
 
 OpenGLTexture::OpenGLTexture(const TextureParams& params, const void* data) : Texture(params) {
-    glFormat = OpenGLDataType::getFromTextureFormat(params.format);
-    glInternalFormat = OpenGLDataType::getFromTextureInternalFormat(params.internalFormat);
-    glTextureType = OpenGLDataType::getFromTextureType(params.type, params.samples);
-    dataType = OpenGLDataType::getPixelTypeFromInternalFormat(params.internalFormat);
+    glFormat = OpenGLTypes::getFromTextureFormat(params.format);
+    glInternalFormat = OpenGLTypes::getFromTextureInternalFormat(params.internalFormat);
+    glTextureType = OpenGLTypes::getFromTextureType(params.type, params.samples);
+    dataType = OpenGLTypes::getPixelTypeFromInternalFormat(params.internalFormat);
     if (id != 0) {
         return;
     }
@@ -78,11 +78,11 @@ void OpenGLTexture::createTexture() {
     glBindTexture(glTextureType, id);
 
     if (params.samples <= 1) {
-        glTexParameteri(glTextureType, GL_TEXTURE_MIN_FILTER, OpenGLDataType::getFromTextureFilter(params.filterMin));
-        glTexParameteri(glTextureType, GL_TEXTURE_MAG_FILTER, OpenGLDataType::getFromTextureFilter(params.filterMag));
-        glTexParameteri(glTextureType, GL_TEXTURE_WRAP_S, OpenGLDataType::getFromTextureWrap(params.wrapU));
-        glTexParameteri(glTextureType, GL_TEXTURE_WRAP_T, OpenGLDataType::getFromTextureWrap(params.wrapV));
-        glTexParameteri(glTextureType, GL_TEXTURE_WRAP_R, OpenGLDataType::getFromTextureWrap(params.wrapW));
+        glTexParameteri(glTextureType, GL_TEXTURE_MIN_FILTER, OpenGLTypes::getFromTextureFilter(params.filterMin));
+        glTexParameteri(glTextureType, GL_TEXTURE_MAG_FILTER, OpenGLTypes::getFromTextureFilter(params.filterMag));
+        glTexParameteri(glTextureType, GL_TEXTURE_WRAP_S, OpenGLTypes::getFromTextureWrap(params.wrapU));
+        glTexParameteri(glTextureType, GL_TEXTURE_WRAP_T, OpenGLTypes::getFromTextureWrap(params.wrapV));
+        glTexParameteri(glTextureType, GL_TEXTURE_WRAP_R, OpenGLTypes::getFromTextureWrap(params.wrapW));
     }
 }
 
