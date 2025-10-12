@@ -6,30 +6,44 @@ class RenderCommandBase {
 public:
     virtual ~RenderCommandBase() = default;
 
-    virtual void execute(RenderCommands* renderer) = 0;
+    virtual void execute(RenderCommands* renderer) const = 0;
 };
 
-template <typename T>
-class RenderCommand;
-
-template <typename... Args>
-class RenderCommand<void (RenderCommands::*)(Args...)> : public RenderCommandBase {
+template <typename M, typename... Args>
+class RenderCommandGeneric : public RenderCommandBase {
 public:
-    explicit RenderCommand(void (RenderCommands::*method)(Args...), Args... args) : method(method), args(std::make_tuple(std::move(args)...)) {}
+    explicit RenderCommandGeneric(M method, Args... args) : method(method), args(std::make_tuple(std::move(args)...)) {}
 
-    void execute(RenderCommands* renderer) override {
+    void execute(RenderCommands* renderer) const override {
         std::apply(
             [this, renderer](Args... unpackedArgs) {
                 (renderer->*method)(unpackedArgs...);
             },
             args);
-        
     }
 
 private:
-    void (RenderCommands::*method)(Args...);
+    M method;
     std::tuple<std::decay_t<Args>...> args;
 };
+
+template <typename T>
+class RenderCommand;
+
+// non-const RenderCommands method
+template <typename... Args>
+class RenderCommand<void (RenderCommands::*)(Args...)> : public RenderCommandGeneric<void (RenderCommands::*)(Args...), Args...> {
+public:
+    using RenderCommandGeneric<void (RenderCommands::*)(Args...), Args...>::RenderCommandGeneric;
+};
+
+// const RenderCommands method
+template <typename... Args>
+class RenderCommand<void (RenderCommands::*)(Args...) const> : public RenderCommandGeneric<void (RenderCommands::*)(Args...) const, Args...> {
+public:
+    using RenderCommandGeneric<void (RenderCommands::*)(Args...) const, Args...>::RenderCommandGeneric;
+};
+
 
 class RenderCommandQueue {
 public:

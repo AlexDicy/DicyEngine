@@ -7,7 +7,7 @@ class RenderCommands : public std::enable_shared_from_this<RenderCommands> {
 public:
     virtual ~RenderCommands() = default;
     
-    virtual void initializeTexture(const Ref<Texture>& texture) = 0;
-    virtual void createTextureStorage(const Ref<Texture>& texture, const void* data) = 0;
+    virtual void initializeTexture(const Ref<Texture>& texture) const = 0;
+    virtual void createTextureStorage(const Ref<Texture>& texture, const void* data) const = 0;
 };
 

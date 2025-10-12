@@ -4,7 +4,7 @@
 #include "OpenGLTexture.h"
 #include "OpenGLTypes.h"
 
-void OpenGLCommands::initializeTexture(const Ref<Texture>& texture) {
+void OpenGLCommands::initializeTexture(const Ref<Texture>& texture) const {
     const Ref<OpenGLTexture> t = std::static_pointer_cast<OpenGLTexture>(texture);
     glGenTextures(1, &t->id);
     glBindTexture(t->glTextureType, t->id);
@@ -18,7 +18,7 @@ void OpenGLCommands::initializeTexture(const Ref<Texture>& texture) {
     }
 }
 
-void OpenGLCommands::createTextureStorage(const Ref<Texture>& texture, const void* data) {
+void OpenGLCommands::createTextureStorage(const Ref<Texture>& texture, const void* data) const {
     const Ref<OpenGLTexture> t = std::static_pointer_cast<OpenGLTexture>(texture);
     switch (t->glTextureType) {
         case GL_TEXTURE_2D:
