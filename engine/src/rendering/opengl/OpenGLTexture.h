@@ -5,7 +5,7 @@
 
 class OpenGLTexture : public Texture {
 public:
-    OpenGLTexture(const TextureParams& params, const void* data = nullptr);
+    OpenGLTexture(const TextureParams& params);
     OpenGLTexture(GLuint id, const TextureParams& params);
     ~OpenGLTexture() override;
 
@@ -22,25 +22,9 @@ public:
         return this->id;
     }
 
-    GLenum getGLFormat() const {
-        return this->glFormat;
-    }
+protected:
+    friend class OpenGLCommands;
 
-    GLint getGLInternalFormat() const {
-        return this->glInternalFormat;
-    }
-
-    GLenum getGLTextureType() const {
-        return this->glTextureType;
-    }
-
-    GLenum getDataType() const {
-        return this->dataType;
-    }
-
-private:
-    void createTexture();
-    void uploadData(const void* data) const;
     void initializePBO();
 
     GLuint id = 0;

@@ -3,7 +3,7 @@
 
 class OpenGLRenderFramebuffer : public RenderFramebuffer {
 public:
-    OpenGLRenderFramebuffer(const Ref<const Renderer>& renderer, unsigned int width, unsigned int height);
+    OpenGLRenderFramebuffer(const Ref<Renderer>& renderer, unsigned int width, unsigned int height);
     ~OpenGLRenderFramebuffer() override;
 
     void bind() const override;

@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "RenderCommand.h"
 #include "camera/Camera.h"
 #include "VertexArray.h"
 #include "Shader.h"
@@ -25,10 +26,10 @@ public:
     }
 
     struct Viewport {
-        int x = 0;
-        int y = 0;
-        int width = 0;
-        int height = 0;
+        unsigned int x = 0;
+        unsigned int y = 0;
+        unsigned int width = 0;
+        unsigned int height = 0;
     };
 
     const Ref<Camera>& getCamera() {
@@ -39,14 +40,14 @@ public:
         this->camera = camera;
     }
 
-    virtual void init(uint32_t width, uint32_t height);
+    virtual void init(unsigned int width, unsigned int height);
 
     void setFramebufferDimensions(unsigned int width, unsigned int height);
     virtual void createRenderFramebuffer(unsigned int width, unsigned int height) = 0;
     virtual void createRenderPassFramebuffers(unsigned int width, unsigned int height) = 0;
     virtual void createDataFramebuffer(unsigned int width, unsigned int height) = 0;
 
-    void setViewport(int x, int y, uint32_t width, uint32_t height);
+    void setViewport(unsigned int x, unsigned int y, unsigned int width, unsigned int height);
 
     const Viewport& getViewport() const {
         return this->viewport;
@@ -63,9 +64,13 @@ public:
     virtual Ref<VertexBuffer> createVertexBuffer(const float* vertices, uint32_t size) const = 0;
     virtual Ref<IndexBuffer> createIndexBuffer(const uint32_t* indexes, uint32_t count) const = 0;
     virtual Ref<Shader> createShader(const std::string& vertexPath, const std::string& fragmentPath) const = 0;
-    virtual Ref<Texture> createTexture(const Texture::TextureParams& params, const void* data = nullptr) const = 0;
-    virtual Ref<Texture> createBRDFLUT(const Ref<Shader>& shader, uint32_t width) const = 0;
-    Ref<Texture> createTextureCube(const std::array<std::string, 6>& paths) const;
+
+    Ref<Texture> createTexture(const Texture::TextureParams& params, const void* data = nullptr);
+    void initializeTexture(const Ref<Texture>& texture);
+    void createTextureStorage(const Ref<Texture>& texture, const void* data);
+
+    virtual Ref<Texture> createBRDFLUT(const Ref<Shader>& shader, uint32_t width) = 0;
+    Ref<Texture> createTextureCube(const std::array<std::string, 6>& paths);
     virtual Ref<Texture> createTextureCubeFromHDR(const Ref<Texture>& hdrTexture, const Ref<Shader>& convertShader, uint32_t size) = 0;
     virtual Ref<Texture> createPrefilteredCubemap(const Ref<Texture>& textureCube, const Ref<Shader>& convertShader, uint32_t size) = 0;
 
@@ -98,7 +103,19 @@ public:
     virtual void drawEditorOverlays(const Ref<VertexArray>& vertexArray, const Ref<Shader>& shader, glm::vec4 outlineColor, float outlineWidth) const = 0;
     virtual void drawUI(const Ref<VertexArray>& vertexArray, const Ref<Shader>& shader, const Material& material) const = 0;
 
+private:
+    void pushCommand(std::unique_ptr<RenderCommandBase> command) {
+        queue.push(std::move(command));
+        queue.swap();
+        queue.execute(renderCommands.get(), 16);
+    }
+
+    virtual Ref<Texture> newTexture(const Texture::TextureParams& params) const = 0;
+
 protected:
+    RenderCommandQueue queue;
+    Ref<RenderCommands> renderCommands;
+
     Ref<Camera> camera;
     glm::mat4 viewProjectionMatrix = glm::identity<glm::mat4>();
     glm::mat4 viewMatrix = glm::identity<glm::mat4>();

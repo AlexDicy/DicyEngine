@@ -1,8 +1,11 @@
 ﻿#include "pch/enginepch.h"
 #include "Renderer.h"
 
+#include "RenderCommand.h"
+#include "RenderCommands.h"
 #include "images/ImageUtils.h"
 
+#define PUSH_COMMAND(method, ...) pushCommand(std::make_unique<RenderCommand<decltype(&RenderCommands::method)>>(&RenderCommands::method, __VA_ARGS__))
 
 void Renderer::init(const unsigned int width, const unsigned int height) {
     this->setFramebufferDimensions(width, height);
@@ -27,7 +30,7 @@ void Renderer::setFramebufferDimensions(const unsigned int width, const unsigned
     this->createRenderPassFramebuffers(width, height);
 }
 
-void Renderer::setViewport(const int x, const int y, const uint32_t width, const uint32_t height) {
+void Renderer::setViewport(const unsigned int x, const unsigned int y, const unsigned int width, const unsigned int height) {
     if (this->camera) {
         this->camera->setAspectRatio(static_cast<float>(width) / static_cast<float>(height));
     }
@@ -48,7 +51,22 @@ void Renderer::swapPassFramebuffers() {
     this->previousPassFramebuffer->copyDepthToBuffer(this->currentPassFramebuffer);
 }
 
-Ref<Texture> Renderer::createTextureCube(const std::array<std::string, 6>& paths) const {
+Ref<Texture> Renderer::createTexture(const Texture::TextureParams& params, const void* data) {
+    Ref<Texture> texture = newTexture(params);
+    initializeTexture(texture);
+    createTextureStorage(texture, data);
+    return texture;
+}
+
+void Renderer::initializeTexture(const Ref<Texture>& texture) {
+    PUSH_COMMAND(initializeTexture, texture);
+}
+
+void Renderer::createTextureStorage(const Ref<Texture>& texture, const void* data) {
+    PUSH_COMMAND(createTextureStorage, texture, data);
+}
+
+Ref<Texture> Renderer::createTextureCube(const std::array<std::string, 6>& paths) {
     const Ref<Image> firstFace = ImageUtils::loadImageFromFile(paths[0]);
     const size_t dataSize = firstFace->getDataSize();
     const auto data = new uint8_t[dataSize * 6];

@@ -3,7 +3,7 @@
 
 class OpenGLDepthFramebuffer : public DepthFramebuffer {
 public:
-    OpenGLDepthFramebuffer(const Ref<const Renderer>& renderer, unsigned int width, unsigned int height);
+    OpenGLDepthFramebuffer(const Ref<Renderer>& renderer, unsigned int width, unsigned int height);
     ~OpenGLDepthFramebuffer() override;
 
     void bind() const override;

@@ -2,7 +2,7 @@
 
 class OpenGLShadowCubeArrayFramebuffer : public ShadowCubeArrayFramebuffer {
 public:
-    explicit OpenGLShadowCubeArrayFramebuffer(const Ref<const Renderer>& renderer, unsigned int size);
+    explicit OpenGLShadowCubeArrayFramebuffer(const Ref<Renderer>& renderer, unsigned int size);
     ~OpenGLShadowCubeArrayFramebuffer() override;
 
     void bind(unsigned int layer, unsigned int face) const override;

@@ -5,7 +5,7 @@
 
 #include <glad/gl.h>
 
-OpenGLShadowCubeArrayFramebuffer::OpenGLShadowCubeArrayFramebuffer(const Ref<const Renderer>& renderer, const unsigned int size) : ShadowCubeArrayFramebuffer(size) {
+OpenGLShadowCubeArrayFramebuffer::OpenGLShadowCubeArrayFramebuffer(const Ref<Renderer>& renderer, const unsigned int size) : ShadowCubeArrayFramebuffer(size) {
     depthTexture = Texture::builder()
                        .size(size)
                        .format(TextureFormat::DEPTH)

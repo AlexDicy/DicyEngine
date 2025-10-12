@@ -5,7 +5,7 @@
 #include "rendering/opengl/OpenGLTexture.h"
 
 
-OpenGLDepthFramebuffer::OpenGLDepthFramebuffer(const Ref<const Renderer>& renderer, const unsigned int width, const unsigned int height) : DepthFramebuffer(width, height) {
+OpenGLDepthFramebuffer::OpenGLDepthFramebuffer(const Ref<Renderer>& renderer, const unsigned int width, const unsigned int height) : DepthFramebuffer(width, height) {
     // depth texture
     this->depthTexture =
         Texture::builder().size(width, height).format(TextureFormat::DEPTH).internalFormat(TextureInternalFormat::D24).filter(TextureFilter::NEAREST).build(renderer);

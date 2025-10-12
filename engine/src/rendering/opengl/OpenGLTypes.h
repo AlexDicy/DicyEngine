@@ -1,7 +1,8 @@
 ﻿#pragma once
 #include "rendering/BufferLayout.h"
-#include "glad/gl.h"
 #include "rendering/Pipeline.h"
+
+#include <glad/gl.h>
 
 class OpenGLTypes {
 public:

@@ -5,7 +5,7 @@
 #include "rendering/opengl/OpenGLTexture.h"
 
 
-OpenGLRenderFramebuffer::OpenGLRenderFramebuffer(const Ref<const Renderer>& renderer, const unsigned int width, const unsigned int height) : RenderFramebuffer(width, height) {
+OpenGLRenderFramebuffer::OpenGLRenderFramebuffer(const Ref<Renderer>& renderer, const unsigned int width, const unsigned int height) : RenderFramebuffer(width, height) {
     colorTexture = Texture::builder().size(width, height).samples(4).format(TextureFormat::RGBA).internalFormat(TextureInternalFormat::RGBA8).build(renderer);
     mousePickingTexture = Texture::builder().size(width, height).samples(4).format(TextureFormat::R_INT).internalFormat(TextureInternalFormat::R32_INT).build(renderer);
     depthTexture = Texture::builder().size(width, height).samples(4).format(TextureFormat::DEPTH_STENCIL).internalFormat(TextureInternalFormat::D24S8).build(renderer);

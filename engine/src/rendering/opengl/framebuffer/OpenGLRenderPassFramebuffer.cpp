@@ -5,7 +5,7 @@
 #include "rendering/opengl/OpenGLTexture.h"
 
 
-OpenGLRenderPassFramebuffer::OpenGLRenderPassFramebuffer(const Ref<const Renderer>& renderer, const unsigned int width, const unsigned int height) :
+OpenGLRenderPassFramebuffer::OpenGLRenderPassFramebuffer(const Ref<Renderer>& renderer, const unsigned int width, const unsigned int height) :
     RenderPassFramebuffer(width, height) {
     texture = Texture::builder().size(width, height).samples(4).format(TextureFormat::RGBA).internalFormat(TextureInternalFormat::RGBA32_FLOAT).build(renderer);
     depthTexture = Texture::builder().size(width, height).samples(4).format(TextureFormat::DEPTH).internalFormat(TextureInternalFormat::D24).build(renderer);

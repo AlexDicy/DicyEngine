@@ -3,7 +3,7 @@
 
 class OpenGLDataFramebuffer : public DataFramebuffer {
 public:
-    OpenGLDataFramebuffer(const Ref<const Renderer>& renderer, unsigned int width, unsigned int height);
+    OpenGLDataFramebuffer(const Ref<Renderer>& renderer, unsigned int width, unsigned int height);
     ~OpenGLDataFramebuffer() override;
 
     void bind() const override;

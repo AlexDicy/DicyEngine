@@ -5,7 +5,7 @@
 #include "rendering/opengl/OpenGLTexture.h"
 
 
-OpenGLDataFramebuffer::OpenGLDataFramebuffer(const Ref<const Renderer>& renderer, const unsigned int width, const unsigned int height) : DataFramebuffer(width, height) {
+OpenGLDataFramebuffer::OpenGLDataFramebuffer(const Ref<Renderer>& renderer, const unsigned int width, const unsigned int height) : DataFramebuffer(width, height) {
     // data texture, similar to a stencil texture
     this->depthTexture =
         Texture::builder().size(width, height).format(TextureFormat::R_INT).internalFormat(TextureInternalFormat::R8_INT).filter(TextureFilter::NEAREST).build(renderer);

@@ -1,10 +1,13 @@
 ﻿#pragma once
+#include "OpenGLCommands.h"
 #include "rendering/Renderer.h"
 #include "rendering/Shader.h"
 
 class OpenGLRenderer : public Renderer {
 public:
-    explicit OpenGLRenderer() : Renderer(RenderAPI::OPENGL) {}
+    explicit OpenGLRenderer() : Renderer(RenderAPI::OPENGL) {
+        renderCommands = std::make_shared<OpenGLCommands>();
+    }
 
     void init(unsigned int width, unsigned int height) override;
 
@@ -16,8 +19,7 @@ public:
     Ref<VertexBuffer> createVertexBuffer(const float* vertices, unsigned int size) const override;
     Ref<IndexBuffer> createIndexBuffer(const unsigned int* indexes, unsigned int count) const override;
     Ref<Shader> createShader(const std::string& vertexPath, const std::string& fragmentPath) const override;
-    Ref<Texture> createTexture(const Texture::TextureParams& params, const void* data = nullptr) const override;
-    Ref<Texture> createBRDFLUT(const Ref<Shader>& shader, unsigned int size) const override;
+    Ref<Texture> createBRDFLUT(const Ref<Shader>& shader, unsigned int size) override;
     Ref<Texture> createTextureCubeFromHDR(const Ref<Texture>& hdrTexture, const Ref<Shader>& convertShader, unsigned int size) override;
     Ref<Texture> createPrefilteredCubemap(const Ref<Texture>& textureCube, const Ref<Shader>& convertShader, unsigned int size) override;
 
@@ -39,4 +41,7 @@ public:
     void drawJumpFloodingPass(const Ref<VertexArray>& vertexArray, const Ref<Shader>& shader, int offset, bool vertical) override;
     void drawEditorOverlays(const Ref<VertexArray>& vertexArray, const Ref<Shader>& shader, glm::vec4 outlineColor, float outlineWidth) const override;
     void drawUI(const Ref<VertexArray>& vertexArray, const Ref<Shader>& shader, const Material& material) const override;
+
+private:
+    Ref<Texture> newTexture(const Texture::TextureParams& params) const override;
 };

@@ -4,7 +4,7 @@
 #include "OpenGLTypes.h"
 #include "images/CubeMap.h"
 
-OpenGLTexture::OpenGLTexture(const TextureParams& params, const void* data) : Texture(params) {
+OpenGLTexture::OpenGLTexture(const TextureParams& params) : Texture(params) {
     glFormat = OpenGLTypes::getFromTextureFormat(params.format);
     glInternalFormat = OpenGLTypes::getFromTextureInternalFormat(params.internalFormat);
     glTextureType = OpenGLTypes::getFromTextureType(params.type, params.samples);
@@ -12,8 +12,6 @@ OpenGLTexture::OpenGLTexture(const TextureParams& params, const void* data) : Te
     if (id != 0) {
         return;
     }
-    this->createTexture();
-    this->uploadData(data);
 }
 
 OpenGLTexture::OpenGLTexture(const GLuint id, const TextureParams& params) : OpenGLTexture(params) {
@@ -71,52 +69,6 @@ void OpenGLTexture::resize(const unsigned int width, const unsigned int height, 
     params.width = width;
     params.height = height;
     params.layers = layers;
-}
-
-void OpenGLTexture::createTexture() {
-    glGenTextures(1, &id);
-    glBindTexture(glTextureType, id);
-
-    if (params.samples <= 1) {
-        glTexParameteri(glTextureType, GL_TEXTURE_MIN_FILTER, OpenGLTypes::getFromTextureFilter(params.filterMin));
-        glTexParameteri(glTextureType, GL_TEXTURE_MAG_FILTER, OpenGLTypes::getFromTextureFilter(params.filterMag));
-        glTexParameteri(glTextureType, GL_TEXTURE_WRAP_S, OpenGLTypes::getFromTextureWrap(params.wrapU));
-        glTexParameteri(glTextureType, GL_TEXTURE_WRAP_T, OpenGLTypes::getFromTextureWrap(params.wrapV));
-        glTexParameteri(glTextureType, GL_TEXTURE_WRAP_R, OpenGLTypes::getFromTextureWrap(params.wrapW));
-    }
-}
-
-void OpenGLTexture::uploadData(const void* data) const {
-    switch (glTextureType) {
-        case GL_TEXTURE_2D:
-            glTexImage2D(GL_TEXTURE_2D, 0, glInternalFormat, static_cast<int>(params.width), static_cast<int>(params.height), 0, glFormat, dataType, data);
-            break;
-        case GL_TEXTURE_2D_MULTISAMPLE:
-            glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, static_cast<int>(params.samples), glInternalFormat, static_cast<int>(params.width), static_cast<int>(params.height),
-                                    true);
-            break;
-        case GL_TEXTURE_2D_ARRAY:
-        case GL_TEXTURE_CUBE_MAP_ARRAY:
-            glTexImage3D(glTextureType, 0, glInternalFormat, static_cast<int>(params.width), static_cast<int>(params.height), static_cast<int>(params.layers), 0, glFormat,
-                         dataType, data);
-            break;
-        case GL_TEXTURE_CUBE_MAP:
-            {
-                const size_t faceSize = static_cast<size_t>(params.width) * params.height * params.internalFormat.getSize();
-                for (int face = 0; face < 6; face++) {
-                    const uint8_t* const dataOffset = data == nullptr ? nullptr : static_cast<const uint8_t*>(data) + (face * faceSize);
-                    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, 0, glInternalFormat, static_cast<int>(params.width), static_cast<int>(params.height), 0, glFormat, dataType,
-                                 dataOffset);
-                }
-                break;
-            }
-        default:
-            DE_ASSERT(false, "Unsupported texture type")
-    }
-
-    if (params.generateMipmaps) {
-        glGenerateMipmap(glTextureType);
-    }
 }
 
 void OpenGLTexture::initializePBO() {

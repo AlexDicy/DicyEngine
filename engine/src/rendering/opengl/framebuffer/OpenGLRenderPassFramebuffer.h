@@ -3,7 +3,7 @@
 
 class OpenGLRenderPassFramebuffer : public RenderPassFramebuffer {
 public:
-    OpenGLRenderPassFramebuffer(const Ref<const Renderer>& renderer, unsigned int width, unsigned int height);
+    OpenGLRenderPassFramebuffer(const Ref<Renderer>& renderer, unsigned int width, unsigned int height);
     ~OpenGLRenderPassFramebuffer() override;
 
     void bind() const override;

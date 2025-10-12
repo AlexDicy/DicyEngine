@@ -23,6 +23,10 @@ public:
         return this->params.layers;
     }
 
+    unsigned int getSamples() const {
+        return this->params.samples;
+    }
+
     TextureFormat getFormat() const {
         return this->params.format;
     }
@@ -33,6 +37,30 @@ public:
 
     TextureType getType() const {
         return this->params.type;
+    }
+
+    TextureFilter getFilterMin() const {
+        return this->params.filterMin;
+    }
+
+    TextureFilter getFilterMag() const {
+        return this->params.filterMag;
+    }
+
+    TextureWrap getWrapU() const {
+        return this->params.wrapU;
+    }
+
+    TextureWrap getWrapV() const {
+        return this->params.wrapV;
+    }
+
+    TextureWrap getWrapW() const {
+        return this->params.wrapW;
+    }
+
+    bool shouldGenerateMipmaps() const {
+        return this->params.generateMipmaps;
     }
 
     virtual void bind(unsigned int slot) const = 0;
@@ -186,7 +214,7 @@ public:
 
     TextureBuilder& fromImage(const Ref<Image>& image);
 
-    Ref<Texture> build(const Ref<const Renderer>& renderer) const;
+    Ref<Texture> build(const Ref<Renderer>& renderer) const;
 
 private:
     friend class Texture;

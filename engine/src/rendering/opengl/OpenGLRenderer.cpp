@@ -59,11 +59,7 @@ Ref<Shader> OpenGLRenderer::createShader(const std::string& vertexPath, const st
     return std::make_shared<OpenGLShader>(vertexPath, fragmentPath);
 }
 
-Ref<Texture> OpenGLRenderer::createTexture(const Texture::TextureParams& params, const void* data) const {
-    return std::make_shared<OpenGLTexture>(params, data);
-}
-
-Ref<Texture> OpenGLRenderer::createBRDFLUT(const Ref<Shader>& shader, const uint32_t size) const {
+Ref<Texture> OpenGLRenderer::createBRDFLUT(const Ref<Shader>& shader, const uint32_t size) {
     DebugGroup group("OpenGLRenderer::createBRDFLUT");
     const Ref<OpenGLTexture> texture = std::static_pointer_cast<OpenGLTexture>(
         Texture::builder().size(size).format(TextureFormat::RG).internalFormat(TextureInternalFormat::RG16_FLOAT).build(this->shared_from_this()));
@@ -344,4 +340,8 @@ void OpenGLRenderer::drawUI(const Ref<VertexArray>& vertexArray, const Ref<Shade
     glViewport(0, 0, this->framebuffer->getWidth(), this->framebuffer->getHeight());
     glDrawElements(GL_TRIANGLES, static_cast<int>(vertexArray->getIndexBuffer()->getCount()), GL_UNSIGNED_INT, nullptr);
     glEnable(GL_DEPTH_TEST);
+}
+
+Ref<Texture> OpenGLRenderer::newTexture(const Texture::TextureParams& params) const {
+    return std::make_shared<OpenGLTexture>(params);
 }
