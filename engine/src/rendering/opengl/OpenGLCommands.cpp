@@ -18,11 +18,11 @@ void OpenGLCommands::initializeTexture(const Ref<Texture>& texture) const {
     }
 }
 
-void OpenGLCommands::createTextureStorage(const Ref<Texture>& texture, const void* data) const {
+void OpenGLCommands::createTextureStorage(const Ref<Texture>& texture, const std::unique_ptr<uint8_t[]> data) const {
     const Ref<OpenGLTexture> t = std::static_pointer_cast<OpenGLTexture>(texture);
     switch (t->glTextureType) {
         case GL_TEXTURE_2D:
-            glTexImage2D(GL_TEXTURE_2D, 0, t->glInternalFormat, static_cast<int>(t->getWidth()), static_cast<int>(t->getHeight()), 0, t->glFormat, t->dataType, data);
+            glTexImage2D(GL_TEXTURE_2D, 0, t->glInternalFormat, static_cast<int>(t->getWidth()), static_cast<int>(t->getHeight()), 0, t->glFormat, t->dataType, data.get());
             break;
         case GL_TEXTURE_2D_MULTISAMPLE:
             glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, static_cast<int>(t->getSamples()), t->glInternalFormat, static_cast<int>(t->getWidth()),
@@ -31,13 +31,13 @@ void OpenGLCommands::createTextureStorage(const Ref<Texture>& texture, const voi
         case GL_TEXTURE_2D_ARRAY:
         case GL_TEXTURE_CUBE_MAP_ARRAY:
             glTexImage3D(t->glTextureType, 0, t->glInternalFormat, static_cast<int>(t->getWidth()), static_cast<int>(t->getHeight()), static_cast<int>(t->getLayers()), 0,
-                         t->glFormat, t->dataType, data);
+                         t->glFormat, t->dataType, data.get());
             break;
         case GL_TEXTURE_CUBE_MAP:
             {
                 const size_t faceSize = static_cast<size_t>(t->getWidth()) * t->getHeight() * t->getInternalFormat().getSize();
                 for (int face = 0; face < 6; face++) {
-                    const uint8_t* const dataOffset = data == nullptr ? nullptr : static_cast<const uint8_t*>(data) + (face * faceSize);
+                    const uint8_t* const dataOffset = data == nullptr ? nullptr : data.get() + (face * faceSize);
                     glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, 0, t->glInternalFormat, static_cast<int>(t->getWidth()), static_cast<int>(t->getHeight()), 0, t->glFormat,
                                  t->dataType, dataOffset);
                 }

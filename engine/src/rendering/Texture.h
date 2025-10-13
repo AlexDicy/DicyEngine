@@ -207,19 +207,19 @@ public:
         return *this;
     }
 
-    TextureBuilder& data(const void* data) {
-        this->textureData = data;
+    TextureBuilder& data(std::unique_ptr<uint8_t[]> data) {
+        this->textureData = std::move(data);
         return *this;
     }
 
     TextureBuilder& fromImage(const Ref<Image>& image);
 
-    Ref<Texture> build(const Ref<Renderer>& renderer) const;
+    Ref<Texture> build(const Ref<Renderer>& renderer);
 
 private:
     friend class Texture;
     TextureBuilder() = default;
 
     Texture::TextureParams params;
-    const void* textureData = nullptr;
+    std::unique_ptr<uint8_t[]> textureData = nullptr;
 };

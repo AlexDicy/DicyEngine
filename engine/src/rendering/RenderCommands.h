@@ -8,6 +8,6 @@ public:
     virtual ~RenderCommands() = default;
     
     virtual void initializeTexture(const Ref<Texture>& texture) const = 0;
-    virtual void createTextureStorage(const Ref<Texture>& texture, const void* data) const = 0;
+    virtual void createTextureStorage(const Ref<Texture>& texture, std::unique_ptr<uint8_t[]> data) const = 0;
 };
 

@@ -77,13 +77,9 @@ SceneLayer::SceneLayer(const std::unique_ptr<Context>& ctx) : Layer(ctx) {
 
     Ref<Entity> spheres = this->scene->createEntity("Red spheres");
     Model sphereModel = std::move(ModelImporter::importFromFile(renderer, "../assets/models/sphere.glb")[0]);
-    Ref<Texture> redTexture = Texture::builder()
-                                  .width(1)
-                                  .height(1)
-                                  .format(TextureFormat::RGB)
-                                  .internalFormat(TextureInternalFormat::RGB8)
-                                  .data(std::array<unsigned char, 3>{250, 0, 0}.data())
-                                  .build(renderer);
+    auto red = std::make_unique<uint8_t[]>(3);
+    std::memcpy(red.get(), std::array<uint8_t, 3>{250, 0, 0}.data(), 3);
+    Ref<Texture> redTexture = Texture::builder().width(1).height(1).format(TextureFormat::RGB).internalFormat(TextureInternalFormat::RGB8).data(std::move(red)).build(renderer);
     for (int x = 0; x < 10; x++) {
         for (int z = 0; z < 10; z++) {
             const float xPos = -5.0f + x + 0.5f;
@@ -92,14 +88,10 @@ SceneLayer::SceneLayer(const std::unique_ptr<Context>& ctx) : Layer(ctx) {
             auto vertexDataFloats = reinterpret_cast<const float*>(vertexData);
             unsigned char roughness = static_cast<unsigned char>(static_cast<float>(9 - x) / 9 * 255.0f);
             unsigned char metallic = static_cast<unsigned char>(static_cast<float>(9 - z) / 9 * 255.0f);
+            auto orm = std::make_unique<uint8_t[]>(3);
+            std::memcpy(orm.get(), std::array<uint8_t, 3>{255, roughness, metallic}.data(), 3);
             Material material(redTexture,
-                              Texture::builder()
-                                  .width(1)
-                                  .height(1)
-                                  .format(TextureFormat::RGB)
-                                  .internalFormat(TextureInternalFormat::RGB8)
-                                  .data(std::array<unsigned char, 3>{255, roughness, metallic}.data())
-                                  .build(renderer));
+                              Texture::builder().width(1).height(1).format(TextureFormat::RGB).internalFormat(TextureInternalFormat::RGB8).data(std::move(orm)).build(renderer));
             Ref<Entity> entity = this->scene->createEntity(std::format("Sphere ({},{})", x, z));
             entity->setParent(spheres);
             entity->add<Mesh>(renderer, vertexDataFloats, sphereModel.vertices.size() * sizeof(VertexData), sphereModel.indexes.data(), sphereModel.indexes.size(), material,
@@ -121,13 +113,10 @@ SceneLayer::SceneLayer(const std::unique_ptr<Context>& ctx) : Layer(ctx) {
         pointLightEntity->setTransform(position, Rotation(), glm::vec3(0.1f));
         const VertexData* vertexData = sphereModel.vertices.data();
         auto vertexDataFloats = reinterpret_cast<const float*>(vertexData);
-        auto material = Material(Texture::builder()
-                                     .width(1)
-                                     .height(1)
-                                     .format(TextureFormat::RGB)
-                                     .internalFormat(TextureInternalFormat::RGB8)
-                                     .data(std::array<unsigned char, 3>{50, 50, 255}.data())
-                                     .build(renderer));
+        auto blue = std::make_unique<uint8_t[]>(3);
+        std::memcpy(blue.get(), std::array<uint8_t, 3>{50, 50, 255}.data(), 3);
+        auto material =
+            Material(Texture::builder().width(1).height(1).format(TextureFormat::RGB).internalFormat(TextureInternalFormat::RGB8).data(std::move(blue)).build(renderer));
         material.ignoreLighting = true;
         pointLightEntity->add<Mesh>(renderer, vertexDataFloats, sphereModel.vertices.size() * sizeof(VertexData), sphereModel.indexes.data(), sphereModel.indexes.size(), material,
                                     sphereModel.transformationMatrix);

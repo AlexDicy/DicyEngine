@@ -20,12 +20,14 @@ TextureBuilder& TextureBuilder::fromImage(const Ref<Image>& image) {
     this->height(image->getHeight());
     this->format(image->getFormat());
     this->internalFormat(image->getInternalFormat());
-    this->data(image->getData());
+    auto data = std::make_unique<uint8_t[]>(image->getDataSize());
+    std::memcpy(data.get(), image->getData().get(), image->getDataSize());
+    this->data(std::move(data));
     return *this;
 }
 
-Ref<Texture> TextureBuilder::build(const Ref<Renderer>& renderer) const {
-    return renderer->createTexture(this->params, this->textureData);
+Ref<Texture> TextureBuilder::build(const Ref<Renderer>& renderer) {
+    return renderer->createTexture(this->params, std::move(this->textureData));
 }
 
 const glm::mat4 TextureCubeUtils::invertedViewMatrices[] = {

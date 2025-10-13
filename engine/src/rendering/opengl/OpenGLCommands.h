@@ -4,5 +4,5 @@
 class OpenGLCommands : public RenderCommands {
 public:
     void initializeTexture(const Ref<Texture>& texture) const override;
-    void createTextureStorage(const Ref<Texture>& texture, const void* data) const override;
+    void createTextureStorage(const Ref<Texture>& texture, std::unique_ptr<uint8_t[]> data) const override;
 };

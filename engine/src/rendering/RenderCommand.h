@@ -6,20 +6,20 @@ class RenderCommandBase {
 public:
     virtual ~RenderCommandBase() = default;
 
-    virtual void execute(RenderCommands* renderer) const = 0;
+    virtual void execute(RenderCommands* renderer) = 0;
 };
 
 template <typename M, typename... Args>
 class RenderCommandGeneric : public RenderCommandBase {
 public:
-    explicit RenderCommandGeneric(M method, Args... args) : method(method), args(std::make_tuple(std::move(args)...)) {}
+    explicit RenderCommandGeneric(M method, Args&&... args) : method(method), args(std::forward<Args>(args)...) {}
 
-    void execute(RenderCommands* renderer) const override {
+    void execute(RenderCommands* renderer) override {
         std::apply(
-            [this, renderer](Args... unpackedArgs) {
-                (renderer->*method)(unpackedArgs...);
+            [this, renderer]<typename... UArgs>(UArgs&&... unpackedArgs) {
+                (renderer->*method)(std::forward<UArgs>(unpackedArgs)...);
             },
-            args);
+            std::move(args));
     }
 
 private:

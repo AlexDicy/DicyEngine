@@ -65,9 +65,9 @@ public:
     virtual Ref<IndexBuffer> createIndexBuffer(const uint32_t* indexes, uint32_t count) const = 0;
     virtual Ref<Shader> createShader(const std::string& vertexPath, const std::string& fragmentPath) const = 0;
 
-    Ref<Texture> createTexture(const Texture::TextureParams& params, const void* data = nullptr);
+    Ref<Texture> createTexture(const Texture::TextureParams& params, std::unique_ptr<uint8_t[]> data);
     void initializeTexture(const Ref<Texture>& texture);
-    void createTextureStorage(const Ref<Texture>& texture, const void* data);
+    void createTextureStorage(const Ref<Texture>& texture, std::unique_ptr<uint8_t[]> data);
 
     virtual Ref<Texture> createBRDFLUT(const Ref<Shader>& shader, uint32_t width) = 0;
     Ref<Texture> createTextureCube(const std::array<std::string, 6>& paths);

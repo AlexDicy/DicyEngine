@@ -7,7 +7,8 @@
 class Image {
 public:
     Image() = default;
-    Image(unsigned int width, unsigned int height, TextureFormat format, TextureInternalFormat internalFormat, const void* data = nullptr);
+    Image(unsigned int width, unsigned int height, TextureFormat format, TextureInternalFormat internalFormat, std::unique_ptr<uint8_t[]> data);
+    Image(unsigned int width, unsigned int height, TextureFormat format, TextureInternalFormat internalFormat);
 
     Image(Image&& other) noexcept : width(other.width), height(other.height), format(other.format), internalFormat(other.internalFormat), data(std::move(other.data)) {}
     Image& operator=(Image&& other) noexcept {
@@ -40,8 +41,8 @@ public:
         return this->internalFormat;
     }
 
-    void* getData() const {
-        return this->data.get();
+    const std::unique_ptr<uint8_t[]>& getData() const {
+        return this->data;
     }
 
     unsigned int getDataSize() const {

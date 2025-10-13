@@ -10,17 +10,21 @@
 void Renderer::init(const unsigned int width, const unsigned int height) {
     this->setFramebufferDimensions(width, height);
     this->setViewport(0, 0, width, height);
+    auto white = std::make_unique<uint8_t[]>(4);
+    std::memcpy(white.get(), std::array<uint8_t, 4>{255, 255, 255, 255}.data(), 4);
     this->whitePixelTexture = Texture::builder()
                                   .size(1)
                                   .format(TextureFormat::RGBA)
                                   .internalFormat(TextureInternalFormat::RGBA8)
-                                  .data(std::array<unsigned char, 4>{255, 255, 255, 255}.data())
+                                  .data(std::move(white))
                                   .build(this->shared_from_this());
+    auto occlusionRoughnessMetallic = std::make_unique<uint8_t[]>(3);
+    std::memcpy(occlusionRoughnessMetallic.get(), std::array<uint8_t, 3>{255, 255, 0}.data(), 3);
     this->defaultOcclusionRoughnessMetallicTexture = Texture::builder()
                                                          .size(1)
                                                          .format(TextureFormat::RGB)
                                                          .internalFormat(TextureInternalFormat::RGB8)
-                                                         .data(std::array<unsigned char, 3>{255, 255, 0}.data())
+                                                         .data(std::move(occlusionRoughnessMetallic))
                                                          .build(this->shared_from_this());
 }
 
@@ -51,10 +55,10 @@ void Renderer::swapPassFramebuffers() {
     this->previousPassFramebuffer->copyDepthToBuffer(this->currentPassFramebuffer);
 }
 
-Ref<Texture> Renderer::createTexture(const Texture::TextureParams& params, const void* data) {
+Ref<Texture> Renderer::createTexture(const Texture::TextureParams& params, std::unique_ptr<uint8_t[]> data) {
     Ref<Texture> texture = newTexture(params);
     initializeTexture(texture);
-    createTextureStorage(texture, data);
+    createTextureStorage(texture, std::move(data));
     return texture;
 }
 
@@ -62,25 +66,24 @@ void Renderer::initializeTexture(const Ref<Texture>& texture) {
     PUSH_COMMAND(initializeTexture, texture);
 }
 
-void Renderer::createTextureStorage(const Ref<Texture>& texture, const void* data) {
-    PUSH_COMMAND(createTextureStorage, texture, data);
+void Renderer::createTextureStorage(const Ref<Texture>& texture, std::unique_ptr<uint8_t[]> data) {
+    PUSH_COMMAND(createTextureStorage, texture, std::move(data));
 }
 
 Ref<Texture> Renderer::createTextureCube(const std::array<std::string, 6>& paths) {
     const Ref<Image> firstFace = ImageUtils::loadImageFromFile(paths[0]);
     const size_t dataSize = firstFace->getDataSize();
-    const auto data = new uint8_t[dataSize * 6];
-    memcpy(data, firstFace->getData(), dataSize);
+    auto data = std::make_unique<uint8_t[]>(dataSize * 6);
+    std::memcpy(data.get(), firstFace->getData().get(), dataSize);
 
     for (size_t i = 1; i < paths.size(); i++) {
         const Ref<Image> face = ImageUtils::loadImageFromFile(paths[i]);
         if (face->getWidth() != firstFace->getWidth() || face->getHeight() != firstFace->getHeight() || face->getFormat() != firstFace->getFormat() ||
             face->getInternalFormat() != firstFace->getInternalFormat()) {
             DE_ERROR("All images must have the same dimensions and format to create a cubemap texture");
-            delete[] data;
             return nullptr;
         }
-        memcpy(data + i * dataSize, face->getData(), face->getDataSize());
+        std::memcpy(data.get() + i * dataSize, face->getData().get(), face->getDataSize());
     }
 
     Ref<Texture> textureCube = Texture::builder()
@@ -89,9 +92,8 @@ Ref<Texture> Renderer::createTextureCube(const std::array<std::string, 6>& paths
                                    .format(firstFace->getFormat())
                                    .internalFormat(firstFace->getInternalFormat())
                                    .type(TextureType::TEXTURE_CUBE)
-                                   .data(data)
+                                   .data(std::move(data))
                                    .build(this->shared_from_this());
-    delete[] data;
     return textureCube;
 }
 

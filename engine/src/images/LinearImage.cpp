@@ -129,11 +129,11 @@ LinearImage::LinearImage(const std::string& path) : Image(0, 0, TextureFormat::R
     this->data = std::move(invertedData);
 }
 
-LinearImage::LinearImage(const unsigned int width, const unsigned int height, const float* data, const float gamma, const float exposure) :
-    Image(width, height, TextureFormat::RGBA, TextureInternalFormat::RGBA32_FLOAT, data) {
-    this->gamma = gamma;
-    this->exposure = exposure;
-}
+LinearImage::LinearImage(const unsigned int width, const unsigned int height, std::unique_ptr<uint8_t[]> data, const float gamma, const float exposure) :
+    Image(width, height, TextureFormat::RGBA, TextureInternalFormat::RGBA32_FLOAT, std::move(data)), gamma(gamma), exposure(exposure) {}
+
+LinearImage::LinearImage(const unsigned int width, const unsigned int height, const float gamma, const float exposure) :
+    Image(width, height, TextureFormat::RGBA, TextureInternalFormat::RGBA32_FLOAT), gamma(gamma), exposure(exposure) {}
 
 void LinearImage::convertRGBEtoRGB(const unsigned char* rgbe, float* rgb) {
     if (rgbe[3] == 0) {

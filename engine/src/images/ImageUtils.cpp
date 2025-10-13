@@ -8,8 +8,8 @@ Ref<Image> ImageUtils::loadImageFromFile(const std::string& path) {
     unsigned int height;
     TextureFormat format;
     TextureInternalFormat internalFormat;
-    void* data = loadImageData(path, width, height, format, internalFormat);
-    return createImageFromData(width, height, format, internalFormat, data);
+    std::unique_ptr<uint8_t[]> data = loadImageData(path, width, height, format, internalFormat);
+    return std::make_shared<Image>(width, height, format, internalFormat, std::move(data));
 }
 
 Ref<Texture> ImageUtils::loadTextureFromFile(const Ref<Renderer>& renderer, const std::string& path) {
@@ -17,19 +17,27 @@ Ref<Texture> ImageUtils::loadTextureFromFile(const Ref<Renderer>& renderer, cons
     unsigned int height;
     TextureFormat format;
     TextureInternalFormat internalFormat;
-    void* data = loadImageData(path, width, height, format, internalFormat);
-    return createTextureFromData(renderer, width, height, format, internalFormat, data);
+    std::unique_ptr<uint8_t[]> data = loadImageData(path, width, height, format, internalFormat);
+    return Texture::builder() //
+        .width(width)
+        .height(height)
+        .format(format)
+        .internalFormat(internalFormat)
+        .type(TextureType::TEXTURE_2D)
+        .data(std::move(data))
+        .build(renderer);
 }
 
 /**
  * Always remember to free the returned data using stbi_image_free when done using it.
  */
-void* ImageUtils::loadImageData(const std::string& path, unsigned int& width, unsigned int& height, TextureFormat& format, TextureInternalFormat& internalFormat) {
+std::unique_ptr<uint8_t[]> ImageUtils::loadImageData(const std::string& path, unsigned int& width, unsigned int& height, TextureFormat& format,
+                                                     TextureInternalFormat& internalFormat) {
     int w, h;
     int channels;
 
     stbi_set_flip_vertically_on_load(true);
-    void* data = stbi_load(path.c_str(), &w, &h, &channels, 0);
+    uint8_t* data = stbi_load(path.c_str(), &w, &h, &channels, 0);
 
     if (!data) {
         const char* error = stbi_failure_reason();
@@ -40,11 +48,11 @@ void* ImageUtils::loadImageData(const std::string& path, unsigned int& width, un
     height = static_cast<unsigned int>(h);
     format = channels > 3 ? TextureFormat::RGBA : TextureFormat::RGB;
     internalFormat = channels > 3 ? TextureInternalFormat::RGBA8 : TextureInternalFormat::RGB8;
-    return data; // remember to free with stbi_image_free
+    return std::unique_ptr<uint8_t[]>(data);
 }
 
 Ref<LinearImage> ImageUtils::acesFilmicTonemapping(const Ref<LinearImage>& image) {
-    auto result = std::make_shared<LinearImage>(image->getWidth(), image->getHeight(), nullptr);
+    auto result = std::make_shared<LinearImage>(image->getWidth(), image->getHeight());
     for (unsigned int x = 0; x < image->getWidth(); x++) {
         for (unsigned int y = 0; y < image->getHeight(); y++) {
             const auto originalPixel = static_cast<float*>(image->getPixelPointer(x, y));
@@ -61,26 +69,4 @@ Ref<LinearImage> ImageUtils::acesFilmicTonemapping(const Ref<LinearImage>& image
         }
     }
     return result;
-}
-
-
-Ref<Image> ImageUtils::createImageFromData(const unsigned int width, const unsigned int height, const TextureFormat format, const TextureInternalFormat internalFormat,
-                                           void* data) {
-    auto image = std::make_shared<Image>(width, height, format, internalFormat, data);
-    stbi_image_free(data);
-    return image;
-}
-
-Ref<Texture> ImageUtils::createTextureFromData(const Ref<Renderer>& renderer, const unsigned int width, const unsigned int height, const TextureFormat format,
-                                               const TextureInternalFormat internalFormat, void* data) {
-    Ref<Texture> texture = Texture::builder() //
-                               .width(width)
-                               .height(height)
-                               .format(format)
-                               .internalFormat(internalFormat)
-                               .type(TextureType::TEXTURE_2D)
-                               .data(data)
-                               .build(renderer);
-    stbi_image_free(data);
-    return texture;
 }
