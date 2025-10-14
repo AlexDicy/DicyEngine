@@ -20,6 +20,7 @@ void OpenGLCommands::initializeTexture(const Ref<Texture>& texture) const {
 
 void OpenGLCommands::createTextureStorage(const Ref<Texture>& texture, const std::unique_ptr<uint8_t[]> data) const {
     const Ref<OpenGLTexture> t = std::static_pointer_cast<OpenGLTexture>(texture);
+    t->bind();
     switch (t->glTextureType) {
         case GL_TEXTURE_2D:
             glTexImage2D(GL_TEXTURE_2D, 0, t->glInternalFormat, static_cast<int>(t->getWidth()), static_cast<int>(t->getHeight()), 0, t->glFormat, t->dataType, data.get());

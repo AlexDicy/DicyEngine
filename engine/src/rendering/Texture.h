@@ -7,7 +7,7 @@ class CubeMap;
 class Renderer;
 class TextureBuilder;
 
-class Texture {
+class Texture : public std::enable_shared_from_this<Texture> {
 public:
     virtual ~Texture() = default;
 

@@ -53,22 +53,19 @@ void OpenGLTexture::setRawData(const void* data, const unsigned int size) {
 }
 
 void OpenGLTexture::resize(const unsigned int width, const unsigned int height) {
-    DE_ASSERT(params.type == TextureType::TEXTURE_2D, "Resize is only supported for 2D textures")
-    glBindTexture(GL_TEXTURE_2D, id);
-    glTexImage2D(GL_TEXTURE_2D, 0, glInternalFormat, static_cast<int>(width), static_cast<int>(height), 0, glFormat, dataType, nullptr);
     params.width = width;
     params.height = height;
+    getRenderer()->createTextureStorage(shared_from_this(), nullptr);
 }
 
 void OpenGLTexture::resize(const unsigned int width, const unsigned int height, const unsigned int layers) {
     DE_ASSERT(params.type == TextureType::TEXTURE_2D_ARRAY || params.type == TextureType::TEXTURE_CUBE_ARRAY,
               "Resize with layers is only supported for 2D Array and Cube Array textures")
     DE_ASSERT(layers % 6 == 0 || params.type == TextureType::TEXTURE_2D_ARRAY, "Cube Array textures must have a multiple of 6 layers")
-    glBindTexture(glTextureType, id);
-    glTexImage3D(glTextureType, 0, glInternalFormat, static_cast<int>(width), static_cast<int>(height), static_cast<int>(layers), 0, glFormat, dataType, nullptr);
     params.width = width;
     params.height = height;
     params.layers = layers;
+    getRenderer()->createTextureStorage(shared_from_this(), nullptr);
 }
 
 void OpenGLTexture::initializePBO() {
@@ -84,7 +81,7 @@ Ref<CubeMap> OpenGLTexture::toCubemap() const {
     std::array<Image, 6> faces;
     glBindTexture(glTextureType, id);
     for (int i = 0; i < 6; i++) {
-        faces[i] = Image(params.width, params.height, TextureFormat::RGBA, TextureInternalFormat::RGBA32_FLOAT);
+        faces[i] = Image(params.width, params.height, params.format, params.internalFormat);
         glGetTexImage(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA, GL_FLOAT, faces[i].getData().get());
     }
     return std::make_shared<CubeMap>(std::move(faces));
