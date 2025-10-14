@@ -5,8 +5,8 @@
 
 class OpenGLTexture : public Texture {
 public:
-    OpenGLTexture(const TextureParams& params);
-    OpenGLTexture(GLuint id, const TextureParams& params);
+    OpenGLTexture(const TextureParams& params, const Ref<Renderer>& renderer);
+    OpenGLTexture(GLuint id, const TextureParams& params, const Ref<Renderer>& renderer);
     ~OpenGLTexture() override;
 
     void bind(GLuint slot) const override;

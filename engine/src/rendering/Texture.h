@@ -90,9 +90,20 @@ public:
     };
 
 protected:
-    Texture(const TextureParams& params);
+    Texture(const TextureParams& params, const Ref<Renderer>& renderer);
+
+    Ref<Renderer> getRenderer() const {
+        Ref<Renderer> ref = renderer.lock();
+        if (!ref) {
+            throw std::runtime_error("The renderer associated with this texture has been destroyed.");
+        }
+        return ref;
+    }
 
     TextureParams params;
+
+private:
+    std::weak_ptr<Renderer> renderer;
 };
 
 

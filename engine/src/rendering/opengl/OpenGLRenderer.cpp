@@ -342,6 +342,6 @@ void OpenGLRenderer::drawUI(const Ref<VertexArray>& vertexArray, const Ref<Shade
     glEnable(GL_DEPTH_TEST);
 }
 
-Ref<Texture> OpenGLRenderer::newTexture(const Texture::TextureParams& params) const {
-    return std::make_shared<OpenGLTexture>(params);
+Ref<Texture> OpenGLRenderer::newTexture(const Texture::TextureParams& params) {
+    return std::make_shared<OpenGLTexture>(params, this->shared_from_this());
 }

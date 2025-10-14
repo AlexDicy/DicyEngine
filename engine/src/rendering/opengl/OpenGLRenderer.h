@@ -43,5 +43,5 @@ public:
     void drawUI(const Ref<VertexArray>& vertexArray, const Ref<Shader>& shader, const Material& material) const override;
 
 private:
-    Ref<Texture> newTexture(const Texture::TextureParams& params) const override;
+    Ref<Texture> newTexture(const Texture::TextureParams& params) override;
 };

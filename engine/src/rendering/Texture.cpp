@@ -5,7 +5,7 @@ TextureBuilder Texture::builder() {
     return {};
 }
 
-Texture::Texture(const TextureParams& params) : params(params) {
+Texture::Texture(const TextureParams& params, const Ref<Renderer>& renderer) : params(params), renderer(renderer) {
     if (this->params.type == TextureType::TEXTURE_CUBE) {
         DE_ASSERT(this->params.layers == 6, "Cubemap must have 6 layers")
         DE_ASSERT(this->params.width == this->params.height, "Cubemap must be square")

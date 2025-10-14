@@ -110,7 +110,7 @@ private:
         queue.execute(renderCommands.get(), 16);
     }
 
-    virtual Ref<Texture> newTexture(const Texture::TextureParams& params) const = 0;
+    virtual Ref<Texture> newTexture(const Texture::TextureParams& params) = 0;
 
 protected:
     RenderCommandQueue queue;

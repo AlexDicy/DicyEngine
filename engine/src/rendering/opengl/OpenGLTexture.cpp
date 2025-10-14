@@ -4,7 +4,7 @@
 #include "OpenGLTypes.h"
 #include "images/CubeMap.h"
 
-OpenGLTexture::OpenGLTexture(const TextureParams& params) : Texture(params) {
+OpenGLTexture::OpenGLTexture(const TextureParams& params, const Ref<Renderer>& renderer) : Texture(params, renderer) {
     glFormat = OpenGLTypes::getFromTextureFormat(params.format);
     glInternalFormat = OpenGLTypes::getFromTextureInternalFormat(params.internalFormat);
     glTextureType = OpenGLTypes::getFromTextureType(params.type, params.samples);
@@ -14,7 +14,7 @@ OpenGLTexture::OpenGLTexture(const TextureParams& params) : Texture(params) {
     }
 }
 
-OpenGLTexture::OpenGLTexture(const GLuint id, const TextureParams& params) : OpenGLTexture(params) {
+OpenGLTexture::OpenGLTexture(const GLuint id, const TextureParams& params, const Ref<Renderer>& renderer) : OpenGLTexture(params, renderer) {
     this->id = id;
 }
 
