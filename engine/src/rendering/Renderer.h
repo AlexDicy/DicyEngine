@@ -18,7 +18,7 @@ enum class RenderAPI { NONE, OPENGL, VULKAN };
 
 class Renderer : public std::enable_shared_from_this<Renderer> {
 public:
-    explicit Renderer(const RenderAPI api) : api(api) {}
+    Renderer(const RenderAPI api, const Ref<RenderCommands>& commands) : queue(commands, std::this_thread::get_id()), api(api) {}
     virtual ~Renderer() = default;
 
     RenderAPI getAPI() const {
@@ -107,14 +107,17 @@ private:
     void pushCommand(std::unique_ptr<RenderCommandBase> command) {
         queue.push(std::move(command));
         queue.swap();
-        queue.execute(renderCommands.get(), 16);
+        queue.execute(16);
+    }
+
+    void pushCommandSync(std::unique_ptr<RenderCommandBase> command) {
+        queue.pushSync(std::move(command));
     }
 
     virtual Ref<Texture> newTexture(const Texture::TextureParams& params) = 0;
 
 protected:
     RenderCommandQueue queue;
-    Ref<RenderCommands> renderCommands;
 
     Ref<Camera> camera;
     glm::mat4 viewProjectionMatrix = glm::identity<glm::mat4>();

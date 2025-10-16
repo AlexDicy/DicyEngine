@@ -5,9 +5,7 @@
 
 class OpenGLRenderer : public Renderer {
 public:
-    explicit OpenGLRenderer() : Renderer(RenderAPI::OPENGL) {
-        renderCommands = std::make_shared<OpenGLCommands>();
-    }
+    explicit OpenGLRenderer() : Renderer(RenderAPI::OPENGL, std::make_shared<OpenGLCommands>()) {}
 
     void init(unsigned int width, unsigned int height) override;
 

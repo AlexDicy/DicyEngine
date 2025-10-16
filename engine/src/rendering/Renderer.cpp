@@ -5,19 +5,17 @@
 #include "RenderCommands.h"
 #include "images/ImageUtils.h"
 
+// TODO: can these macros be replaces by a simple function call that doesn't require the method type?
 #define PUSH_COMMAND(method, ...) pushCommand(std::make_unique<RenderCommand<decltype(&RenderCommands::method)>>(&RenderCommands::method, __VA_ARGS__))
+#define PUSH_COMMAND_SYNC(method, ...) pushCommandSync(std::make_unique<RenderCommand<decltype(&RenderCommands::method)>>(&RenderCommands::method, __VA_ARGS__))
 
 void Renderer::init(const unsigned int width, const unsigned int height) {
     this->setFramebufferDimensions(width, height);
     this->setViewport(0, 0, width, height);
     auto white = std::make_unique<uint8_t[]>(4);
     std::memcpy(white.get(), std::array<uint8_t, 4>{255, 255, 255, 255}.data(), 4);
-    this->whitePixelTexture = Texture::builder()
-                                  .size(1)
-                                  .format(TextureFormat::RGBA)
-                                  .internalFormat(TextureInternalFormat::RGBA8)
-                                  .data(std::move(white))
-                                  .build(this->shared_from_this());
+    this->whitePixelTexture =
+        Texture::builder().size(1).format(TextureFormat::RGBA).internalFormat(TextureInternalFormat::RGBA8).data(std::move(white)).build(this->shared_from_this());
     auto occlusionRoughnessMetallic = std::make_unique<uint8_t[]>(3);
     std::memcpy(occlusionRoughnessMetallic.get(), std::array<uint8_t, 3>{255, 255, 0}.data(), 3);
     this->defaultOcclusionRoughnessMetallicTexture = Texture::builder()
