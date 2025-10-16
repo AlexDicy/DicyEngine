@@ -52,3 +52,19 @@ void OpenGLCommands::createTextureStorage(const Ref<Texture>& texture, const std
         glGenerateMipmap(t->glTextureType);
     }
 }
+
+void OpenGLCommands::bindTexture(const Ref<const Texture>& texture) const {
+    const Ref<const OpenGLTexture> t = std::static_pointer_cast<const OpenGLTexture>(texture);
+    glBindTexture(t->glTextureType, t->id);
+}
+
+void OpenGLCommands::copyTextureData(const Ref<const Texture>& src, const unsigned level, void* destination) const {
+    if (src->getType() != TextureType::TEXTURE_CUBE) {
+        glGetTexImage(OpenGLTypes::getFromTextureType(src->getType(), src->getSamples()), static_cast<GLint>(level), OpenGLTypes::getFromTextureFormat(src->getFormat()),
+                      OpenGLTypes::getPixelTypeFromInternalFormat(src->getInternalFormat()), destination);
+        return;
+    }
+    // using level as the face index here, refactor if needed
+    glGetTexImage(GL_TEXTURE_CUBE_MAP_POSITIVE_X + level, 0, OpenGLTypes::getFromTextureFormat(src->getFormat()),
+                  OpenGLTypes::getPixelTypeFromInternalFormat(src->getInternalFormat()), destination);
+}

@@ -78,11 +78,5 @@ void OpenGLTexture::initializePBO() {
 
 Ref<CubeMap> OpenGLTexture::toCubemap() const {
     DE_ASSERT(params.type == TextureType::TEXTURE_CUBE, "toCubemap is only supported for Cube textures")
-    std::array<Image, 6> faces;
-    glBindTexture(glTextureType, id);
-    for (int i = 0; i < 6; i++) {
-        faces[i] = Image(params.width, params.height, params.format, params.internalFormat);
-        glGetTexImage(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA, GL_FLOAT, faces[i].getData().get());
-    }
-    return std::make_shared<CubeMap>(std::move(faces));
+    return getRenderer()->copyTextureToCubeMap(shared_from_this());
 }

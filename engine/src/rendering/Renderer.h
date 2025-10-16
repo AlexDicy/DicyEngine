@@ -68,6 +68,8 @@ public:
     Ref<Texture> createTexture(const Texture::TextureParams& params, std::unique_ptr<uint8_t[]> data);
     void initializeTexture(const Ref<Texture>& texture);
     void createTextureStorage(const Ref<Texture>& texture, std::unique_ptr<uint8_t[]> data);
+    // This method is synchronous, it will block rendering until the texture data has been copied
+    Ref<CubeMap> copyTextureToCubeMap(const Ref<const Texture>& texture);
 
     virtual Ref<Texture> createBRDFLUT(const Ref<Shader>& shader, uint32_t width) = 0;
     Ref<Texture> createTextureCube(const std::array<std::string, 6>& paths);

@@ -3,6 +3,7 @@
 
 #include "RenderCommand.h"
 #include "RenderCommands.h"
+#include "images/CubeMap.h"
 #include "images/ImageUtils.h"
 
 // TODO: can these macros be replaces by a simple function call that doesn't require the method type?
@@ -66,6 +67,16 @@ void Renderer::initializeTexture(const Ref<Texture>& texture) {
 
 void Renderer::createTextureStorage(const Ref<Texture>& texture, std::unique_ptr<uint8_t[]> data) {
     PUSH_COMMAND(createTextureStorage, texture, std::move(data));
+}
+
+Ref<CubeMap> Renderer::copyTextureToCubeMap(const Ref<const Texture>& texture) {
+    std::array<Image, 6> faces;
+    PUSH_COMMAND_SYNC(bindTexture, texture);
+    for (int i = 0; i < 6; i++) {
+        faces[i] = Image(texture->getWidth(), texture->getHeight(), texture->getFormat(), texture->getInternalFormat());
+        PUSH_COMMAND_SYNC(copyTextureData, texture, i, faces[i].getData().get());
+    }
+    return std::make_shared<CubeMap>(std::move(faces));
 }
 
 Ref<Texture> Renderer::createTextureCube(const std::array<std::string, 6>& paths) {
