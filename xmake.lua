@@ -5,6 +5,9 @@ add_repositories("dicy-xmake-registry https://github.com/Dicy/xmake-registry")
 add_requires("spdlog v1.14.1")
 add_requires("glfw 3.4")
 add_requires("glm 1.0.1")
+add_requires("vulkan-headers 1.4.309+0")
+add_requires("vulkan-loader 1.4.309+0")
+add_requires("vulkan-validationlayers 1.4.309+0")
 add_requires("entt v3.13.2")
 add_requires("assimp v5.4.3")
 add_requires("toml++ v3.4.0")
@@ -41,12 +44,20 @@ target("engine")
         end
     end)
 
-    add_packages("spdlog", "glfw", "glm", "entt", "assimp", "toml++", "chromium-embedded-framework", "joltphysics")
+    add_packages("spdlog", "glfw", "glm", "vulkan-headers", "vulkan-loader", "vulkan-validationlayers", "entt", "assimp", "toml++", "chromium-embedded-framework", "joltphysics")
     add_deps("glad", "stb")
 
     add_defines("DE_IS_ENGINE", "GLM_ENABLE_EXPERIMENTAL", "NDEBUG")
     if is_mode("debug") then
         add_defines("DE_DEBUG")
+        -- Pass VK_ADD_LAYER_PATH from environment to the compiler as the runtime path is not loaded by the IDE
+        after_load(function (target)
+            if os.getenv("VK_ADD_LAYER_PATH") then
+                local vk_layer_path = os.getenv("VK_ADD_LAYER_PATH")
+                vk_layer_path = vk_layer_path:gsub("\\", "\\\\")
+                target:add("defines", "VK_ADD_LAYER_PATH=\"" .. vk_layer_path .. "\"")
+            end
+        end)
     else
         add_defines("DE_RELEASE")
     end
@@ -90,7 +101,7 @@ if is_plat("macosx") then
             set_kind("binary")
             set_languages("cxx23")
             add_rules("xcode.application")
-            set_targetdir("$(buildir)/$(plat)/$(arch)/$(mode)/DicyEngine.app/Contents/Frameworks")
+            set_targetdir("$(builddir)/$(plat)/$(arch)/$(mode)/DicyEngine.app/Contents/Frameworks")
 
             add_frameworks("AppKit", "Cocoa", "IOSurface")
             add_packages("chromium-embedded-framework")

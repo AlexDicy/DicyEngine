@@ -16,7 +16,7 @@ public:
     virtual void bind() const = 0;
     virtual void clear() const = 0;
 
-    virtual const Ref<Texture2D>& getDataTexture() const = 0;
+    virtual const Ref<Texture>& getDataTexture() const = 0;
 
 protected:
     unsigned int width;
