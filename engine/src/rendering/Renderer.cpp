@@ -77,15 +77,13 @@ void Renderer::bindTexture(const Ref<const Texture>& texture, const unsigned int
 
 Ref<CubeMap> Renderer::copyTextureToCubeMap(const Ref<const Texture>& texture) {
     std::array<Image, 6> faces;
-    pushCommandSync([texture](const RenderCommands* commands) {
+    pushCommandSync([texture, &faces](const RenderCommands* commands) {
         commands->bindTexture(texture);
-    });
-    for (int i = 0; i < 6; i++) {
-        faces[i] = Image(texture->getWidth(), texture->getHeight(), texture->getFormat(), texture->getInternalFormat());
-        pushCommandSync([texture, i, &faces](const RenderCommands* commands) {
+        for (int i = 0; i < 6; i++) {
+            faces[i] = Image(texture->getWidth(), texture->getHeight(), texture->getFormat(), texture->getInternalFormat());
             commands->copyTextureData(texture, i, faces[i].getData().get());
-        });
-    }
+        }
+    });
     return std::make_shared<CubeMap>(std::move(faces));
 }
 
