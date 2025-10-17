@@ -9,14 +9,7 @@ public:
     OpenGLTexture(GLuint id, const TextureParams& params, const Ref<Renderer>& renderer);
     ~OpenGLTexture() override;
 
-    void bind(GLuint slot) const override;
-    void bind() const;
-
     void setRawData(const void* data, unsigned int size) override;
-    void resize(unsigned int width, unsigned int height) override;
-    void resize(unsigned int width, unsigned int height, unsigned int layers) override;
-
-    Ref<CubeMap> toCubemap() const override;
 
     GLuint getId() const {
         return this->id;

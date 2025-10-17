@@ -1,13 +1,13 @@
 ﻿#include "pch/enginepch.h"
 #include "RenderCommand.h"
 
-void RenderCommandQueue::push(std::unique_ptr<RenderCommandBase> command) {
+void RenderCommandQueue::push(std::function<void(RenderCommands*)> command) {
     buffers[writeBuffer].push_back(std::move(command));
 }
 
-void RenderCommandQueue::pushSync(std::unique_ptr<RenderCommandBase> command) {
+void RenderCommandQueue::pushSync(std::function<void(RenderCommands*)> command) {
     if (std::this_thread::get_id() == renderThreadId) {
-        command->execute(renderCommands.get());
+        command(renderCommands.get());
         return;
     }
     std::unique_lock lock(mutex);
@@ -37,7 +37,7 @@ bool RenderCommandQueue::execute(const unsigned int timeoutMilliseconds) {
 
     if (!immediateQueue.empty()) {
         for (const auto& command : immediateQueue) {
-            command->execute(renderCommands.get());
+            command(renderCommands.get());
         }
         immediateQueue.clear();
         immediateExecuted = true;
@@ -45,7 +45,7 @@ bool RenderCommandQueue::execute(const unsigned int timeoutMilliseconds) {
     }
 
     for (const auto& command : buffers[readBuffer]) {
-        command->execute(renderCommands.get());
+        command(renderCommands.get());
     }
     buffers[readBuffer].clear();
     return true;

@@ -63,13 +63,13 @@ public:
         return this->params.generateMipmaps;
     }
 
-    virtual void bind(unsigned int slot) const = 0;
+    void bind(unsigned int slot) const;
 
     virtual void setRawData(const void* data, unsigned int size) = 0;
-    virtual void resize(unsigned int width, unsigned int height) = 0;
-    virtual void resize(unsigned int width, unsigned int height, unsigned int layers) = 0;
+    void resize(unsigned int width, unsigned int height);
+    void resize(unsigned int width, unsigned int height, unsigned int layers);
 
-    virtual Ref<CubeMap> toCubemap() const = 0;
+    Ref<CubeMap> toCubemap() const;
 
     static TextureBuilder builder();
 

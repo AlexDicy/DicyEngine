@@ -1,14 +1,9 @@
 ﻿#include "pch/enginepch.h"
 #include "Renderer.h"
 
-#include "RenderCommand.h"
 #include "RenderCommands.h"
 #include "images/CubeMap.h"
 #include "images/ImageUtils.h"
-
-// TODO: can these macros be replaces by a simple function call that doesn't require the method type?
-#define PUSH_COMMAND(method, ...) pushCommand(std::make_unique<RenderCommand<decltype(&RenderCommands::method)>>(&RenderCommands::method, __VA_ARGS__))
-#define PUSH_COMMAND_SYNC(method, ...) pushCommandSync(std::make_unique<RenderCommand<decltype(&RenderCommands::method)>>(&RenderCommands::method, __VA_ARGS__))
 
 void Renderer::init(const unsigned int width, const unsigned int height) {
     this->setFramebufferDimensions(width, height);
@@ -62,19 +57,34 @@ Ref<Texture> Renderer::createTexture(const Texture::TextureParams& params, std::
 }
 
 void Renderer::initializeTexture(const Ref<Texture>& texture) {
-    PUSH_COMMAND(initializeTexture, texture);
+    pushCommand([texture](const RenderCommands* commands) {
+        commands->initializeTexture(texture);
+    });
 }
 
 void Renderer::createTextureStorage(const Ref<Texture>& texture, std::unique_ptr<uint8_t[]> data) {
-    PUSH_COMMAND(createTextureStorage, texture, std::move(data));
+    std::shared_ptr dataRef = std::move(data);
+    pushCommand([texture, dataRef](const RenderCommands* commands) {
+        commands->createTextureStorage(texture, dataRef);
+    });
+}
+
+void Renderer::bindTexture(const Ref<const Texture>& texture, const unsigned int slot) {
+    pushCommand([texture, slot](const RenderCommands* commands) {
+        commands->bindTexture(texture, slot);
+    });
 }
 
 Ref<CubeMap> Renderer::copyTextureToCubeMap(const Ref<const Texture>& texture) {
     std::array<Image, 6> faces;
-    PUSH_COMMAND_SYNC(bindTexture, texture);
+    pushCommandSync([texture](const RenderCommands* commands) {
+        commands->bindTexture(texture);
+    });
     for (int i = 0; i < 6; i++) {
         faces[i] = Image(texture->getWidth(), texture->getHeight(), texture->getFormat(), texture->getInternalFormat());
-        PUSH_COMMAND_SYNC(copyTextureData, texture, i, faces[i].getData().get());
+        pushCommandSync([texture, i, &faces](const RenderCommands* commands) {
+            commands->copyTextureData(texture, i, faces[i].getData().get());
+        });
     }
     return std::make_shared<CubeMap>(std::move(faces));
 }

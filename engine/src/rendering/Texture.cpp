@@ -15,6 +15,31 @@ Texture::Texture(const TextureParams& params, const Ref<Renderer>& renderer) : p
     }
 }
 
+void Texture::bind(const unsigned int slot) const {
+    getRenderer()->bindTexture(shared_from_this(), slot);
+}
+
+void Texture::resize(const unsigned int width, const unsigned int height) {
+    params.width = width;
+    params.height = height;
+    getRenderer()->createTextureStorage(shared_from_this(), nullptr);
+}
+
+void Texture::resize(const unsigned int width, const unsigned int height, const unsigned int layers) {
+    DE_ASSERT(params.type == TextureType::TEXTURE_2D_ARRAY || params.type == TextureType::TEXTURE_CUBE_ARRAY,
+              "Resize with layers is only supported for 2D Array and Cube Array textures")
+    DE_ASSERT(layers % 6 == 0 || params.type == TextureType::TEXTURE_2D_ARRAY, "Cube Array textures must have a multiple of 6 layers")
+    params.width = width;
+    params.height = height;
+    params.layers = layers;
+    getRenderer()->createTextureStorage(shared_from_this(), nullptr);
+}
+
+Ref<CubeMap> Texture::toCubemap() const {
+    DE_ASSERT(params.type == TextureType::TEXTURE_CUBE, "toCubemap is only supported for Cube textures")
+    return getRenderer()->copyTextureToCubeMap(shared_from_this());
+}
+
 TextureBuilder& TextureBuilder::fromImage(const Ref<Image>& image) {
     this->width(image->getWidth());
     this->height(image->getHeight());

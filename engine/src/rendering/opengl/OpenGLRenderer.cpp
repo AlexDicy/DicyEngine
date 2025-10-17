@@ -63,7 +63,7 @@ Ref<Texture> OpenGLRenderer::createBRDFLUT(const Ref<Shader>& shader, const uint
     DebugGroup group("OpenGLRenderer::createBRDFLUT");
     const Ref<OpenGLTexture> texture = std::static_pointer_cast<OpenGLTexture>(
         Texture::builder().size(size).format(TextureFormat::RG).internalFormat(TextureInternalFormat::RG16_FLOAT).build(this->shared_from_this()));
-    texture->bind();
+    glBindTexture(GL_TEXTURE_2D, texture->getId());
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 

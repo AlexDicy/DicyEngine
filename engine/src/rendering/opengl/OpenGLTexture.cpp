@@ -22,15 +22,6 @@ OpenGLTexture::~OpenGLTexture() {
     glDeleteTextures(1, &this->id);
 }
 
-
-void OpenGLTexture::bind(const GLuint slot) const {
-    glBindTextureUnit(slot, id);
-}
-
-void OpenGLTexture::bind() const {
-    glBindTexture(glTextureType, id);
-}
-
 void OpenGLTexture::setRawData(const void* data, const unsigned int size) {
     DE_ASSERT(params.width * params.height * params.internalFormat.getSize() >= size, "Buffer size is too large: {0}", size)
     DE_ASSERT(params.type == TextureType::TEXTURE_2D, "setRawData is only supported for 2D textures")
@@ -52,31 +43,10 @@ void OpenGLTexture::setRawData(const void* data, const unsigned int size) {
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 }
 
-void OpenGLTexture::resize(const unsigned int width, const unsigned int height) {
-    params.width = width;
-    params.height = height;
-    getRenderer()->createTextureStorage(shared_from_this(), nullptr);
-}
-
-void OpenGLTexture::resize(const unsigned int width, const unsigned int height, const unsigned int layers) {
-    DE_ASSERT(params.type == TextureType::TEXTURE_2D_ARRAY || params.type == TextureType::TEXTURE_CUBE_ARRAY,
-              "Resize with layers is only supported for 2D Array and Cube Array textures")
-    DE_ASSERT(layers % 6 == 0 || params.type == TextureType::TEXTURE_2D_ARRAY, "Cube Array textures must have a multiple of 6 layers")
-    params.width = width;
-    params.height = height;
-    params.layers = layers;
-    getRenderer()->createTextureStorage(shared_from_this(), nullptr);
-}
-
 void OpenGLTexture::initializePBO() {
     glGenBuffers(1, &pbo);
     const unsigned int size = params.width * params.height * 4;
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, pbo);
     glBufferData(GL_PIXEL_UNPACK_BUFFER, size, nullptr, GL_STREAM_DRAW);
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
-}
-
-Ref<CubeMap> OpenGLTexture::toCubemap() const {
-    DE_ASSERT(params.type == TextureType::TEXTURE_CUBE, "toCubemap is only supported for Cube textures")
-    return getRenderer()->copyTextureToCubeMap(shared_from_this());
 }

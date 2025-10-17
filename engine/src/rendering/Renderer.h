@@ -68,6 +68,7 @@ public:
     Ref<Texture> createTexture(const Texture::TextureParams& params, std::unique_ptr<uint8_t[]> data);
     void initializeTexture(const Ref<Texture>& texture);
     void createTextureStorage(const Ref<Texture>& texture, std::unique_ptr<uint8_t[]> data);
+    void bindTexture(const Ref<const Texture>& texture, unsigned int slot);
     // This method is synchronous, it will block rendering until the texture data has been copied
     Ref<CubeMap> copyTextureToCubeMap(const Ref<const Texture>& texture);
 
@@ -106,14 +107,16 @@ public:
     virtual void drawUI(const Ref<VertexArray>& vertexArray, const Ref<Shader>& shader, const Material& material) const = 0;
 
 private:
-    void pushCommand(std::unique_ptr<RenderCommandBase> command) {
-        queue.push(std::move(command));
+    // todo: replace with queue.push directly after adding multi-threading
+    void pushCommand(const std::function<void(RenderCommands*)>& command) {
+        queue.push(command);
         queue.swap();
         queue.execute(16);
     }
 
-    void pushCommandSync(std::unique_ptr<RenderCommandBase> command) {
-        queue.pushSync(std::move(command));
+    // todo: same as above
+    void pushCommandSync(const std::function<void(RenderCommands*)>& command) {
+        queue.pushSync(command);
     }
 
     virtual Ref<Texture> newTexture(const Texture::TextureParams& params) = 0;
