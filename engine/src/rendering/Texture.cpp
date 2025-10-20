@@ -15,6 +15,10 @@ Texture::Texture(const TextureParams& params, const Ref<Renderer>& renderer) : p
     }
 }
 
+Texture::~Texture() {
+    getRenderer()->destroyTexture(*this);
+}
+
 void Texture::bind(const unsigned int slot) const {
     getRenderer()->bindTexture(shared_from_this(), slot);
 }

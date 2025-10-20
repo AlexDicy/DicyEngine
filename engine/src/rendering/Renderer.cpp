@@ -87,6 +87,19 @@ Ref<CubeMap> Renderer::copyTextureToCubeMap(const Ref<const Texture>& texture) {
     return std::make_shared<CubeMap>(std::move(faces));
 }
 
+Ref<Framebuffer> Renderer::createFramebuffer(const Framebuffer::FramebufferParams& params) {
+    Ref<Framebuffer> framebuffer = newFramebuffer(params);
+    // initializeTexture(texture);
+    // createTextureStorage(texture, std::move(data));
+    return framebuffer;
+}
+
+void Renderer::bindFramebuffer(const Ref<const Framebuffer>& framebuffer) {
+    pushCommand([framebuffer](const RenderCommands* commands) {
+        commands->bindFramebuffer(framebuffer);
+    });
+}
+
 Ref<Texture> Renderer::createTextureCube(const std::array<std::string, 6>& paths) {
     const Ref<Image> firstFace = ImageUtils::loadImageFromFile(paths[0]);
     const size_t dataSize = firstFace->getDataSize();

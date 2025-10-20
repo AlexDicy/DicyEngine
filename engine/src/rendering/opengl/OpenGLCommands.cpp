@@ -1,6 +1,7 @@
 ﻿#include "pch/enginepch.h"
 #include "OpenGLCommands.h"
 
+#include "OpenGLFramebuffer.h"
 #include "OpenGLTexture.h"
 #include "OpenGLTypes.h"
 
@@ -71,4 +72,9 @@ void OpenGLCommands::copyTextureData(const Ref<const Texture>& src, const unsign
     // using level as the face index here, refactor if needed
     glGetTexImage(GL_TEXTURE_CUBE_MAP_POSITIVE_X + level, 0, OpenGLTypes::getFromTextureFormat(src->getFormat()),
                   OpenGLTypes::getPixelTypeFromInternalFormat(src->getInternalFormat()), destination);
+}
+
+void OpenGLCommands::bindFramebuffer(const Ref<const Framebuffer>& framebuffer) const {
+    const Ref<const OpenGLFramebuffer> fb = std::static_pointer_cast<const OpenGLFramebuffer>(framebuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, fb->id);
 }

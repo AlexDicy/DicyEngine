@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "Framebuffer.h"
 #include "RenderCommandQueue.h"
 #include "camera/Camera.h"
 #include "VertexArray.h"
@@ -69,8 +70,13 @@ public:
     void initializeTexture(const Ref<Texture>& texture);
     void createTextureStorage(const Ref<Texture>& texture, std::unique_ptr<uint8_t[]> data);
     void bindTexture(const Ref<const Texture>& texture, unsigned int slot);
+    virtual void destroyTexture(const Texture& texture) = 0;
     // This method is synchronous, it will block rendering until the texture data has been copied
     Ref<CubeMap> copyTextureToCubeMap(const Ref<const Texture>& texture);
+
+    Ref<Framebuffer> createFramebuffer(const Framebuffer::FramebufferParams& params);
+    void bindFramebuffer(const Ref<const Framebuffer>& framebuffer);
+    virtual void destroyFramebuffer(const Framebuffer& texture) = 0;
 
     virtual Ref<Texture> createBRDFLUT(const Ref<Shader>& shader, uint32_t width) = 0;
     Ref<Texture> createTextureCube(const std::array<std::string, 6>& paths);
@@ -106,7 +112,7 @@ public:
     virtual void drawEditorOverlays(const Ref<VertexArray>& vertexArray, const Ref<Shader>& shader, glm::vec4 outlineColor, float outlineWidth) const = 0;
     virtual void drawUI(const Ref<VertexArray>& vertexArray, const Ref<Shader>& shader, const Material& material) const = 0;
 
-private:
+protected:
     // todo: replace with queue.push directly after adding multi-threading
     void pushCommand(const std::function<void(RenderCommands*)>& command) {
         queue.push(command);
@@ -119,7 +125,9 @@ private:
         queue.pushSync(command);
     }
 
+private:
     virtual Ref<Texture> newTexture(const Texture::TextureParams& params) = 0;
+    virtual Ref<Framebuffer> newFramebuffer(const Framebuffer::FramebufferParams& params) = 0;
 
 protected:
     RenderCommandQueue queue;

@@ -3,6 +3,7 @@
 
 #include "DebugGroup.h"
 #include "OpenGLBuffer.h"
+#include "OpenGLFramebuffer.h"
 #include "OpenGLPipeline.h"
 #include "OpenGLTypes.h"
 #include "OpenGLShader.h"
@@ -57,6 +58,20 @@ Ref<IndexBuffer> OpenGLRenderer::createIndexBuffer(const uint32_t* indexes, cons
 
 Ref<Shader> OpenGLRenderer::createShader(const std::string& vertexPath, const std::string& fragmentPath) const {
     return std::make_shared<OpenGLShader>(vertexPath, fragmentPath);
+}
+
+void OpenGLRenderer::destroyTexture(const Texture& texture) {
+    const GLuint id = static_cast<const OpenGLTexture&>(texture).getId(); // NOLINT(cppcoreguidelines-pro-type-static-cast-downcast)
+    pushCommand([id](const RenderCommands*) {
+        glDeleteTextures(1, &id);
+    });
+}
+
+void OpenGLRenderer::destroyFramebuffer(const Framebuffer& texture) {
+    const GLuint id = static_cast<const OpenGLFramebuffer&>(texture).getId(); // NOLINT(cppcoreguidelines-pro-type-static-cast-downcast)
+    pushCommand([id](const RenderCommands*) {
+        glDeleteFramebuffers(1, &id);
+    });
 }
 
 Ref<Texture> OpenGLRenderer::createBRDFLUT(const Ref<Shader>& shader, const uint32_t size) {
@@ -344,4 +359,8 @@ void OpenGLRenderer::drawUI(const Ref<VertexArray>& vertexArray, const Ref<Shade
 
 Ref<Texture> OpenGLRenderer::newTexture(const Texture::TextureParams& params) {
     return std::make_shared<OpenGLTexture>(params, this->shared_from_this());
+}
+
+Ref<Framebuffer> OpenGLRenderer::newFramebuffer(const Framebuffer::FramebufferParams& params) {
+    return std::make_shared<OpenGLFramebuffer>(params, this->shared_from_this());
 }

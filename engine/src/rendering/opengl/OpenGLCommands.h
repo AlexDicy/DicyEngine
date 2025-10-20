@@ -8,4 +8,6 @@ public:
     void bindTexture(const Ref<const Texture>& texture) const override;
     void bindTexture(const Ref<const Texture>& texture, unsigned slot) const override;
     void copyTextureData(const Ref<const Texture>& src, unsigned level, void* destination) const override;
+
+    void bindFramebuffer(const Ref<const Framebuffer>& framebuffer) const override;
 };

@@ -9,7 +9,7 @@ class TextureBuilder;
 
 class Texture : public std::enable_shared_from_this<Texture> {
 public:
-    virtual ~Texture() = default;
+    virtual ~Texture();
 
     unsigned int getWidth() const {
         return this->params.width;

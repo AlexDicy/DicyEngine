@@ -1,25 +1,18 @@
 ﻿#include "pch/enginepch.h"
 #include "OpenGLTexture.h"
 
+#include "OpenGLRenderer.h"
 #include "OpenGLTypes.h"
-#include "images/CubeMap.h"
 
 OpenGLTexture::OpenGLTexture(const TextureParams& params, const Ref<Renderer>& renderer) : Texture(params, renderer) {
     glFormat = OpenGLTypes::getFromTextureFormat(params.format);
     glInternalFormat = OpenGLTypes::getFromTextureInternalFormat(params.internalFormat);
     glTextureType = OpenGLTypes::getFromTextureType(params.type, params.samples);
     dataType = OpenGLTypes::getPixelTypeFromInternalFormat(params.internalFormat);
-    if (id != 0) {
-        return;
-    }
 }
 
 OpenGLTexture::OpenGLTexture(const GLuint id, const TextureParams& params, const Ref<Renderer>& renderer) : OpenGLTexture(params, renderer) {
     this->id = id;
-}
-
-OpenGLTexture::~OpenGLTexture() {
-    glDeleteTextures(1, &this->id);
 }
 
 void OpenGLTexture::setRawData(const void* data, const unsigned int size) {

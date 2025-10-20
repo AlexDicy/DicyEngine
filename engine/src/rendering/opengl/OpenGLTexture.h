@@ -7,7 +7,6 @@ class OpenGLTexture : public Texture {
 public:
     OpenGLTexture(const TextureParams& params, const Ref<Renderer>& renderer);
     OpenGLTexture(GLuint id, const TextureParams& params, const Ref<Renderer>& renderer);
-    ~OpenGLTexture() override;
 
     void setRawData(const void* data, unsigned int size) override;
 

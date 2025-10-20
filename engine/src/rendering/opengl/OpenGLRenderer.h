@@ -17,6 +17,10 @@ public:
     Ref<VertexBuffer> createVertexBuffer(const float* vertices, unsigned int size) const override;
     Ref<IndexBuffer> createIndexBuffer(const unsigned int* indexes, unsigned int count) const override;
     Ref<Shader> createShader(const std::string& vertexPath, const std::string& fragmentPath) const override;
+
+    void destroyTexture(const Texture& texture) override;
+    void destroyFramebuffer(const Framebuffer& texture) override;
+
     Ref<Texture> createBRDFLUT(const Ref<Shader>& shader, unsigned int size) override;
     Ref<Texture> createTextureCubeFromHDR(const Ref<Texture>& hdrTexture, const Ref<Shader>& convertShader, unsigned int size) override;
     Ref<Texture> createPrefilteredCubemap(const Ref<Texture>& textureCube, const Ref<Shader>& convertShader, unsigned int size) override;
@@ -42,4 +46,5 @@ public:
 
 private:
     Ref<Texture> newTexture(const Texture::TextureParams& params) override;
+    Ref<Framebuffer> newFramebuffer(const Framebuffer::FramebufferParams& params) override;
 };

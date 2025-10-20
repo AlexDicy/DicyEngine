@@ -13,6 +13,8 @@ public:
     virtual void bindTexture(const Ref<const Texture>& texture, unsigned int slot) const = 0;
     virtual void copyTextureData(const Ref<const Texture>& src, unsigned int level, void* destination) const = 0;
 
+    virtual void bindFramebuffer(const Ref<const Framebuffer>& framebuffer) const = 0;
+
     static void run(const std::function<void()>& function) {
         function();
     }
