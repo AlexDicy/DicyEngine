@@ -1,5 +1,5 @@
 ﻿#include "pch/enginepch.h"
-#include "RenderCommand.h"
+#include "RenderCommandQueue.h"
 
 void RenderCommandQueue::push(std::function<void(RenderCommands*)> command) {
     buffers[writeBuffer].push_back(std::move(command));
