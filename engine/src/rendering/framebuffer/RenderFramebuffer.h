@@ -15,11 +15,13 @@ public:
 
     virtual void bind() const = 0;
 
-    virtual const Ref<Texture2D>& getDepthTexture() const = 0;
+    virtual const Ref<Texture>& getDepthTexture() const = 0;
     virtual int getMousePickingValue(int x, int y) const = 0;
 
     virtual void clear() const = 0;
     virtual void saveMousePicking() const = 0;
+    // TODO: generalize this instead of accepting resources IDs
+    virtual void copyColorToBuffer(uint32_t destinationId, unsigned int sourceAttachmentIndex = 0) const = 0;
 
 protected:
     uint32_t width;

@@ -1,11 +1,11 @@
 ﻿#pragma once
 
 struct Material {
-    Ref<Texture2D> albedo;
-    Ref<Texture2D> occlusionRoughnessMetallic;
+    Ref<Texture> albedo;
+    Ref<Texture> occlusionRoughnessMetallic;
     bool ignoreLighting = false;
 
     Material() = default;
-    Material(const Ref<Texture2D>& albedo, const Ref<Texture2D>& occlusionRoughnessMetallic) : albedo(albedo), occlusionRoughnessMetallic(occlusionRoughnessMetallic) {}
-    Material(const Ref<Texture2D>& albedo) : albedo(albedo), occlusionRoughnessMetallic(nullptr) {}
+    Material(const Ref<Texture>& albedo, const Ref<Texture>& occlusionRoughnessMetallic) : albedo(albedo), occlusionRoughnessMetallic(occlusionRoughnessMetallic) {}
+    Material(const Ref<Texture>& albedo) : albedo(albedo), occlusionRoughnessMetallic(nullptr) {}
 };

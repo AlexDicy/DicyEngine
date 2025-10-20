@@ -1,4 +1,6 @@
 ﻿#pragma once
+#include "Framebuffer.h"
+#include "RenderCommandQueue.h"
 #include "camera/Camera.h"
 #include "VertexArray.h"
 #include "Shader.h"
@@ -13,11 +15,11 @@
 #include "scene/materials/Material.h"
 #include "skybox/SkyboxCube.h"
 
-enum class RenderAPI { NONE, OPENGL };
+enum class RenderAPI { NONE, OPENGL, VULKAN };
 
-class Renderer {
+class Renderer : public std::enable_shared_from_this<Renderer> {
 public:
-    explicit Renderer(const RenderAPI api) : api(api) {}
+    Renderer(const RenderAPI api, const Ref<RenderCommands>& commands) : queue(commands, std::this_thread::get_id()), api(api) {}
     virtual ~Renderer() = default;
 
     RenderAPI getAPI() const {
@@ -25,10 +27,10 @@ public:
     }
 
     struct Viewport {
-        int x = 0;
-        int y = 0;
-        int width = 0;
-        int height = 0;
+        unsigned int x = 0;
+        unsigned int y = 0;
+        unsigned int width = 0;
+        unsigned int height = 0;
     };
 
     const Ref<Camera>& getCamera() {
@@ -39,15 +41,23 @@ public:
         this->camera = camera;
     }
 
-    virtual void init(uint32_t width, uint32_t height) = 0;
-    virtual void setFramebufferDimensions(unsigned int width, unsigned int height) = 0;
-    void setViewport(int x, int y, uint32_t width, uint32_t height);
+    virtual void init(unsigned int width, unsigned int height);
+
+    void setFramebufferDimensions(unsigned int width, unsigned int height);
+    virtual void createRenderFramebuffer(unsigned int width, unsigned int height) = 0;
+    virtual void createRenderPassFramebuffers(unsigned int width, unsigned int height) = 0;
+    virtual void createDataFramebuffer(unsigned int width, unsigned int height) = 0;
+
+    void setViewport(unsigned int x, unsigned int y, unsigned int width, unsigned int height);
 
     const Viewport& getViewport() const {
         return this->viewport;
     }
 
-    virtual Ref<RenderFramebuffer> getFramebuffer() const = 0;
+    Ref<RenderFramebuffer> getFramebuffer() const {
+        return this->framebuffer;
+    }
+
     const Ref<DepthFramebuffer>& getShadowDepthFramebuffer() const;
     void swapPassFramebuffers();
 
@@ -55,14 +65,23 @@ public:
     virtual Ref<VertexBuffer> createVertexBuffer(const float* vertices, uint32_t size) const = 0;
     virtual Ref<IndexBuffer> createIndexBuffer(const uint32_t* indexes, uint32_t count) const = 0;
     virtual Ref<Shader> createShader(const std::string& vertexPath, const std::string& fragmentPath) const = 0;
-    virtual Ref<Texture2D> createTexture2D(const std::string& path) const = 0;
-    virtual Ref<Texture2D> createTexture2D(unsigned int channels, unsigned int width, unsigned int height, unsigned int bytesPerPixel, const void* data) const = 0;
-    virtual Ref<Texture2D> createTexture2D(unsigned int channels, unsigned int width, unsigned int height, unsigned int bytesPerPixel, TextureFormat format,
-                                           const void* data) const = 0;
-    virtual Ref<Texture2D> createBRDFLUT(const Ref<Shader>& shader, uint32_t width) const = 0;
-    virtual Ref<TextureCube> createTextureCube(const std::array<std::string, 6>& paths) const = 0;
-    virtual Ref<TextureCube> createTextureCubeFromHDR(const Ref<Texture2D>& hdrTexture, const Ref<Shader>& convertShader, uint32_t size) = 0;
-    virtual Ref<TextureCube> createPrefilteredCubemap(const Ref<TextureCube>& textureCube, const Ref<Shader>& convertShader, uint32_t size) = 0;
+
+    Ref<Texture> createTexture(const Texture::TextureParams& params, std::unique_ptr<uint8_t[]> data);
+    void initializeTexture(const Ref<Texture>& texture);
+    void createTextureStorage(const Ref<Texture>& texture, std::unique_ptr<uint8_t[]> data);
+    void bindTexture(const Ref<const Texture>& texture, unsigned int slot);
+    virtual void destroyTexture(const Texture& texture) = 0;
+    // This method is synchronous, it will block rendering until the texture data has been copied
+    Ref<CubeMap> copyTextureToCubeMap(const Ref<const Texture>& texture);
+
+    Ref<Framebuffer> createFramebuffer(const Framebuffer::FramebufferParams& params);
+    void bindFramebuffer(const Ref<const Framebuffer>& framebuffer);
+    virtual void destroyFramebuffer(const Framebuffer& texture) = 0;
+
+    virtual Ref<Texture> createBRDFLUT(const Ref<Shader>& shader, uint32_t width) = 0;
+    Ref<Texture> createTextureCube(const std::array<std::string, 6>& paths);
+    virtual Ref<Texture> createTextureCubeFromHDR(const Ref<Texture>& hdrTexture, const Ref<Shader>& convertShader, uint32_t size) = 0;
+    virtual Ref<Texture> createPrefilteredCubemap(const Ref<Texture>& textureCube, const Ref<Shader>& convertShader, uint32_t size) = 0;
 
     virtual void beginFrame() = 0;
     virtual void beginDirectionalShadows() const = 0;
@@ -75,8 +94,8 @@ public:
     virtual void drawToMainFramebuffer() const = 0;
 
     void setIrradianceSH(const std::array<glm::vec3, 9>& irradianceSh);
-    void setPrefilteredEnvMap(const Ref<TextureCube>& prefilteredEnvMap);
-    void setBRDFLUT(const Ref<Texture2D>& brdfLUT);
+    void setPrefilteredEnvMap(const Ref<Texture>& prefilteredEnvMap);
+    void setBRDFLUT(const Ref<Texture>& brdfLUT);
     // needs to be called before each frame
     void setDirectionalLight(const Ref<DirectionalLight>& directionalLight);
     void addPointLight(const PointLight& pointLight);
@@ -94,18 +113,46 @@ public:
     virtual void drawUI(const Ref<VertexArray>& vertexArray, const Ref<Shader>& shader, const Material& material) const = 0;
 
 protected:
+    // todo: replace with queue.push directly after adding multi-threading
+    void pushCommand(const std::function<void(RenderCommands*)>& command) {
+        queue.push(command);
+        queue.swap();
+        queue.execute(16);
+    }
+
+    // todo: same as above
+    void pushCommandSync(const std::function<void(RenderCommands*)>& command) {
+        queue.pushSync(command);
+    }
+
+private:
+    virtual Ref<Texture> newTexture(const Texture::TextureParams& params) = 0;
+    virtual Ref<Framebuffer> newFramebuffer(const Framebuffer::FramebufferParams& params) = 0;
+
+protected:
+    RenderCommandQueue queue;
+
     Ref<Camera> camera;
-    glm::mat4 viewProjectionMatrix;
-    glm::mat4 viewMatrix;
-    glm::mat4 projectionMatrix;
+    glm::mat4 viewProjectionMatrix = glm::identity<glm::mat4>();
+    glm::mat4 viewMatrix = glm::identity<glm::mat4>();
+    glm::mat4 projectionMatrix = glm::identity<glm::mat4>();
     Viewport viewport;
+
+    Ref<RenderFramebuffer> framebuffer;
+    Ref<RenderPassFramebuffer> previousPassFramebuffer; // used to reference in the current pass
+    Ref<RenderPassFramebuffer> currentPassFramebuffer; // will be swapped with the previous one after each pass
+    Ref<DataFramebuffer> dataFramebuffer;
+
+    // default textures
+    Ref<Texture> whitePixelTexture;
+    Ref<Texture> defaultOcclusionRoughnessMetallicTexture;
 
     // lighting
     std::array<glm::vec3, 9> irradianceSH = std::array<glm::vec3, 9>();
-    Ref<TextureCube> prefilteredEnvMap;
-    Ref<Texture2D> brdfLUT;
+    Ref<Texture> prefilteredEnvMap;
+    Ref<Texture> brdfLUT;
     Ref<DirectionalLight> directionalLight;
-    glm::mat4 directionalLightViewProjection;
+    glm::mat4 directionalLightViewProjection = glm::identity<glm::mat4>();
     std::vector<PointLight> pointLights = std::vector<PointLight>();
 
     // shadow mapping
@@ -113,10 +160,6 @@ protected:
     Ref<Shader> shadowMapShader;
     Ref<ShadowCubeArrayFramebuffer> shadowCubeArrayFramebuffer;
     Ref<Shader> shadowCubeArrayShader;
-
-    Ref<DataFramebuffer> dataFramebuffer;
-    Ref<RenderPassFramebuffer> previousPassFramebuffer; // used to reference in the current pass
-    Ref<RenderPassFramebuffer> currentPassFramebuffer; // will be swapped with the previous one after each pass
 
 private:
     RenderAPI api;

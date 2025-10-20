@@ -3,7 +3,7 @@
 
 #include <fstream>
 
-LinearImage::LinearImage(const std::string& path) : Image(0, 0, 3, sizeof(float) * 3, nullptr) {
+LinearImage::LinearImage(const std::string& path) : Image(0, 0, TextureFormat::RGBA, TextureInternalFormat::RGBA32_FLOAT, nullptr) {
     auto imageStream = std::ifstream(path, std::ios::in | std::ios::binary);
     if (!imageStream.is_open()) {
         DE_ERROR("Failed to open image file {0}", path);
@@ -47,10 +47,10 @@ LinearImage::LinearImage(const std::string& path) : Image(0, 0, 3, sizeof(float)
         return;
     }
 
-    this->data = std::make_unique<unsigned char[]>(width * height * this->bytesPerPixel);
+    this->data = std::make_unique<unsigned char[]>(static_cast<size_t>(width) * height * this->internalFormat.getSize());
 
     std::vector<unsigned char> row;
-    row.reserve(width * 4); // RGBE
+    row.resize(width * 4); // RGBE
 
     // read the first 3 bytes of the file to check if the file is using RLE compression
     const std::streampos position = imageStream.tellg();
@@ -107,7 +107,7 @@ LinearImage::LinearImage(const std::string& path) : Image(0, 0, 3, sizeof(float)
                 }
             }
             for (unsigned int x = 0; x < width; x++) {
-                convertRGBEtoRGB(row.data() + x * 4, reinterpret_cast<float*>(this->data.get()) + (y * width + x) * 3);
+                convertRGBEtoRGB(row.data() + x * 4, reinterpret_cast<float*>(this->data.get()) + (y * width + x) * 4); // TODO: replace 4 with dynamic value
             }
         }
     } else {
@@ -117,21 +117,23 @@ LinearImage::LinearImage(const std::string& path) : Image(0, 0, 3, sizeof(float)
 
     // invert the image vertically
     // this doubles the memory usage, use a different approach if memory is a concern
-    auto invertedData = std::make_unique<uint8_t[]>(width * height * this->bytesPerPixel);
-    unsigned int bytesPerRow = this->bytesPerPixel * width;
+    const unsigned int bbp = this->internalFormat.getSize();
+    auto invertedData = std::make_unique<uint8_t[]>(width * height * bbp);
+    unsigned int bytesPerRow = bbp * width;
     for (unsigned int y = 0; y < height; y++) {
-        float* src = reinterpret_cast<float*>(this->data.get()) + (height - y - 1) * width * 3; // NOLINT(bugprone-implicit-widening-of-multiplication-result)
-        float* dst = reinterpret_cast<float*>(invertedData.get()) + y * width * 3; // NOLINT(bugprone-implicit-widening-of-multiplication-result)
+        // TODO: replace 4 with dynamic value
+        float* src = reinterpret_cast<float*>(this->data.get()) + (height - y - 1) * width * 4; // NOLINT(bugprone-implicit-widening-of-multiplication-result)
+        float* dst = reinterpret_cast<float*>(invertedData.get()) + y * width * 4; // NOLINT(bugprone-implicit-widening-of-multiplication-result)
         std::memcpy(dst, src, bytesPerRow);
     }
     this->data = std::move(invertedData);
 }
 
-LinearImage::LinearImage(const unsigned int width, const unsigned int height, const float* data, const float gamma, const float exposure) :
-    Image(width, height, 3, sizeof(float) * 3, data) {
-    this->gamma = gamma;
-    this->exposure = exposure;
-}
+LinearImage::LinearImage(const unsigned int width, const unsigned int height, std::unique_ptr<uint8_t[]> data, const float gamma, const float exposure) :
+    Image(width, height, TextureFormat::RGBA, TextureInternalFormat::RGBA32_FLOAT, std::move(data)), gamma(gamma), exposure(exposure) {}
+
+LinearImage::LinearImage(const unsigned int width, const unsigned int height, const float gamma, const float exposure) :
+    Image(width, height, TextureFormat::RGBA, TextureInternalFormat::RGBA32_FLOAT), gamma(gamma), exposure(exposure) {}
 
 void LinearImage::convertRGBEtoRGB(const unsigned char* rgbe, float* rgb) {
     if (rgbe[3] == 0) {
