@@ -5,7 +5,6 @@
 #include "VertexArray.h"
 #include "Shader.h"
 #include "Texture.h"
-#include "framebuffer/DepthFramebuffer.h"
 #include "framebuffer/ShadowCubeArrayFramebuffer.h"
 #include "scene/components/PointLight.h"
 #include "scene/lights/DirectionalLight.h"
@@ -56,7 +55,6 @@ public:
         return this->mousePickingFramebuffer;
     }
 
-    const Ref<DepthFramebuffer>& getShadowDepthFramebuffer() const;
     void swapPassFramebuffers();
 
     virtual Ref<VertexArray> createVertexArray(const Ref<VertexBuffer>& vertexBuffer, const Ref<IndexBuffer>& indexBuffer) const = 0;
@@ -161,7 +159,7 @@ protected:
     std::vector<PointLight> pointLights = std::vector<PointLight>();
 
     // shadow mapping
-    Ref<DepthFramebuffer> shadowDepthFramebuffer;
+    Ref<Framebuffer> shadowDepthFramebuffer;
     Ref<Shader> shadowMapShader;
     Ref<ShadowCubeArrayFramebuffer> shadowCubeArrayFramebuffer;
     Ref<Shader> shadowCubeArrayShader;

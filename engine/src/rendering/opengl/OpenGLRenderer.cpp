@@ -10,7 +10,6 @@
 #include "OpenGLTexture.h"
 #include "OpenGLTextureCube.h"
 #include "OpenGLVertexArray.h"
-#include "framebuffer/OpenGLDepthFramebuffer.h"
 #include "framebuffer/OpenGLShadowCubeArrayFramebuffer.h"
 
 #include <glad/gl.h>
@@ -23,7 +22,6 @@ void OpenGLRenderer::init(const unsigned int width, const unsigned int height) {
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
     glFrontFace(GL_CW);
-    this->shadowDepthFramebuffer = std::make_shared<OpenGLDepthFramebuffer>(shared_from_this(), 2048, 2048);
     this->shadowCubeArrayFramebuffer = std::make_shared<OpenGLShadowCubeArrayFramebuffer>(shared_from_this(), 1024);
 }
 
@@ -216,7 +214,7 @@ void OpenGLRenderer::draw(const unsigned int entityId, const Ref<VertexArray>& v
     shader->uploadUniformInt("uPrefilteredEnvMap", textureSlot++);
     this->brdfLUT->bind(textureSlot);
     shader->uploadUniformInt("uBRDFLUT", textureSlot++);
-    this->shadowDepthFramebuffer->getDepthTexture()->bind(textureSlot);
+    this->shadowDepthFramebuffer->getDepthAttachment()->bind(textureSlot);
     shader->uploadUniformInt("uDirectionalShadowMap", textureSlot++);
     this->shadowCubeArrayFramebuffer->getShadowCubeArrayTexture()->bind(textureSlot);
     shader->uploadUniformInt("uPointShadowMaps", textureSlot);

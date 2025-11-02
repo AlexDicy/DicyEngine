@@ -97,7 +97,9 @@ void OpenGLCommands::initializeFramebuffer(const Ref<Framebuffer>& framebuffer) 
         drawBuffers.push_back(attachment);
     }
 
-    if (!drawBuffers.empty()) {
+    if (drawBuffers.empty()) {
+        glDrawBuffer(GL_NONE);
+    } else {
         glDrawBuffers(static_cast<GLsizei>(drawBuffers.size()), drawBuffers.data());
     }
 
