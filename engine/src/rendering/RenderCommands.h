@@ -20,6 +20,7 @@ public:
     virtual int readPixelInt(const Ref<const Framebuffer>& framebuffer, unsigned int x, unsigned int y, unsigned int attachmentIndex) const = 0;
     virtual void copyColorData(const Ref<const Framebuffer>& src, const Ref<const Framebuffer>& dst, unsigned int srcAttachmentIndex, unsigned int dstAttachmentIndex) const = 0;
     virtual void copyColorDataToScreen(const Ref<const Framebuffer>& src, unsigned int srcAttachmentIndex) const = 0;
+    virtual void copyDepthData(const Ref<const Framebuffer>& src, const Ref<const Framebuffer>& dst) const = 0;
 
     static void run(const std::function<void()>& function) {
         function();

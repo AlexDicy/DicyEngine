@@ -83,7 +83,7 @@ void OpenGLCommands::copyTextureData(const Ref<const Texture>& src, const unsign
 void OpenGLCommands::initializeFramebuffer(const Ref<Framebuffer>& framebuffer) const {
     const Ref<OpenGLFramebuffer> fb = std::static_pointer_cast<OpenGLFramebuffer>(framebuffer);
     glGenFramebuffers(1, &fb->id);
-    bindFramebuffer(fb);
+    glBindFramebuffer(GL_FRAMEBUFFER, fb->id);
 
     std::vector<GLenum> drawBuffers;
     for (unsigned int i = 0; i < fb->params.colorAttachments.size(); i++) {
@@ -119,6 +119,7 @@ void OpenGLCommands::bindFramebuffer(const Ref<const Framebuffer>& framebuffer) 
 }
 
 void OpenGLCommands::clearFramebuffer(const Ref<const Framebuffer>& framebuffer) const {
+    bindFramebuffer(framebuffer);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
@@ -128,8 +129,9 @@ int OpenGLCommands::readPixelInt(const Ref<const Framebuffer>& framebuffer, cons
     bindFramebuffer(framebuffer);
     const GLenum attachment = GL_COLOR_ATTACHMENT0 + attachmentIndex;
     glReadBuffer(attachment);
+    const GLenum format = std::static_pointer_cast<const OpenGLTexture>(framebuffer->getColorAttachments()[attachmentIndex])->glFormat;
     int pixelData = -1;
-    glReadPixels(x, static_cast<int>(framebuffer->getHeight()) - y, 1, 1, GL_RED_INTEGER, GL_INT, &pixelData);
+    glReadPixels(static_cast<int>(x), static_cast<int>(framebuffer->getHeight() - y), 1, 1, format, GL_INT, &pixelData);
     return pixelData;
 }
 
@@ -159,5 +161,15 @@ void OpenGLCommands::copyColorDataToScreen(const Ref<const Framebuffer>& src, un
     glReadBuffer(srcAttachment);
     glBlitFramebuffer(0, 0, static_cast<int>(src->getWidth()), static_cast<int>(src->getHeight()), 0, 0, static_cast<int>(src->getWidth()), static_cast<int>(src->getHeight()),
                       GL_COLOR_BUFFER_BIT, GL_NEAREST);
+    bindFramebuffer(src);
+}
+
+void OpenGLCommands::copyDepthData(const Ref<const Framebuffer>& src, const Ref<const Framebuffer>& dst) const {
+    DE_ASSERT(src->getWidth() == dst->getWidth() && src->getHeight() == dst->getHeight(),
+              "Source and destination framebuffers must have the same dimensions when copying depth data between them")
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, std::static_pointer_cast<const OpenGLFramebuffer>(src)->id);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, std::static_pointer_cast<const OpenGLFramebuffer>(dst)->id);
+    glBlitFramebuffer(0, 0, static_cast<int>(src->getWidth()), static_cast<int>(src->getHeight()), 0, 0, static_cast<int>(dst->getWidth()), static_cast<int>(dst->getHeight()),
+                      GL_DEPTH_BUFFER_BIT, GL_NEAREST);
     bindFramebuffer(src);
 }

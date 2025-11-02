@@ -9,9 +9,6 @@ public:
 
     void init(unsigned int width, unsigned int height) override;
 
-    void createRenderPassFramebuffers(unsigned int width, unsigned int height) override;
-    void createDataFramebuffer(unsigned int width, unsigned int height) override;
-
     Ref<VertexArray> createVertexArray(const Ref<VertexBuffer>& vertexBuffer, const Ref<IndexBuffer>& indexBuffer) const override;
     Ref<VertexBuffer> createVertexBuffer(const float* vertices, unsigned int size) const override;
     Ref<IndexBuffer> createIndexBuffer(const unsigned int* indexes, unsigned int count) const override;

@@ -5,9 +5,7 @@
 #include "VertexArray.h"
 #include "Shader.h"
 #include "Texture.h"
-#include "framebuffer/DataFramebuffer.h"
 #include "framebuffer/DepthFramebuffer.h"
-#include "framebuffer/RenderPassFramebuffer.h"
 #include "framebuffer/ShadowCubeArrayFramebuffer.h"
 #include "scene/components/PointLight.h"
 #include "scene/lights/DirectionalLight.h"
@@ -43,8 +41,6 @@ public:
     virtual void init(unsigned int width, unsigned int height);
 
     void setFramebufferDimensions(unsigned int width, unsigned int height);
-    virtual void createRenderPassFramebuffers(unsigned int width, unsigned int height) = 0;
-    virtual void createDataFramebuffer(unsigned int width, unsigned int height) = 0;
 
     void setViewport(unsigned int x, unsigned int y, unsigned int width, unsigned int height);
 
@@ -85,6 +81,7 @@ public:
     // TODO: async callbacks executed on main thread?
     int readPixelIntSync(const Ref<const Framebuffer>& framebuffer, unsigned int x, unsigned int y, unsigned int attachmentIndex);
     void copyColorData(const Ref<const Framebuffer>& src, const Ref<const Framebuffer>& dst, unsigned int srcAttachmentIndex, unsigned int dstAttachmentIndex);
+    void copyDepthData(const Ref<const Framebuffer>& src, const Ref<const Framebuffer>& dst);
 
     virtual Ref<Texture> createBRDFLUT(const Ref<Shader>& shader, uint32_t width) = 0;
     Ref<Texture> createTextureCube(const std::array<std::string, 6>& paths);
@@ -148,9 +145,8 @@ protected:
 
     Ref<Framebuffer> framebuffer;
     Ref<Framebuffer> mousePickingFramebuffer;
-    Ref<RenderPassFramebuffer> previousPassFramebuffer; // used to reference in the current pass
-    Ref<RenderPassFramebuffer> currentPassFramebuffer; // will be swapped with the previous one after each pass
-    Ref<DataFramebuffer> dataFramebuffer;
+    Ref<Framebuffer> previousPassFramebuffer; // used to reference in the current pass
+    Ref<Framebuffer> currentPassFramebuffer; // will be swapped with the previous one after each pass
 
     // default textures
     Ref<Texture> whitePixelTexture;

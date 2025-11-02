@@ -10,9 +10,7 @@
 #include "OpenGLTexture.h"
 #include "OpenGLTextureCube.h"
 #include "OpenGLVertexArray.h"
-#include "framebuffer/OpenGLDataFramebuffer.h"
 #include "framebuffer/OpenGLDepthFramebuffer.h"
-#include "framebuffer/OpenGLRenderPassFramebuffer.h"
 #include "framebuffer/OpenGLShadowCubeArrayFramebuffer.h"
 
 #include <glad/gl.h>
@@ -28,16 +26,6 @@ void OpenGLRenderer::init(const unsigned int width, const unsigned int height) {
     this->shadowDepthFramebuffer = std::make_shared<OpenGLDepthFramebuffer>(shared_from_this(), 2048, 2048);
     this->shadowCubeArrayFramebuffer = std::make_shared<OpenGLShadowCubeArrayFramebuffer>(shared_from_this(), 1024);
 }
-
-void OpenGLRenderer::createRenderPassFramebuffers(unsigned int width, unsigned int height) {
-    this->previousPassFramebuffer = std::make_shared<OpenGLRenderPassFramebuffer>(shared_from_this(), width, height);
-    this->currentPassFramebuffer = std::make_shared<OpenGLRenderPassFramebuffer>(shared_from_this(), width, height);
-}
-
-void OpenGLRenderer::createDataFramebuffer(unsigned int width, unsigned int height) {
-    this->dataFramebuffer = std::make_shared<OpenGLDataFramebuffer>(shared_from_this(), width, height);
-}
-
 
 Ref<VertexArray> OpenGLRenderer::createVertexArray(const Ref<VertexBuffer>& vertexBuffer, const Ref<IndexBuffer>& indexBuffer) const {
     return std::make_shared<OpenGLVertexArray>(vertexBuffer, indexBuffer);
@@ -192,9 +180,8 @@ void OpenGLRenderer::clear() {
     auto minusOne = std::make_unique<uint8_t[]>(1);
     minusOne[0] = -1;
     clearTexture(framebuffer->getColorAttachments()[1], std::move(minusOne)); // mouse picking attachment
-    this->dataFramebuffer->clear();
-    this->previousPassFramebuffer->clear();
-    this->currentPassFramebuffer->clear();
+    clearFramebuffer(previousPassFramebuffer);
+    clearFramebuffer(currentPassFramebuffer);
     glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
     glBindTexture(GL_TEXTURE_2D, 0);
     glBindVertexArray(0);
@@ -307,9 +294,9 @@ void OpenGLRenderer::drawJumpFloodingPass(const Ref<VertexArray>& vertexArray, c
     this->swapPassFramebuffers();
     this->currentPassFramebuffer->bind();
     shader->bind();
-    this->previousPassFramebuffer->getDepthTexture()->bind(0);
+    this->previousPassFramebuffer->getDepthAttachment()->bind(0);
     shader->uploadUniformInt("uPassDepthTexture", 0);
-    this->previousPassFramebuffer->getTexture()->bind(1);
+    this->previousPassFramebuffer->getColorAttachments()[0]->bind(1);
     shader->uploadUniformInt("uPassTexture", 1);
     shader->uploadUniformInt("uOffset", offset);
     shader->uploadUniformVec2Int("uDirection", vertical ? glm::ivec2(0, 1) : glm::ivec2(1, 0));
@@ -326,9 +313,9 @@ void OpenGLRenderer::drawEditorOverlays(const Ref<VertexArray>& vertexArray, con
     shader->bind();
     this->framebuffer->getDepthAttachment()->bind(0);
     shader->uploadUniformInt("uMainDepthTexture", 0);
-    this->currentPassFramebuffer->getDepthTexture()->bind(1);
+    this->currentPassFramebuffer->getDepthAttachment()->bind(1);
     shader->uploadUniformInt("uPassDepthTexture", 1);
-    this->currentPassFramebuffer->getTexture()->bind(2);
+    this->currentPassFramebuffer->getColorAttachments()[0]->bind(2);
     shader->uploadUniformInt("uPassTexture", 2);
     shader->uploadUniformVec4("uOutlineColor", outlineColor);
     shader->uploadUniformFloat("uOutlineWidth", outlineWidth);

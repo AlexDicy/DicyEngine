@@ -24,29 +24,47 @@ void Renderer::init(const unsigned int width, const unsigned int height) {
 
 void Renderer::setFramebufferDimensions(const unsigned int width, const unsigned int height) {
     constexpr unsigned int samples = 4;
-    const auto colorTexture =
-        Texture::builder().size(width, height).samples(samples).format(TextureFormat::RGBA).internalFormat(TextureInternalFormat::RGBA8).build(this->shared_from_this());
-    const auto mousePickingTexture =
-        Texture::builder().size(width, height).samples(samples).format(TextureFormat::R_INT).internalFormat(TextureInternalFormat::R32_INT).build(this->shared_from_this());
-    const auto depthTexture =
-        Texture::builder().size(width, height).samples(samples).format(TextureFormat::DEPTH_STENCIL).internalFormat(TextureInternalFormat::D24S8).build(this->shared_from_this());
-    framebuffer = Framebuffer::builder()
-                      .width(width)
-                      .height(height)
-                      .samples(samples)
-                      .addColorAttachment(colorTexture)
-                      .addColorAttachment(mousePickingTexture)
-                      .depthAttachment(depthTexture)
-                      .build(this->shared_from_this());
-    const auto renderedMousePickingTexture = Texture::builder()
-                                                 .size(width, height)
-                                                 .format(TextureFormat::R_INT)
-                                                 .internalFormat(TextureInternalFormat::R32_INT)
-                                                 .filter(TextureFilter::NEAREST)
-                                                 .build(this->shared_from_this());
-    mousePickingFramebuffer = Framebuffer::builder().width(width).height(height).addColorAttachment(renderedMousePickingTexture).build(this->shared_from_this());
-    this->createDataFramebuffer(width, height);
-    this->createRenderPassFramebuffers(width, height);
+    {
+        const auto colorTexture =
+            Texture::builder().size(width, height).samples(samples).format(TextureFormat::RGBA).internalFormat(TextureInternalFormat::RGBA8).build(this->shared_from_this());
+        const auto mousePickingTexture =
+            Texture::builder().size(width, height).samples(samples).format(TextureFormat::R_INT).internalFormat(TextureInternalFormat::R32_INT).build(this->shared_from_this());
+        const auto depthTexture = Texture::builder()
+                                      .size(width, height)
+                                      .samples(samples)
+                                      .format(TextureFormat::DEPTH_STENCIL)
+                                      .internalFormat(TextureInternalFormat::D24S8)
+                                      .build(this->shared_from_this());
+        framebuffer = Framebuffer::builder()
+                          .width(width)
+                          .height(height)
+                          .samples(samples)
+                          .addColorAttachment(colorTexture)
+                          .addColorAttachment(mousePickingTexture)
+                          .depthAttachment(depthTexture)
+                          .build(this->shared_from_this());
+    }
+    {
+        const auto renderedMousePickingTexture = Texture::builder()
+                                                     .size(width, height)
+                                                     .format(TextureFormat::R_INT)
+                                                     .internalFormat(TextureInternalFormat::R32_INT)
+                                                     .filter(TextureFilter::NEAREST)
+                                                     .build(this->shared_from_this());
+        mousePickingFramebuffer = Framebuffer::builder().width(width).height(height).addColorAttachment(renderedMousePickingTexture).build(this->shared_from_this());
+    }
+
+    std::array<Ref<Framebuffer>, 2> passFramebuffers;
+    for (auto& passFramebuffer : passFramebuffers) {
+        const auto colorTexture =
+            Texture::builder().size(width, height).samples(samples).format(TextureFormat::RGBA).internalFormat(TextureInternalFormat::RGBA32_FLOAT).build(this->shared_from_this());
+        const auto depthTexture =
+            Texture::builder().size(width, height).samples(samples).format(TextureFormat::DEPTH).internalFormat(TextureInternalFormat::D24).build(this->shared_from_this());
+        passFramebuffer =
+            Framebuffer::builder().width(width).height(height).samples(samples).addColorAttachment(colorTexture).depthAttachment(depthTexture).build(this->shared_from_this());
+    }
+    currentPassFramebuffer = passFramebuffers[0];
+    previousPassFramebuffer = passFramebuffers[1];
 }
 
 void Renderer::setViewport(const unsigned int x, const unsigned int y, const unsigned int width, const unsigned int height) {
@@ -64,10 +82,10 @@ const Ref<DepthFramebuffer>& Renderer::getShadowDepthFramebuffer() const {
 }
 
 void Renderer::swapPassFramebuffers() {
-    const Ref<RenderPassFramebuffer> temp = this->previousPassFramebuffer;
+    const Ref<Framebuffer> temp = this->previousPassFramebuffer;
     this->previousPassFramebuffer = this->currentPassFramebuffer;
     this->currentPassFramebuffer = temp;
-    this->previousPassFramebuffer->copyDepthToBuffer(this->currentPassFramebuffer);
+    copyDepthData(previousPassFramebuffer, currentPassFramebuffer);
 }
 
 Ref<Texture> Renderer::createTexture(const Texture::TextureParams& params, std::unique_ptr<uint8_t[]> data) {
@@ -150,6 +168,12 @@ int Renderer::readPixelIntSync(const Ref<const Framebuffer>& framebuffer, unsign
 void Renderer::copyColorData(const Ref<const Framebuffer>& src, const Ref<const Framebuffer>& dst, unsigned int srcAttachmentIndex, unsigned int dstAttachmentIndex) {
     pushCommand([src, dst, srcAttachmentIndex, dstAttachmentIndex](const RenderCommands* commands) {
         commands->copyColorData(src, dst, srcAttachmentIndex, dstAttachmentIndex);
+    });
+}
+
+void Renderer::copyDepthData(const Ref<const Framebuffer>& src, const Ref<const Framebuffer>& dst) {
+    pushCommand([src, dst](const RenderCommands* commands) {
+        commands->copyDepthData(src, dst);
     });
 }
 

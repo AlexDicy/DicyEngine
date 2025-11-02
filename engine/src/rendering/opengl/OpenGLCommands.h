@@ -16,4 +16,5 @@ public:
     int readPixelInt(const Ref<const Framebuffer>& framebuffer, unsigned int x, unsigned int y, unsigned int attachmentIndex) const override;
     void copyColorData(const Ref<const Framebuffer>& src, const Ref<const Framebuffer>& dst, unsigned int srcAttachmentIndex, unsigned int dstAttachmentIndex) const override;
     void copyColorDataToScreen(const Ref<const Framebuffer>& src, unsigned int srcAttachmentIndex) const override;
+    void copyDepthData(const Ref<const Framebuffer>& src, const Ref<const Framebuffer>& dst) const override;
 };
