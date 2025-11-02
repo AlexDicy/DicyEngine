@@ -12,7 +12,6 @@
 #include "OpenGLVertexArray.h"
 #include "framebuffer/OpenGLDataFramebuffer.h"
 #include "framebuffer/OpenGLDepthFramebuffer.h"
-#include "framebuffer/OpenGLRenderFramebuffer.h"
 #include "framebuffer/OpenGLRenderPassFramebuffer.h"
 #include "framebuffer/OpenGLShadowCubeArrayFramebuffer.h"
 
@@ -28,10 +27,6 @@ void OpenGLRenderer::init(const unsigned int width, const unsigned int height) {
     glFrontFace(GL_CW);
     this->shadowDepthFramebuffer = std::make_shared<OpenGLDepthFramebuffer>(shared_from_this(), 2048, 2048);
     this->shadowCubeArrayFramebuffer = std::make_shared<OpenGLShadowCubeArrayFramebuffer>(shared_from_this(), 1024);
-}
-
-void OpenGLRenderer::createRenderFramebuffer(unsigned int width, unsigned int height) {
-    this->framebuffer = std::make_shared<OpenGLRenderFramebuffer>(shared_from_this(), width, height);
 }
 
 void OpenGLRenderer::createRenderPassFramebuffers(unsigned int width, unsigned int height) {
@@ -191,9 +186,12 @@ void OpenGLRenderer::endFrame() const {
     glBindVertexArray(0);
 }
 
-void OpenGLRenderer::clear() const {
+void OpenGLRenderer::clear() {
     DebugGroup group("OpenGLRenderer::clear");
-    this->framebuffer->clear();
+    clearFramebuffer(framebuffer);
+    auto minusOne = std::make_unique<uint8_t[]>(1);
+    minusOne[0] = -1;
+    clearTexture(framebuffer->getColorAttachments()[1], std::move(minusOne)); // mouse picking attachment
     this->dataFramebuffer->clear();
     this->previousPassFramebuffer->clear();
     this->currentPassFramebuffer->clear();
@@ -203,10 +201,6 @@ void OpenGLRenderer::clear() const {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     glUseProgram(0);
-}
-
-void OpenGLRenderer::drawToMainFramebuffer() const {
-    this->framebuffer->copyColorToBuffer(0);
 }
 
 
@@ -330,7 +324,7 @@ void OpenGLRenderer::drawEditorOverlays(const Ref<VertexArray>& vertexArray, con
     DebugGroup group("OpenGLRenderer::drawEditorOverlays");
     this->framebuffer->bind();
     shader->bind();
-    this->framebuffer->getDepthTexture()->bind(0);
+    this->framebuffer->getDepthAttachment()->bind(0);
     shader->uploadUniformInt("uMainDepthTexture", 0);
     this->currentPassFramebuffer->getDepthTexture()->bind(1);
     shader->uploadUniformInt("uPassDepthTexture", 1);

@@ -9,7 +9,6 @@ public:
 
     void init(unsigned int width, unsigned int height) override;
 
-    void createRenderFramebuffer(unsigned int width, unsigned int height) override;
     void createRenderPassFramebuffers(unsigned int width, unsigned int height) override;
     void createDataFramebuffer(unsigned int width, unsigned int height) override;
 
@@ -31,8 +30,7 @@ public:
     void beginPointLightShadow(const PointLight& light, int lightIndex, int faceIndex) const override;
     void endShadows() const override;
     void endFrame() const override;
-    void clear() const override;
-    void drawToMainFramebuffer() const override;
+    void clear() override;
 
     void draw(unsigned int entityId, const Ref<VertexArray>& vertexArray, const glm::mat4& transform, const Ref<Shader>& shader) const override;
     void draw(unsigned int entityId, const Ref<VertexArray>& vertexArray, const glm::mat4& transform, const Ref<Shader>& shader, const Material& material) const override;

@@ -63,6 +63,12 @@ void OpenGLCommands::bindTexture(const Ref<const Texture>& texture, const unsign
     glBindTextureUnit(slot, std::static_pointer_cast<const OpenGLTexture>(texture)->id);
 }
 
+void OpenGLCommands::clearTexture(const Ref<const Texture>& texture, const Ref<uint8_t[]> color) const {
+    bindTexture(texture);
+    const Ref<const OpenGLTexture> t = std::static_pointer_cast<const OpenGLTexture>(texture);
+    glClearTexImage(t->id, 0, t->glFormat, t->dataType, color.get());
+}
+
 void OpenGLCommands::copyTextureData(const Ref<const Texture>& src, const unsigned level, void* destination) const {
     if (src->getType() != TextureType::TEXTURE_CUBE) {
         glGetTexImage(OpenGLTypes::getFromTextureType(src->getType(), src->getSamples()), static_cast<GLint>(level), OpenGLTypes::getFromTextureFormat(src->getFormat()),
@@ -74,7 +80,84 @@ void OpenGLCommands::copyTextureData(const Ref<const Texture>& src, const unsign
                   OpenGLTypes::getPixelTypeFromInternalFormat(src->getInternalFormat()), destination);
 }
 
+void OpenGLCommands::initializeFramebuffer(const Ref<Framebuffer>& framebuffer) const {
+    const Ref<OpenGLFramebuffer> fb = std::static_pointer_cast<OpenGLFramebuffer>(framebuffer);
+    glGenFramebuffers(1, &fb->id);
+    bindFramebuffer(fb);
+
+    std::vector<GLenum> drawBuffers;
+    for (unsigned int i = 0; i < fb->params.colorAttachments.size(); i++) {
+        const Ref<const OpenGLTexture> colorAttachment = std::static_pointer_cast<const OpenGLTexture>(fb->params.colorAttachments[i]);
+        const GLenum attachment = GL_COLOR_ATTACHMENT0 + i;
+        if (colorAttachment->getSamples() > 1) {
+            glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_2D_MULTISAMPLE, colorAttachment->id, 0);
+        } else {
+            glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, colorAttachment->glTextureType, colorAttachment->id, 0);
+        }
+        drawBuffers.push_back(attachment);
+    }
+
+    if (!drawBuffers.empty()) {
+        glDrawBuffers(static_cast<GLsizei>(drawBuffers.size()), drawBuffers.data());
+    }
+
+    if (fb->params.depthAttachment) {
+        const Ref<const OpenGLTexture> depthAttachment = std::static_pointer_cast<const OpenGLTexture>(fb->params.depthAttachment);
+        if (depthAttachment->getSamples() > 1) {
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D_MULTISAMPLE, depthAttachment->id, 0);
+        } else {
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthAttachment->glTextureType, depthAttachment->id, 0);
+        }
+    }
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
 void OpenGLCommands::bindFramebuffer(const Ref<const Framebuffer>& framebuffer) const {
     const Ref<const OpenGLFramebuffer> fb = std::static_pointer_cast<const OpenGLFramebuffer>(framebuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, fb->id);
+}
+
+void OpenGLCommands::clearFramebuffer(const Ref<const Framebuffer>& framebuffer) const {
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+int OpenGLCommands::readPixelInt(const Ref<const Framebuffer>& framebuffer, const unsigned int x, const unsigned int y, const unsigned int attachmentIndex) const {
+    DE_ASSERT(static_cast<size_t>(attachmentIndex) < framebuffer->getColorAttachments().size(), "Attachment index out of bounds when reading pixel from framebuffer")
+    bindFramebuffer(framebuffer);
+    const GLenum attachment = GL_COLOR_ATTACHMENT0 + attachmentIndex;
+    glReadBuffer(attachment);
+    int pixelData = -1;
+    glReadPixels(x, static_cast<int>(framebuffer->getHeight()) - y, 1, 1, GL_RED_INTEGER, GL_INT, &pixelData);
+    return pixelData;
+}
+
+void OpenGLCommands::copyColorData(const Ref<const Framebuffer>& src, const Ref<const Framebuffer>& dst, const unsigned int srcAttachmentIndex,
+                                   const unsigned int dstAttachmentIndex) const {
+    DE_ASSERT(static_cast<size_t>(srcAttachmentIndex) < src->getColorAttachments().size(), "Source attachment index out of bounds when copying color data between framebuffers")
+    DE_ASSERT(static_cast<size_t>(dstAttachmentIndex) < dst->getColorAttachments().size(),
+              "Destination attachment index out of bounds when copying color data between framebuffers")
+    DE_ASSERT(src->getWidth() == dst->getWidth() && src->getHeight() == dst->getHeight(),
+              "Source and destination framebuffers must have the same dimensions when copying color data between them")
+    const GLenum srcAttachment = GL_COLOR_ATTACHMENT0 + srcAttachmentIndex;
+    const GLenum dstAttachment = GL_COLOR_ATTACHMENT0 + dstAttachmentIndex;
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, std::static_pointer_cast<const OpenGLFramebuffer>(src)->id);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, std::static_pointer_cast<const OpenGLFramebuffer>(dst)->id);
+    glReadBuffer(srcAttachment);
+    glDrawBuffer(dstAttachment);
+    glBlitFramebuffer(0, 0, static_cast<int>(src->getWidth()), static_cast<int>(src->getHeight()), 0, 0, static_cast<int>(dst->getWidth()), static_cast<int>(dst->getHeight()),
+                      GL_COLOR_BUFFER_BIT, GL_NEAREST);
+    bindFramebuffer(src);
+}
+
+void OpenGLCommands::copyColorDataToScreen(const Ref<const Framebuffer>& src, unsigned int srcAttachmentIndex) const {
+    DE_ASSERT(static_cast<size_t>(srcAttachmentIndex) < src->getColorAttachments().size(), "Source attachment index out of bounds when copying color data to screen")
+    const GLenum srcAttachment = GL_COLOR_ATTACHMENT0 + srcAttachmentIndex;
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, std::static_pointer_cast<const OpenGLFramebuffer>(src)->id);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+    glReadBuffer(srcAttachment);
+    glBlitFramebuffer(0, 0, static_cast<int>(src->getWidth()), static_cast<int>(src->getHeight()), 0, 0, static_cast<int>(src->getWidth()), static_cast<int>(src->getHeight()),
+                      GL_COLOR_BUFFER_BIT, GL_NEAREST);
+    bindFramebuffer(src);
 }

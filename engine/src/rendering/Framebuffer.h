@@ -19,8 +19,17 @@ public:
         return this->params.samples;
     }
 
+    const std::vector<Ref<Texture>>& getColorAttachments() const {
+        return this->params.colorAttachments;
+    }
+
+    const Ref<Texture>& getDepthAttachment() const {
+        return this->params.depthAttachment;
+    }
+
     void bind() const;
 
+    static FramebufferBuilder builder();
 
     struct FramebufferParams {
         unsigned int width = 0;

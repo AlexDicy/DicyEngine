@@ -23,7 +23,28 @@ void Renderer::init(const unsigned int width, const unsigned int height) {
 }
 
 void Renderer::setFramebufferDimensions(const unsigned int width, const unsigned int height) {
-    this->createRenderFramebuffer(width, height);
+    constexpr unsigned int samples = 4;
+    const auto colorTexture =
+        Texture::builder().size(width, height).samples(samples).format(TextureFormat::RGBA).internalFormat(TextureInternalFormat::RGBA8).build(this->shared_from_this());
+    const auto mousePickingTexture =
+        Texture::builder().size(width, height).samples(samples).format(TextureFormat::R_INT).internalFormat(TextureInternalFormat::R32_INT).build(this->shared_from_this());
+    const auto depthTexture =
+        Texture::builder().size(width, height).samples(samples).format(TextureFormat::DEPTH_STENCIL).internalFormat(TextureInternalFormat::D24S8).build(this->shared_from_this());
+    framebuffer = Framebuffer::builder()
+                      .width(width)
+                      .height(height)
+                      .samples(samples)
+                      .addColorAttachment(colorTexture)
+                      .addColorAttachment(mousePickingTexture)
+                      .depthAttachment(depthTexture)
+                      .build(this->shared_from_this());
+    const auto renderedMousePickingTexture = Texture::builder()
+                                                 .size(width, height)
+                                                 .format(TextureFormat::R_INT)
+                                                 .internalFormat(TextureInternalFormat::R32_INT)
+                                                 .filter(TextureFilter::NEAREST)
+                                                 .build(this->shared_from_this());
+    mousePickingFramebuffer = Framebuffer::builder().width(width).height(height).addColorAttachment(renderedMousePickingTexture).build(this->shared_from_this());
     this->createDataFramebuffer(width, height);
     this->createRenderPassFramebuffers(width, height);
 }
@@ -75,6 +96,13 @@ void Renderer::bindTexture(const Ref<const Texture>& texture, const unsigned int
     });
 }
 
+void Renderer::clearTexture(const Ref<const Texture>& texture, std::unique_ptr<uint8_t[]> color) {
+    std::shared_ptr colorRef = std::move(color);
+    pushCommand([texture, colorRef](const RenderCommands* commands) {
+        commands->clearTexture(texture, colorRef);
+    });
+}
+
 Ref<CubeMap> Renderer::copyTextureToCubeMap(const Ref<const Texture>& texture) {
     std::array<Image, 6> faces;
     pushCommandSync([texture, &faces](const RenderCommands* commands) {
@@ -89,14 +117,39 @@ Ref<CubeMap> Renderer::copyTextureToCubeMap(const Ref<const Texture>& texture) {
 
 Ref<Framebuffer> Renderer::createFramebuffer(const Framebuffer::FramebufferParams& params) {
     Ref<Framebuffer> framebuffer = newFramebuffer(params);
-    // initializeTexture(texture);
-    // createTextureStorage(texture, std::move(data));
+    initializeFramebuffer(framebuffer);
     return framebuffer;
+}
+
+void Renderer::initializeFramebuffer(const Ref<Framebuffer>& framebuffer) {
+    pushCommand([framebuffer](const RenderCommands* commands) {
+        commands->initializeFramebuffer(framebuffer);
+    });
 }
 
 void Renderer::bindFramebuffer(const Ref<const Framebuffer>& framebuffer) {
     pushCommand([framebuffer](const RenderCommands* commands) {
         commands->bindFramebuffer(framebuffer);
+    });
+}
+
+void Renderer::clearFramebuffer(const Ref<const Framebuffer>& framebuffer) {
+    pushCommand([framebuffer](const RenderCommands* commands) {
+        commands->clearFramebuffer(framebuffer);
+    });
+}
+
+int Renderer::readPixelIntSync(const Ref<const Framebuffer>& framebuffer, unsigned int x, unsigned int y, unsigned int attachmentIndex) {
+    int value = -1;
+    pushCommandSync([framebuffer, x, y, attachmentIndex, &value](const RenderCommands* commands) {
+        value = commands->readPixelInt(framebuffer, x, y, attachmentIndex);
+    });
+    return value;
+}
+
+void Renderer::copyColorData(const Ref<const Framebuffer>& src, const Ref<const Framebuffer>& dst, unsigned int srcAttachmentIndex, unsigned int dstAttachmentIndex) {
+    pushCommand([src, dst, srcAttachmentIndex, dstAttachmentIndex](const RenderCommands* commands) {
+        commands->copyColorData(src, dst, srcAttachmentIndex, dstAttachmentIndex);
     });
 }
 
@@ -127,8 +180,14 @@ Ref<Texture> Renderer::createTextureCube(const std::array<std::string, 6>& paths
     return textureCube;
 }
 
-void Renderer::endMeshes() const {
-    this->getFramebuffer()->saveMousePicking();
+void Renderer::endMeshes() {
+    copyColorData(framebuffer, mousePickingFramebuffer, 1, 0);
+}
+
+void Renderer::drawToMainFramebuffer() {
+    pushCommand([this](const RenderCommands* commands) {
+        commands->copyColorDataToScreen(this->framebuffer, 0);
+    });
 }
 
 void Renderer::setIrradianceSH(const std::array<glm::vec3, 9>& irradianceSh) {

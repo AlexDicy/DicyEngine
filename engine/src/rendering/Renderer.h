@@ -7,7 +7,6 @@
 #include "Texture.h"
 #include "framebuffer/DataFramebuffer.h"
 #include "framebuffer/DepthFramebuffer.h"
-#include "framebuffer/RenderFramebuffer.h"
 #include "framebuffer/RenderPassFramebuffer.h"
 #include "framebuffer/ShadowCubeArrayFramebuffer.h"
 #include "scene/components/PointLight.h"
@@ -44,7 +43,6 @@ public:
     virtual void init(unsigned int width, unsigned int height);
 
     void setFramebufferDimensions(unsigned int width, unsigned int height);
-    virtual void createRenderFramebuffer(unsigned int width, unsigned int height) = 0;
     virtual void createRenderPassFramebuffers(unsigned int width, unsigned int height) = 0;
     virtual void createDataFramebuffer(unsigned int width, unsigned int height) = 0;
 
@@ -54,8 +52,12 @@ public:
         return this->viewport;
     }
 
-    Ref<RenderFramebuffer> getFramebuffer() const {
+    Ref<Framebuffer> getFramebuffer() const {
         return this->framebuffer;
+    }
+
+    Ref<Framebuffer> getMousePickingFramebuffer() const {
+        return this->mousePickingFramebuffer;
     }
 
     const Ref<DepthFramebuffer>& getShadowDepthFramebuffer() const;
@@ -71,12 +73,18 @@ public:
     void createTextureStorage(const Ref<Texture>& texture, std::unique_ptr<uint8_t[]> data);
     void bindTexture(const Ref<const Texture>& texture, unsigned int slot);
     virtual void destroyTexture(const Texture& texture) = 0;
+    void clearTexture(const Ref<const Texture>& texture, std::unique_ptr<uint8_t[]> color);
     // This method is synchronous, it will block rendering until the texture data has been copied
     Ref<CubeMap> copyTextureToCubeMap(const Ref<const Texture>& texture);
 
     Ref<Framebuffer> createFramebuffer(const Framebuffer::FramebufferParams& params);
+    void initializeFramebuffer(const Ref<Framebuffer>& framebuffer);
     void bindFramebuffer(const Ref<const Framebuffer>& framebuffer);
     virtual void destroyFramebuffer(const Framebuffer& texture) = 0;
+    void clearFramebuffer(const Ref<const Framebuffer>& framebuffer);
+    // TODO: async callbacks executed on main thread?
+    int readPixelIntSync(const Ref<const Framebuffer>& framebuffer, unsigned int x, unsigned int y, unsigned int attachmentIndex);
+    void copyColorData(const Ref<const Framebuffer>& src, const Ref<const Framebuffer>& dst, unsigned int srcAttachmentIndex, unsigned int dstAttachmentIndex);
 
     virtual Ref<Texture> createBRDFLUT(const Ref<Shader>& shader, uint32_t width) = 0;
     Ref<Texture> createTextureCube(const std::array<std::string, 6>& paths);
@@ -88,10 +96,10 @@ public:
     virtual void beginPointLightShadows() const = 0;
     virtual void beginPointLightShadow(const PointLight& light, int lightIndex, int faceIndex) const = 0;
     virtual void endShadows() const = 0;
-    void endMeshes() const;
+    void endMeshes();
     virtual void endFrame() const = 0;
-    virtual void clear() const = 0;
-    virtual void drawToMainFramebuffer() const = 0;
+    virtual void clear() = 0;
+    void drawToMainFramebuffer();
 
     void setIrradianceSH(const std::array<glm::vec3, 9>& irradianceSh);
     void setPrefilteredEnvMap(const Ref<Texture>& prefilteredEnvMap);
@@ -138,7 +146,8 @@ protected:
     glm::mat4 projectionMatrix = glm::identity<glm::mat4>();
     Viewport viewport;
 
-    Ref<RenderFramebuffer> framebuffer;
+    Ref<Framebuffer> framebuffer;
+    Ref<Framebuffer> mousePickingFramebuffer;
     Ref<RenderPassFramebuffer> previousPassFramebuffer; // used to reference in the current pass
     Ref<RenderPassFramebuffer> currentPassFramebuffer; // will be swapped with the previous one after each pass
     Ref<DataFramebuffer> dataFramebuffer;

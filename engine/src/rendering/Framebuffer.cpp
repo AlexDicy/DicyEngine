@@ -21,6 +21,10 @@ void Framebuffer::bind() const {
     getRenderer()->bindFramebuffer(shared_from_this());
 }
 
+FramebufferBuilder Framebuffer::builder() {
+    return {};
+}
+
 Ref<Framebuffer> FramebufferBuilder::build(const Ref<Renderer>& renderer) const {
     return renderer->createFramebuffer(this->params);
 }
