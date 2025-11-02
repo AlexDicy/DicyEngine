@@ -304,6 +304,10 @@ public:
     // prevent if (x)
     explicit operator bool() const = delete;
 
+    constexpr bool isArray() const {
+        return e == TEXTURE_2D_ARRAY || e == TEXTURE_CUBE_ARRAY;
+    }
+
 private:
     TextureTypeEnum e;
 };

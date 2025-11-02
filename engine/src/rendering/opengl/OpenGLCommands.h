@@ -13,6 +13,7 @@ public:
     void initializeFramebuffer(const Ref<Framebuffer>& framebuffer) const override;
     void bindFramebuffer(const Ref<const Framebuffer>& framebuffer) const override;
     void clearFramebuffer(const Ref<const Framebuffer>& framebuffer) const override;
+    void changeFramebufferFace(const Ref<const Framebuffer>& framebuffer, unsigned int attachmentIndex, unsigned int layer, unsigned int face) const override;
     int readPixelInt(const Ref<const Framebuffer>& framebuffer, unsigned int x, unsigned int y, unsigned int attachmentIndex) const override;
     void copyColorData(const Ref<const Framebuffer>& src, const Ref<const Framebuffer>& dst, unsigned int srcAttachmentIndex, unsigned int dstAttachmentIndex) const override;
     void copyColorDataToScreen(const Ref<const Framebuffer>& src, unsigned int srcAttachmentIndex) const override;

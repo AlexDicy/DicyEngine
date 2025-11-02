@@ -17,6 +17,7 @@ public:
     virtual void initializeFramebuffer(const Ref<Framebuffer>& framebuffer) const = 0;
     virtual void bindFramebuffer(const Ref<const Framebuffer>& framebuffer) const = 0;
     virtual void clearFramebuffer(const Ref<const Framebuffer>& framebuffer) const = 0;
+    virtual void changeFramebufferFace(const Ref<const Framebuffer>& framebuffer, unsigned int attachmentIndex, unsigned int layer, unsigned int face) const = 0;
     virtual int readPixelInt(const Ref<const Framebuffer>& framebuffer, unsigned int x, unsigned int y, unsigned int attachmentIndex) const = 0;
     virtual void copyColorData(const Ref<const Framebuffer>& src, const Ref<const Framebuffer>& dst, unsigned int srcAttachmentIndex, unsigned int dstAttachmentIndex) const = 0;
     virtual void copyColorDataToScreen(const Ref<const Framebuffer>& src, unsigned int srcAttachmentIndex) const = 0;

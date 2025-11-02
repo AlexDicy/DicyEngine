@@ -89,8 +89,8 @@ void OpenGLCommands::initializeFramebuffer(const Ref<Framebuffer>& framebuffer) 
     for (unsigned int i = 0; i < fb->params.colorAttachments.size(); i++) {
         const Ref<const OpenGLTexture> colorAttachment = std::static_pointer_cast<const OpenGLTexture>(fb->params.colorAttachments[i]);
         const GLenum attachment = GL_COLOR_ATTACHMENT0 + i;
-        if (colorAttachment->getSamples() > 1) {
-            glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_2D_MULTISAMPLE, colorAttachment->id, 0);
+        if (colorAttachment->getType().isArray()) {
+            glFramebufferTextureLayer(GL_FRAMEBUFFER, attachment, colorAttachment->id, 0, 0);
         } else {
             glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, colorAttachment->glTextureType, colorAttachment->id, 0);
         }
@@ -124,6 +124,14 @@ void OpenGLCommands::clearFramebuffer(const Ref<const Framebuffer>& framebuffer)
     bindFramebuffer(framebuffer);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+void OpenGLCommands::changeFramebufferFace(const Ref<const Framebuffer>& framebuffer, const unsigned int attachmentIndex, const unsigned int layer, const unsigned int face) const {
+    DE_ASSERT(static_cast<size_t>(attachmentIndex) < framebuffer->getColorAttachments().size(), "Attachment index out of bounds when changing framebuffer face")
+    bindFramebuffer(framebuffer);
+    const auto colorAttachment = std::static_pointer_cast<const OpenGLTexture>(framebuffer->getColorAttachments()[attachmentIndex]);
+    DE_ASSERT(colorAttachment->getType().isArray(), "Changing framebuffer face is only supported for cube map array textures")
+    glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + attachmentIndex, colorAttachment->id, 0, static_cast<int>(layer * 6 + face));
 }
 
 int OpenGLCommands::readPixelInt(const Ref<const Framebuffer>& framebuffer, const unsigned int x, const unsigned int y, const unsigned int attachmentIndex) const {
