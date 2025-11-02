@@ -39,7 +39,7 @@ EditorScript::EditorScript(const Ref<Application>& app, const Ref<Scene>& scene,
             return; // mouse is outside the viewport
         }
 
-        const int entityId = app->getRenderer()->getFramebuffer()->getMousePickingValue(mouseX, mouseY);
+        const int entityId = app->getRenderer()->readPixelIntSync(app->getRenderer()->getMousePickingFramebuffer(), mouseX, mouseY, 0);
         if (entityId >= 0) {
             const Ref<Entity>& selectedEntity = this->scene->getEntity(entityId);
             if (selectedEntity->has<EditorGizmo>()) {

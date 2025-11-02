@@ -5,7 +5,6 @@
 
 #include "editor/scripts/CameraScript.h"
 #include "editor/scripts/LightScript.h"
-#include "images/Image.h"
 #include "images/ImageUtils.h"
 #include "images/LinearImage.h"
 #include "rendering/skybox/SphericalHarmonics.h"
@@ -32,14 +31,13 @@ SceneLayer::SceneLayer(const std::unique_ptr<Context>& ctx) : Layer(ctx) {
     renderer->setPointLightShadowMapShader(app->getShaderRegistry()->load("../assets/shaders/shadow-map-point-light"));
     Ref<Shader> skyboxShader = app->getShaderRegistry()->load("../assets/shaders/skybox-shader");
     Ref<LinearImage> skyboxHDR = std::make_shared<LinearImage>("../assets/skybox/kloofendal_48d_partly_cloudy_puresky_8k.hdr");
+    // this takes more than 2 seconds, might be worth to improve
     Ref<LinearImage> skyboxToneMapped = ImageUtils::acesFilmicTonemapping(skyboxHDR);
-    Ref<Texture2D> skyboxTexture =
-        renderer->createTexture2D(skyboxHDR->getChannels(), skyboxHDR->getWidth(), skyboxHDR->getHeight(), skyboxHDR->getBytesPerPixel(), skyboxHDR->getData());
-    Ref<Texture2D> skyboxTextureToneMapped = renderer->createTexture2D(skyboxToneMapped->getChannels(), skyboxToneMapped->getWidth(), skyboxToneMapped->getHeight(),
-                                                                       skyboxToneMapped->getBytesPerPixel(), skyboxToneMapped->getData());
+    Ref<Texture> skyboxTexture = Texture::builder().fromImage(skyboxHDR).build(renderer);
+    Ref<Texture> skyboxTextureToneMapped = Texture::builder().fromImage(skyboxToneMapped).build(renderer);
     Ref<Shader> equirectangularToCubemapShader = app->getShaderRegistry()->load("../assets/shaders/equirectangular-to-cubemap");
-    Ref<TextureCube> skyboxCubeTexture = renderer->createTextureCubeFromHDR(skyboxTexture, equirectangularToCubemapShader, 2048);
-    Ref<TextureCube> skyboxCubeToneMapped = renderer->createTextureCubeFromHDR(skyboxTextureToneMapped, equirectangularToCubemapShader, 256);
+    Ref<Texture> skyboxCubeTexture = renderer->createTextureCubeFromHDR(skyboxTexture, equirectangularToCubemapShader, 2048);
+    Ref<Texture> skyboxCubeToneMapped = renderer->createTextureCubeFromHDR(skyboxTextureToneMapped, equirectangularToCubemapShader, 256);
     Ref<CubeMap> skyboxCubeMap = skyboxCubeToneMapped->toCubemap();
     std::vector<glm::vec3> sphericalHarmonics = SphericalHarmonics::calculateSH(skyboxCubeMap, 3, true, true);
     renderer->setIrradianceSH({
@@ -54,11 +52,11 @@ SceneLayer::SceneLayer(const std::unique_ptr<Context>& ctx) : Layer(ctx) {
         sphericalHarmonics[8],
     });
     Ref<Shader> prefilterCubemapShader = app->getShaderRegistry()->load("../assets/shaders/prefilter-cubemap");
-    Ref<TextureCube> prefilteredSkybox = renderer->createPrefilteredCubemap(skyboxCubeToneMapped, prefilterCubemapShader, 256);
+    Ref<Texture> prefilteredSkybox = renderer->createPrefilteredCubemap(skyboxCubeToneMapped, prefilterCubemapShader, 256);
     renderer->setPrefilteredEnvMap(prefilteredSkybox);
     this->skybox = std::make_shared<SkyboxCube>(renderer, skyboxShader, skyboxCubeTexture);
     Ref<Shader> brdfLUTShader = app->getShaderRegistry()->load("../assets/shaders/brdf-lut");
-    Ref<Texture2D> brdfLUT = renderer->createBRDFLUT(brdfLUTShader, 512);
+    Ref<Texture> brdfLUT = renderer->createBRDFLUT(brdfLUTShader, 512);
     renderer->setBRDFLUT(brdfLUT);
 
     this->directionalLight = std::make_shared<DirectionalLight>(Rotation(-70, 90, 0), 2.86f);
@@ -79,6 +77,9 @@ SceneLayer::SceneLayer(const std::unique_ptr<Context>& ctx) : Layer(ctx) {
 
     Ref<Entity> spheres = this->scene->createEntity("Red spheres");
     Model sphereModel = std::move(ModelImporter::importFromFile(renderer, "../assets/models/sphere.glb")[0]);
+    auto red = std::make_unique<uint8_t[]>(3);
+    std::memcpy(red.get(), std::array<uint8_t, 3>{250, 0, 0}.data(), 3);
+    Ref<Texture> redTexture = Texture::builder().width(1).height(1).format(TextureFormat::RGB).internalFormat(TextureInternalFormat::RGB8).data(std::move(red)).build(renderer);
     for (int x = 0; x < 10; x++) {
         for (int z = 0; z < 10; z++) {
             const float xPos = -5.0f + x + 0.5f;
@@ -87,8 +88,10 @@ SceneLayer::SceneLayer(const std::unique_ptr<Context>& ctx) : Layer(ctx) {
             auto vertexDataFloats = reinterpret_cast<const float*>(vertexData);
             unsigned char roughness = static_cast<unsigned char>(static_cast<float>(9 - x) / 9 * 255.0f);
             unsigned char metallic = static_cast<unsigned char>(static_cast<float>(9 - z) / 9 * 255.0f);
-            Material material(renderer->createTexture2D(4, 1, 1, 1, std::array<unsigned char, 4>{250, 0, 0, 255}.data()),
-                              renderer->createTexture2D(3, 1, 1, 1, std::array<unsigned char, 3>{255, roughness, metallic}.data()));
+            auto orm = std::make_unique<uint8_t[]>(3);
+            std::memcpy(orm.get(), std::array<uint8_t, 3>{255, roughness, metallic}.data(), 3);
+            Material material(redTexture,
+                              Texture::builder().width(1).height(1).format(TextureFormat::RGB).internalFormat(TextureInternalFormat::RGB8).data(std::move(orm)).build(renderer));
             Ref<Entity> entity = this->scene->createEntity(std::format("Sphere ({},{})", x, z));
             entity->setParent(spheres);
             entity->add<Mesh>(renderer, vertexDataFloats, sphereModel.vertices.size() * sizeof(VertexData), sphereModel.indexes.data(), sphereModel.indexes.size(), material,
@@ -110,7 +113,10 @@ SceneLayer::SceneLayer(const std::unique_ptr<Context>& ctx) : Layer(ctx) {
         pointLightEntity->setTransform(position, Rotation(), glm::vec3(0.1f));
         const VertexData* vertexData = sphereModel.vertices.data();
         auto vertexDataFloats = reinterpret_cast<const float*>(vertexData);
-        auto material = Material(renderer->createTexture2D(4, 1, 1, 1, std::array<unsigned char, 4>{50, 50, 255, 255}.data()));
+        auto blue = std::make_unique<uint8_t[]>(3);
+        std::memcpy(blue.get(), std::array<uint8_t, 3>{50, 50, 255}.data(), 3);
+        auto material =
+            Material(Texture::builder().width(1).height(1).format(TextureFormat::RGB).internalFormat(TextureInternalFormat::RGB8).data(std::move(blue)).build(renderer));
         material.ignoreLighting = true;
         pointLightEntity->add<Mesh>(renderer, vertexDataFloats, sphereModel.vertices.size() * sizeof(VertexData), sphereModel.indexes.data(), sphereModel.indexes.size(), material,
                                     sphereModel.transformationMatrix);

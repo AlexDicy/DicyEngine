@@ -5,7 +5,10 @@
 
 EditorLayer::EditorLayer(const std::unique_ptr<Context>& ctx) : Layer(ctx) {
     Ref<Entity> uiEntity = this->scene->createEntity("CEF Editor UI");
-    const auto uiMaterial = Material(ctx->renderer->createTexture2D(4, 1, 1, 1, BGRA, std::array<unsigned char, 4>{0, 0, 0, 0}.data()));
+    auto transparent = std::make_unique<uint8_t[]>(4);
+    std::memcpy(transparent.get(), std::array<uint8_t, 4>{0, 0, 0, 0}.data(), 4);
+    const auto uiMaterial =
+        Material(Texture::builder().width(1).height(1).format(TextureFormat::BGRA).internalFormat(TextureInternalFormat::RGBA8).data(std::move(transparent)).build(ctx->renderer));
     this->uiMesh = Plane::create(ctx->renderer, uiMaterial);
     uiEntity->add<UITexture>(uiMaterial.albedo);
     Script& uiScript = uiEntity->add<Script>(std::make_shared<UIScript>(ctx->app, uiEntity));

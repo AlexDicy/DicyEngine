@@ -3,46 +3,27 @@
 
 #include "DebugGroup.h"
 #include "OpenGLBuffer.h"
-#include "OpenGLDataType.h"
+#include "OpenGLFramebuffer.h"
+#include "OpenGLPipeline.h"
+#include "OpenGLTypes.h"
 #include "OpenGLShader.h"
-#include "OpenGLTexture2D.h"
+#include "OpenGLTexture.h"
 #include "OpenGLTextureCube.h"
 #include "OpenGLVertexArray.h"
-#include "framebuffer/OpenGLDataFramebuffer.h"
-#include "framebuffer/OpenGLDepthFramebuffer.h"
-#include "framebuffer/OpenGLRenderFramebuffer.h"
-#include "framebuffer/OpenGLRenderPassFramebuffer.h"
 #include "framebuffer/OpenGLShadowCubeArrayFramebuffer.h"
 
 #include <glad/gl.h>
 #include <glm/glm.hpp>
 
-void OpenGLRenderer::init(const uint32_t width, const uint32_t height) {
+void OpenGLRenderer::init(const unsigned int width, const unsigned int height) {
+    Renderer::init(width, height);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
     glFrontFace(GL_CW);
-    this->setFramebufferDimensions(width, height);
-    this->setViewport(0, 0, width, height);
-    unsigned char white[4] = {255, 255, 255, 255};
-    this->whitePixelTexture = std::make_shared<OpenGLTexture2D>(1, 1, 1, 1, GL_RGBA, white);
-    this->defaultOcclusionRoughnessMetallicTexture = std::make_shared<OpenGLTexture2D>(3, 1, 1, 1, GL_RGB, std::array<unsigned char, 3>{255, 255, 0}.data());
-    this->shadowDepthFramebuffer = std::make_shared<OpenGLDepthFramebuffer>(2048, 2048);
-    this->shadowCubeArrayFramebuffer = std::make_shared<OpenGLShadowCubeArrayFramebuffer>(1024, 0);
+    this->shadowCubeArrayFramebuffer = std::make_shared<OpenGLShadowCubeArrayFramebuffer>(shared_from_this(), 1024);
 }
-
-void OpenGLRenderer::setFramebufferDimensions(unsigned int width, unsigned int height) {
-    this->framebuffer = std::make_shared<OpenGLRenderFramebuffer>(width, height);
-    this->dataFramebuffer = std::make_shared<OpenGLDataFramebuffer>(width, height);
-    this->previousPassFramebuffer = std::make_shared<OpenGLRenderPassFramebuffer>(width, height);
-    this->currentPassFramebuffer = std::make_shared<OpenGLRenderPassFramebuffer>(width, height);
-}
-
-Ref<RenderFramebuffer> OpenGLRenderer::getFramebuffer() const {
-    return this->framebuffer;
-}
-
 
 Ref<VertexArray> OpenGLRenderer::createVertexArray(const Ref<VertexBuffer>& vertexBuffer, const Ref<IndexBuffer>& indexBuffer) const {
     return std::make_shared<OpenGLVertexArray>(vertexBuffer, indexBuffer);
@@ -60,29 +41,25 @@ Ref<Shader> OpenGLRenderer::createShader(const std::string& vertexPath, const st
     return std::make_shared<OpenGLShader>(vertexPath, fragmentPath);
 }
 
-Ref<Texture2D> OpenGLRenderer::createTexture2D(const std::string& path) const {
-    return std::make_shared<OpenGLTexture2D>(path);
+void OpenGLRenderer::destroyTexture(const Texture& texture) {
+    const GLuint id = static_cast<const OpenGLTexture&>(texture).getId(); // NOLINT(cppcoreguidelines-pro-type-static-cast-downcast)
+    pushCommand([id](const RenderCommands*) {
+        glDeleteTextures(1, &id);
+    });
 }
 
-Ref<Texture2D> OpenGLRenderer::createTexture2D(const unsigned int channels, const unsigned int width, const unsigned int height, const unsigned int bytesPerPixel,
-                                               const void* data) const {
-    return std::make_shared<OpenGLTexture2D>(channels, width, height, bytesPerPixel, data);
+void OpenGLRenderer::destroyFramebuffer(const Framebuffer& texture) {
+    const GLuint id = static_cast<const OpenGLFramebuffer&>(texture).getId(); // NOLINT(cppcoreguidelines-pro-type-static-cast-downcast)
+    pushCommand([id](const RenderCommands*) {
+        glDeleteFramebuffers(1, &id);
+    });
 }
 
-Ref<Texture2D> OpenGLRenderer::createTexture2D(const unsigned int channels, const unsigned int width, const unsigned int height, const unsigned int bytesPerPixel,
-                                               const TextureFormat format, const void* data) const {
-    GLenum glFormat = getOpenGLTypeFromTextureFormat(format);
-    return std::make_shared<OpenGLTexture2D>(channels, width, height, bytesPerPixel, glFormat, data);
-}
-
-Ref<Texture2D> OpenGLRenderer::createBRDFLUT(const Ref<Shader>& shader, const uint32_t size) const {
+Ref<Texture> OpenGLRenderer::createBRDFLUT(const Ref<Shader>& shader, const uint32_t size) {
     DebugGroup group("OpenGLRenderer::createBRDFLUT");
-    unsigned int textureId;
-    glGenTextures(1, &textureId);
-    glBindTexture(GL_TEXTURE_2D, textureId);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, size, size, 0, GL_RG, GL_FLOAT, nullptr);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    const Ref<OpenGLTexture> texture = std::static_pointer_cast<OpenGLTexture>(
+        Texture::builder().size(size).format(TextureFormat::RG).internalFormat(TextureInternalFormat::RG16_FLOAT).build(this->shared_from_this()));
+    glBindTexture(GL_TEXTURE_2D, texture->getId());
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
@@ -93,7 +70,7 @@ Ref<Texture2D> OpenGLRenderer::createBRDFLUT(const Ref<Shader>& shader, const ui
     glBindFramebuffer(GL_FRAMEBUFFER, captureFramebuffer);
     glBindRenderbuffer(GL_RENDERBUFFER, captureRenderbuffer);
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, size, size);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureId, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture->getId(), 0);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, captureRenderbuffer);
 
     int previousViewport[4];
@@ -126,18 +103,14 @@ Ref<Texture2D> OpenGLRenderer::createBRDFLUT(const Ref<Shader>& shader, const ui
     glViewport(previousViewport[0], previousViewport[1], previousViewport[2], previousViewport[3]);
     glDeleteFramebuffers(1, &captureFramebuffer);
     glDeleteRenderbuffers(1, &captureRenderbuffer);
-    return std::make_shared<OpenGLTexture2D>(textureId, size, size, GL_RG16F, GL_RG, GL_FLOAT);
+    return texture;
 }
 
-Ref<TextureCube> OpenGLRenderer::createTextureCube(const std::array<std::string, 6>& paths) const {
-    return std::make_shared<OpenGLTextureCube>(paths);
-}
-
-Ref<TextureCube> OpenGLRenderer::createTextureCubeFromHDR(const Ref<Texture2D>& hdrTexture, const Ref<Shader>& convertShader, const uint32_t size) {
+Ref<Texture> OpenGLRenderer::createTextureCubeFromHDR(const Ref<Texture>& hdrTexture, const Ref<Shader>& convertShader, const uint32_t size) {
     return OpenGLTextureCube::createFromHDR(shared_from_this(), hdrTexture, convertShader, size);
 }
 
-Ref<TextureCube> OpenGLRenderer::createPrefilteredCubemap(const Ref<TextureCube>& textureCube, const Ref<Shader>& convertShader, const uint32_t size) {
+Ref<Texture> OpenGLRenderer::createPrefilteredCubemap(const Ref<Texture>& textureCube, const Ref<Shader>& convertShader, const uint32_t size) {
     return OpenGLTextureCube::createPrefilteredCubemap(shared_from_this(), textureCube, convertShader, size);
 }
 
@@ -151,9 +124,14 @@ void OpenGLRenderer::beginFrame() {
     this->pointLights.clear();
     this->framebuffer->bind();
     this->clear(); // make sure to clean the framebuffer
-    glEnable(GL_CULL_FACE); // disabled by the skybox
-    glDepthFunc(GL_LESS); // changed by the skybox
-    glStencilMask(0x00);
+    // TODO: this should be handled in a render loop based on commands
+    auto pipeline = OpenGLPipeline();
+    pipeline.params.blending.enabled = true;
+    pipeline.params.blending.color.srcFactor = PipelineBlendFactor::SRC_ALPHA;
+    pipeline.params.blending.color.dstFactor = PipelineBlendFactor::ONE_MINUS_SRC_ALPHA;
+    pipeline.params.blending.alpha.srcFactor = PipelineBlendFactor::SRC_ALPHA;
+    pipeline.params.blending.alpha.dstFactor = PipelineBlendFactor::ONE_MINUS_SRC_ALPHA;
+    pipeline.bind();
 }
 
 void OpenGLRenderer::beginDirectionalShadows() const {
@@ -175,7 +153,7 @@ void OpenGLRenderer::beginPointLightShadow(const PointLight& light, const int li
     glViewport(0, 0, this->shadowCubeArrayFramebuffer->getSize(), this->shadowCubeArrayFramebuffer->getSize());
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    const glm::mat4 faceView = TextureCube::shadowViewMatrices[faceIndex];
+    const glm::mat4 faceView = TextureCubeUtils::shadowViewMatrices[faceIndex];
     const glm::mat4 projection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, light.farPlane);
     const glm::mat4 viewProjection = projection * glm::translate(faceView, -light.position);
     this->shadowCubeArrayShader->uploadUniformMat4("uViewProjection", viewProjection);
@@ -194,22 +172,20 @@ void OpenGLRenderer::endFrame() const {
     glBindVertexArray(0);
 }
 
-void OpenGLRenderer::clear() const {
+void OpenGLRenderer::clear() {
     DebugGroup group("OpenGLRenderer::clear");
-    this->framebuffer->clear();
-    this->dataFramebuffer->clear();
-    this->previousPassFramebuffer->clear();
-    this->currentPassFramebuffer->clear();
+    clearFramebuffer(framebuffer);
+    auto minusOne = std::make_unique<uint8_t[]>(1);
+    minusOne[0] = -1;
+    clearTexture(framebuffer->getColorAttachments()[1], std::move(minusOne)); // mouse picking attachment
+    clearFramebuffer(previousPassFramebuffer);
+    clearFramebuffer(currentPassFramebuffer);
     glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
     glBindTexture(GL_TEXTURE_2D, 0);
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     glUseProgram(0);
-}
-
-void OpenGLRenderer::drawToMainFramebuffer() const {
-    this->framebuffer->copyColorToBuffer(0);
 }
 
 
@@ -238,7 +214,7 @@ void OpenGLRenderer::draw(const unsigned int entityId, const Ref<VertexArray>& v
     shader->uploadUniformInt("uPrefilteredEnvMap", textureSlot++);
     this->brdfLUT->bind(textureSlot);
     shader->uploadUniformInt("uBRDFLUT", textureSlot++);
-    this->shadowDepthFramebuffer->getDepthTexture()->bind(textureSlot);
+    this->shadowDepthFramebuffer->getDepthAttachment()->bind(textureSlot);
     shader->uploadUniformInt("uDirectionalShadowMap", textureSlot++);
     this->shadowCubeArrayFramebuffer->getShadowCubeArrayTexture()->bind(textureSlot);
     shader->uploadUniformInt("uPointShadowMaps", textureSlot);
@@ -316,9 +292,9 @@ void OpenGLRenderer::drawJumpFloodingPass(const Ref<VertexArray>& vertexArray, c
     this->swapPassFramebuffers();
     this->currentPassFramebuffer->bind();
     shader->bind();
-    this->previousPassFramebuffer->getDepthTexture()->bind(0);
+    this->previousPassFramebuffer->getDepthAttachment()->bind(0);
     shader->uploadUniformInt("uPassDepthTexture", 0);
-    this->previousPassFramebuffer->getTexture()->bind(1);
+    this->previousPassFramebuffer->getColorAttachments()[0]->bind(1);
     shader->uploadUniformInt("uPassTexture", 1);
     shader->uploadUniformInt("uOffset", offset);
     shader->uploadUniformVec2Int("uDirection", vertical ? glm::ivec2(0, 1) : glm::ivec2(1, 0));
@@ -333,11 +309,11 @@ void OpenGLRenderer::drawEditorOverlays(const Ref<VertexArray>& vertexArray, con
     DebugGroup group("OpenGLRenderer::drawEditorOverlays");
     this->framebuffer->bind();
     shader->bind();
-    this->framebuffer->getDepthTexture()->bind(0);
+    this->framebuffer->getDepthAttachment()->bind(0);
     shader->uploadUniformInt("uMainDepthTexture", 0);
-    this->currentPassFramebuffer->getDepthTexture()->bind(1);
+    this->currentPassFramebuffer->getDepthAttachment()->bind(1);
     shader->uploadUniformInt("uPassDepthTexture", 1);
-    this->currentPassFramebuffer->getTexture()->bind(2);
+    this->currentPassFramebuffer->getColorAttachments()[0]->bind(2);
     shader->uploadUniformInt("uPassTexture", 2);
     shader->uploadUniformVec4("uOutlineColor", outlineColor);
     shader->uploadUniformFloat("uOutlineWidth", outlineWidth);
@@ -358,4 +334,12 @@ void OpenGLRenderer::drawUI(const Ref<VertexArray>& vertexArray, const Ref<Shade
     glViewport(0, 0, this->framebuffer->getWidth(), this->framebuffer->getHeight());
     glDrawElements(GL_TRIANGLES, static_cast<int>(vertexArray->getIndexBuffer()->getCount()), GL_UNSIGNED_INT, nullptr);
     glEnable(GL_DEPTH_TEST);
+}
+
+Ref<Texture> OpenGLRenderer::newTexture(const Texture::TextureParams& params) {
+    return std::make_shared<OpenGLTexture>(params, this->shared_from_this());
+}
+
+Ref<Framebuffer> OpenGLRenderer::newFramebuffer(const Framebuffer::FramebufferParams& params) {
+    return std::make_shared<OpenGLFramebuffer>(params, this->shared_from_this());
 }

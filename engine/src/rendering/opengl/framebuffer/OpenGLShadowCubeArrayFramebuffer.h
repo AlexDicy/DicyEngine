@@ -2,7 +2,7 @@
 
 class OpenGLShadowCubeArrayFramebuffer : public ShadowCubeArrayFramebuffer {
 public:
-    explicit OpenGLShadowCubeArrayFramebuffer(unsigned int size, unsigned int layersCount);
+    explicit OpenGLShadowCubeArrayFramebuffer(const Ref<Renderer>& renderer, unsigned int size);
     ~OpenGLShadowCubeArrayFramebuffer() override;
 
     void bind(unsigned int layer, unsigned int face) const override;
@@ -11,6 +11,5 @@ public:
 
 private:
     unsigned int id;
-    unsigned int depthTextureId;
-    unsigned int shadowCubeTextureId;
+    Ref<Texture> depthTexture;
 };
